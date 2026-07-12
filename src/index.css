@@ -1,0 +1,163 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+SC:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-serif: "Noto Serif SC", Georgia, "Nimbus Roman No9 L", "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC", "STSong", "SimSun", serif;
+  --font-mono: "JetBrains Mono", "Fira Code", Consolas, Monaco, "PingFang SC", ui-monospace, SFMono-Regular, monospace;
+}
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    background-color: #f9fafb;
+    color: #111827;
+  }
+
+  /* Custom scrollbar for webkit */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: #d1d5db;
+    border-radius: 20px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #9ca3af;
+  }
+}
+
+/* Hide scrollbar utility */
+.scrollbar-none::-webkit-scrollbar {
+  display: none !important;
+}
+.scrollbar-none {
+  -ms-overflow-style: none !important;  /* IE and Edge */
+  scrollbar-width: none !important;  /* Firefox */
+}
+
+/* Editor syntax highlighting alignment classes */
+.editor-font-base {
+  font-family: var(--font-mono) !important;
+  font-size: 13.5px !important;
+  line-height: 1.65 !important;
+  letter-spacing: 0px !important;
+  text-align: left !important;
+  word-break: break-all !important;
+  overflow-wrap: break-word !important;
+  word-wrap: break-word !important;
+  white-space: pre-wrap !important;
+  box-sizing: border-box !important;
+  padding: 24px !important;
+  margin: 0 !important;
+  border: 0 !important;
+  outline: none !important;
+}
+
+.editor-textarea {
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  caret-color: #1e293b !important; /* slate-800 */
+  overflow-y: scroll !important;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin !important;
+  background: transparent !important;
+  resize: none !important;
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+  z-index: 10 !important;
+}
+
+.editor-textarea:focus {
+  outline: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.editor-pre {
+  overflow-y: scroll !important; /* Force scrollbar space */
+  scrollbar-gutter: stable;
+  scrollbar-width: thin !important;
+  scrollbar-color: transparent transparent !important;
+  pointer-events: none !important;
+  user-select: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  outline: none !important;
+  z-index: 1 !important;
+}
+
+.editor-textarea::-webkit-scrollbar,
+.editor-pre::-webkit-scrollbar {
+  width: 6px !important;
+  height: 6px !important;
+}
+.editor-textarea::-webkit-scrollbar-track,
+.editor-pre::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+.editor-textarea::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 116, 139, 0.3) !important;
+  border-radius: 3px !important;
+}
+.editor-textarea::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(100, 116, 139, 0.5) !important;
+}
+.editor-pre::-webkit-scrollbar-thumb {
+  background: transparent !important;
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0mm !important; /* Force shut native browser headers/footers and margins */
+  }
+  
+  html, body {
+    width: 210mm;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    background-color: white !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* Lock A4 physical dimensions and spacing for pixel-perfect fidelity */
+  .resume-content {
+    width: 210mm !important;
+    min-height: 297mm !important;
+    margin: 0 auto !important;
+    padding: 15mm !important; /* Lock print padding to standard */
+    box-shadow: none !important;
+    border: none !important;
+    outline: none !important;
+    zoom: 1 !important;
+    transform: none !important;
+  }
+
+  h2, h3 {
+    page-break-after: avoid;
+    break-after: avoid !important;
+  }
+  
+  li, p, .resume-wrapper {
+    page-break-inside: avoid;
+    break-inside: avoid !important;
+  }
+
+  .print-page-break {
+    page-break-before: always !important;
+    break-before: page !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    display: block !important;
+  }
+}

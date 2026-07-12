@@ -1,0 +1,6 @@
+{
+  "name": "Markdown Resume Builder",
+  "description": "A minimalist web application to generate and export beautiful resumes from Markdown.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
