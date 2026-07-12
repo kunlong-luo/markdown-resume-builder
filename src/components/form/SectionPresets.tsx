@@ -4,16 +4,22 @@ import { Briefcase, Sparkles, GraduationCap, Layers, Award, FileText } from 'luc
 
 interface SectionPresetsProps {
   onAddPreset: (type: 'work' | 'project' | 'edu' | 'skills' | 'summary' | 'custom_text' | 'custom_items') => void;
+  lang?: string;
 }
 
-export function SectionPresets({ onAddPreset }: SectionPresetsProps) {
+export function SectionPresets({ onAddPreset, lang = 'zh' }: SectionPresetsProps) {
+  const isEn = lang === 'en';
   return (
     <div className="pt-6 border-t border-slate-200">
-      <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4 text-center">添加新版块 / 简历模块</label>
+      <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4 text-center">
+        {isEn ? 'Add New Section / Resume Block' : '添加新版块 / 简历模块'}
+      </label>
       
       {/* 常用标准模板 */}
       <div className="mb-4">
-        <span className="text-[10px] font-bold text-slate-400 block mb-2">常用标准板块 (推荐)：</span>
+        <span className="text-[10px] font-bold text-slate-400 block mb-2">
+          {isEn ? 'Standard Resume Blocks (Recommended):' : '常用标准板块 (推荐)：'}
+        </span>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-2.5">
           <button
             onClick={() => onAddPreset('work')}
@@ -22,7 +28,9 @@ export function SectionPresets({ onAddPreset }: SectionPresetsProps) {
             <div className="p-1.5 bg-indigo-50 text-indigo-500 rounded-lg group-hover:bg-indigo-100/80 transition-colors">
               <Briefcase className="w-4 h-4" />
             </div>
-            <span className="text-xs font-semibold text-slate-700 group-hover:text-indigo-700">工作经历</span>
+            <span className="text-xs font-semibold text-slate-700 group-hover:text-indigo-700">
+              {isEn ? 'Work Experience' : '工作经历'}
+            </span>
           </button>
 
           <button
@@ -32,7 +40,9 @@ export function SectionPresets({ onAddPreset }: SectionPresetsProps) {
             <div className="p-1.5 bg-amber-50 text-amber-500 rounded-lg group-hover:bg-amber-100/80 transition-colors">
               <Sparkles className="w-4 h-4" />
             </div>
-            <span className="text-xs font-semibold text-slate-700 group-hover:text-amber-700">项目经验</span>
+            <span className="text-xs font-semibold text-slate-700 group-hover:text-amber-700">
+              {isEn ? 'Projects' : '项目经验'}
+            </span>
           </button>
 
           <button
@@ -42,7 +52,9 @@ export function SectionPresets({ onAddPreset }: SectionPresetsProps) {
             <div className="p-1.5 bg-purple-50 text-purple-500 rounded-lg group-hover:bg-purple-100/80 transition-colors">
               <GraduationCap className="w-4 h-4" />
             </div>
-            <span className="text-xs font-semibold text-slate-700 group-hover:text-purple-700">教育背景</span>
+            <span className="text-xs font-semibold text-slate-700 group-hover:text-purple-700">
+              {isEn ? 'Education' : '教育背景'}
+            </span>
           </button>
 
           <button
@@ -52,7 +64,9 @@ export function SectionPresets({ onAddPreset }: SectionPresetsProps) {
             <div className="p-1.5 bg-blue-50 text-blue-500 rounded-lg group-hover:bg-blue-100/80 transition-colors">
               <Layers className="w-4 h-4" />
             </div>
-            <span className="text-xs font-semibold text-slate-700 group-hover:text-blue-700">专业技能</span>
+            <span className="text-xs font-semibold text-slate-700 group-hover:text-blue-700">
+              {isEn ? 'Skills' : '专业技能'}
+            </span>
           </button>
 
           <button
@@ -62,21 +76,25 @@ export function SectionPresets({ onAddPreset }: SectionPresetsProps) {
             <div className="p-1.5 bg-emerald-50 text-emerald-500 rounded-lg group-hover:bg-emerald-100/80 transition-colors">
               <Award className="w-4 h-4" />
             </div>
-            <span className="text-xs font-semibold text-slate-700 group-hover:text-emerald-700">自我评价</span>
+            <span className="text-xs font-semibold text-slate-700 group-hover:text-emerald-700">
+              {isEn ? 'Summary' : '自我评价'}
+            </span>
           </button>
         </div>
       </div>
 
       {/* 自定义排版块 */}
       <div>
-        <span className="text-[10px] font-bold text-slate-400 block mb-2">通用空白排版板块：</span>
+        <span className="text-[10px] font-bold text-slate-400 block mb-2">
+          {isEn ? 'Custom Layout Blocks:' : '通用空白排版板块：'}
+        </span>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
           <button
             onClick={() => onAddPreset('custom_text')}
             className="flex items-center justify-center gap-2.5 p-3 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-xl text-xs font-semibold text-slate-700 hover:text-slate-900 transition-all cursor-pointer shadow-sm group"
           >
             <FileText className="w-4 h-4 text-slate-500" />
-            <span>新建「空白单段文本」板块</span>
+            <span>{isEn ? 'Create Single-Block Text Section' : '新建「空白单段文本」板块'}</span>
           </button>
           
           <button
@@ -84,7 +102,7 @@ export function SectionPresets({ onAddPreset }: SectionPresetsProps) {
             className="flex items-center justify-center gap-2.5 p-3 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-xl text-xs font-semibold text-slate-700 hover:text-slate-900 transition-all cursor-pointer shadow-sm group"
           >
             <Layers className="w-4 h-4 text-slate-500 animate-pulse" />
-            <span>新建「空白多项经历」板块</span>
+            <span>{isEn ? 'Create Multi-Item Section' : '新建「空白多项经历」板块'}</span>
           </button>
         </div>
       </div>

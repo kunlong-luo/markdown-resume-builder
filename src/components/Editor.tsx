@@ -189,7 +189,7 @@ export function Editor({ value, onChange, onReset, onUndo, onRedo, canUndo = fal
   const highlightedHtml = useMemo(() => highlightMarkdown(value) + '\n', [value]);
 
   return (
-    <div className="flex flex-col h-full bg-[#fdfdfd] border-r border-gray-200 shadow-[inset_-4px_0_12px_rgb(0,0,0,0.02)]">
+    <div className="flex flex-col h-full bg-[#fdfdfd] border-r border-gray-200 shadow-[inset_-4px_0_12px_rgb(0,0,0,0.02)] min-w-0 overflow-hidden">
       {/* Editor Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between px-6 py-2.5 bg-white border-b border-gray-200 gap-3 relative">
         <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600"></div>

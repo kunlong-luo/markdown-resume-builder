@@ -1,70 +1,72 @@
-# 📑 ResuCraft (Markdown Resume Builder Pro) 
+# 📑 ResuCraft (Markdown Resume Builder Pro)
 
-[![Version](https://img.shields.io/badge/version-v1.3.0--PRO-blue?style=flat-square&logo=github)](https://github.com/)
+[English](./README.en.md) | 简体中文
+
+[![Version](https://img.shields.io/badge/version-v1.3.0--PRO-blue?style=flat-square&logo=github)](https://github.com/kunlong-luo/markdown-resume-builder)
 [![React](https://img.shields.io/badge/built%20with-React%2018-blueviolet?style=flat-square)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/bundler-Vite-646CFF?style=flat-square&logo=vite)](https://vite.dev/)
 [![TailwindCSS](https://img.shields.io/badge/styling-Tailwind%20v4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
 
-> **ResuCraft (Markdown Resume Builder Pro)** 是一款专为求职者设计的高颜值、精细排版、完美 A4 控页的在线 Markdown 简历编辑器。告别传统 Word 排版地狱，告别普通 Markdown 简历单调黑白。通过强大的智能诊断、专业主题色盘、多版本草稿、以及精准 A4 分页裁剪指示，让你的简历一秒拥有顶级排版与行业专属气质。
+> **ResuCraft (Markdown Resume Builder Pro)** 是一款专为求职者设计的高颜值、双向同步、完美 A4 控页的在线简历编辑器。它融合了 Markdown 的书写效率与可视化表单的易用性，支持中英双语，提供强大的智能自检、自动中英空格排版、专业主题色盘、多版本草稿等企业级功能，助你告别 Word 排版地狱，秒出行业顶级气质的专业简历。
 
 ---
 
-## 🌟 核心杀手级特性 (Core Highlights)
+## 🌟 核心杀手级特性
 
-### 1. 📏 A4 页面高度辅助线 (A4 Height Boundary Indicator)
-*   **求职痛点**：写简历最忌讳“1.1页”或“1.2页”（多出几行空白溢出到下一页，打印或投递极其难看）。
-*   **完美方案**：在右侧预览区提供一个智能控制开关，开启后会根据标准 A4 打印比例（垂直约 1120px）在预览区渲染一条优雅的**分页裁剪线 (Page Boundary Line)**，并在底部动态显示“当前内容占 X.X 页”。让你在撰写时一眼看出内容是否刚好塞满一整页，完美控页。
-*   **精细控制**：支持动态计算不同字号、行距下的溢出状态，保障打印出来的 PDF 绝对不会出现空白次页。
+### 1. 🔄 可视化表单 & Markdown 双向同步引擎
+*   **痛点**：传统 Markdown 编辑器需要求职者熟练掌握语法，且在微调多项经历（如调换项目顺序）时极其容易写错括号或遗漏标点导致排版崩溃。
+*   **方案**：内置业界先进的**双向数据同步引擎**。你既可以在「Markdown 编辑模式」中自由飞洒，也可以一键切换至「可视化表单模式」进行结构化编辑。在表单中拖拽排序、增删经历或修改内容，Markdown 源码都会实时重绘；反之，在源码中修改任何字符，表单内容也会瞬时解析更新。
 
-### 2. 🎨 一键切换专业主题色盘 (A4 Accent Color Palette)
-*   **求职痛点**：黑白简历略显单调，手动更改 Markdown 里的 HTML 样式或 CSS 变量太繁琐，耗时费力。
-*   **完美方案**：提供一组精心调配的**行业专属色盘**。一键切换即可自动修改简历的主标题、二级标题底边线、项目小圆点、高亮标签等视觉颜色：
-    *   💙 **科技靛蓝 (Indigo)** - 适配互联网、IT、AI 与算法工程师，凸显极客与前沿气质
-    *   🖤 **极客深黑 (Slate)** - 适配系统架构师、数据库专家、科研人员，尽显沉稳专业
-    *   💚 **金融墨绿 (Emerald)** - 适配投行、基金、财务、咨询顾问，体现高级与睿智
-    *   🧡 **设计暖啡 (Amber)** - 适配 UI/UX 设计师、产品经理、运营，流露温暖与创意活力
+### 2. 📏 完美 A4 控页辅助线 & 打印折页指示
+*   **痛点**：简历最忌讳“1.1页”或“1.2页”——溢出的几行白字不仅难看，更会在打印或导出时被无情裁剪。
+*   **方案**：
+    *   **A4 页面高度辅助线 (Page Boundary Line)**：在右侧预览区提供智能裁剪边界提示，精准模拟标准 A4 打印尺寸，并实时计算“当前内容占 X.X 页”。
+    *   **折页指示线**：可开启折页辅助线，帮你合理规划内容分布，保障生成的 PDF 绝不出现单行空白溢出。
 
-### 3. 💾 多版本/多岗位草稿箱 (Multi-Version Drafts Hub)
-*   **求职痛点**：面对不同公司或岗位（例如有些投“AI 后端”、有些投“全栈”、有些投“技术架构”），需要微调多套简历，手动在本地复制粘贴极易混乱和丢失。
-*   **完美方案**：内置一个强大的**本地草稿箱**。你可以一键将当前版本保存为独立新草稿（如命名为：`AI后端版-2026` / `基础架构版`），支持在多套简历之间一键切换、即时对比、重命名、或是快速删除。所有数据安全保存在本地（Local Storage），断电断网都不怕。
+### 3. 🌐 全局中英双语国际化 (Bilingual)
+*   **特性**：应用原生支持 **中文 (zh)** 与 **英文 (en)** 一键切换。切换语言后，不仅界面所有按钮和操作指南会全部汉化/英化，包括内置的简历模板、快捷输入框占位符、以及智能自检的诊断提示也会同步切换，极大地方便了外企求职与海外留学生群体。
 
-### 4. 🔍 智能简历自检与 AI 文案助手 (Resume Quality Checker)
-*   **求职痛点**：写完简历后经常存在低级漏洞（漏写邮箱电话、时间线重叠冲突、用词不够专业规范等）。
-*   **完美方案**：左侧面板内置一个轻量级的**简历诊断面板**，自动静默扫描：
-    *   **基础要素完整度**：检测电话、邮箱、求职意向是否缺失。
-    *   **时间线重叠检测**：自动分析多段工作经历/项目经历是否有时间重叠冲突。
-    *   **高频专业词汇建议**：识别简历中的技术名词并给出排版建议（如：保持大小写规范，如 `React` 而非 `react`）。
-    *   **AI 润色助手**：集成 Google Gemini API，选中文本后支持利用大模型一键进行 **STAR 原则（情境-任务-行动-结果）** 规范化高含金量润色。
+### 4. 🔍 智能自检 & 简历文案自研诊断系统
+*   **特性**：内置轻量级、高精度简历诊断工具，针对简历排版与内容进行静默实时扫描：
+    *   **基础信息自检**：自动识别邮箱、电话、求职意向等关键联系方式是否缺失。
+    *   **时间重叠预警**：精准识别多段教育经历、工作经历或项目经历在时间线上的重合冲突，避免逻辑漏洞。
+    *   **技术词汇大小写纠正**：智能识别简历中的 IT 技术名词，提醒保持规范的大小写排版（如：自动提示将 `react` 改为 `React`，`typescript` 改为 `TypeScript`）。
+    *   **评分自测**：根据内容完整度、排版规整度等维度进行实时打分，直观评估简历竞争力。
 
-### 5. ⌨️ Markdown 快捷工具条 (Markdown Formatting Helper)
-*   **求职痛点**：有时候记不清楚加粗（`**`）、斜体（`*`）、分隔线（`---`）或打印强制分页符的代码。
-*   **完美方案**：在编辑器上方增加了高质感微型图标按钮，选中文字后点击即可一键套用格式，支持一键在光标处插入 **「打印强制分页符」** 与 **「STAR原则经典推荐模板」**，零基础也能快速写出骨架清晰的极客简历。
+### 5. ✍️ 一键中英排版空格优化 (Typesetting Spacing Helper)
+*   **痛点**：中文和英文、数字之间如果不加空格，挤在一起会显得极不专业，且手动修改极度耗时。
+*   **方案**：基于排版美学指南，提供**一键中英文数字空格优化功能**。不论是在大纲栏还是在具体的段落文本编辑器中，点击 `中英排版` 按钮，系统将自动纠正排版细节（例如：`熟练使用React和TypeScript开发了3个项目` ➔ `熟练使用 React 和 TypeScript 开发了 3 个 项目`），让简历文本瞬间具备大厂官方文档般的极致呼吸感。
 
-### 6. 🔍 实时预览缩放滑块 (Interactive Preview Zoom)
-*   **核心特性**：右侧预览区内置了精致的 **Zoom 控制滑块**。支持 `50% - 150%` 自由缩放或 `自适应窗口大小 (Fit Window)`。对于多页简历或超长文档，可以轻松俯瞰整页布局，也可以放大校验每个文字细节。
+### 6. 🎨 精选行业专属主题色盘 & 细节精修
+*   **特性**：
+    *   **专业色盘**：精选 **科技靛蓝 (Indigo)**、**极客深黑 (Slate)**、**金融墨绿 (Emerald)**、**设计暖啡 (Amber)** 等多套专属色盘，一键渲染主标题、边框、项目符号，迎合不同岗位属性。
+    *   **细节微调**：支持对字体大小、行高、页面页边距（紧凑/适中/宽松）以及顶部是否有彩色装饰条等进行像素级无代码调节。
 
----
+### 7. 💾 多版本/多岗位草稿箱
+*   **特性**：内置无限制本地数据库草稿箱。你可以随时将当前状态保存为特定版本的草稿（如 `全栈开发岗位.md`、`外企英文版.md`），在历史列表中一键载入、覆盖、重命名或安全删除。支持后台每 30 秒自动保存，万无一失。
 
-## 🛠️ 技术栈与架构 (Tech Stack)
-
-*   **核心框架**: [React 18](https://react.dev/) + [Vite](https://vite.dev/) + [TypeScript](https://www.typescriptlang.org/) (确保代码类型安全)
-*   **样式库**: [Tailwind CSS v4](https://tailwindcss.com/) (极速开发、精细自定义)
-*   **动画库**: [Framer Motion / motion](https://github.com/framer/motion) (丝滑、微交互过渡)
-*   **Markdown 解析**: `react-markdown` + `remark-gfm` + 自定义渲染组件
-*   **AI 接口**: `@google/genai` 接入 Google Gemini 3.5 智能模型
-*   **图标库**: [Lucide React](https://lucide.dev/) (极简精致)
+### 8. 🔍 交互式缩放与窗口自适应 (Interactive Zoom & Fit)
+*   **特性**：提供 `50% - 150%` 自由缩放预览滑块，并支持「Fit 自适应屏幕」功能。让你在各种宽度的显示器上都能以最舒服的视角掌控全局排版。
 
 ---
 
-## 🚀 快速启动指南 (Getting Started)
+## 🛠️ 技术栈与架构
 
-要想在本地运行或部署此项目，只需简单的几步：
+*   **核心框架**: [React 18](https://react.dev/) + [Vite](https://vite.dev/) + [TypeScript](https://www.typescriptlang.org/)
+*   **样式框架**: [Tailwind CSS v4](https://tailwindcss.com/)
+*   **动画过渡**: [Framer Motion / motion](https://github.com/framer/motion)
+*   **Markdown 解析**: `react-markdown` + `remark-gfm` + 自定义组件重写
+*   **图标库**: [Lucide React](https://lucide.dev/) (高颜图标)
+
+---
+
+## 🚀 快速启动指南
 
 ### 1. 克隆仓库
 ```bash
-git clone https://github.com/your-username/resucraft.git
-cd resucraft
+git clone https://github.com/kunlong-luo/markdown-resume-builder.git
+cd markdown-resume-builder
 ```
 
 ### 2. 安装依赖
@@ -73,7 +75,7 @@ pnpm install
 ```
 
 ### 3. 配置环境变量
-复制 `.env.example` 并命名为 `.env`，填入你的 Google Gemini API Key 以解锁 AI 润色助手：
+如果你需要解锁集成的 AI 文本智能润色系统，复制 `.env.example` 并命名为 `.env`，填入你的 Google Gemini API Key：
 ```env
 GEMINI_API_KEY=your_gemini_api_key_here
 ```
@@ -82,35 +84,40 @@ GEMINI_API_KEY=your_gemini_api_key_here
 ```bash
 pnpm dev
 ```
-打开浏览器访问 [http://localhost:3000](http://localhost:3000) 即可开始创作你的完美简历！
+打开浏览器访问 [http://localhost:3000](http://localhost:3000) 即可开始使用！
 
 ---
 
-## 📈 核心预览与打印指南 (Print Guide)
+## 📈 高清 PDF 完美导出指南
 
-为保证简历的最佳打印效果：
-1. 编写时，开启右侧的 **A4 高度辅助线** 开关，观察分页虚线。
-2. 如内容稍有溢出，可微调字体大小、行距或外边距。
-3. 点击右上角的 **“导出 PDF”**，系统会呼起浏览器的打印面板。
-4. **【重要设置】**：在浏览器打印设置中，选择 **“另存为 PDF”**，纸张大小选择 **“A4”**，边距选择 **“无”** 或 **“默认”**，勾选 **“背景图形”**，即可获得无缝高清 PDF。
+为了保证在最终导出的简历中获得一像素不差的完美高清 PDF，请按照以下步骤操作：
+1. 撰写过程中，在控制台开启 **“A4 高度辅助线”** 和 **“折页指示线”**。
+2. 确保简历内容高度刚好填满 1 页（或整页倍数），没有多余的空白溢出。
+3. 点击页面右上角的 **“导出 PDF”**，系统将自动触发并优化浏览器的打印渲染。
+4. **【打印面板关键设置】**：
+   *   **目标打印机**：选择 `另存为 PDF` (Save as PDF)
+   *   **纸张大小**：必须选择 `A4`
+   *   **边距**：必须选择 `无` (None) 或是 `默认` (Default)
+   *   **选项**：勾选 `背景图形` (Background graphics)（若不勾选，主题色彩和标签条将无法正常显示）
+   *   **页眉和页脚**：取消勾选（否则会打印出网址和日期）
 
 ---
 
-## 🤝 参与贡献 (Contributing)
+## 🤝 参与贡献
 
-我们非常欢迎你来提交 Issue 或是 Pull Request：
+非常期待您的加入！无论是以提交反馈的形式（Issue），还是直接改进代码（Pull Request），我们都衷心感谢：
 1. Fork 本仓库。
-2. 创建你的特性分支 (`git checkout -b feature/AmazingFeature`)。
-3. 提交你的修改 (`git commit -m 'Add some AmazingFeature'`)。
+2. 创建您的分支 (`git checkout -b feature/AmazingFeature`)。
+3. 提交您的修改 (`git commit -m 'Add some AmazingFeature'`)。
 4. 推送到分支 (`git push origin feature/AmazingFeature`)。
 5. 开启一个 Pull Request。
 
 ---
 
-## 📄 开源许可证 (License)
+## 📄 开源许可证
 
-本项目采用 [MIT License](LICENSE) 开源许可证。您可以自由使用、修改及商用。
+本项目采用 [MIT License](LICENSE) 开源许可证。您可以自由地在个人、企业或商业项目中修改和使用。
 
 ---
 
-⭐ **如果你觉得这个工具对你有帮助，不妨在 GitHub 上点个 Star！你的支持是我们持续优化的最大动力！**
+⭐ **如果您觉得这个项目对您有所帮助，欢迎在 GitHub 上点个 Star！这是支持我们持续改进的最佳动力！**

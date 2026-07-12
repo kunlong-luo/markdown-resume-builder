@@ -20,6 +20,95 @@ interface FormEditorProps {
   settings?: any;
 }
 
+const TRANSLATIONS = {
+  zh: {
+    outlineTitle: '简历板块大纲与一键排序',
+    totalSections: (count: number) => `共 ${count} 个板块`,
+    collapseOutline: '折叠大纲 [-]',
+    expandOutline: '展开大纲 [+]',
+    tip: '💡 提示：您可以点击右侧箭头一键调整模块的上下顺序，右侧预览将实时重绘。',
+    expandAll: '一键展开所有表单',
+    collapseAll: '一键折叠所有表单',
+    basicInfo: '🧑‍💼 个人基本信息',
+    fixedTop: '固定置顶',
+    unnamedSec: '未命名板块',
+    moveUp: '上移板块',
+    moveDown: '下移板块',
+    
+    // items defaults
+    defaultSchool: '学校名称',
+    defaultCompany: '公司/项目名称',
+    defaultMajor: '专业与学位',
+    defaultRole: '职位角色',
+    defaultTime: '2026.01 - 至今',
+    defaultDesc: '- 职责/业绩描述...',
+    defaultGpa: '绩点 GPA 3.8/4.0',
+    defaultCourses: '核心课程...',
+    defaultHonors: '奖项荣誉...',
+    
+    // markdown conversion labels
+    gpaLabel: '在校表现',
+    coursesLabel: '主修课程',
+    honorsLabel: '荣誉成就',
+
+    // confirmations
+    deleteSecTitle: '删除模块确认',
+    deleteSecMsg: (title: string) => `确定要删除模块「${title}」吗？此操作将移除该模块的所有内容且无法撤销。`,
+    confirmDelete: '确认删除',
+    cancel: '取消',
+    
+    deleteItemTitle: '删除经历项确认',
+    deleteItemMsg: (org: string) => `确定要删除此条经历「${org || '未命名经历'}」吗？此操作将彻底删除此项内容且无法撤销。`,
+    
+    overwriteTitle: '覆盖内容提示',
+    overwriteMsg: '这将会覆盖您当前已输入的内容，确定要导入推荐的内容模板吗？',
+    confirmImport: '确认导入'
+  },
+  en: {
+    outlineTitle: 'Resume Outline & Easy Sorting',
+    totalSections: (count: number) => `${count} sections total`,
+    collapseOutline: 'Collapse Outline [-]',
+    expandOutline: 'Expand Outline [+]',
+    tip: '💡 Tip: Click arrows to adjust the layout order of sections. The preview renders in real-time.',
+    expandAll: 'Expand All Forms',
+    collapseAll: 'Collapse All Forms',
+    basicInfo: '🧑‍💼 Personal Information',
+    fixedTop: 'Fixed Top',
+    unnamedSec: 'Unnamed Section',
+    moveUp: 'Move Up',
+    moveDown: 'Move Down',
+    
+    // items defaults
+    defaultSchool: 'Institution Name',
+    defaultCompany: 'Company / Project Name',
+    defaultMajor: 'Major & Degree',
+    defaultRole: 'Role / Title',
+    defaultTime: '2026.01 - Present',
+    defaultDesc: '- Responsibilities / achievements description...',
+    defaultGpa: 'GPA 3.8/4.0',
+    defaultCourses: 'Core courses...',
+    defaultHonors: 'Awards & Honors...',
+    
+    // markdown conversion labels
+    gpaLabel: 'GPA / Performance',
+    coursesLabel: 'Core Courses',
+    honorsLabel: 'Honors & Awards',
+
+    // confirmations
+    deleteSecTitle: 'Delete Section Confirmation',
+    deleteSecMsg: (title: string) => `Are you sure you want to delete section "${title}"? This will remove all its content and cannot be undone.`,
+    confirmDelete: 'Confirm Delete',
+    cancel: 'Cancel',
+    
+    deleteItemTitle: 'Delete Item Confirmation',
+    deleteItemMsg: (org: string) => `Are you sure you want to delete "${org || 'Unnamed Entry'}"? This action is permanent and cannot be undone.`,
+    
+    overwriteTitle: 'Overwrite Content Prompt',
+    overwriteMsg: 'This will overwrite your existing text for this entry. Are you sure you want to import the recommended template?',
+    confirmImport: 'Confirm Import'
+  }
+};
+
 export function FormEditor({ value, onChange, settings }: FormEditorProps) {
   const { confirm } = useConfirm();
   const [localModel, setLocalModel] = useState<ResumeFormModel>(() => parseMarkdownToForm(value));
@@ -29,6 +118,9 @@ export function FormEditor({ value, onChange, settings }: FormEditorProps) {
     basic: true
   });
   
+  const isEn = settings?.lang === 'en';
+  const t = isEn ? TRANSLATIONS.en : TRANSLATIONS.zh;
+
   const [showOptionalBasic, setShowOptionalBasic] = useState(() => {
     const parsed = parseMarkdownToForm(value);
     return !!(parsed.subtitle || parsed.social || parsed.experience);
@@ -90,10 +182,10 @@ export function FormEditor({ value, onChange, settings }: FormEditorProps) {
           const category = getSectionCategory(sec.title);
           const newItem: FormItem = {
             id: `item_${Date.now()}_${Math.random().toString(36).substring(2, 5)}`,
-            org: category === 'edu' ? '学校名称' : '公司/项目名称',
-            role: category === 'edu' ? '专业与学位' : '职位角色',
-            time: '2026.01 - 至今',
-            content: '- 职责/业绩描述...',
+            org: category === 'edu' ? t.defaultSchool : t.defaultCompany,
+            role: category === 'edu' ? t.defaultMajor : t.defaultRole,
+            time: t.defaultTime,
+            content: t.defaultDesc,
           };
           if (category === 'edu') {
             newItem.gpa = '';
@@ -110,13 +202,13 @@ export function FormEditor({ value, onChange, settings }: FormEditorProps) {
               textVal += `### ${heading}\n`;
             }
             if (item.gpa && item.gpa.trim()) {
-              textVal += `- **在校表现**：${item.gpa.trim()}\n`;
+              textVal += `- **${t.gpaLabel}**：${item.gpa.trim()}\n`;
             }
             if (item.courses && item.courses.trim()) {
-              textVal += `- **主修课程**：${item.courses.trim()}\n`;
+              textVal += `- **${t.coursesLabel}**：${item.courses.trim()}\n`;
             }
             if (item.honors && item.honors.trim()) {
-              textVal += `- **荣誉成就**：${item.honors.trim()}\n`;
+              textVal += `- **${t.honorsLabel}**：${item.honors.trim()}\n`;
             }
             if (item.content) {
               textVal += `${item.content.trim()}\n`;
@@ -146,10 +238,10 @@ export function FormEditor({ value, onChange, settings }: FormEditorProps) {
 
   const deleteSection = async (sectionId: string, sectionTitle: string) => {
     const confirmed = await confirm({
-      title: '删除模块确认',
-      message: `确定要删除模块「${sectionTitle}」吗？此操作将移除该模块的所有内容且无法撤销。`,
-      confirmText: '确认删除',
-      cancelText: '取消',
+      title: t.deleteSecTitle,
+      message: t.deleteSecMsg(sectionTitle),
+      confirmText: t.confirmDelete,
+      cancelText: t.cancel,
       type: 'danger'
     });
     if (confirmed) {
@@ -215,10 +307,10 @@ export function FormEditor({ value, onChange, settings }: FormEditorProps) {
 
   const deleteItem = async (sectionId: string, itemId: string, itemOrg: string) => {
     const confirmed = await confirm({
-      title: '删除经历项确认',
-      message: `确定要删除此条经历「${itemOrg.trim() || '未命名经历'}」吗？此操作将彻底删除此项内容且无法撤销。`,
-      confirmText: '确认删除',
-      cancelText: '取消',
+      title: t.deleteItemTitle,
+      message: t.deleteItemMsg(itemOrg.trim()),
+      confirmText: t.confirmDelete,
+      cancelText: t.cancel,
       type: 'danger'
     });
     if (confirmed) {
@@ -237,16 +329,16 @@ export function FormEditor({ value, onChange, settings }: FormEditorProps) {
     
     let newItem: FormItem = {
       id: `item_${Date.now()}_${Math.random().toString(36).substring(2, 5)}`,
-      org: category === 'edu' ? '学校名称' : '公司/项目名称',
-      role: category === 'edu' ? '专业与学位' : '职位角色',
-      time: '2026.01 - 至今',
-      content: '- 职责/业绩描述...',
+      org: category === 'edu' ? t.defaultSchool : t.defaultCompany,
+      role: category === 'edu' ? t.defaultMajor : t.defaultRole,
+      time: t.defaultTime,
+      content: t.defaultDesc,
     };
 
     if (category === 'edu') {
-      newItem.gpa = '绩点 GPA 3.8/4.0';
-      newItem.courses = '核心课程...';
-      newItem.honors = '奖项荣誉...';
+      newItem.gpa = t.defaultGpa;
+      newItem.courses = t.defaultCourses;
+      newItem.honors = t.defaultHonors;
       newItem.content = '';
     }
 
@@ -293,10 +385,10 @@ export function FormEditor({ value, onChange, settings }: FormEditorProps) {
 
     if (currentContent.trim()) {
       const confirmed = await confirm({
-        title: '覆盖内容提示',
-        message: '这将会覆盖您当前已输入的内容，确定要导入推荐的内容模板吗？',
-        confirmText: '确认导入',
-        cancelText: '取消',
+        title: t.overwriteTitle,
+        message: t.overwriteMsg,
+        confirmText: t.confirmImport,
+        cancelText: t.cancel,
         type: 'warning'
       });
       if (confirmed) {
@@ -308,8 +400,8 @@ export function FormEditor({ value, onChange, settings }: FormEditorProps) {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto bg-slate-50/50 p-6 space-y-6">
-      <QuickNav sections={localModel.sections} expandedSections={expandedSections} setExpandedSections={setExpandedSections} />
+    <div className="flex-1 overflow-y-auto bg-slate-50/50 p-6 space-y-6 min-w-0 overflow-x-hidden">
+      <QuickNav sections={localModel.sections} expandedSections={expandedSections} setExpandedSections={setExpandedSections} lang={settings?.lang} />
 
       {/* 模块快速排序与架构管理 */}
       <div className="bg-white border border-slate-200/85 rounded-xl shadow-sm overflow-hidden transition-all duration-200">
@@ -319,14 +411,14 @@ export function FormEditor({ value, onChange, settings }: FormEditorProps) {
         >
           <div className="flex items-center gap-2">
             <Layers className="w-4 h-4 text-indigo-600 animate-pulse" />
-            <h3 className="text-xs font-bold text-slate-800">简历板块大纲与一键排序</h3>
+            <h3 className="text-xs font-bold text-slate-800">{t.outlineTitle}</h3>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-[10px] text-slate-500 font-bold bg-slate-200/60 px-2 py-0.5 rounded-full">
-              共 {localModel.sections.length + 1} 个板块
+              {t.totalSections(localModel.sections.length + 1)}
             </span>
             <span className="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 transition-colors">
-              {isOutlineOpen ? '折叠大纲 [-]' : '展开大纲 [+]'}
+              {isOutlineOpen ? t.collapseOutline : t.expandOutline}
             </span>
           </div>
         </div>
@@ -335,7 +427,7 @@ export function FormEditor({ value, onChange, settings }: FormEditorProps) {
           <div className="p-4 space-y-3 bg-white/50 border-t border-slate-100/50 animate-in fade-in duration-200">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-indigo-50/30 border border-indigo-100/30 p-3 rounded-xl">
               <p className="text-[10px] text-slate-500 leading-relaxed pl-1 sm:max-w-[60%]">
-                💡 提示：您可以点击右侧箭头一键调整模块的上下顺序，右侧预览将实时重绘。
+                {t.tip}
               </p>
               <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
                 <button
@@ -344,7 +436,7 @@ export function FormEditor({ value, onChange, settings }: FormEditorProps) {
                   className="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 border border-indigo-150 text-[10px] font-bold text-indigo-700 rounded-lg transition-all active:scale-95 cursor-pointer flex items-center gap-1 shadow-xs"
                 >
                   <ChevronsDown className="w-3.5 h-3.5 text-indigo-500" />
-                  一键展开所有表单
+                  {t.expandAll}
                 </button>
                 <button
                   type="button"
@@ -352,7 +444,7 @@ export function FormEditor({ value, onChange, settings }: FormEditorProps) {
                   className="px-2.5 py-1.5 bg-white hover:bg-slate-100 border border-slate-200 text-[10px] font-bold text-slate-600 rounded-lg transition-all active:scale-95 cursor-pointer flex items-center gap-1 shadow-xs"
                 >
                   <ChevronsUp className="w-3.5 h-3.5 text-slate-500" />
-                  一键折叠所有表单
+                  {t.collapseAll}
                 </button>
               </div>
             </div>
@@ -362,9 +454,9 @@ export function FormEditor({ value, onChange, settings }: FormEditorProps) {
               <div className="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-150 rounded-xl text-xs font-semibold text-slate-700">
                 <div className="flex items-center gap-2.5">
                   <span className="w-5 h-5 flex items-center justify-center bg-indigo-50 text-indigo-700 rounded-lg text-[10px] font-bold border border-indigo-100">1</span>
-                  <span>🧑‍💼 个人基本信息</span>
+                  <span>{t.basicInfo}</span>
                 </div>
-                <span className="text-[9px] text-slate-400 font-bold bg-slate-200/60 px-2 py-0.5 rounded-full">固定置顶</span>
+                <span className="text-[9px] text-slate-400 font-bold bg-slate-200/60 px-2 py-0.5 rounded-full">{t.fixedTop}</span>
               </div>
 
               {/* 2. Custom sections */}
@@ -379,7 +471,7 @@ export function FormEditor({ value, onChange, settings }: FormEditorProps) {
                     </span>
                     <span className="text-slate-750 flex items-center gap-1.5 min-w-0 truncate">
                       {getSectionIcon(sec.title)}
-                      <strong className="truncate">{sec.title || '未命名板块'}</strong>
+                      <strong className="truncate">{sec.title || t.unnamedSec}</strong>
                     </span>
                   </div>
 
@@ -389,7 +481,7 @@ export function FormEditor({ value, onChange, settings }: FormEditorProps) {
                       onClick={(e) => { e.stopPropagation(); moveSection(idx, 'up'); }}
                       disabled={idx === 0}
                       className={`p-1.5 rounded-lg transition-all ${idx === 0 ? 'text-slate-200 cursor-not-allowed' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800 active:scale-90'}`}
-                      title="上移板块"
+                      title={t.moveUp}
                     >
                       <ArrowUp className="w-3.5 h-3.5" />
                     </button>
@@ -398,7 +490,7 @@ export function FormEditor({ value, onChange, settings }: FormEditorProps) {
                       onClick={(e) => { e.stopPropagation(); moveSection(idx, 'down'); }}
                       disabled={idx === localModel.sections.length - 1}
                       className={`p-1.5 rounded-lg transition-all ${idx === localModel.sections.length - 1 ? 'text-slate-200 cursor-not-allowed' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800 active:scale-90'}`}
-                      title="下移板块"
+                      title={t.moveDown}
                     >
                       <ArrowDown className="w-3.5 h-3.5" />
                     </button>
@@ -471,7 +563,7 @@ export function FormEditor({ value, onChange, settings }: FormEditorProps) {
         );
       })}
 
-      <SectionPresets onAddPreset={addPresetSection} />
+      <SectionPresets onAddPreset={addPresetSection} lang={settings?.lang} />
     </div>
   );
 }

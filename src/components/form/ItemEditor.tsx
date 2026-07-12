@@ -198,7 +198,7 @@ export function ItemEditor({
           </label>
         </div>
         <div className="flex flex-col mt-1">
-          <FormTextareaToolbar textareaId={item.id} value={item.content} onChange={onContentChange} />
+          <FormTextareaToolbar textareaId={item.id} value={item.content} onChange={onContentChange} lang={lang} />
           <textarea id={item.id} value={item.content} onChange={(e) => onContentChange(e.target.value)} rows={category === 'edu' ? 3 : 5} className="w-full p-2.5 text-xs font-mono leading-relaxed bg-white border border-slate-200 rounded-b-md rounded-t-none border-t-0 focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder={category === 'edu' ? dict.eduSuppPlaceholder : cat.contentPlaceholder} />
         </div>
       </div>

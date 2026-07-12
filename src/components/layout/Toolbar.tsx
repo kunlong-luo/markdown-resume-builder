@@ -173,6 +173,9 @@ const TRANSLATIONS = {
     previewOnly: '仅预览',
     aestheticsLabel: '排版细节设置',
     aestheticsTooltip: '一键精修：调整间距、页面边距、字体样式与主题色彩',
+    doneBtn: '确定',
+    fontSelection: '字体选择',
+    layoutAids: '排版辅助',
   },
   en: {
     presetLabel: 'Style Presets',
@@ -211,6 +214,9 @@ const TRANSLATIONS = {
     previewOnly: 'Preview Only',
     aestheticsLabel: 'Aesthetics & Layout',
     aestheticsTooltip: 'Fine-tune fonts, margins, spacings, colors, and line-height',
+    doneBtn: 'Done',
+    fontSelection: 'Font Selection',
+    layoutAids: 'Layout Aids',
   }
 };
 
@@ -438,7 +444,7 @@ export function Toolbar({
                   onClick={() => setIsAestheticsOpen(false)}
                   className="text-slate-400 hover:text-slate-600 text-xs font-bold bg-slate-50 hover:bg-slate-100 px-2 py-1 rounded-md transition-colors"
                 >
-                  确定
+                  {t.doneBtn}
                 </button>
               </div>
 
@@ -515,7 +521,7 @@ export function Toolbar({
                 {/* Fonts and Size Selection */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">字体选择</label>
+                    <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">{t.fontSelection}</label>
                     <select
                       value={settings.fontFamily}
                       onChange={(e) => updateSetting('fontFamily', e.target.value as FontFamily)}
@@ -565,7 +571,7 @@ export function Toolbar({
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">排版辅助</label>
+                    <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">{t.layoutAids}</label>
                     <div className="flex gap-2">
                       <button
                         onClick={() => updateSetting('topAccentLine', !settings.topAccentLine)}
@@ -583,7 +589,7 @@ export function Toolbar({
                         }`}
                       >
                         <div className={`w-1.5 h-1.5 rounded-full ${settings.showPageBreakLine ? 'bg-rose-500 animate-pulse' : 'bg-slate-300'}`} />
-                        <span>折页线</span>
+                        <span>{t.pageBreakBtn}</span>
                       </button>
                     </div>
                   </div>

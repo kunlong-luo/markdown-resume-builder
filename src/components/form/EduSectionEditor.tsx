@@ -228,7 +228,7 @@ export function EduSectionEditor({
                 <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">{t.textLabel}</label>
               </div>
               <div className="flex flex-col mt-1">
-                <FormTextareaToolbar textareaId={section.id} value={section.textValue || ''} onChange={onTextChange!} />
+                <FormTextareaToolbar textareaId={section.id} value={section.textValue || ''} onChange={onTextChange!} lang={lang} />
                 <textarea
                   id={section.id} 
                   value={section.textValue || ''} 
@@ -420,7 +420,7 @@ export function EduSectionEditor({
                       <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t.descLabel}</label>
                     </div>
                     <div className="flex flex-col mt-1.5">
-                      <FormTextareaToolbar textareaId={item.id} value={item.content || ''} onChange={(val) => onItemChange(item.id, 'content', val)} />
+                      <FormTextareaToolbar textareaId={item.id} value={item.content || ''} onChange={(val) => onItemChange(item.id, 'content', val)} lang={lang} />
                       <textarea 
                         id={item.id}
                         value={item.content || ''}

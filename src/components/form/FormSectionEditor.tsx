@@ -66,7 +66,7 @@ export function FormSectionEditor({
       <SectionHeader 
         title={sec.title} type={sec.type} isExpanded={isExpanded} isFirst={secIndex === 0} isLast={secIndex === totalSectionsCount - 1}
         onToggle={onToggle} onTitleChange={onTitleChange} onApplySpacing={onApplySpacing} onMove={onMove} onDelete={onDelete}
-        onTypeChange={onTypeChange}
+        onTypeChange={onTypeChange} lang={lang}
       />
 
       {isExpanded && (
@@ -77,7 +77,7 @@ export function FormSectionEditor({
                 <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">{t.textLabel}</label>
               </div>
               <div className="flex flex-col mt-1">
-                <FormTextareaToolbar textareaId={sec.id} value={sec.textValue} onChange={onTextChange} />
+                <FormTextareaToolbar textareaId={sec.id} value={sec.textValue} onChange={onTextChange} lang={lang} />
                 <textarea
                   id={sec.id} value={sec.textValue} onChange={(e) => onTextChange(e.target.value)} rows={6}
                   className="w-full p-3.5 text-xs font-mono leading-relaxed bg-white border border-slate-200 rounded-b-lg rounded-t-none border-t-0 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
