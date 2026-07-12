@@ -10,9 +10,11 @@ interface ScoreDisplayProps {
     color: string;
     text: string;
   };
+  lang?: string;
 }
 
-export function ScoreDisplay({ analysis, scoreBadge }: ScoreDisplayProps) {
+export function ScoreDisplay({ analysis, scoreBadge, lang }: ScoreDisplayProps) {
+  const isEn = lang === 'en';
   return (
     <div className="space-y-6">
       {/* Score Ring Display */}
@@ -56,14 +58,20 @@ export function ScoreDisplay({ analysis, scoreBadge }: ScoreDisplayProps) {
               <span className="text-3xl font-black text-slate-800 tracking-tighter">
                 {analysis.score}
               </span>
-              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Score分</span>
+              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                {isEn ? 'Score' : 'Score分'}
+              </span>
             </div>
           </div>
 
           <div className="mt-2 space-y-1">
-            <p className="text-xs font-semibold text-slate-700">简历竞争力得分</p>
+            <p className="text-xs font-semibold text-slate-700">
+              {isEn ? 'Resume Competitiveness Score' : '简历竞争力得分'}
+            </p>
             <p className="text-[11px] text-slate-400 px-3">
-              根据基本信息完整度、行业动词数量、量化成果比例、格式残留等方面智能演算
+              {isEn 
+                ? 'Calculated based on information integrity, action verbs, quantified results, and template guidelines.'
+                : '根据基本信息完整度、行业动词数量、量化成果比例、格式残留等方面智能演算'}
             </p>
           </div>
         </div>
@@ -72,21 +80,29 @@ export function ScoreDisplay({ analysis, scoreBadge }: ScoreDisplayProps) {
       {/* Quick Stats Summary */}
       <div className="grid grid-cols-2 gap-2.5">
         <div className="bg-slate-50/50 hover:bg-slate-50 border border-slate-100 rounded-xl p-3 text-center transition-colors">
-          <p className="text-[10px] font-semibold text-slate-400 mb-0.5">量化成果指标</p>
+          <p className="text-[10px] font-semibold text-slate-400 mb-0.5">
+            {isEn ? 'Quantified Results' : '量化成果指标'}
+          </p>
           <div className="flex items-baseline justify-center gap-1">
             <span className={`text-lg font-black ${analysis.metricCount >= 5 ? 'text-emerald-600' : 'text-amber-600'}`}>
               {analysis.metricCount}
             </span>
-            <span className="text-[10px] text-slate-400">个</span>
+            <span className="text-[10px] text-slate-400">
+              {isEn ? 'item(s)' : '个'}
+            </span>
           </div>
         </div>
         <div className="bg-slate-50/50 hover:bg-slate-50 border border-slate-100 rounded-xl p-3 text-center transition-colors">
-          <p className="text-[10px] font-semibold text-slate-400 mb-0.5">强行动词数</p>
+          <p className="text-[10px] font-semibold text-slate-400 mb-0.5">
+            {isEn ? 'Action Verbs' : '强行动词数'}
+          </p>
           <div className="flex items-baseline justify-center gap-1">
             <span className="text-lg font-black text-blue-600">
               {analysis.foundVerbsCount}
             </span>
-            <span className="text-[10px] text-slate-400">个</span>
+            <span className="text-[10px] text-slate-400">
+              {isEn ? 'word(s)' : '个'}
+            </span>
           </div>
         </div>
       </div>

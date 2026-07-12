@@ -6,9 +6,11 @@ interface IframeWarningModalProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenNewTab: () => void;
+  lang?: string;
 }
 
-export function IframeWarningModal({ isOpen, onClose, onOpenNewTab }: IframeWarningModalProps) {
+export function IframeWarningModal({ isOpen, onClose, onOpenNewTab, lang }: IframeWarningModalProps) {
+  const isEn = lang === 'en';
   return (
     <AnimatePresence>
       {isOpen && (
@@ -37,7 +39,9 @@ export function IframeWarningModal({ isOpen, onClose, onOpenNewTab }: IframeWarn
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
               <div className="flex items-center gap-2 text-blue-600">
                 <AlertCircle className="w-5 h-5 text-amber-500 animate-bounce" />
-                <h3 className="font-bold text-slate-800 text-base">导出 PDF 安全权限提示</h3>
+                <h3 className="font-bold text-slate-800 text-base">
+                  {isEn ? 'PDF Export Security Advisory' : '导出 PDF 安全权限提示'}
+                </h3>
               </div>
               <button
                 onClick={onClose}
@@ -51,15 +55,25 @@ export function IframeWarningModal({ isOpen, onClose, onOpenNewTab }: IframeWarn
             <div className="p-6 space-y-4">
               <div className="bg-amber-50/50 border border-amber-100 rounded-xl p-4 text-xs text-amber-800 leading-relaxed space-y-1">
                 <p className="font-bold flex items-center gap-1">
-                  ⚠️ 为什么无法直接下载？
+                  ⚠️ {isEn ? 'Why cannot download directly?' : '为什么无法直接下载？'}
                 </p>
                 <p className="text-justify">
-                  您当前正处于 AI Studio 的 <strong>iframe 预览沙箱环境</strong> 中。受现代浏览器严格的安全策略（同源及沙箱限制）保护，嵌套的 iframe 无法直接调起系统的打印引擎和另存为 PDF 功能。
+                  {isEn ? (
+                    <>
+                      You are currently in the <strong>AI Studio sandbox iframe preview</strong>. Due to modern browser security guidelines (cross-origin and sandbox constraints), nested iframes cannot directly trigger the browser print engine or file downloading actions.
+                    </>
+                  ) : (
+                    <>
+                      您当前正处于 AI Studio 的 <strong>iframe 预览沙箱环境</strong> 中。受现代浏览器严格的安全策略（同源及沙箱限制）保护，嵌套的 iframe 无法直接调起系统的打印引擎和另存为 PDF 功能。
+                    </>
+                  )}
                 </p>
               </div>
 
               <div className="space-y-3">
-                <p className="text-xs font-bold text-slate-700">💡 极简解决方法（仅需两步）：</p>
+                <p className="text-xs font-bold text-slate-700">
+                  {isEn ? '💡 Simple Solution (Only 2 steps):' : '💡 极简解决方法（仅需两步）：'}
+                </p>
                 
                 <div className="space-y-2 text-xs text-slate-600">
                   <div className="flex items-start gap-2.5">
@@ -67,7 +81,15 @@ export function IframeWarningModal({ isOpen, onClose, onOpenNewTab }: IframeWarn
                       1
                     </span>
                     <p className="leading-relaxed">
-                      点击下方 <strong className="text-blue-600">“在新标签页中打开”</strong> 按钮，或者点击 AI Studio 预览区右上角的 <strong>“新窗口打开 ↗”</strong> 按钮。
+                      {isEn ? (
+                        <>
+                          Click the <strong className="text-blue-600">"Open in New Tab"</strong> button below, or click the <strong>"Open in New Window ↗"</strong> icon in the top right corner of the preview area.
+                        </>
+                      ) : (
+                        <>
+                          点击下方 <strong className="text-blue-600">“在新标签页中打开”</strong> 按钮，或者点击 AI Studio 预览区右上角的 <strong>“新窗口打开 ↗”</strong> 按钮。
+                        </>
+                      )}
                     </p>
                   </div>
 
@@ -76,7 +98,15 @@ export function IframeWarningModal({ isOpen, onClose, onOpenNewTab }: IframeWarn
                       2
                     </span>
                     <p className="leading-relaxed">
-                      在新打开的独立页面中，直接点击 <strong className="text-slate-800">“Export PDF”</strong> 按钮。在浏览器打印预览面板中选择 <strong>「另存为 PDF / Save as PDF」</strong> 即可完美下载。
+                      {isEn ? (
+                        <>
+                          On the newly opened standalone page, click the <strong className="text-slate-800">"Export PDF"</strong> button. Select <strong>"Save as PDF"</strong> in the browser print panel.
+                        </>
+                      ) : (
+                        <>
+                          在新打开的独立页面中，直接点击 <strong className="text-slate-800">“Export PDF”</strong> 按钮。在浏览器打印预览面板中选择 <strong>「另存为 PDF / Save as PDF」</strong> 即可完美下载。
+                        </>
+                      )}
                     </p>
                   </div>
                 </div>
@@ -86,10 +116,12 @@ export function IframeWarningModal({ isOpen, onClose, onOpenNewTab }: IframeWarn
               <div className="bg-slate-50 border border-slate-100 rounded-xl p-3.5 flex items-center justify-between text-[11px] text-slate-500">
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                  <span>独立窗口中支持高清矢量无损 A4 纸张排版</span>
+                  <span>
+                    {isEn ? 'Supports pixel-perfect HD vector A4 PDF printing' : '独立窗口中支持高清矢量无损 A4 纸张排版'}
+                  </span>
                 </div>
                 <span className="text-[10px] font-semibold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
-                  无水印
+                  {isEn ? 'Watermark-free' : '无水印'}
                 </span>
               </div>
             </div>
@@ -100,14 +132,14 @@ export function IframeWarningModal({ isOpen, onClose, onOpenNewTab }: IframeWarn
                 onClick={onClose}
                 className="w-full sm:w-auto px-4 py-2 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition-all cursor-pointer text-center"
               >
-                返回编辑
+                {isEn ? 'Back to Editor' : '返回编辑'}
               </button>
               <button
                 onClick={onOpenNewTab}
                 className="w-full sm:w-auto px-5 py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-xs font-bold rounded-lg transition-all shadow-md shadow-blue-600/15 flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
-                <span>在新标签页中打开并导出</span>
+                <span>{isEn ? 'Open & Export in New Tab' : '在新标签页中打开并导出'}</span>
               </button>
             </div>
           </motion.div>

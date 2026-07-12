@@ -11,6 +11,7 @@ interface ResumeCheckerProps {
   onUpdateMarkdown: (newMarkdown: string, immediate?: boolean) => void;
   isOpen: boolean;
   onClose: () => void;
+  lang?: string;
 }
 
 interface WeakWordConfig {
@@ -187,18 +188,19 @@ const WEAK_WORDS_CONFIG: WeakWordConfig[] = [
   }
 ];
 
-export function ResumeChecker({ markdown, onUpdateMarkdown, isOpen, onClose }: ResumeCheckerProps) {
+export function ResumeChecker({ markdown, onUpdateMarkdown, isOpen, onClose, lang }: ResumeCheckerProps) {
   const [activeTab, setActiveTab] = useState<'diagnostics' | 'verbs'>('diagnostics');
 
   const analysis = useMemo(() => {
-    return analyzeResume(markdown, onUpdateMarkdown);
-  }, [markdown, onUpdateMarkdown]);
+    return analyzeResume(markdown, onUpdateMarkdown, lang);
+  }, [markdown, onUpdateMarkdown, lang]);
 
   const scoreBadge = useMemo(() => {
-    if (analysis.score >= 90) return { label: '金牌简历', color: 'bg-emerald-50 text-emerald-700 border-emerald-200', text: 'text-emerald-500' };
-    if (analysis.score >= 75) return { label: '良好简历', color: 'bg-blue-50 text-blue-700 border-blue-200', text: 'text-blue-500' };
-    return { label: '急需优化', color: 'bg-rose-50 text-rose-700 border-rose-200', text: 'text-rose-500' };
-  }, [analysis.score]);
+    const isEn = lang === 'en';
+    if (analysis.score >= 90) return { label: isEn ? 'Gold Resume' : '金牌简历', color: 'bg-emerald-50 text-emerald-700 border-emerald-200', text: 'text-emerald-500' };
+    if (analysis.score >= 75) return { label: isEn ? 'Good Resume' : '良好简历', color: 'bg-blue-50 text-blue-700 border-blue-200', text: 'text-blue-500' };
+    return { label: isEn ? 'Needs Work' : '急需优化', color: 'bg-rose-50 text-rose-700 border-rose-200', text: 'text-rose-500' };
+  }, [analysis.score, lang]);
 
   // Search weak words
   const matchedWeakWords = useMemo(() => {
@@ -241,6 +243,26 @@ export function ResumeChecker({ markdown, onUpdateMarkdown, isOpen, onClose }: R
     onUpdateMarkdown(newMarkdown, true);
   };
 
+  const isEn = lang === 'en';
+
+  const getLocalizedDesc = (id: string, defaultDesc: string) => {
+    const DESCS: Record<string, string> = {
+      responsible_for: 'Weak verb phrase lacking achievement-oriented tone. Begin with dynamic action verbs to showcase leadership.',
+      helped: 'Informal weak verb. Use strong collaborative verbs to showcase team contributions.',
+      worked_on: 'Flat description lacking technical depth. Use precise action verbs showing design or engineering power.',
+      managed: 'Commonly used but flat. Try more dynamic management verbs based on responsibilities.',
+      improved: 'General description. Use dynamic verbs that show quantifiable improvements or optimization.',
+      used: 'Flat tool-usage description. Use verbs highlighting technical orchestration, leverage, and deployment.',
+      assisted: 'Slightly passive. Emphasize your concrete contributions and key technical achievements.',
+      fuzela: 'Extremely overused in Chinese resumes. Replace with precise action verbs showing ownership.',
+      fuze: 'Overused filler verb. Use stronger, more direct, and authoritative action verbs.',
+      zuoguo: 'Colloquial verb. Highly unprofessional in a resume. Replace with action verbs showing depth.',
+      xiele: 'Too simple. Replace with words highlighting architecture, deployment, or authorship.',
+      gaijinle: 'Consider using verbs highlighting optimization, refactoring, and quantifiable impact.'
+    };
+    return isEn ? (DESCS[id] || defaultDesc) : defaultDesc;
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -255,7 +277,9 @@ export function ResumeChecker({ markdown, onUpdateMarkdown, isOpen, onClose }: R
           <div className="flex items-center justify-between px-5 py-4 bg-slate-50 border-b border-slate-200/80">
             <div className="flex items-center gap-2">
               <Sparkles className="w-4.5 h-4.5 text-blue-600 animate-pulse" />
-              <h2 className="text-sm font-bold text-slate-800 tracking-tight">智能简历诊断 & 优化</h2>
+              <h2 className="text-sm font-bold text-slate-800 tracking-tight">
+                {isEn ? 'AI Resume Audit & Optimizations' : '智能简历诊断 & 优化'}
+              </h2>
             </div>
             <button 
               onClick={onClose}
@@ -271,14 +295,14 @@ export function ResumeChecker({ markdown, onUpdateMarkdown, isOpen, onClose }: R
               onClick={() => setActiveTab('diagnostics')}
               className={`flex-1 py-3 text-xs font-bold border-b-2 transition-all cursor-pointer ${activeTab === 'diagnostics' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
             >
-              评分与诊断诊断
+              {isEn ? 'Score & Suggestions' : '评分与诊断'}
             </button>
             <button
               onClick={() => setActiveTab('verbs')}
               className={`flex-1 py-3 text-xs font-bold border-b-2 transition-all flex items-center justify-center gap-1.5 cursor-pointer ${activeTab === 'verbs' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
             >
               <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
-              <span>弱动词优化</span>
+              <span>{isEn ? 'Action Verbs' : '弱动词优化'}</span>
               {matchedWeakWords.length > 0 && (
                 <span className="bg-rose-500 text-white text-[9px] px-1.5 py-0.2 rounded-full font-bold ml-1 scale-90">
                   {matchedWeakWords.length}
@@ -291,18 +315,20 @@ export function ResumeChecker({ markdown, onUpdateMarkdown, isOpen, onClose }: R
           <div className="flex-1 overflow-y-auto p-5">
             {activeTab === 'diagnostics' ? (
               <div className="space-y-8 animate-in fade-in duration-200">
-                <ScoreDisplay analysis={analysis} scoreBadge={scoreBadge} />
-                <DiagnosticList issues={analysis.issues} />
+                <ScoreDisplay analysis={analysis} scoreBadge={scoreBadge} lang={lang} />
+                <DiagnosticList issues={analysis.issues} lang={lang} />
               </div>
             ) : (
               <div className="space-y-5 animate-in fade-in duration-200">
                 <div className="bg-indigo-50/50 border border-indigo-100 rounded-xl p-3">
                   <span className="text-[11px] font-bold text-indigo-800 flex items-center gap-1 mb-1">
                     <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-                    <span>欧美/专业级动词优化助手</span>
+                    <span>{isEn ? 'Professional Action Verb Optimizer' : '欧美/专业级动词优化助手'}</span>
                   </span>
                   <p className="text-[10px] text-slate-500 leading-relaxed">
-                    欧美HR及大厂ATS筛选系统极其推崇<strong>结果导向(STAR法则)</strong>。简历应避免频繁使用 “responsible for”、“helped” 等平淡词汇。请使用下方的一键推荐直接升级。
+                    {isEn 
+                      ? 'Recruiters and Applicant Tracking Systems (ATS) highly favor result-oriented STAR methodology. Resumes should avoid repetitive weak verbs like "responsible for" or "helped". Use our smart recommendations below to instantly upgrade impact.'
+                      : '欧美HR及大厂ATS筛选系统极其推崇结果导向(STAR法则)。简历应避免频繁使用 “responsible for”、“helped” 等平淡词汇。请使用下方的一键推荐直接升级。'}
                   </p>
                 </div>
 
@@ -312,17 +338,25 @@ export function ResumeChecker({ markdown, onUpdateMarkdown, isOpen, onClose }: R
                       <Check className="w-6 h-6 text-emerald-500 stroke-[2.5]" />
                     </div>
                     <div className="space-y-1">
-                      <p className="text-xs font-bold text-slate-700">未检测到明显弱词！</p>
+                      <p className="text-xs font-bold text-slate-700">
+                        {isEn ? 'No weak verbs detected!' : '未检测到明显弱词！'}
+                      </p>
                       <p className="text-[10px] text-slate-400 max-w-[240px] mx-auto leading-relaxed">
-                        您的用词非常专业干练，已自动避开了常见的口水词和被动描述。
+                        {isEn 
+                          ? 'Your word choices are highly professional, concise, and result-oriented.'
+                          : '您的用词非常专业干练，已自动避开了常见的口水词和被动描述。'}
                       </p>
                     </div>
                   </div>
                 ) : (
                   <div className="space-y-3.5">
                     <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 px-1 uppercase tracking-wider">
-                      <span>检测到 {matchedWeakWords.length} 个弱词/词组</span>
-                      <span className="text-rose-500">建议尽快替换 ⚡</span>
+                      <span>
+                        {isEn ? `Found ${matchedWeakWords.length} weak words` : `检测到 ${matchedWeakWords.length} 个弱词/词组`}
+                      </span>
+                      <span className="text-rose-500">
+                        {isEn ? 'Replace Suggested ⚡' : '建议尽快替换 ⚡'}
+                      </span>
                     </div>
 
                     <div className="space-y-4">
@@ -331,14 +365,20 @@ export function ResumeChecker({ markdown, onUpdateMarkdown, isOpen, onClose }: R
                           <div className="flex items-center justify-between">
                             <span className="text-xs font-bold text-slate-700 flex items-center gap-2">
                               <span className="line-through text-slate-400 bg-slate-100/80 px-2 py-0.5 rounded font-mono border border-slate-200/40">{config.weakText}</span>
-                              <span className="text-[9px] bg-red-50 text-red-600 border border-red-150/40 px-2 py-0.5 rounded-full font-bold">文中发现 {count} 处</span>
+                              <span className="text-[9px] bg-red-50 text-red-600 border border-red-150/40 px-2 py-0.5 rounded-full font-bold">
+                                {isEn ? `Found ${count} here` : `文中发现 ${count} 处`}
+                              </span>
                             </span>
                           </div>
                           
-                          <p className="text-[10px] text-slate-500 leading-relaxed pl-0.5">{config.desc}</p>
+                          <p className="text-[10px] text-slate-500 leading-relaxed pl-0.5">
+                            {getLocalizedDesc(config.id, config.desc)}
+                          </p>
                           
                           <div className="space-y-2 pt-1 border-t border-slate-100/80">
-                            <span className="text-[9px] font-bold text-slate-400 block uppercase tracking-wider pl-0.5">一键精准重构为：</span>
+                            <span className="text-[9px] font-bold text-slate-400 block uppercase tracking-wider pl-0.5">
+                              {isEn ? 'Refactor in one-click to:' : '一键一秒精准重构为：'}
+                            </span>
                             <div className="grid grid-cols-2 gap-1.5">
                               {config.replacements.map(rep => (
                                 <button
@@ -347,7 +387,9 @@ export function ResumeChecker({ markdown, onUpdateMarkdown, isOpen, onClose }: R
                                   className="px-2.5 py-1.5 bg-white hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-[10px] font-bold text-slate-700 hover:text-emerald-800 rounded-lg transition-all cursor-pointer shadow-xs active:scale-95 text-left flex flex-col justify-center gap-0.5"
                                 >
                                   <span className="text-slate-800 font-bold">{rep.word}</span>
-                                  <span className="text-[9px] text-slate-400 font-normal truncate">{rep.translation}</span>
+                                  {!isEn && (
+                                    <span className="text-[9px] text-slate-400 font-normal truncate">{rep.translation}</span>
+                                  )}
                                 </button>
                               ))}
                             </div>
@@ -371,13 +413,15 @@ export function ResumeChecker({ markdown, onUpdateMarkdown, isOpen, onClose }: R
               className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-blue-500/10 flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <Type className="w-4 h-4" />
-              <span>中英混排一键优化</span>
+              <span>{isEn ? 'Optimize Spacing (CN/EN)' : '中英混排一键优化'}</span>
             </button>
           </div>
 
           {/* Footer Guide */}
           <div className="p-4 bg-slate-50 border-t border-slate-200/80 text-center text-[10px] text-slate-400 font-medium">
-            💡 本地诊断与优化不会泄露任何隐私，请放心使用
+            {isEn 
+              ? '💡 Privacy Guarantee: All audits run in-browser safely.' 
+              : '💡 本地诊断与优化不会泄露任何隐私，请放心使用'}
           </div>
         </motion.div>
       )}

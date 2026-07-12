@@ -64,21 +64,22 @@ export function BackupDraftModal({ isOpen, onClose, markdown, settings, onRestor
 
   const handleCreateDraft = (e: React.FormEvent) => {
     e.preventDefault();
-    const title = newDraftTitle.trim() || `草稿版 - ${new Date().toLocaleString('zh-CN', { hour12: false })}`;
+    const isEn = settings.lang === 'en';
+    const title = newDraftTitle.trim() || (isEn ? `Draft - ${new Date().toLocaleString('en-US', { hour12: false })}` : `草稿版 - ${new Date().toLocaleString('zh-CN', { hour12: false })}`);
     
     const newDraft: ResumeDraft = {
       id: `draft_${Date.now()}`,
       title,
       markdown,
       settings,
-      timestamp: new Date().toLocaleString('zh-CN', { hour12: false }),
+      timestamp: new Date().toLocaleString(isEn ? 'en-US' : 'zh-CN', { hour12: false }),
       isAutoSave: false
     };
 
     const updated = [newDraft, ...drafts];
     saveDraftsList(updated);
     setNewDraftTitle('');
-    showToast('草稿保存成功！');
+    showToast(isEn ? 'Draft saved successfully!' : '草稿保存成功！');
   };
 
   const handleRestoreDraft = async (draft: ResumeDraft) => {
@@ -121,17 +122,19 @@ export function BackupDraftModal({ isOpen, onClose, markdown, settings, onRestor
   const handleSaveRename = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (!editingTitle.trim()) return;
+    const isEn = settings.lang === 'en';
     const updated = drafts.map(d => d.id === id ? { ...d, title: editingTitle.trim() } : d);
     saveDraftsList(updated);
     setEditingDraftId(null);
-    showToast('重命名成功');
+    showToast(isEn ? 'Renamed successfully' : '重命名成功');
   };
 
   const handleExportConfig = () => {
+    const isEn = settings.lang === 'en';
     try {
       const backupData = {
         version: "markdown-resume-backup-v1",
-        exportedAt: new Date().toLocaleString('zh-CN', { hour12: false }),
+        exportedAt: new Date().toLocaleString(isEn ? 'en-US' : 'zh-CN', { hour12: false }),
         markdown,
         settings
       };
@@ -152,9 +155,9 @@ export function BackupDraftModal({ isOpen, onClose, markdown, settings, onRestor
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      showToast('配置文件导出成功！');
+      showToast(isEn ? 'Configuration exported successfully!' : '配置文件导出成功！');
     } catch (e) {
-      showToast('导出失败，请重试', true);
+      showToast(isEn ? 'Export failed, please try again' : '导出失败，请重试', true);
     }
   };
 
@@ -243,9 +246,13 @@ export function BackupDraftModal({ isOpen, onClose, markdown, settings, onRestor
               <div className="flex items-center gap-2">
                 <Database className="w-5 h-5 text-indigo-600" />
                 <div>
-                  <h3 className="font-bold text-slate-800 text-base">数据存储与多版本备份 Hub</h3>
+                  <h3 className="font-bold text-slate-800 text-base">
+                    {settings.lang === 'en' ? 'Data Storage & Multi-Version Backup Hub' : '数据存储与多版本备份 Hub'}
+                  </h3>
                   <p className="text-[10px] text-slate-400 font-medium">
-                    管理本地草稿版本，或导出/导入合并后的完整配置文件 (包含 Markdown 与 排版参数)
+                    {settings.lang === 'en' 
+                      ? 'Manage local draft versions, or export/import complete configurations (containing Markdown text and layout settings)'
+                      : '管理本地草稿版本，或导出/导入合并后的完整配置文件 (包含 Markdown 与 排版参数)'}
                   </p>
                 </div>
               </div>
@@ -267,7 +274,9 @@ export function BackupDraftModal({ isOpen, onClose, markdown, settings, onRestor
                 }`}
               >
                 <History className="w-4 h-4" />
-                <span>本地草稿版本 ({drafts.length})</span>
+                <span>
+                  {settings.lang === 'en' ? `Local Drafts (${drafts.length})` : `本地草稿版本 (${drafts.length})`}
+                </span>
               </button>
               <button
                 onClick={() => setActiveTab('backup')}
@@ -278,7 +287,9 @@ export function BackupDraftModal({ isOpen, onClose, markdown, settings, onRestor
                 }`}
               >
                 <FileJson className="w-4 h-4" />
-                <span>完整配置备份 (.json)</span>
+                <span>
+                  {settings.lang === 'en' ? 'Full Backup (.json)' : '完整配置备份 (.json)'}
+                </span>
               </button>
             </div>
 
@@ -314,6 +325,7 @@ export function BackupDraftModal({ isOpen, onClose, markdown, settings, onRestor
                   setEditingTitle={setEditingTitle}
                   handleSaveRename={handleSaveRename}
                   handleDeleteDraft={handleDeleteDraft}
+                  lang={settings.lang}
                 />
               ) : (
                 <BackupTab 
@@ -323,6 +335,7 @@ export function BackupDraftModal({ isOpen, onClose, markdown, settings, onRestor
                   importDragActive={importDragActive}
                   fileInputRef={fileInputRef}
                   handleImportConfig={handleImportConfig}
+                  lang={settings.lang}
                 />
               )}
             </div>
@@ -332,7 +345,7 @@ export function BackupDraftModal({ isOpen, onClose, markdown, settings, onRestor
                 onClick={onClose}
                 className="px-5 py-2 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition-all cursor-pointer"
               >
-                关闭 Hub
+                {settings.lang === 'en' ? 'Close Hub' : '关闭 Hub'}
               </button>
             </div>
           </motion.div>

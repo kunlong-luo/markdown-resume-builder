@@ -1,4 +1,3 @@
-
 import { formatChineseEnglishSpacing } from './format-utils';
 import { parseMarkdownToForm } from './markdown-parser';
 
@@ -18,27 +17,36 @@ export interface AnalysisResult {
   foundVerbsCount: number;
 }
 
-export function analyzeResume(markdown: string, onUpdateMarkdown: (newMarkdown: string, immediate?: boolean) => void): AnalysisResult {
+export function analyzeResume(
+  markdown: string,
+  onUpdateMarkdown: (newMarkdown: string, immediate?: boolean) => void,
+  lang?: string
+): AnalysisResult {
   const issues: IssueItem[] = [];
   let score = 100;
+  const isEn = lang === 'en';
 
   // 1. Check Name (H1)
   const hasH1 = markdown.trim().split('\n').some(line => line.startsWith('# '));
   if (hasH1) {
     issues.push({
       type: 'success',
-      title: '基本信息：姓名标题已设置',
-      desc: '简历顶部包含 # 姓名 格式的一级标题，利于系统和HR检索。'
+      title: isEn ? 'Basic Info: Name header found' : '基本信息：姓名标题已设置',
+      desc: isEn 
+        ? 'Your resume starts with a level 1 heading (# Name), which is standard and easy to read.'
+        : '简历顶部包含 # 姓名 格式的一级标题，利于系统和HR检索。'
     });
   } else {
     score -= 20;
     issues.push({
       type: 'error',
-      title: '基本信息：缺失姓名一级标题',
-      desc: '简历最顶部应该使用「# 您的姓名」作为标题。',
+      title: isEn ? 'Basic Info: Missing name header (#)' : '基本信息：缺失姓名一级标题',
+      desc: isEn 
+        ? 'The very top of your resume should start with your name, styled as "# Your Name".'
+        : '简历最顶部应该使用「# 您的姓名」作为标题。',
       fixable: true,
       onFix: () => {
-        onUpdateMarkdown('# 张三\n' + markdown, true);
+        onUpdateMarkdown(isEn ? '# John Doe\n' : '# 张三\n' + markdown, true);
       }
     });
   }
@@ -50,21 +58,25 @@ export function analyzeResume(markdown: string, onUpdateMarkdown: (newMarkdown: 
   if (hasEmail) {
     issues.push({
       type: 'success',
-      title: '联系方式：电子邮箱有效',
-      desc: '已包含有效的邮箱联系方式。'
+      title: isEn ? 'Contact Info: Email address is valid' : '联系方式：电子邮箱有效',
+      desc: isEn 
+        ? 'A valid email address has been found.' 
+        : '已包含有效的邮箱联系方式。'
     });
   } else {
     score -= 10;
     issues.push({
       type: 'warning',
-      title: '联系方式：邮箱缺失或为默认占位符',
-      desc: '简历中未找到或含有默认的邮箱地址。电子邮箱是HR发出面试通知的核心渠道。',
+      title: isEn ? 'Contact Info: Email is missing or placeholder' : '联系方式：邮箱缺失或为默认占位符',
+      desc: isEn 
+        ? 'No valid email address was found. Email is the primary channel for recruiters to reach you.'
+        : '简历中未找到或含有默认的邮箱地址。电子邮箱是HR发出面试通知的核心渠道。',
       fixable: true,
       onFix: () => {
         const lines = markdown.split('\n');
         const h1Idx = lines.findIndex(l => l.startsWith('# '));
         if (h1Idx !== -1) {
-          lines.splice(h1Idx + 1, 0, '13812345678 ｜ your.email@email.com ｜ github.com/yourgithub');
+          lines.splice(h1Idx + 1, 0, isEn ? '13812345678 | your.email@email.com | github.com/yourgithub' : '13812345678 ｜ your.email@email.com ｜ github.com/yourgithub');
           onUpdateMarkdown(lines.join('\n'), true);
         } else {
           onUpdateMarkdown('your.email@email.com\n' + markdown, true);
@@ -76,15 +88,19 @@ export function analyzeResume(markdown: string, onUpdateMarkdown: (newMarkdown: 
   if (hasPhone) {
     issues.push({
       type: 'success',
-      title: '联系方式：手机号有效',
-      desc: '已包含有效的电话联系方式。'
+      title: isEn ? 'Contact Info: Phone number is valid' : '联系方式：手机号有效',
+      desc: isEn 
+        ? 'A valid phone number has been found.'
+        : '已包含有效的电话联系方式。'
     });
   } else {
     score -= 10;
     issues.push({
       type: 'warning',
-      title: '联系方式：手机号缺失或为占位符',
-      desc: '简历中没有包含常规手机号格式或使用了模版默认手机号。',
+      title: isEn ? 'Contact Info: Phone number is missing or placeholder' : '联系方式：手机号缺失或为占位符',
+      desc: isEn 
+        ? 'No phone number format was found or placeholder was used.'
+        : '简历中没有包含常规手机号格式或使用了模版默认手机号。',
     });
   }
 
@@ -98,15 +114,19 @@ export function analyzeResume(markdown: string, onUpdateMarkdown: (newMarkdown: 
   if (foundPlaceholders.length === 0) {
     issues.push({
       type: 'success',
-      title: '内容合规：未发现模版残留文本',
-      desc: '简历中的占位文本和模版标签已全部替换完毕。'
+      title: isEn ? 'Content Compliance: No template placeholders found' : '内容合规：未发现模版残留文本',
+      desc: isEn 
+        ? 'All template tags and brackets have been replaced successfully.'
+        : '简历中的占位文本和模版标签已全部替换完毕。'
     });
   } else {
     score -= (foundPlaceholders.length * 8);
     issues.push({
       type: 'error',
-      title: `内容警告：存在 ${foundPlaceholders.length} 处模版残留`,
-      desc: `检测到模版残留字段: ${foundPlaceholders.map(p => `"${p}"`).join(', ')}。请尽快将它们修改为您自己的真实信息！`,
+      title: isEn ? `Content Warning: Found ${foundPlaceholders.length} template leftovers` : `内容警告：存在 ${foundPlaceholders.length} 处模版残留`,
+      desc: isEn 
+        ? `Placeholder fields detected: ${foundPlaceholders.map(p => `"${p}"`).join(', ')}. Please update them with your real information!`
+        : `检测到模版残留字段: ${foundPlaceholders.map(p => `"${p}"`).join(', ')}。请尽快将它们修改为您自己的真实信息！`,
     });
   }
 
@@ -126,22 +146,28 @@ export function analyzeResume(markdown: string, onUpdateMarkdown: (newMarkdown: 
   if (metricCount >= 5) {
     issues.push({
       type: 'success',
-      title: `量化成果：丰富 (${metricCount} 处数据指标)`,
-      desc: '您的简历在职责和项目中融入了丰富的数据指标和成果描述，非常专业且具说服力！'
+      title: isEn ? `Quantified Results: Excellent (${metricCount} data metrics)` : `量化成果：丰富 (${metricCount} 处数据指标)`,
+      desc: isEn 
+        ? 'Your resume integrates rich metrics and quantified achievements, making it highly persuasive and professional!'
+        : '您的简历在职责和项目中融入了丰富的数据指标和成果描述，非常专业且具说服力！'
     });
   } else if (metricCount >= 1) {
     score -= 5;
     issues.push({
       type: 'warning',
-      title: `量化成果：稍显薄弱 (${metricCount} 处指标)`,
-      desc: '简历中包含了一些数据或动词，但较少。建议补充具体业绩，如：「高并发处理提升30%」、「研发周期缩短2周」等。'
+      title: isEn ? `Quantified Results: Slightly thin (${metricCount} metric(s))` : `量化成果：稍显薄弱 (${metricCount} 处指标)`,
+      desc: isEn 
+        ? 'Some metrics or numbers are present but limited. Consider specifying achievements (e.g., "boosted throughput by 30%", "shortened dev cycles by 2 weeks").'
+        : '简历中包含了一些数据或动词，但较少。建议补充具体业绩，如：「高并发处理提升30%」、「研发周期缩短2周」等。'
     });
   } else {
     score -= 15;
     issues.push({
       type: 'error',
-      title: '量化成果：极度匮乏 (无数据支持)',
-      desc: '未检测到具体的业务指标或量化结果。优秀的简历遵循 STAR 法则，必须包含具体的数值（如百分比、资金、效率提升等）来证明成效。'
+      title: isEn ? 'Quantified Results: Extremely scarce (no metric data)' : '量化成果：极度匮乏 (无数据支持)',
+      desc: isEn 
+        ? 'No metrics or business achievements detected. Professional resumes should follow the STAR methodology, including quantified metrics to prove your impact.'
+        : '未检测到具体的业务指标或量化结果。优秀的简历遵循 STAR 法则，必须包含具体的数值（如百分比、资金、效率提升等）来证明成效。'
     });
   }
 
@@ -151,22 +177,28 @@ export function analyzeResume(markdown: string, onUpdateMarkdown: (newMarkdown: 
   if (foundVerbs.length >= 6) {
     issues.push({
       type: 'success',
-      title: `专业动词：表现极佳 (已使用 ${foundVerbs.length} 个强动词)`,
-      desc: '使用了丰富的专业行动词汇（如：' + foundVerbs.slice(0, 5).join('、') + ' 等），能很好地展示您的专业度。'
+      title: isEn ? `Action Verbs: Excellent (${foundVerbs.length} strong verbs used)` : `专业动词：表现极佳 (已使用 ${foundVerbs.length} 个强动词)`,
+      desc: isEn 
+        ? `Uses strong action-oriented verbs (such as ${foundVerbs.slice(0, 5).join(', ')}), effectively demonstrating your proficiency.`
+        : '使用了丰富的专业行动词汇（如：' + foundVerbs.slice(0, 5).join('、') + ' 等），能很好地展示您的专业度。'
     });
   } else if (foundVerbs.length >= 2) {
     score -= 5;
     issues.push({
       type: 'warning',
-      title: `专业动词：建议补充 (仅发现 ${foundVerbs.length} 个动词)`,
-      desc: `建议更多地使用强有力的行动词汇（例如：重构、主导、独立设计、优化等）作为每项工作描述的开头，避免单一使用「负责」或「做过」。`
+      title: isEn ? `Action Verbs: Recommended to add (only ${foundVerbs.length} verb(s) found)` : `专业动词：建议补充 (仅发现 ${foundVerbs.length} 个动词)`,
+      desc: isEn 
+        ? 'Consider starting your experience items with dynamic action verbs (e.g., refactored, spearheaded, optimized) rather than generic words like "worked on" or "responsible for".'
+        : `建议更多地使用强有力的行动词汇（例如：重构、主导、独立设计、优化等）作为每项工作描述的开头，避免单一使用「负责」或「做过」。`
     });
   } else {
     score -= 15;
     issues.push({
       type: 'error',
-      title: '专业动词：动作描述苍白',
-      desc: '简历中几乎没有检测到专业的行业行动词汇。请在工作/项目经历开头使用诸如「搭建...」、「重构...」、「主导研发...」来彰显专业深度。'
+      title: isEn ? 'Action Verbs: Flat descriptions' : '专业动词：动作描述苍白',
+      desc: isEn 
+        ? 'Almost no professional action verbs detected. Use words like "spearheaded", "engineered", or "architected" to highlight technical competence.'
+        : '简历中几乎没有检测到专业的行业行动词汇。请在工作/项目经历开头使用诸如「搭建...」、「重构...」、「主导研发...」来彰显专业深度。'
     });
   }
 
@@ -177,15 +209,19 @@ export function analyzeResume(markdown: string, onUpdateMarkdown: (newMarkdown: 
     if (hasPageBreak) {
       issues.push({
         type: 'success',
-        title: '排版控制：已使用分页符',
-        desc: '简历字数较多，但您已经明智地使用了 <!-- pagebreak --> 标签来控制打印分页，避免了打印时产生跨页截断。'
+        title: isEn ? 'Layout Control: Manual pagebreak used' : '排版控制：已使用分页符',
+        desc: isEn 
+          ? 'Your resume is long, but you have wisely used the <!-- pagebreak --> tag to control pagination, avoiding automatic cutoffs.'
+          : '简历字数较多，但您已经明智地使用了 <!-- pagebreak --> 标签来控制打印分页，避免了打印时产生跨页截断。'
       });
     } else {
       score -= 10;
       issues.push({
         type: 'warning',
-        title: '排版警告：建议插入分页符',
-        desc: '当前简历总字数较多，如果直接打印为 PDF 可能会产生无章法的自动截断。建议在一页纸写不下的合适段落之后，点击编辑工具栏的剪刀按钮插入「<!-- pagebreak -->」进行优雅的手动分页。',
+        title: isEn ? 'Layout Warning: Pagebreak recommended' : '排版警告：建议插入分页符',
+        desc: isEn 
+          ? 'Your resume has a high word count, which may cause unintended page clipping when printing to PDF. It is highly recommended to click the scissor icon in the toolbar to insert "<!-- pagebreak -->" after an appropriate section.'
+          : '当前简历总字数较多，如果直接打印为 PDF 可能会产生无章法的自动截断。建议在一页纸写不下的合适段落之后，点击编辑工具栏的剪刀按钮插入「<!-- pagebreak -->」进行优雅的手动分页。',
         fixable: true,
         onFix: () => {
           const lines = markdown.split('\n');
@@ -208,8 +244,10 @@ export function analyzeResume(markdown: string, onUpdateMarkdown: (newMarkdown: 
   } else {
     issues.push({
       type: 'success',
-      title: '排版控制：字数适中 (一页精简版)',
-      desc: '简历长度适宜，通常可以完美放入一页 A4 纸内，符合绝大多数招聘官的阅读习惯。'
+      title: isEn ? 'Layout Control: Optimal length (One page version)' : '排版控制：字数适中 (一页精简版)',
+      desc: isEn 
+        ? 'The length is moderate and fits perfectly onto a single page, which recruiters highly favor.'
+        : '简历长度适宜，通常可以完美放入一页 A4 纸内，符合绝大多数招聘官的阅读习惯。'
     });
   }
 
@@ -222,8 +260,10 @@ export function analyzeResume(markdown: string, onUpdateMarkdown: (newMarkdown: 
     score -= Math.min(15, pronounCount * 3);
     issues.push({
       type: 'warning',
-      title: `主观人称：检测到 ${pronounCount} 处主观代词 (我/自己)`,
-      desc: '简历应采用第三人称客观视角叙述。请尽量避免使用“我”、“自己”、“我们”等主观代词，直接以“负责...”、“主导...”等动词开头。',
+      title: isEn ? `Subjective Pronouns: Detected ${pronounCount} pronoun(s) (I/We)` : `主观人称：检测到 ${pronounCount} 处主观代词 (我/自己)`,
+      desc: isEn 
+        ? 'Resumes should be written in an objective, professional third-person style. Avoid words like "I", "me", "myself" or "we", and begin statements directly with action verbs.'
+        : '简历应采用第三人称客观视角叙述。请尽量避免使用“我”、“自己”、“我们”等主观代词，直接以“负责...”、“主导...”等动词开头。',
       fixable: true,
       onFix: () => {
         let fixed = markdown;
@@ -246,8 +286,10 @@ export function analyzeResume(markdown: string, onUpdateMarkdown: (newMarkdown: 
   } else {
     issues.push({
       type: 'success',
-      title: '主观人称：符合客观书写规范',
-      desc: '未包含主观的人称代词（我/自己），通篇采用客观的第三人称或动词开头，非常符合招聘规范。'
+      title: isEn ? 'Subjective Pronouns: Perfectly objective' : '主观人称：符合客观书写规范',
+      desc: isEn 
+        ? 'No subjective personal pronouns (I/We) were found, adhering perfectly to resume writing standards.'
+        : '未包含主观的人称代词（我/自己），通篇采用客观的第三人称或动词开头，非常符合招聘规范。'
     });
   }
 
@@ -259,8 +301,10 @@ export function analyzeResume(markdown: string, onUpdateMarkdown: (newMarkdown: 
     score -= 10;
     issues.push({
       type: 'warning',
-      title: `排版美化：发现 ${missingSpacesCount} 处中英/数字缺少空格`,
-      desc: '中英文、数字混排时，在它们之间添加一个半角空格是标准的专业排版规范（例如：“React开发” 优化为 “React 开发”），能极大提升视觉易读性。',
+      title: isEn ? `Typography: Found ${missingSpacesCount} missing spaces (CN/EN)` : `排版美化：发现 ${missingSpacesCount} 处中英/数字缺少空格`,
+      desc: isEn 
+        ? 'Adding a space between Chinese characters, English words, and numbers is standard practice, greatly enhancing readability (e.g., "React开发" to "React 开发").'
+        : '中英文、数字混排时，在它们之间添加一个半角空格是标准的专业排版规范（例如：“React开发” 优化为 “React 开发”），能极大提升视觉易读性。',
       fixable: true,
       onFix: () => {
         onUpdateMarkdown(formattedText, true);
@@ -269,8 +313,10 @@ export function analyzeResume(markdown: string, onUpdateMarkdown: (newMarkdown: 
   } else {
     issues.push({
       type: 'success',
-      title: '排版美化：中英混排格式完美',
-      desc: '简历中的中文、英文以及数字之间均有标准的半角空格分隔，视觉排版极其舒适和专业。'
+      title: isEn ? 'Typography: Perfect spacing formatting' : '排版美化：中英混排格式完美',
+      desc: isEn 
+        ? 'All Chinese characters, English words, and numbers are separated by standard half-width spaces. Clean and professional!'
+        : '简历中的中文、英文以及数字之间均有标准的半角空格分隔，视觉排版极其舒适和专业。'
     });
   }
 
@@ -281,18 +327,28 @@ export function analyzeResume(markdown: string, onUpdateMarkdown: (newMarkdown: 
   if (hasEmojis || hasTables) {
     score -= 5;
     let descParts: string[] = [];
-    if (hasEmojis) descParts.push('检测到简历中含有彩色表情符号或生僻图形。大厂 ATS（申请人跟踪系统）机器读取时可能将其识别为乱码或导致周围文本解析错误，建议仅使用常规列表圆点「-」或「·」作为前缀。');
-    if (hasTables) descParts.push('检测到含有 Markdown 复杂表格排版。ATS 在解析表格内的文字时，经常会出现多行文字横向串行、错乱或文字被自动忽略的问题，建议将表格重构为标准的项目经历条目描述。');
+    if (hasEmojis) {
+      descParts.push(isEn 
+        ? 'Emojis or non-standard graphics detected. Applicant Tracking Systems (ATS) may misinterpret them as scrambled characters; suggest using standard list points "-".'
+        : '检测到简历中含有彩色表情符号或生僻图形。大厂 ATS（申请人跟踪系统）机器读取时可能将其识别为乱码或导致周围文本解析错误，建议仅使用常规列表圆点「-」或「·」作为前缀。');
+    }
+    if (hasTables) {
+      descParts.push(isEn 
+        ? 'Markdown tables detected. ATS systems often mangle tables, making them unreadable or causing lines to get ignored. Rebuilding them as standard items is suggested.'
+        : '检测到含有 Markdown 复杂表格排版。ATS 在解析表格内的文字时，经常会出现多行文字横向串行、错乱或文字被自动忽略的问题，建议将表格重构为标准的项目经历条目描述。');
+    }
     issues.push({
       type: 'warning',
-      title: 'ATS 友好度：检测到潜在解析风险',
+      title: isEn ? 'ATS Friendliness: Potential parsing risks detected' : 'ATS 友好度：检测到潜在解析风险',
       desc: descParts.join(' ')
     });
   } else {
     issues.push({
       type: 'success',
-      title: 'ATS 友好度：完美通过机器预审',
-      desc: '简历中没有生僻彩色图标或多栏复杂表格，这能确保大厂 ATS 简历初筛系统百分百正常解析您的工作经历和关键词。'
+      title: isEn ? 'ATS Friendliness: Perfect machine parsing compatibility' : 'ATS 友好度：完美通过机器预审',
+      desc: isEn 
+        ? 'Your resume contains no emojis or complex multi-column tables, ensuring that ATS screening systems can parse your content cleanly without any errors.'
+        : '简历中没有生僻彩色图标或多栏复杂表格，这能确保大厂 ATS 简历初筛系统百分百正常解析您的工作经历和关键词。'
     });
   }
 
@@ -329,14 +385,18 @@ export function analyzeResume(markdown: string, onUpdateMarkdown: (newMarkdown: 
     score -= 5;
     issues.push({
       type: 'warning',
-      title: '时态规范：已结束经历建议采用过去式动词',
-      desc: `检测到已结束的工作/项目经历（如：${offendingOrgs.join('、')}）的英文描述中含有现在时行动词（例如：Develop, Lead）。根据专业英文简历规范，已经结束的经历中所有行为条目应当统一使用过去式动词开头（例如：将 Develop 改为 Developed，Lead 改为 Led）。`
+      title: isEn ? 'Tense Agreement: Suggest using past tense for past roles' : '时态规范：已结束经历建议采用过去式动词',
+      desc: isEn 
+        ? `Detected present tense verbs (e.g., Develop, Lead) in your past experience items (e.g., ${offendingOrgs.join(', ')}). Past roles should consistently use past tense verbs (e.g., Developed, Led).`
+        : `检测到已结束的工作/项目经历（如：${offendingOrgs.join('、')}）的英文描述中含有现在时行动词（例如：Develop, Lead）。根据专业英文简历规范，已经结束的经历中所有行为条目应当统一使用过去式动词开头（例如：将 Develop 改为 Developed，Lead 改为 Led）。`
     });
   } else if (checkedRolesCount > 0) {
     issues.push({
       type: 'success',
-      title: '时态规范：英文经历动作时态高度一致',
-      desc: '所有已结束经历的英文动作条目均正确采用过去式行动词，时态规范完美，彰显出极佳的求职专业度。'
+      title: isEn ? 'Tense Agreement: Perfect verbs tense consistency' : '时态规范：英文经历动作时态高度一致',
+      desc: isEn 
+        ? 'All past roles use past tense action verbs perfectly, demonstrating excellent professional rigor.'
+        : '所有已结束经历的英文动作条目均正确采用过去式行动词，时态规范完美，彰显出极佳的求职专业度。'
     });
   }
   

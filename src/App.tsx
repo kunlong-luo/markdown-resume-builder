@@ -186,6 +186,7 @@ export default function App() {
         isOpen={isIframeModalOpen}
         onClose={() => setIsIframeModalOpen(false)}
         onOpenNewTab={handleOpenInNewTab}
+        lang={settings.lang}
       />
 
       <BackupDraftModal

@@ -6,14 +6,18 @@ import { IssueItem } from '../../lib/resume-checker-utils';
 
 interface DiagnosticListProps {
   issues: IssueItem[];
+  lang?: string;
 }
 
-export function DiagnosticList({ issues }: DiagnosticListProps) {
+export function DiagnosticList({ issues, lang }: DiagnosticListProps) {
+  const isEn = lang === 'en';
   return (
     <div className="space-y-4">
       {/* Diagnostics Title */}
       <div className="flex items-center justify-between">
-        <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">诊断报告 ({issues.length}项)</span>
+        <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+          {isEn ? `Diagnostic Report (${issues.length} items)` : `诊断报告 (${issues.length}项)`}
+        </span>
       </div>
 
       {/* Diagnostic Issues List */}
@@ -59,7 +63,7 @@ export function DiagnosticList({ issues }: DiagnosticListProps) {
                     className="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-[10px] font-bold rounded transition-all cursor-pointer shadow-sm shadow-blue-600/10"
                   >
                     <Zap className="w-2.5 h-2.5" />
-                    <span>一键智能修正</span>
+                    <span>{isEn ? 'Auto Fix' : '一键智能修正'}</span>
                   </button>
                 )}
               </div>
