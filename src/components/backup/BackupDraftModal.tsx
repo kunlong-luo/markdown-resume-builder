@@ -1,23 +1,35 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Database, History, FileJson, AlertCircle } from 'lucide-react';
+import { X, Database, History, FileJson, AlertCircle, Folder } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ResumeSettings, ResumeDraft } from '../../types';
 import { DraftsTab } from './DraftsTab';
 import { BackupTab } from './BackupTab';
+import { MatrixTab } from './MatrixTab';
 import { useConfirm } from '../../context/ConfirmContext';
+import { useResumeStore } from '../../store/useResumeStore';
 
-interface BackupDraftModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  markdown: string;
-  settings: ResumeSettings;
-  onRestore: (markdown: string, settings: ResumeSettings) => void;
-}
+export function BackupDraftModal() {
+  const {
+    markdown,
+    settings,
+    isBackupHubOpen: isOpen,
+    setIsBackupHubOpen,
+    setMarkdown,
+    setSettings,
+    handleMarkdownChange
+  } = useResumeStore();
 
-export function BackupDraftModal({ isOpen, onClose, markdown, settings, onRestore }: BackupDraftModalProps) {
+  const onClose = () => setIsBackupHubOpen(false);
+
+  const onRestore = (newMarkdown: string, newSettings: ResumeSettings) => {
+    setMarkdown(newMarkdown);
+    setSettings(newSettings);
+    handleMarkdownChange(newMarkdown, true);
+  };
+
   const { confirm } = useConfirm();
-  const [activeTab, setActiveTab] = useState<'drafts' | 'backup'>('drafts');
+  const [activeTab, setActiveTab] = useState<'drafts' | 'backup' | 'matrix'>('matrix');
   const [drafts, setDrafts] = useState<ResumeDraft[]>([]);
   const [newDraftTitle, setNewDraftTitle] = useState('');
   const [editingDraftId, setEditingDraftId] = useState<string | null>(null);
@@ -238,7 +250,7 @@ export function BackupDraftModal({ isOpen, onClose, markdown, settings, onRestor
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.94, y: 15 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="relative bg-white w-full max-w-2xl h-[580px] rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-10 flex flex-col"
+            className="relative bg-white w-full max-w-4xl h-[620px] rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-10 flex flex-col"
           >
             <div className="h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600" />
 
@@ -246,7 +258,7 @@ export function BackupDraftModal({ isOpen, onClose, markdown, settings, onRestor
               <div className="flex items-center gap-2">
                 <Database className="w-5 h-5 text-indigo-600" />
                 <div>
-                  <h3 className="font-bold text-slate-800 text-base">
+                  <h3 className="font-bold text-slate-800 text-sm">
                     {settings.lang === 'en' ? 'Data Storage & Multi-Version Backup Hub' : '数据存储与多版本备份 Hub'}
                   </h3>
                   <p className="text-[10px] text-slate-400 font-medium">
@@ -265,6 +277,19 @@ export function BackupDraftModal({ isOpen, onClose, markdown, settings, onRestor
             </div>
 
             <div className="flex border-b border-slate-100 px-6 bg-slate-50/50">
+              <button
+                onClick={() => setActiveTab('matrix')}
+                className={`flex items-center gap-2 py-3 px-4 text-xs font-bold border-b-2 transition-all cursor-pointer ${
+                  activeTab === 'matrix'
+                    ? 'border-indigo-600 text-indigo-600'
+                    : 'border-transparent text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                <Folder className="w-4 h-4" />
+                <span>
+                  {settings.lang === 'en' ? 'Resume Matrix' : '一职一简历 / 专属分享'}
+                </span>
+              </button>
               <button
                 onClick={() => setActiveTab('drafts')}
                 className={`flex items-center gap-2 py-3 px-4 text-xs font-bold border-b-2 transition-all cursor-pointer ${
@@ -312,7 +337,15 @@ export function BackupDraftModal({ isOpen, onClose, markdown, settings, onRestor
             </AnimatePresence>
 
             <div className="flex-1 overflow-y-auto p-6">
-              {activeTab === 'drafts' ? (
+              {activeTab === 'matrix' ? (
+                <MatrixTab 
+                  currentMarkdown={markdown}
+                  currentSettings={settings}
+                  onRestore={onRestore}
+                  lang={settings.lang}
+                  showToast={showToast}
+                />
+              ) : activeTab === 'drafts' ? (
                 <DraftsTab 
                   drafts={drafts}
                   newDraftTitle={newDraftTitle}

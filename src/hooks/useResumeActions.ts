@@ -1,28 +1,21 @@
 import React from 'react';
-import { ResumeSettings } from '../types';
 import { useReactToPrint } from 'react-to-print';
+import { useResumeStore } from '../store/useResumeStore';
 
 interface UseResumeActionsProps {
-  markdown: string;
-  settings: ResumeSettings;
-  customFileName: string;
   contentRef: React.RefObject<HTMLDivElement | null>;
-  handleMarkdownChange: (val: string, immediate?: boolean) => void;
-  setIsIframeModalOpen: (open: boolean) => void;
-  isExportingPDF: boolean;
-  setIsExportingPDF: (val: boolean) => void;
 }
 
-export function useResumeActions({
-  markdown,
-  settings,
-  customFileName,
-  contentRef,
-  handleMarkdownChange,
-  setIsIframeModalOpen,
-  isExportingPDF,
-  setIsExportingPDF
-}: UseResumeActionsProps) {
+export function useResumeActions({ contentRef }: UseResumeActionsProps) {
+  const {
+    markdown,
+    settings,
+    customFileName,
+    isExportingPDF,
+    setIsIframeModalOpen,
+    setIsExportingPDF,
+    handleMarkdownChange
+  } = useResumeStore();
   
   const getExportTitle = () => {
     if (customFileName.trim()) {

@@ -43,10 +43,19 @@ English | [简体中文](./README.md)
     *   **Professional Colors**: One-click color themes like **Indigo (Tech & Geek)**, **Slate (System & Academic)**, **Emerald (Finance & Consulting)**, and **Amber (Design & Product)**. Accent colors automatically propagate to headings, borders, bullet points, and highlight tags.
     *   **Micro-Layout Adjustments**: Real-time slider controls for font sizes, line heights, margins (Compact, Moderate, Loose), and optional decorative top accent lines.
 
-### 7. 💾 Multi-Version Draft History Hub
-*   **The Feature**: Built-in local database draft system. Save your current editing state into separate job target profiles (e.g., `Fullstack Developer.md`, `English Resume.md`). Load, overwrite, rename, or safely delete draft versions with ease. It also features a 30-second silent auto-save mechanism so you never lose your progress.
+### 7. 💾 Multi-Version Resume Matrix & One-Click Diff Analysis
+*   **The Feature**: Keep track of multiple resumes tailored for different jobs or roles. Instantly snapshot your current work to spin off a new targeted draft folder (e.g., `Frontend Dev Version`, `Product Manager Version`). Compare any two versions side-by-side using the **One-Click Diff Comparative Analyzer**, which highlights differences in text blocks, keywords, and accents.
 
-### 8. 🔍 Interactive Zoom & Screen Adaptation (Zoom & Fit Window)
+### 8. 🔒 Secure H5 Share Links & Independent Access Passwords
+*   **The Feature**: Publish a compressed, encrypted, responsive online H5 portfolio link for any version of your resume. Secure your page with an optional **Access Password challenge** to protect sensitive contact data from crawlers or unwanted eyes. Includes a generated HR high-definition QR Code for instant mobile-friendly reading or zero-config desktop printing.
+
+### 9. 📐 Draggable/Interactive Section Sorter
+*   **The Feature**: Switch to the "Section Order" view to automatically list major Markdown H2 titles (such as Work Experience, Education, Projects). Reorganize your reading layout order instantly with the up/down controllers without touching raw Markdown blocks, instantly synchronizing with Form values, Source codes, and PDF previews.
+
+### 10. 🕸️ 12px High-Precision Design Alignment Grid
+*   **The Feature**: Need pixel-perfect alignments? Turn on the "Grid Lines" overlay to map a 12px background design grid across the resume stage. Align margins, text lines, and dividers perfectly to get a professional, high-end editorial graphic designer feeling.
+
+### 11. 🔍 Interactive Zoom & Screen Adaptation (Zoom & Fit Window)
 *   **The Feature**: Interactive zoom slider supporting `50% - 150%` scales, alongside a one-click "Fit to Window" function. Zoom out to supervise macro-level layout pages or zoom in to inspect microscopic line and padding details on any display.
 
 ---

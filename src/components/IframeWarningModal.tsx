@@ -1,16 +1,23 @@
 import React from 'react';
 import { X, ExternalLink, HelpCircle, FileDown, AlertCircle, Sparkles, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useResumeStore } from '../store/useResumeStore';
 
-interface IframeWarningModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onOpenNewTab: () => void;
-  lang?: string;
-}
+export function IframeWarningModal() {
+  const {
+    isIframeModalOpen: isOpen,
+    setIsIframeModalOpen,
+    settings
+  } = useResumeStore();
 
-export function IframeWarningModal({ isOpen, onClose, onOpenNewTab, lang }: IframeWarningModalProps) {
-  const isEn = lang === 'en';
+  const isEn = settings.lang === 'en';
+  const onClose = () => setIsIframeModalOpen(false);
+
+  const onOpenNewTab = () => {
+    window.open(window.location.href, '_blank');
+    setIsIframeModalOpen(false);
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (

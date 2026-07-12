@@ -5,6 +5,7 @@ import { analyzeResume } from '../../lib/resume-checker-utils';
 import { formatChineseEnglishSpacing } from '../../lib/format-utils';
 import { ScoreDisplay } from './ScoreDisplay';
 import { DiagnosticList } from './DiagnosticList';
+import { useResumeStore } from '../../store/useResumeStore';
 
 interface ResumeCheckerProps {
   markdown: string;
@@ -188,7 +189,18 @@ const WEAK_WORDS_CONFIG: WeakWordConfig[] = [
   }
 ];
 
-export function ResumeChecker({ markdown, onUpdateMarkdown, isOpen, onClose, lang }: ResumeCheckerProps) {
+export function ResumeChecker() {
+  const {
+    markdown,
+    handleMarkdownChange: onUpdateMarkdown,
+    isCheckerOpen: isOpen,
+    setIsCheckerOpen,
+    settings
+  } = useResumeStore();
+
+  const onClose = () => setIsCheckerOpen(false);
+  const lang = settings.lang || 'zh';
+
   const [activeTab, setActiveTab] = useState<'diagnostics' | 'verbs'>('diagnostics');
 
   const analysis = useMemo(() => {

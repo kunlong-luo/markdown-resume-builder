@@ -1,5 +1,5 @@
 import React from 'react';
-import { Ruler, AlertTriangle, Info, Zap } from 'lucide-react';
+import { Ruler, AlertTriangle, Info, Zap, Maximize2, Minimize2 } from 'lucide-react';
 
 interface HeightGuardProps {
   metrics: {
@@ -16,7 +16,7 @@ interface HeightGuardProps {
 const TRANSLATIONS = {
   zh: {
     title: 'A4 高度警报器',
-    autoFitting: '自动缩合中 ⚡',
+    autoFitting: '智能缩合中',
     overflow: '内容溢出 ⚠️',
     nearLimit: '临近边界 ⚠️',
     perfectFit: '完美契合 ✅',
@@ -34,7 +34,7 @@ const TRANSLATIONS = {
   },
   en: {
     title: 'A4 Height Guard',
-    autoFitting: 'Auto Fitting... ⚡',
+    autoFitting: 'Auto Fitting',
     overflow: 'Overflow ⚠️',
     nearLimit: 'Near Limit ⚠️',
     perfectFit: 'Perfect Fit ✅',
@@ -62,6 +62,76 @@ export function HeightGuard({
 }: HeightGuardProps) {
   const t = lang === 'en' ? TRANSLATIONS.en : TRANSLATIONS.zh;
 
+  const [isCollapsed, setIsCollapsed] = React.useState(() => {
+    try {
+      return localStorage.getItem('height-guard-collapsed') === 'true';
+    } catch (e) {
+      return false;
+    }
+  });
+
+  const toggleCollapse = (e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    const next = !isCollapsed;
+    setIsCollapsed(next);
+    try {
+      localStorage.setItem('height-guard-collapsed', String(next));
+    } catch (e) {}
+  };
+
+  // Render compact minimized pill state
+  if (isCollapsed) {
+    const statusColorClass = isAutoFitting
+      ? 'bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100 shadow-sm'
+      : metrics.isOver
+        ? 'bg-red-50 border-red-200 text-red-700 hover:bg-red-100 animate-pulse shadow-sm shadow-red-500/10'
+        : metrics.overflowPercent > 92
+          ? 'bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100 shadow-sm'
+          : 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100 shadow-sm';
+
+    return (
+      <div 
+        onClick={() => toggleCollapse()}
+        className={`absolute bottom-5 right-5 z-40 flex items-center gap-3 px-3 py-1.5 bg-white/95 backdrop-blur-md border border-slate-200/80 shadow-lg rounded-full cursor-pointer select-none print:hidden hover:shadow-xl transition-all duration-200 hover:border-slate-300`}
+        title={lang === 'en' ? 'Click to expand A4 Height Guard' : '点击展开 A4 高度警报器'}
+      >
+        <div className="flex items-center gap-1.5">
+          <Ruler className={`w-3.5 h-3.5 ${
+            isAutoFitting
+              ? 'text-indigo-500 animate-spin'
+              : metrics.isOver
+                ? 'text-red-500 animate-bounce'
+                : metrics.overflowPercent > 92
+                  ? 'text-amber-500'
+                  : 'text-emerald-500'
+          }`} />
+          <span className="text-xs font-bold text-slate-700">
+            {metrics.overflowPercent}%
+          </span>
+          <span className="text-[10px] text-slate-400 font-medium">
+            / {targetPageLimit}{t.pageUnit}
+          </span>
+        </div>
+
+        {/* Status text pill */}
+        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border transition-colors ${statusColorClass}`}>
+          {isAutoFitting ? t.autoFitting : metrics.isOver ? (lang === 'en' ? 'Overflow' : '溢出') : metrics.overflowPercent > 92 ? (lang === 'en' ? 'Near Limit' : '临近') : (lang === 'en' ? 'Fit' : '契合')}
+        </span>
+
+        {/* Small Expand Button */}
+        <button
+          onClick={toggleCollapse}
+          className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors cursor-pointer"
+          title={lang === 'en' ? 'Expand' : '展开'}
+        >
+          <Maximize2 className="w-3 h-3" />
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="absolute bottom-5 right-5 z-40 max-w-[310px] w-full bg-white/95 backdrop-blur-md border border-slate-200/80 shadow-2xl rounded-2xl p-4 flex flex-col gap-3 select-none transition-all hover:bg-white print:hidden">
       {/* Header */}
@@ -70,17 +140,26 @@ export function HeightGuard({
           <Ruler className="w-4 h-4 text-rose-500" />
           <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">{t.title}</span>
         </div>
-        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border transition-colors ${
-          isAutoFitting
-            ? 'bg-indigo-50 text-indigo-600 border-indigo-200 animate-pulse shadow-sm'
-            : metrics.isOver 
-              ? 'bg-red-50 text-red-600 border-red-200 animate-pulse shadow-sm shadow-red-500/10' 
-              : metrics.overflowPercent > 92 
-                ? 'bg-amber-50 text-amber-600 border-amber-200 shadow-sm' 
-                : 'bg-emerald-50 text-emerald-600 border-emerald-200 shadow-sm'
-        }`}>
-          {isAutoFitting ? t.autoFitting : metrics.isOver ? t.overflow : metrics.overflowPercent > 92 ? t.nearLimit : t.perfectFit}
-        </span>
+        <div className="flex items-center gap-1.5">
+          <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border transition-colors ${
+            isAutoFitting
+              ? 'bg-indigo-50 text-indigo-600 border-indigo-200 animate-pulse shadow-sm'
+              : metrics.isOver 
+                ? 'bg-red-50 text-red-600 border-red-200 animate-pulse shadow-sm shadow-red-500/10' 
+                : metrics.overflowPercent > 92 
+                  ? 'bg-amber-50 text-amber-600 border-amber-200 shadow-sm' 
+                  : 'bg-emerald-50 text-emerald-600 border-emerald-200 shadow-sm'
+          }`}>
+            {isAutoFitting ? t.autoFitting : metrics.isOver ? t.overflow : metrics.overflowPercent > 92 ? t.nearLimit : t.perfectFit}
+          </span>
+          <button
+            onClick={toggleCollapse}
+            className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+            title={lang === 'en' ? 'Collapse' : '折叠'}
+          >
+            <Minimize2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
 
       {/* Height gauge visual */}
@@ -175,3 +254,4 @@ export function HeightGuard({
     </div>
   );
 }
+

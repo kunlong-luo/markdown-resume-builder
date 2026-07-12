@@ -1,31 +1,32 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { FileText, Cloud, Sparkles, Database, Upload, Download, FileDown, Loader2 } from 'lucide-react';
+import { useResumeStore } from '../../store/useResumeStore';
+import { getWordCount } from '../../lib/word-count';
 
 interface HeaderProps {
-  wordCount: number;
-  lastSaved: string;
-  isCheckerOpen: boolean;
-  setIsCheckerOpen: (open: boolean) => void;
-  setIsBackupHubOpen: (open: boolean) => void;
   handleImportMarkdown: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleExportMarkdown: () => void;
   handleExportPDF: () => void;
-  isExportingPDF: boolean;
-  lang: string;
 }
 
 export function Header({
-  wordCount,
-  lastSaved,
-  isCheckerOpen,
-  setIsCheckerOpen,
-  setIsBackupHubOpen,
   handleImportMarkdown,
   handleExportMarkdown,
-  handleExportPDF,
-  isExportingPDF,
-  lang
+  handleExportPDF
 }: HeaderProps) {
+  const {
+    markdown,
+    lastSaved,
+    isCheckerOpen,
+    isExportingPDF,
+    setIsCheckerOpen,
+    setIsBackupHubOpen,
+    settings
+  } = useResumeStore();
+
+  const lang = settings.lang || 'zh';
+  const wordCount = useMemo(() => getWordCount(markdown), [markdown]);
+
   return (
     <header className="flex flex-col md:flex-row items-center justify-between px-6 py-3 bg-white border-b border-slate-200/80 z-20 gap-3 md:gap-0 shadow-sm shadow-slate-100/50">
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full md:w-auto">
@@ -67,8 +68,8 @@ export function Header({
           onClick={() => setIsCheckerOpen(!isCheckerOpen)}
           className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-lg text-xs font-semibold transition-all shadow-sm active:scale-[0.98] cursor-pointer ${
             isCheckerOpen 
-              ? 'bg-blue-50 border-blue-200 text-blue-700 font-bold' 
-              : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700'
+          ? 'bg-blue-50 border-blue-200 text-blue-700 font-bold' 
+          : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700'
           }`}
           title={lang === 'en' ? 'Audit resume writing guidelines & spacing issues' : '一键诊断简历书写规范与排版建议'}
         >

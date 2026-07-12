@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo, useDeferredValue } from 'react';
+import React, { useRef, useMemo, useEffect } from 'react';
 import { Editor } from './components/Editor';
 import { Preview } from './components/preview/Preview';
 import { ResumeChecker } from './components/resume-checker/ResumeChecker';
@@ -6,76 +6,48 @@ import { IframeWarningModal } from './components/IframeWarningModal';
 import { BackupDraftModal } from './components/backup/BackupDraftModal';
 import { Header } from './components/layout/Header';
 import { Toolbar } from './components/layout/Toolbar';
-import { DEFAULT_MARKDOWN, TEMPLATES } from './data';
-import { ResumeSettings } from './types';
-import { useResumeData } from './hooks/useResumeData';
+import { useResumeStore } from './store/useResumeStore';
 import { useResumeActions } from './hooks/useResumeActions';
-import { getWordCount } from './lib/word-count';
-import { useConfirm } from './context/ConfirmContext';
+import { ResumeSettings } from './types';
+import { deserializeShareState } from './lib/share-utils';
+import { SharedResumePage } from './components/share/SharedResumePage';
 
 export default function App() {
+  const shareState = useMemo(() => {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const shareHash = urlParams.get('share');
+      if (shareHash) {
+        return deserializeShareState(shareHash);
+      }
+    } catch (e) {
+      console.error('Failed to parse share parameter', e);
+    }
+    return null;
+  }, []);
+
+  if (shareState) {
+    return <SharedResumePage shareState={shareState} />;
+  }
+
   const {
     markdown,
-    setMarkdown,
     settings,
+    setLastSaved,
+    setMarkdown,
     setSettings,
-    currentTemplateId,
-    setCurrentTemplateId,
-    lastSaved,
-    handleMarkdownChange,
-    handleUndo,
-    handleRedo,
-    canUndo,
-    canRedo,
-    updateSetting,
-    updateSettings
-  } = useResumeData();
-
-  const { confirm } = useConfirm();
-
-  const [isCheckerOpen, setIsCheckerOpen] = useState(false);
-  const [isIframeModalOpen, setIsIframeModalOpen] = useState(false);
-  const [isBackupHubOpen, setIsBackupHubOpen] = useState(false);
-  const [customFileName, setCustomFileName] = useState('');
-  const [isExportingPDF, setIsExportingPDF] = useState(false);
+    handleMarkdownChange
+  } = useResumeStore();
 
   const contentRef = useRef<HTMLDivElement>(null);
 
   const {
     handleExportPDF,
     handleExportMarkdown,
-    handleImportMarkdown,
-    getExportTitle
+    handleImportMarkdown
   } = useResumeActions({
-    markdown,
-    settings,
-    customFileName,
-    contentRef,
-    handleMarkdownChange,
-    setIsIframeModalOpen,
-    isExportingPDF,
-    setIsExportingPDF
+    contentRef
   });
-
-  const handleTemplateChange = async (id: string) => {
-    const tmpl = TEMPLATES.find(t => t.id === id);
-    if (tmpl) {
-      const isEn = settings.lang === 'en';
-      const confirmed = await confirm({
-        title: isEn ? 'Load Template' : '确认加载模板',
-        message: isEn 
-          ? `Are you sure you want to load the template "${tmpl.name}"? Your current changes will be overwritten.`
-          : `确认加载「${tmpl.name}」模版吗？您当前的修改将被覆盖。`,
-        confirmText: isEn ? 'Load' : '确认加载',
-        cancelText: isEn ? 'Cancel' : '取消',
-        type: 'warning'
-      });
-      if (confirmed) {
-        setCurrentTemplateId(id);
-        handleMarkdownChange(tmpl.content, true);
-      }
-    }
-  };
 
   const handleRestoreDraft = (newMarkdown: string, newSettings: ResumeSettings) => {
     setMarkdown(newMarkdown);
@@ -83,56 +55,55 @@ export default function App() {
     handleMarkdownChange(newMarkdown, true);
   };
 
-  const handleReset = async () => {
-    const isEn = settings.lang === 'en';
-    const confirmed = await confirm({
-      title: isEn ? 'Reset Template' : '重置模板',
-      message: isEn
-        ? 'Are you sure you want to reset to the default template? Your current changes will be lost.'
-        : '确定要重置为默认模板吗？当前的修改将会丢失。',
-      confirmText: isEn ? 'Reset' : '确定重置',
-      cancelText: isEn ? 'Cancel' : '取消',
-      type: 'danger'
-    });
-    if (confirmed) {
-      handleMarkdownChange(DEFAULT_MARKDOWN, true);
-    }
-  };
+  // Debounce saving markdown to localStorage to prevent layout blocking on every keypress
+  useEffect(() => {
+    const saveTimer = setTimeout(() => {
+      localStorage.setItem('resume-markdown', markdown);
+      const now = new Date();
+      const pad = (num: number) => String(num).padStart(2, '0');
+      setLastSaved(`${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`);
+    }, 1000); // Save after 1 second of inactivity
 
-  const handleOpenInNewTab = () => {
-    window.open(window.location.href, '_blank');
-    setIsIframeModalOpen(false);
-  };
+    return () => clearTimeout(saveTimer);
+  }, [markdown, setLastSaved]);
 
-  const wordCount = useMemo(() => getWordCount(markdown), [markdown]);
-  const exportTitle = useMemo(() => getExportTitle(), [markdown, customFileName]);
-  const deferredMarkdown = useDeferredValue(markdown);
+  // Automated periodic autosave (every 3 minutes)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      try {
+        const currentDraftsRaw = localStorage.getItem('resume-drafts');
+        const currentDrafts = currentDraftsRaw ? JSON.parse(currentDraftsRaw) : [];
+        const hasDuplicate = currentDrafts.some((d: any) => d.markdown === markdown);
+        if (hasDuplicate) return;
+
+        const newAutoDraft = {
+          id: `draft_auto_${Date.now()}`,
+          title: `自动备份 - ${new Date().toLocaleTimeString('zh-CN', { hour12: false })}`,
+          markdown,
+          settings,
+          timestamp: new Date().toLocaleString('zh-CN', { hour12: false }),
+          isAutoSave: true
+        };
+
+        const otherDrafts = currentDrafts.filter((d: any) => !d.isAutoSave);
+        const autoDrafts = currentDrafts.filter((d: any) => d.isAutoSave);
+        const updatedAutoDrafts = [newAutoDraft, ...autoDrafts].slice(0, 5);
+        localStorage.setItem('resume-drafts', JSON.stringify([...updatedAutoDrafts, ...otherDrafts]));
+      } catch (e) {}
+    }, 180000);
+
+    return () => clearInterval(interval);
+  }, [markdown, settings]);
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[#f8fafc]">
       <Header 
-        wordCount={wordCount}
-        lastSaved={lastSaved}
-        isCheckerOpen={isCheckerOpen}
-        setIsCheckerOpen={setIsCheckerOpen}
-        setIsBackupHubOpen={setIsBackupHubOpen}
         handleImportMarkdown={handleImportMarkdown}
         handleExportMarkdown={handleExportMarkdown}
         handleExportPDF={handleExportPDF}
-        isExportingPDF={isExportingPDF}
-        lang={settings.lang || 'zh'}
       />
 
-      <Toolbar 
-        settings={settings}
-        updateSetting={updateSetting}
-        updateSettings={updateSettings}
-        currentTemplateId={currentTemplateId}
-        handleTemplateChange={handleTemplateChange}
-        customFileName={customFileName}
-        setCustomFileName={setCustomFileName}
-        exportTitle={exportTitle}
-      />
+      <Toolbar />
 
       <main className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
         {(settings.layoutMode === 'split' || settings.layoutMode === 'editor') && (
@@ -144,16 +115,7 @@ export default function App() {
                 : 'w-full md:w-1/2 h-1/2 md:h-full border-b md:border-b-0 border-slate-200'
             }`}
           >
-            <Editor 
-              value={markdown} 
-              onChange={handleMarkdownChange} 
-              onReset={handleReset} 
-              onUndo={handleUndo}
-              onRedo={handleRedo}
-              canUndo={canUndo}
-              canRedo={canRedo}
-              settings={settings}
-            />
+            <Editor />
           </section>
         )}
 
@@ -166,37 +128,17 @@ export default function App() {
             }`}
           >
             <Preview 
-              markdown={deferredMarkdown} 
-              settings={settings} 
               ref={contentRef} 
-              onChangeSettings={updateSetting}
             />
           </section>
         )}
 
-        <ResumeChecker
-          markdown={deferredMarkdown}
-          onUpdateMarkdown={handleMarkdownChange}
-          isOpen={isCheckerOpen}
-          onClose={() => setIsCheckerOpen(false)}
-        />
+        <ResumeChecker />
       </main>
 
-      <IframeWarningModal
-        isOpen={isIframeModalOpen}
-        onClose={() => setIsIframeModalOpen(false)}
-        onOpenNewTab={handleOpenInNewTab}
-        lang={settings.lang}
-      />
+      <IframeWarningModal />
 
-      <BackupDraftModal
-        isOpen={isBackupHubOpen}
-        onClose={() => setIsBackupHubOpen(false)}
-        markdown={markdown}
-        settings={settings}
-        onRestore={handleRestoreDraft}
-      />
+      <BackupDraftModal />
     </div>
   );
 }
-

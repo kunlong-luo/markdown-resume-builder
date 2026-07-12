@@ -1,10 +1,11 @@
 
-import React, { forwardRef, useState, useEffect, useMemo, useRef } from 'react';
+import React, { forwardRef, useState, useEffect, useMemo, useRef, useDeferredValue } from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { ZoomIn, ZoomOut, Sliders } from 'lucide-react';
+import { ZoomIn, ZoomOut, Sliders, Grid } from 'lucide-react';
 import { motion } from 'motion/react';
 import { ResumeSettings } from '../../types';
+import { useResumeStore } from '../../store/useResumeStore';
 
 import { 
   THEME_MAP, FONT_FAMILY_CLASSES, parseResumeHeader, cleanMarkdown, 
@@ -15,16 +16,36 @@ import { HeightGuard } from './HeightGuard';
 import { ResumeHeader } from './ResumeHeader';
 
 interface PreviewProps {
-  markdown: string;
-  settings: ResumeSettings;
-  onChangeSettings?: <K extends keyof ResumeSettings>(key: K, value: ResumeSettings[K]) => void;
+  overrideMarkdown?: string;
+  overrideSettings?: ResumeSettings;
 }
 
-export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, settings, onChangeSettings }, ref) => {
+export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkdown, overrideSettings }, ref) => {
+  const {
+    markdown: storeMarkdown,
+    settings: storeSettings,
+    updateSetting: onChangeSettings
+  } = useResumeStore();
+
+  const activeMarkdown = overrideMarkdown !== undefined ? overrideMarkdown : storeMarkdown;
+  const markdown = useDeferredValue(activeMarkdown);
+  const settings = overrideSettings !== undefined ? overrideSettings : storeSettings;
+
   const theme = THEME_MAP[settings.themeColor] || THEME_MAP.blue;
   const fontClass = FONT_FAMILY_CLASSES[settings.fontFamily];
 
   const [targetPageLimit, setTargetPageLimit] = useState<1 | 2 | 3>(1);
+  const [showGrid, setShowGrid] = useState<boolean>(() => {
+    return localStorage.getItem('resume_preview_show_grid') === 'true';
+  });
+
+  const toggleGrid = () => {
+    setShowGrid(prev => {
+      const next = !prev;
+      localStorage.setItem('resume_preview_show_grid', String(next));
+      return next;
+    });
+  };
   const [metrics, setMetrics] = useState({
     isOver: false,
     overflowPercent: 0,
@@ -294,6 +315,20 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, set
             </button>
           </div>
 
+          {/* Grid Toggle Button */}
+          <button
+            onClick={toggleGrid}
+            className={`flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold rounded-lg border transition-all cursor-pointer ${
+              showGrid
+                ? 'bg-indigo-50 text-indigo-600 border-indigo-200/50 shadow-sm'
+                : 'bg-white text-slate-500 border-slate-200/40 hover:text-slate-700 hover:bg-slate-50'
+            }`}
+            title={settings.lang === 'en' ? 'Toggle alignment grid lines' : '显示/隐藏高精度排版网格辅助线'}
+          >
+            <Grid className="w-3.5 h-3.5" />
+            <span>{settings.lang === 'en' ? 'Grid' : '网格线'}</span>
+          </button>
+
           <span className="text-[10px] font-mono font-bold text-slate-500 min-w-[32px] text-right">
             {Math.round(calculatedZoom * 100)}%
           </span>
@@ -379,6 +414,19 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, set
               </div>
             ))}
           </div>
+        )}
+
+        {showGrid && (
+          <div 
+            className="absolute inset-0 pointer-events-none z-20 print:hidden select-none"
+            style={{
+              backgroundImage: `
+                linear-gradient(to right, rgba(99, 102, 241, 0.055) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(99, 102, 241, 0.055) 1px, transparent 1px)
+              `,
+              backgroundSize: '12px 12px',
+            }}
+          />
         )}
 
         {settings.topAccentLine && <div className={`absolute top-0 left-0 right-0 h-[4.5px] ${theme.topAccentColor}`} />}
@@ -538,7 +586,7 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ markdown, set
         metrics={metrics} 
         targetPageLimit={targetPageLimit} 
         setTargetPageLimit={setTargetPageLimit} 
-        onSmartAutoFit={onChangeSettings ? handleSmartAutoFit : undefined} 
+        onSmartAutoFit={handleSmartAutoFit} 
         isAutoFitting={isAutoFitting}
         lang={settings.lang}
       />

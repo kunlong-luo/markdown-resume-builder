@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Sparkles, LayoutGrid, Sliders, Check, Settings, Maximize2, Columns, Eye, Globe, ChevronDown, Palette } from 'lucide-react';
 import { ResumeSettings, ThemeColor, FontSize, PaperMargin, FontFamily, TemplateLayout, H2Style } from '../../types';
 import { TEMPLATES } from '../../data';
+import { useResumeStore } from '../../store/useResumeStore';
+import { useConfirm } from '../../context/ConfirmContext';
 
 const MASTER_PRESETS = [
   {
@@ -124,16 +126,7 @@ const MASTER_PRESETS = [
   }
 ];
 
-interface ToolbarProps {
-  settings: ResumeSettings;
-  updateSetting: <K extends keyof ResumeSettings>(key: K, value: ResumeSettings[K]) => void;
-  updateSettings: (newSettings: Partial<ResumeSettings>) => void;
-  currentTemplateId: string;
-  handleTemplateChange: (id: string) => void;
-  customFileName: string;
-  setCustomFileName: (name: string) => void;
-  exportTitle: string;
-}
+// Refactored to use useResumeStore instead of props
 
 const TRANSLATIONS = {
   zh: {
@@ -220,16 +213,56 @@ const TRANSLATIONS = {
   }
 };
 
-export function Toolbar({
-  settings,
-  updateSetting,
-  updateSettings,
-  currentTemplateId,
-  handleTemplateChange,
-  customFileName,
-  setCustomFileName,
-  exportTitle
-}: ToolbarProps) {
+export function Toolbar() {
+  const {
+    settings,
+    updateSetting,
+    updateSettings,
+    currentTemplateId,
+    setCurrentTemplateId,
+    markdown,
+    handleMarkdownChange,
+    customFileName,
+    setCustomFileName
+  } = useResumeStore();
+
+  const { confirm } = useConfirm();
+
+  const handleTemplateChange = async (id: string) => {
+    const tmpl = TEMPLATES.find(t => t.id === id);
+    if (tmpl) {
+      const isEn = settings.lang === 'en';
+      const confirmed = await confirm({
+        title: isEn ? 'Load Template' : '确认加载模板',
+        message: isEn 
+          ? `Are you sure you want to load the template "${tmpl.name}"? Your current changes will be overwritten.`
+          : `确认加载「${tmpl.name}」模版吗？您当前的修改将被覆盖。`,
+        confirmText: isEn ? 'Load' : '确认加载',
+        cancelText: isEn ? 'Cancel' : '取消',
+        type: 'warning'
+      });
+      if (confirmed) {
+        setCurrentTemplateId(id);
+        handleMarkdownChange(tmpl.content, true);
+      }
+    }
+  };
+
+  const getExportTitle = () => {
+    if (customFileName.trim()) {
+      return customFileName.trim().replace(/[\\\/:*?"<>|]/g, '-');
+    }
+    const firstLine = markdown.trim().split('\n')[0];
+    if (firstLine && firstLine.startsWith('# ')) {
+      const parsedName = firstLine.replace('# ', '').trim();
+      if (parsedName) {
+        return parsedName.replace(/[\\\/:*?"<>|]/g, '-');
+      }
+    }
+    return 'resume';
+  };
+
+  const exportTitle = getExportTitle();
   const [isAestheticsOpen, setIsAestheticsOpen] = useState(false);
   const colors: { name: ThemeColor; bg: string; ring: string }[] = [
     { name: 'blue', bg: 'bg-blue-600', ring: 'ring-blue-600/30' },

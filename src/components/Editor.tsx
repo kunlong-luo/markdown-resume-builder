@@ -1,10 +1,14 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { 
   Edit3, Copy, RotateCcw, Check, Bold, Italic, Link, List, ListOrdered, Table, Minus, Heading1, Heading2, Code, Info, Scissors, Undo, Redo,
-  Sparkles, Type, Layers, Award, Phone, GraduationCap, ChevronDown, Briefcase
+  Sparkles, Type, Layers, Award, Phone, GraduationCap, ChevronDown, Briefcase, Sliders
 } from 'lucide-react';
 import { FormEditor } from './form/FormEditor';
+import { SectionSorter } from './layout/SectionSorter';
 import { ResumeSettings } from '../types';
+import { useResumeStore } from '../store/useResumeStore';
+import { useConfirm } from '../context/ConfirmContext';
+import { DEFAULT_MARKDOWN } from '../data';
 
 import { formatChineseEnglishSpacing } from '../lib/format-utils';
 
@@ -94,20 +98,41 @@ function highlightMarkdown(text: string): string {
   return highlightedLines.join('\n');
 }
 
-interface EditorProps {
-  value: string;
-  onChange: (value: string, immediate?: boolean) => void;
-  onReset: () => void;
-  onUndo?: () => void;
-  onRedo?: () => void;
-  canUndo?: boolean;
-  canRedo?: boolean;
-  settings: ResumeSettings;
-}
+// Props are refactored to use Zustand global store
+export function Editor() {
+  const {
+    markdown: value,
+    handleMarkdownChange: onChange,
+    handleUndo: onUndo,
+    handleRedo: onRedo,
+    historyIndex,
+    history,
+    settings
+  } = useResumeStore();
 
-export function Editor({ value, onChange, onReset, onUndo, onRedo, canUndo = false, canRedo = false, settings }: EditorProps) {
+  const { confirm } = useConfirm();
+
+  const canUndo = historyIndex > 0;
+  const canRedo = historyIndex < history.length - 1;
+
+  const onReset = async () => {
+    const isEn = settings.lang === 'en';
+    const confirmed = await confirm({
+      title: isEn ? 'Reset Template' : '重置模板',
+      message: isEn
+        ? 'Are you sure you want to reset to the default template? Your current changes will be lost.'
+        : '确定要重置为默认模板吗？当前的修改将会丢失。',
+      confirmText: isEn ? 'Reset' : '确定重置',
+      cancelText: isEn ? 'Cancel' : '取消',
+      type: 'danger'
+    });
+    if (confirmed) {
+      onChange(DEFAULT_MARKDOWN, true);
+    }
+  };
+
   const [copied, setCopied] = useState(false);
-  const [activeMode, setActiveMode] = useState<'markdown' | 'form'>('form');
+  const [activeMode, setActiveMode] = useState<'markdown' | 'form' | 'layout'>('form');
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const preRef = useRef<HTMLPreElement>(null);
@@ -218,30 +243,37 @@ export function Editor({ value, onChange, onReset, onUndo, onRedo, canUndo = fal
             <Edit3 className="w-3.5 h-3.5" />
             <span>{settings.lang === 'en' ? 'Markdown Editor' : 'Markdown 编辑'}</span>
           </button>
+          <button
+            onClick={() => setActiveMode('layout')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-200 cursor-pointer ${
+              activeMode === 'layout'
+                ? 'bg-white text-blue-600 shadow-sm border border-slate-200/10'
+                : 'text-slate-600 hover:text-slate-800'
+            }`}
+          >
+            <Sliders className="w-3.5 h-3.5" />
+            <span>{settings.lang === 'en' ? 'Section Order' : '板块排序'}</span>
+          </button>
         </div>
 
         <div className="flex items-center gap-1.5 self-end sm:self-auto">
-          {onUndo && (
-            <button 
-              onClick={onUndo}
-              disabled={!canUndo}
-              className={`p-1.5 rounded transition-colors ${canUndo ? 'text-gray-600 hover:text-blue-600 hover:bg-blue-50 cursor-pointer' : 'text-gray-300 cursor-not-allowed'}`}
-              title={settings.lang === 'en' ? 'Undo (Ctrl+Z)' : '撤销 (Ctrl+Z)'}
-            >
-              <Undo className="w-3.5 h-3.5" />
-            </button>
-          )}
-          {onRedo && (
-            <button 
-              onClick={onRedo}
-              disabled={!canRedo}
-              className={`p-1.5 rounded transition-colors ${canRedo ? 'text-gray-600 hover:text-blue-600 hover:bg-blue-50 cursor-pointer' : 'text-gray-300 cursor-not-allowed'}`}
-              title={settings.lang === 'en' ? 'Redo (Ctrl+Y)' : '重做 (Ctrl+Y)'}
-            >
-              <Redo className="w-3.5 h-3.5" />
-            </button>
-          )}
-          {(onUndo || onRedo) && <div className="w-px h-4 bg-gray-200 mx-1"></div>}
+          <button 
+            onClick={onUndo}
+            disabled={!canUndo}
+            className={`p-1.5 rounded transition-colors ${canUndo ? 'text-gray-600 hover:text-blue-600 hover:bg-blue-50 cursor-pointer' : 'text-gray-300 cursor-not-allowed'}`}
+            title={settings.lang === 'en' ? 'Undo (Ctrl+Z)' : '撤销 (Ctrl+Z)'}
+          >
+            <Undo className="w-3.5 h-3.5" />
+          </button>
+          <button 
+            onClick={onRedo}
+            disabled={!canRedo}
+            className={`p-1.5 rounded transition-colors ${canRedo ? 'text-gray-600 hover:text-blue-600 hover:bg-blue-50 cursor-pointer' : 'text-gray-300 cursor-not-allowed'}`}
+            title={settings.lang === 'en' ? 'Redo (Ctrl+Y)' : '重做 (Ctrl+Y)'}
+          >
+            <Redo className="w-3.5 h-3.5" />
+          </button>
+          <div className="w-px h-4 bg-gray-200 mx-1"></div>
           <button 
             onClick={handleCopy}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
@@ -509,6 +541,8 @@ export function Editor({ value, onChange, onReset, onUndo, onRedo, canUndo = fal
             />
           </div>
         </>
+      ) : activeMode === 'layout' ? (
+        <SectionSorter markdown={value} onChange={onChange} lang={settings.lang} />
       ) : (
         <FormEditor value={value} onChange={onChange} settings={settings} />
       )}
