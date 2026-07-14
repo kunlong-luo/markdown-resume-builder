@@ -89,7 +89,7 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
     saveMatrix(updated);
     setNewVersionName('');
     setIsCreatingVersion(false);
-    showToast(isEn ? 'New targeted version folder created!' : '成功创建新的一职一简历版本文件夹！');
+    showToast(isEn ? 'New targeted version folder created!' : '成功创建新版本！');
   };
 
   const handleDeleteVersion = (id: string, e: React.MouseEvent) => {
@@ -172,85 +172,105 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
     <div className="space-y-6 h-full flex flex-col text-slate-700">
       
       {/* Upper Grid Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 flex-1 overflow-y-auto pr-1">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 overflow-y-auto pr-1">
         
         {/* Left Side: Versions List */}
-        <div className="space-y-3.5 flex flex-col">
+        <div className="space-y-4 flex flex-col">
           <div className="flex items-center justify-between">
-            <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-              <FolderOpen className="w-4 h-4 text-indigo-500" />
-              <span>{isEn ? 'Targeted Resume Folders' : '我的简历文件夹矩阵'}</span>
+            <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+              <FolderOpen className="w-4 h-4 text-indigo-600" />
+              <span>{isEn ? 'Targeted Resume Folders' : '版本列表'}</span>
             </h4>
             
             {!isCreatingVersion && (
               <button
                 onClick={() => setIsCreatingVersion(true)}
-                className="flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-all cursor-pointer active:scale-95"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-indigo-600 bg-indigo-50/80 hover:bg-indigo-100/80 rounded-lg transition-all cursor-pointer active:scale-95 border border-indigo-100/50"
               >
-                <Plus className="w-3 h-3" />
-                <span>{isEn ? 'New Version' : '建立新岗位版'}</span>
+                <Plus className="w-3.5 h-3.5" />
+                <span>{isEn ? 'New Version' : '新建版本'}</span>
               </button>
             )}
           </div>
 
           {isCreatingVersion && (
-            <form onSubmit={handleCreateVersion} className="flex gap-2 p-3 bg-indigo-50/50 rounded-xl border border-indigo-100/60 animate-in fade-in slide-in-from-top-1 duration-200">
+            <form onSubmit={handleCreateVersion} className="flex gap-2 p-3.5 bg-slate-50 rounded-xl border border-slate-200/60 animate-in fade-in slide-in-from-top-1.5 duration-250">
               <input
                 type="text"
-                placeholder={isEn ? "e.g., Python Backend Dev" : "输入简历版本说明 (如: AI算法岗/全栈合伙人)..."}
+                placeholder={isEn ? "e.g., Python Backend Dev" : "输入版本名称 (如: 算法工程师、外企版)..."}
                 value={newVersionName}
                 onChange={(e) => setNewVersionName(e.target.value)}
-                className="flex-1 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 shadow-inner"
                 required
                 autoFocus
               />
               <button
                 type="submit"
-                className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer"
+                className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer shadow-sm active:scale-95"
               >
                 {isEn ? 'Create' : '创建'}
               </button>
               <button
                 type="button"
                 onClick={() => setIsCreatingVersion(false)}
-                className="px-2.5 py-1.5 border border-slate-200 text-slate-500 hover:bg-slate-50 text-xs rounded-lg transition-colors"
+                className="px-3 py-2 border border-slate-200 text-slate-500 hover:bg-slate-100 text-xs rounded-lg transition-colors"
               >
                 {isEn ? 'Cancel' : '取消'}
               </button>
             </form>
           )}
 
-          <div className="space-y-2.5 flex-1 overflow-y-auto max-h-[300px] scrollbar-thin">
+          <div className="space-y-3 flex-1 overflow-y-auto max-h-[350px] scrollbar-thin pr-0.5">
             {matrixVersions.map((version) => {
               const isSelectedForShare = selectedVersionIdForShare === version.id;
+              
+              // Map the theme colors to accurate border/accent colors
+              const themeColorName = version.settings?.themeColor || 'indigo';
+              const colorMap: Record<string, { border: string, bg: string, text: string }> = {
+                blue: { border: 'border-l-blue-500', bg: 'bg-blue-500', text: 'text-blue-600' },
+                indigo: { border: 'border-l-indigo-500', bg: 'bg-indigo-500', text: 'text-indigo-600' },
+                purple: { border: 'border-l-purple-500', bg: 'bg-purple-500', text: 'text-purple-600' },
+                emerald: { border: 'border-l-emerald-500', bg: 'bg-emerald-500', text: 'text-emerald-600' },
+                rose: { border: 'border-l-rose-500', bg: 'bg-rose-500', text: 'text-rose-600' },
+                amber: { border: 'border-l-amber-500', bg: 'bg-amber-500', text: 'text-amber-600' },
+                teal: { border: 'border-l-teal-500', bg: 'bg-teal-500', text: 'text-teal-600' },
+                slate: { border: 'border-l-slate-500', bg: 'bg-slate-500', text: 'text-slate-600' },
+              };
+              const colorInfo = colorMap[themeColorName] || colorMap.indigo;
+
               return (
                 <div
                   key={version.id}
                   onClick={() => handleLoadVersion(version)}
-                  className={`group p-3.5 rounded-xl border transition-all duration-200 cursor-pointer flex items-center justify-between ${
+                  className={`group p-4 rounded-xl border-l-4 border-y border-r transition-all duration-250 cursor-pointer flex items-center justify-between shadow-sm hover:shadow ${
                     isSelectedForShare
-                      ? 'border-indigo-500 bg-indigo-50/30 shadow-sm'
-                      : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50/60'
+                      ? 'border-indigo-500 bg-indigo-50/20 shadow-indigo-100/50'
+                      : `border-slate-100 hover:border-slate-200/80 bg-white ${colorInfo.border}`
                   }`}
                 >
                   <div className="min-w-0 pr-4 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Folder className="w-4 h-4 text-indigo-500 group-hover:scale-110 transition-transform shrink-0" />
-                      <span className="font-bold text-slate-800 text-xs truncate">
+                    <div className="flex items-center gap-2">
+                      <Folder className={`w-4 h-4 ${colorInfo.text} group-hover:scale-110 transition-transform shrink-0`} />
+                      <span className="font-bold text-slate-800 text-xs truncate group-hover:text-slate-950 transition-colors">
                         {version.title}
                       </span>
+                      <span className="text-[9px] px-1.5 py-0.2 bg-slate-100 text-slate-500 rounded font-bold uppercase">
+                        {themeColorName}
+                      </span>
                     </div>
-                    <p className="text-[10px] text-slate-400 font-medium">
-                      {isEn ? 'Saved at' : '更新于'}: {version.timestamp} · {version.markdown.length} Chars
+                    <p className="text-[10px] text-slate-400 font-medium flex items-center gap-1">
+                      <span>{isEn ? 'Updated at' : '更新时间'}: {version.timestamp}</span>
+                      <span>·</span>
+                      <span>{version.markdown.length} {isEn ? 'Chars' : '字符'}</span>
                     </p>
                   </div>
 
                   {/* Actions inside matrix item */}
-                  <div className="flex items-center gap-1.5 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
+                  <div className="flex items-center gap-1.5 shrink-0 opacity-80 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
                     <button
                       onClick={() => handleGenerateShare(version)}
-                      className="p-1 px-2 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 font-bold text-[10px] flex items-center gap-1 transition-colors cursor-pointer"
-                      title={isEn ? "Generate exclusive share page" : "生成专属外链分享"}
+                      className="p-1.5 px-2.5 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 font-bold text-[10px] flex items-center gap-1.5 transition-all cursor-pointer border border-indigo-100/40"
+                      title={isEn ? "Generate exclusive share page" : "分享该版本"}
                     >
                       <Share2 className="w-3 h-3" />
                       <span>{isEn ? 'Share' : '分享'}</span>
@@ -270,21 +290,24 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
         </div>
 
         {/* Right Side: Comparisons and QR/Link Generation */}
-        <div className="space-y-4 flex flex-col bg-slate-50/30 p-4 rounded-xl border border-slate-100/60">
+        <div className="space-y-4 flex flex-col bg-slate-50/50 p-5 rounded-xl border border-slate-100 shadow-inner">
           
           {/* Section 1: Comparison Selector */}
-          <div className="space-y-2">
-            <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-              <GitCompare className="w-4 h-4 text-emerald-500" />
-              <span>{isEn ? 'One-Click Matrix Comparison' : '版本模块极速对比'}</span>
+          <div className="space-y-2.5">
+            <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+              <GitCompare className="w-4 h-4 text-emerald-600" />
+              <span>{isEn ? 'One-Click Matrix Comparison' : '版本差异比对'}</span>
             </h4>
+            <p className="text-[10px] text-slate-400">
+              {isEn ? 'Compare section structures & modified texts with other versions side-by-side' : '可视化比对当前简历与其它版本的正文及排版差异。'}
+            </p>
             <div className="flex gap-2">
               <select
                 value={compareWithId}
                 onChange={(e) => setCompareWithId(e.target.value)}
-                className="flex-1 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none"
+                className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 shadow-sm"
               >
-                <option value="">-- {isEn ? 'Select version to compare' : '选择要对比的版本'} --</option>
+                <option value="">-- {isEn ? 'Select version to compare' : '选择一个对比版本'} --</option>
                 {matrixVersions.map(v => (
                   <option key={v.id} value={v.id}>{v.title}</option>
                 ))}
@@ -292,33 +315,33 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
               {compareWithId && (
                 <button
                   onClick={() => setShowCompareModal(true)}
-                  className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg flex items-center gap-1 transition-all active:scale-95 cursor-pointer shadow-sm shadow-emerald-600/10"
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs rounded-lg flex items-center gap-1.5 transition-all cursor-pointer shadow-sm shadow-emerald-600/10"
                 >
-                  <Eye className="w-3.5 h-3.5" />
-                  <span>{isEn ? 'Compare' : '查看对比'}</span>
+                  <Eye className="w-4 h-4" />
+                  <span>{isEn ? 'Compare' : '开始比对'}</span>
                 </button>
               )}
             </div>
           </div>
 
           {/* Section 2: Link Share & Password Lock */}
-          <div className="border-t border-slate-100 pt-3.5 space-y-3 flex-1 flex flex-col justify-end">
-            <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-              <Share2 className="w-4 h-4 text-indigo-500" />
-              <span>{isEn ? 'Share Link & Password Security' : '分享配置与密码安全锁'}</span>
+          <div className="border-t border-slate-200/60 pt-4 space-y-4 flex-1 flex flex-col justify-end">
+            <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+              <Share2 className="w-4 h-4 text-indigo-600" />
+              <span>{isEn ? 'Share Link & Password Security' : '加密在线分享'}</span>
             </h4>
 
             <div className="space-y-2">
               <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
-                {isEn ? 'Optional Password Challenge (Password Lock)' : '设置独立访问密码锁 (留空即公开访问)'}
+                {isEn ? 'Optional Password Challenge (Password Lock)' : '访问密码 (留空为公开访问)'}
               </label>
               <div className="flex gap-1.5 relative">
-                <div className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
                   <Lock className="w-3.5 h-3.5" />
                 </div>
                 <input
                   type={showPassword ? "text" : "password"}
-                  placeholder={isEn ? "Leave empty for public access" : "设置4-12位招聘官访问密码"}
+                  placeholder={isEn ? "Leave empty for public access" : "输入 4-12 位访问密码"}
                   value={sharePassword}
                   onChange={(e) => {
                     setSharePassword(e.target.value);
@@ -327,12 +350,12 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
                       if (ver) handleGenerateShare(ver);
                     }
                   }}
-                  className="flex-1 bg-white border border-slate-200 rounded-lg pl-8 pr-8 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="flex-1 bg-white border border-slate-200 rounded-lg pl-9 pr-9 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
                 >
                   {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                 </button>
@@ -340,61 +363,61 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
             </div>
 
             {generatedLink ? (
-              <div className="p-3 bg-indigo-50/50 border border-indigo-100/80 rounded-xl space-y-3.5 animate-in fade-in zoom-in-95 duration-200">
-                <div className="flex items-center gap-2 text-indigo-800 text-[11px] font-bold">
+              <div className="p-4 bg-white border border-slate-100 rounded-xl space-y-4 shadow-sm animate-in fade-in zoom-in-95 duration-200">
+                <div className="flex items-center gap-2 text-indigo-900 text-xs font-bold">
                   {sharePassword.trim() ? (
                     <>
                       <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
-                      <span>{isEn ? 'Password Lock Active!' : '已启用高安全性密码防泄漏锁！'}</span>
+                      <span className="text-emerald-700">{isEn ? 'Password Lock Active!' : '已加密分享'}</span>
                     </>
                   ) : (
                     <>
                       <Shield className="w-4 h-4 text-indigo-500 shrink-0" />
-                      <span>{isEn ? 'Public link generated.' : '已生成极速公开分享外链。'}</span>
+                      <span className="text-indigo-700">{isEn ? 'Public link generated.' : '公开分享链接已生成'}</span>
                     </>
                   )}
                 </div>
 
                 {/* QR Code and URL Row */}
-                <div className="flex items-center gap-4">
+                <div className="flex items-start gap-4">
                   {/* QR Code using public API */}
-                  <div className="bg-white p-1 rounded-lg border border-slate-100 shadow-sm shrink-0 flex flex-col items-center justify-center gap-1">
+                  <div className="bg-slate-50 p-1.5 rounded-xl border border-slate-100 shadow-inner shrink-0 flex flex-col items-center justify-center gap-1.5 hover:scale-105 transition-transform duration-250">
                     <img
                       src={`https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=${encodeURIComponent(generatedLink)}`}
                       alt="HR QR Code"
                       referrerPolicy="no-referrer"
-                      className="w-[85px] h-[85px] rounded"
+                      className="w-[90px] h-[90px] rounded-lg"
                     />
-                    <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">{isEn ? 'HR Scan' : 'HR扫码预览'}</span>
+                    <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">{isEn ? 'HR SCAN' : 'HR扫码预览'}</span>
                   </div>
 
-                  <div className="flex-1 min-w-0 space-y-2">
-                    <p className="text-[10px] text-slate-500 leading-relaxed font-medium">
+                  <div className="flex-1 min-w-0 space-y-2.5">
+                    <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
                       {isEn 
-                        ? 'Recruiters can preview this responsive H5 resume directly, download PDF, or print, securely on any device.' 
-                        : 'HR 扫码或点击链接即可在线免登录直观预览响应式 H5 简历，或点击打印生成 PDF 档案。'}
+                        ? 'Recruiters can scan or open the link to preview your responsive H5 resume instantly on any device and print/save PDF.' 
+                        : 'HR 扫码或打开链接即可免下载在线预览简历，支持保存或直接打印 PDF。'}
                     </p>
                     <div className="flex gap-1.5">
                       <input
                         type="text"
                         readOnly
                         value={generatedLink}
-                        className="flex-1 bg-white border border-slate-200/60 rounded px-2 py-1 text-[10px] font-mono text-slate-500 focus:outline-none"
+                        className="flex-1 bg-slate-50 border border-slate-200 rounded px-2.5 py-1.5 text-[10px] font-mono text-slate-500 focus:outline-none"
                       />
                       <button
                         onClick={copyToClipboard}
-                        className="p-1 px-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded text-[10px] font-bold flex items-center gap-1 transition-all cursor-pointer shrink-0"
+                        className="p-1.5 px-3 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded-lg text-xs font-bold flex items-center gap-1 transition-all cursor-pointer shrink-0"
                       >
                         {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                        <span>{copied ? (isEn ? 'Copied' : '已复制') : (isEn ? 'Copy' : '复制')}</span>
+                        <span>{copied ? (isEn ? 'Copied' : '已复制') : (isEn ? '复制' : '复制')}</span>
                       </button>
                     </div>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="border border-dashed border-slate-200 rounded-xl p-4 text-center text-slate-400 text-xs">
-                {isEn ? 'Select a resume version left, then click "Share" to generate exclusive HR outer link' : '请在左侧选择版本并点击「分享」，在此实时生成独立加密的 HR 在线二维码与链接'}
+              <div className="border border-dashed border-slate-200 bg-white rounded-xl p-6 text-center text-slate-400 text-xs">
+                {isEn ? 'Select a resume version on the left, then click "Share" to generate the QR code and HR preview link.' : '选择左侧的一个版本并点击「在线分享」，在此生成 HR 专属链接与二维码。'}
               </div>
             )}
           </div>
@@ -406,16 +429,16 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
       {/* Comparison Modal (Side-by-Side Diff View) */}
       {showCompareModal && comparisonDiffs && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm" onClick={() => setShowCompareModal(false)} />
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-[3px]" onClick={() => setShowCompareModal(false)} />
           
           <div className="relative bg-white w-full max-w-5xl h-[85vh] rounded-2xl shadow-2xl border border-slate-100 flex flex-col overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200">
             {/* Header */}
-            <div className="px-6 py-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+            <div className="px-6 py-4.5 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <GitCompare className="w-5 h-5 text-indigo-600 animate-pulse" />
                 <div>
                   <h3 className="font-bold text-slate-800 text-sm">
-                    {isEn ? 'Matrix Resume Comparative Diff Analysis' : '简历矩阵模块多版本一键对比'}
+                    {isEn ? 'Matrix Resume Comparative Diff Analysis' : '版本差异对比'}
                   </h3>
                   <p className="text-[10px] text-slate-400 font-medium">
                     {isEn 

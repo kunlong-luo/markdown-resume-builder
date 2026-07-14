@@ -76,12 +76,13 @@ export default function App() {
         const hasDuplicate = currentDrafts.some((d: any) => d.markdown === markdown);
         if (hasDuplicate) return;
 
+        const isEn = settings.lang === 'en';
         const newAutoDraft = {
           id: `draft_auto_${Date.now()}`,
-          title: `自动备份 - ${new Date().toLocaleTimeString('zh-CN', { hour12: false })}`,
+          title: new Date().toLocaleTimeString(isEn ? 'en-US' : 'zh-CN', { hour12: false }),
           markdown,
           settings,
-          timestamp: new Date().toLocaleString('zh-CN', { hour12: false }),
+          timestamp: new Date().toLocaleString(isEn ? 'en-US' : 'zh-CN', { hour12: false }),
           isAutoSave: true
         };
 

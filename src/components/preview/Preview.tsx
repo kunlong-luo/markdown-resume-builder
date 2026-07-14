@@ -360,10 +360,10 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
               left: '50%',
               transform: `translateX(-50%) scale(${calculatedZoom})`,
             }}
-            className={`bg-white shadow-[0_8px_30px_rgb(0,0,0,0.03)] resume-content w-full max-w-[210mm] min-h-[297mm] h-fit mx-auto print:shadow-none print:ring-0 print:m-0 print:w-full relative origin-top transition-all duration-200 print:relative print:left-auto print:top-auto print:transform-none print:max-w-full print:w-full ${fontClass} ${marginClasses} ${
+            className={`bg-white shadow-[0_1px_3px_rgba(15,23,42,0.015),0_8px_24px_rgba(15,23,42,0.03),0_20px_48px_rgba(15,23,42,0.05)] resume-content w-full max-w-[210mm] min-h-[297mm] h-fit mx-auto print:shadow-none print:ring-0 print:m-0 print:w-full relative origin-top transition-all duration-200 print:relative print:left-auto print:top-auto print:transform-none print:max-w-full print:w-full ${fontClass} ${marginClasses} ${
               metrics.isOver 
                 ? 'ring-4 ring-rose-500/80 shadow-[0_0_25px_rgba(244,63,94,0.3)]' 
-                : 'ring-1 ring-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.03)]'
+                : 'ring-1 ring-slate-100/60 shadow-[0_2px_4px_rgba(15,23,42,0.01),0_16px_32px_rgba(15,23,42,0.035),0_28px_64px_rgba(15,23,42,0.045)]'
             }`}
           >
         <style dangerouslySetInnerHTML={{ __html: `
@@ -407,8 +407,18 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
         {settings.showPageBreakLine && (
           <div className="absolute inset-x-0 top-0 bottom-0 pointer-events-none print:hidden z-30">
             {[1, 2, 3].map(p => (
-              <div key={p} className="absolute left-0 right-0 border-b-2 border-dashed border-rose-400/40 hover:border-rose-500/60 transition-all flex items-center justify-end text-[9px] font-bold text-rose-500/70 select-none h-0" style={{ top: `${p * 297}mm` }}>
-                <span className="bg-rose-50 border border-rose-200/60 text-rose-600 px-2 py-0.5 rounded shadow-sm mr-4 -translate-y-1/2 font-sans">
+              <div 
+                key={p} 
+                className="absolute left-0 right-0 border-b border-dashed border-rose-400/50 hover:border-rose-500/80 transition-all flex items-center justify-between text-[9.5px] font-extrabold text-rose-500/80 select-none h-0" 
+                style={{ top: `${p * 297}mm` }}
+              >
+                {/* Left side scissor indicator */}
+                <div className="bg-rose-50/90 backdrop-blur-sm border border-rose-200/80 text-rose-600 px-2 py-0.5 rounded-full shadow-[0_2px_6px_rgba(244,63,94,0.1)] ml-6 -translate-y-1/2 font-sans flex items-center gap-1.5 font-extrabold tracking-wider transition-transform hover:scale-105">
+                  <span>✂️</span>
+                  <span>{settings.lang === 'en' ? 'CUT / FOLD LINE' : '折叠剪裁辅助线'}</span>
+                </div>
+                {/* Right side page number badge */}
+                <span className="bg-rose-50/90 backdrop-blur-sm border border-rose-200/80 text-rose-600 px-2.5 py-0.5 rounded-full shadow-[0_2px_6px_rgba(244,63,94,0.1)] mr-6 -translate-y-1/2 font-sans flex items-center gap-1 font-extrabold tracking-wider transition-transform hover:scale-105">
                   {t.pageBreakText.replace('{p}', String(p)).replace('{size}', String(p * 297))}
                 </span>
               </div>
@@ -475,7 +485,7 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
               {i > 0 && (
                 <>
                   <div className="print:hidden my-8 border-t-2 border-dashed border-gray-300 relative flex justify-center select-none">
-                    <span className="absolute -top-3 bg-white px-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">分页符 / Page Break</span>
+                    <span className="absolute -top-3 bg-white px-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">{settings.lang === 'en' ? 'Page Break' : '分页符 / Page Break'}</span>
                   </div>
                   <div className="hidden print:block print-page-break" />
                 </>

@@ -2,7 +2,7 @@
 
 [English](./README.en.md) | 简体中文
 
-[![Version](https://img.shields.io/badge/version-v1.3.0--PRO-blue?style=flat-square&logo=github)](https://github.com/kunlong-luo/markdown-resume-builder)
+[![Version](https://img.shields.io/badge/version-v1.4.0--PRO-blue?style=flat-square&logo=github)](https://github.com/kunlong-luo/markdown-resume-builder)
 [![React](https://img.shields.io/badge/built%20with-React%2018-blueviolet?style=flat-square)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/bundler-Vite-646CFF?style=flat-square&logo=vite)](https://vite.dev/)
 [![TailwindCSS](https://img.shields.io/badge/styling-Tailwind%20v4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
@@ -83,13 +83,7 @@ cd markdown-resume-builder
 pnpm install
 ```
 
-### 3. 配置环境变量
-如果你需要解锁集成的 AI 文本智能润色系统，复制 `.env.example` 并命名为 `.env`，填入你的 Google Gemini API Key：
-```env
-GEMINI_API_KEY=your_gemini_api_key_here
-```
-
-### 4. 启动开发服务器
+### 3. 启动开发服务器
 ```bash
 pnpm dev
 ```

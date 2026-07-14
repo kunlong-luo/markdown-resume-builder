@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { ArrowUp, ArrowDown, Layers, ChevronsDown, ChevronsUp } from 'lucide-react';
+import { ArrowUp, ArrowDown, Layers, ChevronsDown, ChevronsUp, ChevronUp, ChevronDown } from 'lucide-react';
 import { formatChineseEnglishSpacing } from '../../lib/format-utils';
 
 import { FormItem, FormSection, ResumeFormModel } from '../../lib/form-types';
@@ -22,13 +22,13 @@ interface FormEditorProps {
 
 const TRANSLATIONS = {
   zh: {
-    outlineTitle: '简历板块大纲与一键排序',
+    outlineTitle: '简历板块大纲',
     totalSections: (count: number) => `共 ${count} 个板块`,
     collapseOutline: '折叠大纲 [-]',
     expandOutline: '展开大纲 [+]',
-    tip: '💡 提示：您可以点击右侧箭头一键调整模块的上下顺序，右侧预览将实时重绘。',
-    expandAll: '一键展开所有表单',
-    collapseAll: '一键折叠所有表单',
+    tip: '💡 提示：您可以点击右侧箭头调整模块的上下顺序，右侧预览将实时重绘。',
+    expandAll: '展开所有',
+    collapseAll: '折叠所有',
     basicInfo: '🧑‍💼 个人基本信息',
     fixedTop: '固定置顶',
     unnamedSec: '未命名板块',
@@ -113,7 +113,6 @@ export function FormEditor({ value, onChange, settings }: FormEditorProps) {
   const { confirm } = useConfirm();
   const [localModel, setLocalModel] = useState<ResumeFormModel>(() => parseMarkdownToForm(value));
   const [lastParsedValue, setLastParsedValue] = useState<string>(value);
-  const [isOutlineOpen, setIsOutlineOpen] = useState(true);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     basic: true
   });
@@ -137,19 +136,48 @@ export function FormEditor({ value, onChange, settings }: FormEditorProps) {
     }
   }, [value, lastParsedValue]);
 
+  useEffect(() => {
+    const isAllExpanded = expandedSections.basic !== false && 
+                          localModel.sections.every(sec => expandedSections[sec.id] !== false);
+    
+    const handler = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const targetState = customEvent.detail.expand;
+      const states: Record<string, boolean> = { basic: targetState };
+      localModel.sections.forEach(sec => { states[sec.id] = targetState; });
+      setExpandedSections(states);
+    };
+
+    const dispatchState = () => {
+      document.dispatchEvent(new CustomEvent('form-expanded-state', {
+        detail: {
+          isAllExpanded,
+          hasSections: true
+        }
+      }));
+    };
+
+    const timer = setTimeout(dispatchState, 0);
+
+    document.addEventListener('toggle-all-sections', handler);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('toggle-all-sections', handler);
+      // Clean up parent button state on unmount
+      document.dispatchEvent(new CustomEvent('form-expanded-state', {
+        detail: {
+          isAllExpanded: true,
+          hasSections: false
+        }
+      }));
+    };
+  }, [expandedSections, localModel.sections]);
+
   const handleModelChange = (newModel: ResumeFormModel) => {
     setLocalModel(newModel);
     const newMd = parseFormToMarkdown(newModel);
     setLastParsedValue(newMd);
     onChange(newMd, false);
-  };
-
-  const handleExpandAll = (expand: boolean) => {
-    const states: Record<string, boolean> = { basic: expand };
-    localModel.sections.forEach(sec => {
-      states[sec.id] = expand;
-    });
-    setExpandedSections(states);
   };
 
   const toggleSection = (sectionId: string) => {
@@ -251,7 +279,7 @@ export function FormEditor({ value, onChange, settings }: FormEditorProps) {
   };
 
   const addPresetSection = (presetType: 'work' | 'project' | 'edu' | 'skills' | 'summary' | 'custom_text' | 'custom_items') => {
-    const preset = getPresetSection(presetType);
+    const preset = getPresetSection(presetType, settings?.lang || 'zh');
     const now = Date.now();
     const newSection: FormSection = {
       ...preset,
@@ -372,7 +400,7 @@ export function FormEditor({ value, onChange, settings }: FormEditorProps) {
 
   const insertStarTemplateToItem = async (sectionId: string, itemId: string, currentContent: string, sectionTitle: string) => {
     const applyTemplate = () => {
-      const template = getStarTemplate(sectionTitle);
+      const template = getStarTemplate(sectionTitle, settings?.lang || 'zh');
       const updatedSections = localModel.sections.map(sec => {
         if (sec.id === sectionId) {
           const updatedItems = sec.items.map(item => item.id === itemId ? { ...item, ...template } : item);
@@ -400,170 +428,78 @@ export function FormEditor({ value, onChange, settings }: FormEditorProps) {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto bg-slate-50/50 p-6 space-y-6 min-w-0 overflow-x-hidden">
-      <QuickNav sections={localModel.sections} expandedSections={expandedSections} setExpandedSections={setExpandedSections} lang={settings?.lang} />
-
-      {/* 模块快速排序与架构管理 */}
-      <div className="bg-white border border-slate-200/85 rounded-xl shadow-sm overflow-hidden transition-all duration-200">
-        <div 
-          onClick={() => setIsOutlineOpen(!isOutlineOpen)}
-          className="flex items-center justify-between px-5 py-3.5 bg-slate-50 border-b border-slate-100 cursor-pointer select-none"
-        >
-          <div className="flex items-center gap-2">
-            <Layers className="w-4 h-4 text-indigo-600 animate-pulse" />
-            <h3 className="text-xs font-bold text-slate-800">{t.outlineTitle}</h3>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-slate-500 font-bold bg-slate-200/60 px-2 py-0.5 rounded-full">
-              {t.totalSections(localModel.sections.length + 1)}
-            </span>
-            <span className="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 transition-colors">
-              {isOutlineOpen ? t.collapseOutline : t.expandOutline}
-            </span>
-          </div>
-        </div>
-        
-        {isOutlineOpen && (
-          <div className="p-4 space-y-3 bg-white/50 border-t border-slate-100/50 animate-in fade-in duration-200">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-indigo-50/30 border border-indigo-100/30 p-3 rounded-xl">
-              <p className="text-[10px] text-slate-500 leading-relaxed pl-1 sm:max-w-[60%]">
-                {t.tip}
-              </p>
-              <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
-                <button
-                  type="button"
-                  onClick={() => handleExpandAll(true)}
-                  className="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 border border-indigo-150 text-[10px] font-bold text-indigo-700 rounded-lg transition-all active:scale-95 cursor-pointer flex items-center gap-1 shadow-xs"
-                >
-                  <ChevronsDown className="w-3.5 h-3.5 text-indigo-500" />
-                  {t.expandAll}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleExpandAll(false)}
-                  className="px-2.5 py-1.5 bg-white hover:bg-slate-100 border border-slate-200 text-[10px] font-bold text-slate-600 rounded-lg transition-all active:scale-95 cursor-pointer flex items-center gap-1 shadow-xs"
-                >
-                  <ChevronsUp className="w-3.5 h-3.5 text-slate-500" />
-                  {t.collapseAll}
-                </button>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              {/* 1. Basic Info (Always at the top) */}
-              <div className="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-150 rounded-xl text-xs font-semibold text-slate-700">
-                <div className="flex items-center gap-2.5">
-                  <span className="w-5 h-5 flex items-center justify-center bg-indigo-50 text-indigo-700 rounded-lg text-[10px] font-bold border border-indigo-100">1</span>
-                  <span>{t.basicInfo}</span>
-                </div>
-                <span className="text-[9px] text-slate-400 font-bold bg-slate-200/60 px-2 py-0.5 rounded-full">{t.fixedTop}</span>
-              </div>
-
-              {/* 2. Custom sections */}
-              {localModel.sections.map((sec, idx) => (
-                <div 
-                  key={sec.id} 
-                  className="flex items-center justify-between p-2.5 bg-white border border-slate-250/80 rounded-xl text-xs font-semibold hover:border-indigo-200 hover:bg-indigo-50/5 hover:shadow-xs transition-all group"
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="w-5 h-5 flex items-center justify-center bg-slate-100 text-slate-500 rounded-lg text-[10px] font-bold group-hover:bg-indigo-100 group-hover:text-indigo-700 transition-colors border border-slate-200/60">
-                      {idx + 2}
-                    </span>
-                    <span className="text-slate-750 flex items-center gap-1.5 min-w-0 truncate">
-                      {getSectionIcon(sec.title)}
-                      <strong className="truncate">{sec.title || t.unnamedSec}</strong>
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-1 shrink-0">
-                    <button
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); moveSection(idx, 'up'); }}
-                      disabled={idx === 0}
-                      className={`p-1.5 rounded-lg transition-all ${idx === 0 ? 'text-slate-200 cursor-not-allowed' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800 active:scale-90'}`}
-                      title={t.moveUp}
-                    >
-                      <ArrowUp className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); moveSection(idx, 'down'); }}
-                      disabled={idx === localModel.sections.length - 1}
-                      className={`p-1.5 rounded-lg transition-all ${idx === localModel.sections.length - 1 ? 'text-slate-200 cursor-not-allowed' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800 active:scale-90'}`}
-                      title={t.moveDown}
-                    >
-                      <ArrowDown className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
-      <BasicInfoEditor
-        model={localModel}
-        onChange={handleModelChange}
-        expanded={expandedSections['basic'] !== false}
-        onToggleExpanded={() => setExpandedSections(prev => ({ ...prev, basic: prev['basic'] === false }))}
-        showOptional={showOptionalBasic}
-        onToggleOptional={() => setShowOptionalBasic(!showOptionalBasic)}
-        lang={settings?.lang}
+    <div className="flex-1 overflow-y-auto bg-slate-50/50 min-w-0 overflow-x-hidden flex flex-col">
+      <QuickNav 
+        sections={localModel.sections} 
+        expandedSections={expandedSections} 
+        setExpandedSections={setExpandedSections} 
+        lang={settings?.lang} 
       />
-      
-      {localModel.sections.map((sec, secIndex) => {
-        const category = getSectionCategory(sec.title);
+
+      <div className="p-6 space-y-6">
+        <BasicInfoEditor
+          model={localModel}
+          onChange={handleModelChange}
+          expanded={expandedSections['basic'] !== false}
+          onToggleExpanded={() => setExpandedSections(prev => ({ ...prev, basic: prev['basic'] === false }))}
+          showOptional={showOptionalBasic}
+          onToggleOptional={() => setShowOptionalBasic(!showOptionalBasic)}
+          lang={settings?.lang}
+        />
         
-        if (category === 'edu') {
+        {localModel.sections.map((sec, secIndex) => {
+          const category = getSectionCategory(sec.title);
+          
+          if (category === 'edu') {
+            return (
+              <EduSectionEditor
+                key={sec.id}
+                section={sec}
+                expanded={expandedSections[sec.id] !== false}
+                onToggle={() => toggleSection(sec.id)}
+                onItemChange={(itemId, field, value) => handleItemFieldChange(sec.id, itemId, field as any, value)}
+                onAddItem={() => addItem(sec.id, sec.title)}
+                onDeleteItem={(itemId, org) => deleteItem(sec.id, itemId, org)}
+                onTitleChange={(newTitle) => handleSectionTitleChange(sec.id, newTitle)}
+                onMove={(direction) => moveSection(secIndex, direction)}
+                onDelete={() => deleteSection(sec.id, sec.title)}
+                isFirst={secIndex === 0}
+                isLast={secIndex === localModel.sections.length - 1}
+                onTextChange={(text) => handleSectionTextChange(sec.id, text)}
+                onTypeChange={(newType) => handleSectionTypeChange(sec.id, newType)}
+                onMoveItem={(itemIndex, direction) => moveItem(sec.id, itemIndex, direction)}
+                lang={settings?.lang}
+              />
+            );
+          }
+
           return (
-            <EduSectionEditor
+            <FormSectionEditor
               key={sec.id}
-              section={sec}
-              expanded={expandedSections[sec.id] !== false}
+              sec={sec}
+              secIndex={secIndex}
+              totalSectionsCount={localModel.sections.length}
+              isExpanded={expandedSections[sec.id] !== false}
               onToggle={() => toggleSection(sec.id)}
-              onItemChange={(itemId, field, value) => handleItemFieldChange(sec.id, itemId, field as any, value)}
-              onAddItem={() => addItem(sec.id, sec.title)}
-              onDeleteItem={(itemId, org) => deleteItem(sec.id, itemId, org)}
               onTitleChange={(newTitle) => handleSectionTitleChange(sec.id, newTitle)}
+              onTextChange={(text) => handleSectionTextChange(sec.id, text)}
               onMove={(direction) => moveSection(secIndex, direction)}
               onDelete={() => deleteSection(sec.id, sec.title)}
-              isFirst={secIndex === 0}
-              isLast={secIndex === localModel.sections.length - 1}
-              onTextChange={(text) => handleSectionTextChange(sec.id, text)}
-              onTypeChange={(newType) => handleSectionTypeChange(sec.id, newType)}
+              onApplySpacing={() => applyChineseEnglishSpacingToSection(sec.id)}
+              onAddItem={() => addItem(sec.id, sec.title)}
               onMoveItem={(itemIndex, direction) => moveItem(sec.id, itemIndex, direction)}
+              onDeleteItem={(itemId, itemOrg) => deleteItem(sec.id, itemId, itemOrg)}
+              onItemFieldChange={(itemId, field, value) => handleItemFieldChange(sec.id, itemId, field, value)}
+              onItemContentChange={(itemId, content) => handleItemContentChange(sec.id, itemId, content)}
+              onInsertStarTemplate={(itemId, currentContent) => insertStarTemplateToItem(sec.id, itemId, currentContent, sec.title)}
+              onTypeChange={(newType) => handleSectionTypeChange(sec.id, newType)}
               lang={settings?.lang}
             />
           );
-        }
+        })}
 
-        return (
-          <FormSectionEditor
-            key={sec.id}
-            sec={sec}
-            secIndex={secIndex}
-            totalSectionsCount={localModel.sections.length}
-            isExpanded={expandedSections[sec.id] !== false}
-            onToggle={() => toggleSection(sec.id)}
-            onTitleChange={(newTitle) => handleSectionTitleChange(sec.id, newTitle)}
-            onTextChange={(text) => handleSectionTextChange(sec.id, text)}
-            onMove={(direction) => moveSection(secIndex, direction)}
-            onDelete={() => deleteSection(sec.id, sec.title)}
-            onApplySpacing={() => applyChineseEnglishSpacingToSection(sec.id)}
-            onAddItem={() => addItem(sec.id, sec.title)}
-            onMoveItem={(itemIndex, direction) => moveItem(sec.id, itemIndex, direction)}
-            onDeleteItem={(itemId, itemOrg) => deleteItem(sec.id, itemId, itemOrg)}
-            onItemFieldChange={(itemId, field, value) => handleItemFieldChange(sec.id, itemId, field, value)}
-            onItemContentChange={(itemId, content) => handleItemContentChange(sec.id, itemId, content)}
-            onInsertStarTemplate={(itemId, currentContent) => insertStarTemplateToItem(sec.id, itemId, currentContent, sec.title)}
-            onTypeChange={(newType) => handleSectionTypeChange(sec.id, newType)}
-            lang={settings?.lang}
-          />
-        );
-      })}
-
-      <SectionPresets onAddPreset={addPresetSection} lang={settings?.lang} />
+        <SectionPresets onAddPreset={addPresetSection} lang={settings?.lang} />
+      </div>
     </div>
   );
 }

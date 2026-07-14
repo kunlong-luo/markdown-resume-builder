@@ -23,7 +23,7 @@ export function SectionPresets({ onAddPreset, lang = 'zh' }: SectionPresetsProps
         <div className="grid grid-cols-2 md:grid-cols-5 gap-2.5">
           <button
             onClick={() => onAddPreset('work')}
-            className="flex flex-col items-center justify-center gap-1.5 p-3 bg-white hover:bg-indigo-50/40 border border-slate-200 hover:border-indigo-300 rounded-xl text-center transition-all cursor-pointer shadow-sm group"
+            className="flex flex-col items-center justify-center gap-1.5 p-3 bg-gradient-to-b from-white to-slate-50/50 border border-slate-200/80 hover:border-indigo-300 rounded-xl text-center transition-all cursor-pointer shadow-[0_1.5px_3px_rgba(15,23,42,0.01),inset_0_1.5px_2px_rgba(255,255,255,0.95)] hover:shadow-[0_4px_10px_rgba(99,102,241,0.04),inset_0_1.5px_2px_rgba(255,255,255,0.95)] active:translate-y-px group"
           >
             <div className="p-1.5 bg-indigo-50 text-indigo-500 rounded-lg group-hover:bg-indigo-100/80 transition-colors">
               <Briefcase className="w-4 h-4" />
@@ -35,7 +35,7 @@ export function SectionPresets({ onAddPreset, lang = 'zh' }: SectionPresetsProps
 
           <button
             onClick={() => onAddPreset('project')}
-            className="flex flex-col items-center justify-center gap-1.5 p-3 bg-white hover:bg-amber-50/40 border border-slate-200 hover:border-amber-300 rounded-xl text-center transition-all cursor-pointer shadow-sm group"
+            className="flex flex-col items-center justify-center gap-1.5 p-3 bg-gradient-to-b from-white to-slate-50/50 border border-slate-200/80 hover:border-amber-300 rounded-xl text-center transition-all cursor-pointer shadow-[0_1.5px_3px_rgba(15,23,42,0.01),inset_0_1.5px_2px_rgba(255,255,255,0.95)] hover:shadow-[0_4px_10px_rgba(245,158,11,0.04),inset_0_1.5px_2px_rgba(255,255,255,0.95)] active:translate-y-px group"
           >
             <div className="p-1.5 bg-amber-50 text-amber-500 rounded-lg group-hover:bg-amber-100/80 transition-colors">
               <Sparkles className="w-4 h-4" />
@@ -47,7 +47,7 @@ export function SectionPresets({ onAddPreset, lang = 'zh' }: SectionPresetsProps
 
           <button
             onClick={() => onAddPreset('edu')}
-            className="flex flex-col items-center justify-center gap-1.5 p-3 bg-white hover:bg-purple-50/40 border border-slate-200 hover:border-purple-300 rounded-xl text-center transition-all cursor-pointer shadow-sm group"
+            className="flex flex-col items-center justify-center gap-1.5 p-3 bg-gradient-to-b from-white to-slate-50/50 border border-slate-200/80 hover:border-purple-300 rounded-xl text-center transition-all cursor-pointer shadow-[0_1.5px_3px_rgba(15,23,42,0.01),inset_0_1.5px_2px_rgba(255,255,255,0.95)] hover:shadow-[0_4px_10px_rgba(168,85,247,0.04),inset_0_1.5px_2px_rgba(255,255,255,0.95)] active:translate-y-px group"
           >
             <div className="p-1.5 bg-purple-50 text-purple-500 rounded-lg group-hover:bg-purple-100/80 transition-colors">
               <GraduationCap className="w-4 h-4" />
@@ -59,7 +59,7 @@ export function SectionPresets({ onAddPreset, lang = 'zh' }: SectionPresetsProps
 
           <button
             onClick={() => onAddPreset('skills')}
-            className="flex flex-col items-center justify-center gap-1.5 p-3 bg-white hover:bg-blue-50/40 border border-slate-200 hover:border-blue-300 rounded-xl text-center transition-all cursor-pointer shadow-sm group"
+            className="flex flex-col items-center justify-center gap-1.5 p-3 bg-gradient-to-b from-white to-slate-50/50 border border-slate-200/80 hover:border-blue-300 rounded-xl text-center transition-all cursor-pointer shadow-[0_1.5px_3px_rgba(15,23,42,0.01),inset_0_1.5px_2px_rgba(255,255,255,0.95)] hover:shadow-[0_4px_10px_rgba(59,130,246,0.04),inset_0_1.5px_2px_rgba(255,255,255,0.95)] active:translate-y-px group"
           >
             <div className="p-1.5 bg-blue-50 text-blue-500 rounded-lg group-hover:bg-blue-100/80 transition-colors">
               <Layers className="w-4 h-4" />
@@ -71,7 +71,7 @@ export function SectionPresets({ onAddPreset, lang = 'zh' }: SectionPresetsProps
 
           <button
             onClick={() => onAddPreset('summary')}
-            className="flex flex-col items-center justify-center gap-1.5 p-3 bg-white hover:bg-emerald-50/40 border border-slate-200 hover:border-emerald-300 rounded-xl text-center transition-all cursor-pointer shadow-sm group col-span-2 md:col-span-1"
+            className="flex flex-col items-center justify-center gap-1.5 p-3 bg-gradient-to-b from-white to-slate-50/50 border border-slate-200/80 hover:border-emerald-300 rounded-xl text-center transition-all cursor-pointer shadow-[0_1.5px_3px_rgba(15,23,42,0.01),inset_0_1.5px_2px_rgba(255,255,255,0.95)] hover:shadow-[0_4px_10px_rgba(16,185,129,0.04),inset_0_1.5px_2px_rgba(255,255,255,0.95)] active:translate-y-px group col-span-2 md:col-span-1"
           >
             <div className="p-1.5 bg-emerald-50 text-emerald-500 rounded-lg group-hover:bg-emerald-100/80 transition-colors">
               <Award className="w-4 h-4" />
@@ -86,23 +86,23 @@ export function SectionPresets({ onAddPreset, lang = 'zh' }: SectionPresetsProps
       {/* 自定义排版块 */}
       <div>
         <span className="text-[10px] font-bold text-slate-400 block mb-2">
-          {isEn ? 'Custom Layout Blocks:' : '通用空白排版板块：'}
+          {isEn ? 'Custom Blocks:' : '自定义板块：'}
         </span>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
           <button
             onClick={() => onAddPreset('custom_text')}
-            className="flex items-center justify-center gap-2.5 p-3 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-xl text-xs font-semibold text-slate-700 hover:text-slate-900 transition-all cursor-pointer shadow-sm group"
+            className="flex items-center justify-center gap-2.5 p-3 bg-gradient-to-b from-white to-slate-50/50 border border-slate-200/80 hover:border-slate-350 rounded-xl text-xs font-bold text-slate-700 hover:text-slate-900 transition-all cursor-pointer shadow-[0_1.5px_3px_rgba(15,23,42,0.01),inset_0_1.5px_2px_rgba(255,255,255,0.95)] active:translate-y-px group"
           >
             <FileText className="w-4 h-4 text-slate-500" />
-            <span>{isEn ? 'Create Single-Block Text Section' : '新建「空白单段文本」板块'}</span>
+            <span>{isEn ? 'Single-Text Section' : '自定义单段文本'}</span>
           </button>
           
           <button
             onClick={() => onAddPreset('custom_items')}
-            className="flex items-center justify-center gap-2.5 p-3 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-xl text-xs font-semibold text-slate-700 hover:text-slate-900 transition-all cursor-pointer shadow-sm group"
+            className="flex items-center justify-center gap-2.5 p-3 bg-gradient-to-b from-white to-slate-50/50 border border-slate-200/80 hover:border-slate-350 rounded-xl text-xs font-bold text-slate-700 hover:text-slate-900 transition-all cursor-pointer shadow-[0_1.5px_3px_rgba(15,23,42,0.01),inset_0_1.5px_2px_rgba(255,255,255,0.95)] active:translate-y-px group"
           >
-            <Layers className="w-4 h-4 text-slate-500 animate-pulse" />
-            <span>{isEn ? 'Create Multi-Item Section' : '新建「空白多项经历」板块'}</span>
+            <Layers className="w-4 h-4 text-slate-500" />
+            <span>{isEn ? 'Multi-Item Section' : '自定义多项列表'}</span>
           </button>
         </div>
       </div>

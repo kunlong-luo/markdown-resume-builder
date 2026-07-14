@@ -39,101 +39,105 @@ export function DraftsTab({
       <form onSubmit={handleCreateDraft} className="flex gap-2">
         <input
           type="text"
-          placeholder={isEn ? "Enter draft label or description (e.g., Core Refined / English-Ver-2026)..." : "输入新草稿标签或版本说明 (例如: 精简版2026 / 重心优化版)..."}
+          placeholder={isEn ? "Enter draft label or description (e.g., Core Refined / English-Ver-2026)..." : "输入草稿备注 (如: 精简版、去除期望薪资)..."}
           value={newDraftTitle}
           onChange={(e) => setNewDraftTitle(e.target.value)}
-          className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2 text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="flex-1 bg-slate-50 hover:bg-slate-100/50 focus:bg-white border border-slate-200 focus:border-indigo-500 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-100 transition-all shadow-inner"
         />
         <button
           type="submit"
-          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 shrink-0 shadow-sm shadow-indigo-600/10 cursor-pointer"
+          className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 shrink-0 shadow-sm shadow-indigo-600/10 cursor-pointer"
         >
-          <Plus className="w-3.5 h-3.5" />
-          <span>{isEn ? 'Save as Draft' : '保存当前为新草稿'}</span>
+          <Plus className="w-4 h-4" />
+          <span>{isEn ? 'Save as Draft' : '保存草稿'}</span>
         </button>
       </form>
 
       {/* Drafts List */}
-      <div className="flex-1 min-h-[220px] overflow-y-auto border border-slate-100 rounded-xl bg-slate-50/30">
+      <div className="flex-1 min-h-[240px] overflow-y-auto border border-slate-100/80 rounded-xl bg-slate-50/20 p-2 space-y-2">
         {drafts.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center py-12 text-slate-400 space-y-2">
-            <History className="w-10 h-10 text-slate-300 stroke-[1.5]" />
-            <p className="text-xs">{isEn ? 'No local drafts found yet' : '暂无本地历史草稿版本'}</p>
-            <p className="text-[10px] text-slate-400 max-w-[280px] text-center">
-              {isEn 
-                ? 'Type a name above and click save to persist your current content and typography settings securely in this browser.'
-                : '可在上方输入名称并点击保存，将当前的文字内容与全部排版样式持久保存在浏览器中。'}
-            </p>
+          <div className="h-full flex flex-col items-center justify-center py-16 text-slate-400 space-y-3">
+            <div className="p-3 bg-white border border-slate-100 rounded-full shadow-sm text-slate-300">
+              <History className="w-8 h-8 stroke-[1.5]" />
+            </div>
+            <div className="space-y-1 text-center">
+              <p className="text-xs font-bold text-slate-700">{isEn ? 'No local drafts found yet' : '暂无本地草稿'}</p>
+              <p className="text-[11px] text-slate-400 max-w-[320px] mx-auto leading-relaxed">
+                {isEn 
+                  ? 'Type a descriptive name above and click save to persist your current content and typography settings securely in this browser.'
+                  : '在上方输入名称，可将当前文字与排版配置保存在本地浏览器中。'}
+              </p>
+            </div>
           </div>
         ) : (
-          <div className="divide-y divide-slate-100">
+          <div className="space-y-2.5">
             {drafts.map((draft) => (
               <div
                 key={draft.id}
                 onClick={() => handleRestoreDraft(draft)}
-                className="group p-4 flex items-center justify-between hover:bg-indigo-50/40 transition-colors cursor-pointer"
+                className="group p-4 bg-white border border-slate-100 hover:border-indigo-100 hover:bg-indigo-50/5 rounded-xl transition-all duration-200 cursor-pointer flex items-center justify-between shadow-sm hover:shadow-md"
               >
-                <div className="space-y-1 pr-4 flex-1">
+                <div className="space-y-1.5 pr-4 flex-1 min-w-0">
                   {editingDraftId === draft.id ? (
                     <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
                       <input
                         type="text"
                         value={editingTitle}
                         onChange={(e) => setEditingTitle(e.target.value)}
-                        className="bg-white border border-slate-200 rounded px-2 py-1 text-xs font-semibold text-slate-800 focus:outline-none"
+                        className="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                         autoFocus
                       />
                       <button
                         onClick={(e) => handleSaveRename(draft.id, e)}
                         className="p-1 hover:bg-emerald-100 rounded text-emerald-600"
                       >
-                        <Check className="w-3.5 h-3.5" />
+                        <Check className="w-4 h-4" />
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); setEditingDraftId(null); }}
                         className="p-1 hover:bg-slate-100 rounded text-slate-400"
                       >
-                        <X className="w-3.5 h-3.5" />
+                        <X className="w-4 h-4" />
                       </button>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-slate-700 text-xs group-hover:text-indigo-900 transition-colors">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="font-bold text-slate-800 text-xs truncate group-hover:text-indigo-950 transition-colors">
                         {draft.title}
                       </span>
                       {draft.isAutoSave && (
-                        <span className="px-1.5 py-0.5 bg-amber-50 border border-amber-100 text-amber-700 text-[9px] rounded font-bold">
+                        <span className="px-1.5 py-0.5 bg-amber-50 border border-amber-100 text-amber-700 text-[9px] rounded font-bold shrink-0">
                           {isEn ? 'Autosaved' : '自动保存'}
                         </span>
                       )}
                     </div>
                   )}
                   
-                  <div className="flex items-center gap-3 text-[10px] text-slate-400">
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] text-slate-400">
                     <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-slate-300" />
+                      <Clock className="w-3 h-3 text-slate-300 shrink-0" />
                       {draft.timestamp}
                     </span>
                     <span className="flex items-center gap-1">
-                      <FileText className="w-3 h-3 text-slate-300" />
+                      <FileText className="w-3 h-3 text-slate-300 shrink-0" />
                       {draft.markdown.length} {isEn ? 'Chars' : '字符'}
                     </span>
                     <span className="flex items-center gap-1">
-                      <Settings className="w-3 h-3 text-slate-300" />
-                      Style: {draft.settings.themeColor}/{draft.settings.fontSize}
+                      <Settings className="w-3 h-3 text-slate-300 shrink-0" />
+                      <span>{isEn ? 'Style:' : '样式:'} {draft.settings.themeColor} · {draft.settings.fontSize}</span>
                     </span>
                   </div>
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-1 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       setEditingDraftId(draft.id);
                       setEditingTitle(draft.title);
                     }}
-                    className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 rounded-lg transition-colors text-[10px] font-bold"
+                    className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors text-[10px] font-bold"
                     title={isEn ? "Rename draft" : "重命名草稿"}
                   >
                     {isEn ? 'Rename' : '重命名'}
@@ -141,7 +145,7 @@ export function DraftsTab({
                   <button
                     onClick={(e) => handleDeleteDraft(draft.id, e)}
                     className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                    title={isEn ? "Delete draft" : "删除草稿"}
+                    title={isEn ? "Delete draft" : "删除本草稿"}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>

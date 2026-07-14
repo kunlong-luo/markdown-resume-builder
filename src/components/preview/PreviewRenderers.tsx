@@ -2,7 +2,7 @@ import React from 'react';
 import { getH2ClassName } from '../../lib/preview-utils';
 
 // Static constants lifted out of render cycle to prevent repeated compilation and memory allocation overhead
-const DATE_REGEX = /(?:(?:19|20)\d{2}[\.\-\/年\s]\d{1,2}|(?:19|20)\d{2})\s*(?:[\-—–―~～至到]|--+|\s+)\s*(?:(?:19|20)\d{2}[\.\-\/年\s]\d{1,2}|(?:19|20)\d{2}|至今|现在|present|Present)/gi;
+const DATE_REGEX = /(?:(?:19|20)\d{2}[\.\-\/年\s]\d{1,2}\s*月?|(?:19|20)\d{2})\s*(?:[\-—–―~～至到]|--+|\s+)\s*(?:(?:19|20)\d{2}[\.\-\/年\s]\d{1,2}\s*月?|(?:19|20)\d{2}|至今|现在|present|Present)/gi;
 const DIVIDER_REGEX = /[　]|[｜|·•]|\s{2,}/;
 const SPLIT_REGEX = /[　]|\s*[|｜·•]\s*|\s{2,}/g;
 
@@ -117,6 +117,20 @@ function renderStructuralRow(
   return defaultRender();
 }
 
+function translateHeading(title: string, lang: string): string {
+  if (lang !== 'en') return title;
+  const t = title.trim();
+  if (t === '个人优势' || t === '个人亮点' || t === '优势要点') return 'Core Strengths';
+  if (t === '核心成就' || t === '主要成就') return 'Key Achievements';
+  if (t === '代表项目' || t === '项目经验' || t === '项目经历' || t === '开源项目') return 'Project Experience';
+  if (t === '工作经历' || t === '工作经验' || t === '实习经历') return 'Work Experience';
+  if (t === '教育背景' || t === '教育经历') return 'Education';
+  if (t === '专业技能' || t === '技能特长' || t === '技能证书') return 'Professional Skills';
+  if (t === '自我评价' || t === '自我总结' || t === '个人总结') return 'Summary / Evaluation';
+  if (t === '荣誉奖项' || t === '获奖情况' || t === '荣誉和奖项') return 'Honors & Awards';
+  return title;
+}
+
 export function createMarkdownComponents({
   headerInfo,
   sizeClasses,
@@ -130,7 +144,15 @@ export function createMarkdownComponents({
 }) {
   return {
     h1: ({ node, ...props }: any) => headerInfo.hasHeader ? null : <h1 className={sizeClasses.h1} {...props} />,
-    h2: ({ node, ...props }: any) => <h2 className={getH2ClassName(settings.fontSize, theme, settings.h2Style)} {...props} />,
+    h2: ({ node, children, ...props }: any) => {
+      const headingText = getChildrenText(children);
+      const translated = translateHeading(headingText, settings.lang || 'zh');
+      return (
+        <h2 className={getH2ClassName(settings.fontSize, theme, settings.h2Style)} {...props}>
+          {translated}
+        </h2>
+      );
+    },
     h3: ({ node, children, ...props }: any) => {
       return renderStructuralRow(children, sizeClasses, theme, () => (
         <h3 className={sizeClasses.h3} {...props}>{children}</h3>

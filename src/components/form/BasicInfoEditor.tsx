@@ -195,9 +195,20 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
   const tags = model.subtitle ? model.subtitle.split(/[｜|]/).map(t => t.trim()).filter(Boolean) : [];
 
   return (
-    <div id="form-sec-basic" className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden scroll-mt-20">
+    <div 
+      id="form-sec-basic" 
+      className={`rounded-xl overflow-hidden scroll-mt-20 transition-all duration-300 ${
+        expanded 
+          ? 'tactile-card shadow-[0_16px_36px_rgba(30,41,59,0.06),0_3px_10px_rgba(30,41,59,0.03)] border-indigo-200/50 scale-[1.002] ring-1 ring-indigo-50/50 mb-5' 
+          : 'bg-slate-50/60 border border-slate-200/50 shadow-[0_2px_6px_rgba(30,41,59,0.015)] opacity-85 hover:opacity-100 scale-[0.995] hover:scale-100 mb-3'
+      }`}
+    >
       <div 
-        className="flex items-center justify-between p-4 bg-slate-50 border-b border-slate-100 cursor-pointer hover:bg-slate-100 transition-colors"
+        className={`flex items-center justify-between p-4 bg-gradient-to-r cursor-pointer transition-colors ${
+          expanded 
+            ? 'from-indigo-50/40 to-slate-50 border-b border-indigo-100/40 hover:from-indigo-50/60 hover:to-slate-100/60' 
+            : 'from-slate-50/80 to-slate-100/30 border-b border-slate-200/40 hover:from-slate-100/60 hover:to-slate-100/90'
+        }`}
         onClick={onToggleExpanded}
       >
         <div className="flex items-center gap-3">
@@ -218,49 +229,49 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
         <div className="p-5">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div className="space-y-2">
-              <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">{t.nameLabel}</label>
+              <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{t.nameLabel}</label>
               <div className="relative">
                 <span className="absolute left-3 top-2.5 text-slate-400"><User className="w-4 h-4" /></span>
                 <input 
                   type="text" 
                   value={model.name || ''}
                   onChange={(e) => handleBasicInfoChange('name', e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 text-sm font-semibold bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  className="w-full pl-9 pr-3 py-2 text-sm font-semibold tactile-input"
                   placeholder={t.namePlaceholder}
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">{t.phoneLabel}</label>
+              <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{t.phoneLabel}</label>
               <div className="relative">
                 <span className="absolute left-3 top-2.5 text-slate-400"><Phone className="w-4 h-4" /></span>
                 <input 
                   type="text" 
                   value={model.phone || ''}
                   onChange={(e) => handleBasicInfoChange('phone', e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-mono"
+                  className="w-full pl-9 pr-3 py-2 text-sm tactile-input font-mono"
                   placeholder={t.phonePlaceholder}
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">{t.emailLabel}</label>
+              <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{t.emailLabel}</label>
               <div className="relative">
                 <span className="absolute left-3 top-2.5 text-slate-400"><Mail className="w-4 h-4" /></span>
                 <input 
                   type="email" 
                   value={model.email || ''}
                   onChange={(e) => handleBasicInfoChange('email', e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-mono"
+                  className="w-full pl-9 pr-3 py-2 text-sm tactile-input font-mono"
                   placeholder={t.emailPlaceholder}
                 />
               </div>
             </div>
             
             <div className="space-y-2">
-              <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">{t.targetJobLabel}</label>
+              <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{t.targetJobLabel}</label>
               
               {tags.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mb-2">
@@ -290,14 +301,14 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                     value={tagInput}
                     onChange={(e) => setTagInput(e.target.value)}
                     onKeyDown={handleAddTag}
-                    className="w-full pl-9 pr-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                    className="w-full pl-9 pr-3 py-2 text-sm tactile-input"
                     placeholder={t.tagPlaceholder}
                   />
                 </div>
                 <button
                   type="button"
                   onClick={() => handleAddTag()}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-lg transition-colors border border-slate-200 cursor-pointer"
+                  className="px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-sm font-semibold rounded-lg transition-all border border-slate-200/80 shadow-[0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)] cursor-pointer active:translate-y-px"
                 >
                   {t.addBtn}
                 </button>
@@ -307,7 +318,7 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
             {showOptional && (
               <div className="md:col-span-2 space-y-4 pt-4 border-t border-slate-100 mt-2">
                 <div className="space-y-2">
-                  <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">{t.socialLabel}</label>
+                  <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{t.socialLabel}</label>
                   <div className="relative">
                     <span className="absolute left-3 top-2.5 text-slate-400">
                       {(() => {
@@ -321,7 +332,7 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                       type="text" 
                       value={model.social || ''}
                       onChange={(e) => handleBasicInfoChange('social', e.target.value)}
-                      className="w-full pl-9 pr-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-mono"
+                      className="w-full pl-9 pr-3 py-2 text-sm tactile-input font-mono"
                       placeholder={t.socialPlaceholder}
                     />
                   </div>
@@ -331,7 +342,7 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                   {/* 工作经验年限 */}
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
-                      <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">{t.expLabel}</label>
+                      <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.expLabel}</label>
                       <button
                         type="button"
                         onClick={() => {
@@ -352,22 +363,22 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                           type="text" 
                           value={model.workYears || ''}
                           onChange={(e) => handleStructuredFieldChange('workYears', e.target.value)}
-                          className="w-full pl-9 pr-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                          className="w-full pl-9 pr-3 py-2 text-sm tactile-input"
                           placeholder={t.expLabel}
                         />
                       ) : (
                         <div className="relative">
                           <select
-                            value={model.workYears || ''}
-                            onChange={(e) => {
-                              if (e.target.value === '__custom__') {
-                                setCustomWorkYears(true);
-                              } else {
-                                handleStructuredFieldChange('workYears', e.target.value);
-                              }
-                            }}
-                            className="w-full pl-9 pr-8 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 appearance-none cursor-pointer"
-                          >
+                             value={model.workYears || ''}
+                             onChange={(e) => {
+                               if (e.target.value === '__custom__') {
+                                 setCustomWorkYears(true);
+                               } else {
+                                 handleStructuredFieldChange('workYears', e.target.value);
+                               }
+                             }}
+                             className="w-full pl-9 pr-8 py-2 text-sm tactile-input appearance-none cursor-pointer"
+                           >
                             {workYearsOptions.map(opt => (
                               <option key={opt.value} value={opt.value}>{opt.label}</option>
                             ))}
@@ -384,7 +395,7 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                   {/* 最高学历 */}
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
-                      <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">{t.degreeLabel}</label>
+                      <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.degreeLabel}</label>
                       <button
                         type="button"
                         onClick={() => {
@@ -405,7 +416,7 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                           type="text" 
                           value={model.degree || ''}
                           onChange={(e) => handleStructuredFieldChange('degree', e.target.value)}
-                          className="w-full pl-9 pr-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                          className="w-full pl-9 pr-3 py-2 text-sm tactile-input"
                           placeholder={t.schoolText}
                         />
                       ) : (
@@ -419,7 +430,7 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                                 handleStructuredFieldChange('degree', e.target.value);
                               }
                             }}
-                            className="w-full pl-9 pr-8 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 appearance-none cursor-pointer"
+                            className="w-full pl-9 pr-8 py-2 text-sm tactile-input appearance-none cursor-pointer"
                           >
                             {degreeOptions.map(opt => (
                               <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -436,14 +447,14 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
 
                   {/* 年龄 / 出生年份 */}
                   <div className="space-y-2">
-                    <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">{t.ageLabel}</label>
+                    <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{t.ageLabel}</label>
                     <div className="relative">
                       <span className="absolute left-3 top-2.5 text-slate-400"><Calendar className="w-4 h-4" /></span>
                       <input 
                         type="text" 
                         value={model.age || ''}
                         onChange={(e) => handleStructuredFieldChange('age', e.target.value)}
-                        className="w-full pl-9 pr-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                        className="w-full pl-9 pr-3 py-2 text-sm tactile-input"
                         placeholder={t.agePlaceholder}
                       />
                     </div>
@@ -451,14 +462,14 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
 
                   {/* 现居 / 意向城市 */}
                   <div className="space-y-2">
-                    <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">{t.cityLabel}</label>
+                    <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{t.cityLabel}</label>
                     <div className="relative">
                       <span className="absolute left-3 top-2.5 text-slate-400"><MapPin className="w-4 h-4" /></span>
                       <input 
                         type="text" 
                         value={model.city || ''}
                         onChange={(e) => handleStructuredFieldChange('city', e.target.value)}
-                        className="w-full pl-9 pr-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                        className="w-full pl-9 pr-3 py-2 text-sm tactile-input"
                         placeholder={t.cityPlaceholder}
                       />
                     </div>
@@ -467,7 +478,7 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                   {/* 求职状态 */}
                   <div className="space-y-2 md:col-span-2">
                     <div className="flex justify-between items-center">
-                      <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">{t.statusLabel}</label>
+                      <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.statusLabel}</label>
                       <button
                         type="button"
                         onClick={() => {
@@ -488,7 +499,7 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                           type="text" 
                           value={model.jobStatus || ''}
                           onChange={(e) => handleStructuredFieldChange('jobStatus', e.target.value)}
-                          className="w-full pl-9 pr-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                          className="w-full pl-9 pr-3 py-2 text-sm tactile-input"
                           placeholder={t.statusLabel}
                         />
                       ) : (
@@ -502,7 +513,7 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                                 handleStructuredFieldChange('jobStatus', e.target.value);
                               }
                             }}
-                            className="w-full pl-9 pr-8 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 appearance-none cursor-pointer"
+                            className="w-full pl-9 pr-8 py-2 text-sm tactile-input appearance-none cursor-pointer"
                           >
                             {jobStatusOptions.map(opt => (
                               <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -510,7 +521,7 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                             <option value="__custom__">{t.customManual}</option>
                           </select>
                           <span className="absolute right-3 top-3 pointer-events-none text-slate-400">
-                            <ChevronDown className="w-4 h-4" />
+                            <ChevronDown className="w-3.5 h-3.5" />
                           </span>
                         </div>
                       )}

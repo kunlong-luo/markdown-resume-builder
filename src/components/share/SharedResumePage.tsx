@@ -102,12 +102,12 @@ export function SharedResumePage({ shareState }: SharedResumePageProps) {
           </div>
           <div>
             <h2 className="font-bold text-slate-800 text-xs md:text-sm">
-              {settings.lang === 'en' ? 'Online Interactive Portfolio' : '求职专属在线简历推荐页'}
+              {settings.lang === 'en' ? 'Online Interactive Portfolio' : '在线简历分享'}
             </h2>
             <p className="text-[10px] text-slate-400 font-medium hidden sm:block">
               {settings.lang === 'en' 
                 ? 'Mobile-responsive view · Ready to print / save as PDF' 
-                : '免登录全平台自适应排版 · 随时可直接打印/导出高保真 PDF'}
+                : '全平台自适应 · 随时可打印或导出为 PDF'}
             </p>
           </div>
         </div>
@@ -117,10 +117,10 @@ export function SharedResumePage({ shareState }: SharedResumePageProps) {
           <button
             onClick={triggerPrint}
             className="flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-bold rounded-lg shadow-sm shadow-indigo-600/10 transition-all cursor-pointer"
-            title={settings.lang === 'en' ? 'Print or Save PDF' : '保存本地 / 打印高精度 PDF'}
+            title={settings.lang === 'en' ? 'Print or Save PDF' : '保存本地 / 打印 PDF'}
           >
             <Printer className="w-3.5 h-3.5" />
-            <span>{settings.lang === 'en' ? 'Print / Export PDF' : '一键保存高保真 PDF'}</span>
+            <span>{settings.lang === 'en' ? 'Print / Export PDF' : '导出 PDF'}</span>
           </button>
         </div>
       </header>

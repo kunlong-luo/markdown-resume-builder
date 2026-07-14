@@ -5,6 +5,7 @@ interface HeightGuardProps {
   metrics: {
     isOver: boolean;
     overflowPercent: number;
+    overflowPixels?: number;
   };
   targetPageLimit: number;
   setTargetPageLimit: (limit: 1 | 2 | 3) => void;
@@ -15,22 +16,22 @@ interface HeightGuardProps {
 
 const TRANSLATIONS = {
   zh: {
-    title: 'A4 高度警报器',
-    autoFitting: '智能缩合中',
+    title: 'A4 高度提醒',
+    autoFitting: '正在排版缩合',
     overflow: '内容溢出 ⚠️',
     nearLimit: '临近边界 ⚠️',
-    perfectFit: '完美契合 ✅',
+    perfectFit: '高度契合 ✅',
     targetLimit: '目标限制',
     pages: '页 A4',
     overflowWarningTitle: '内容已超出 {pages} 页高度！',
-    overflowWarningDesc: '建议微调边距、行高、模块间距或字号，使其完美契合！',
-    nearLimitDesc: '内容已非常接近分页线，打印时可能会多出尴尬的空白页。',
-    perfectFitDesc: '当前布局紧凑，能够完美塞入所选页数，无跨页打印截断风险。',
+    overflowWarningDesc: '建议调整页边距、行高、模块间距或字号，使排版更契合。',
+    nearLimitDesc: '内容接近分页线，打印时可能会产生多余的空白页。',
+    perfectFitDesc: '布局合理，已完美契合目标页数，无跨页截断风险。',
     setTarget: '设定目标:',
     pageUnit: '页',
-    autoFittingBtn: '正在智能微调压缩中...',
-    autoFitBtn: '一键智能缩合页面',
-    optimizeBtn: '智能优化排版间距'
+    autoFittingBtn: '正在自动微调间距...',
+    autoFitBtn: '自动缩合至一页',
+    optimizeBtn: '优化排版间距'
   },
   en: {
     title: 'A4 Height Guard',
@@ -197,8 +198,11 @@ export function HeightGuard({
               {t.overflowWarningTitle.replace('{pages}', String(targetPageLimit))}
             </p>
           </div>
-          <p className="text-[10px] text-red-500 leading-relaxed pl-5">
-            {t.overflowWarningDesc}
+          <p className="text-[10px] text-red-500 leading-relaxed pl-5 font-semibold">
+            {lang === 'en'
+              ? `Over A4 boundary by approx. ${Math.round(metrics.overflowPixels || 0)}px. Try switching to "Compact" margin, reducing line spacing, or clicking "Auto-Fit" below.`
+              : `内容已超出 A4 边界约 ${Math.round(metrics.overflowPixels || 0)} 像素。建议启用“紧凑”边距、微调字号或点击下方按钮进行自动缩合。`
+            }
           </p>
         </div>
       ) : metrics.overflowPercent > 92 ? (

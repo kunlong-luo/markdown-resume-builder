@@ -2,6 +2,7 @@ import React from 'react';
 import { Sparkles, ArrowUp, ArrowDown, Trash2 } from 'lucide-react';
 import { FormItem } from '../../lib/form-types';
 import { FormTextareaToolbar } from './FormTextareaToolbar';
+import { MonthRangePicker } from './MonthRangePicker';
 
 interface ItemEditorProps {
   item: FormItem;
@@ -39,7 +40,7 @@ const TRANSLATIONS = {
         timePlaceholder: '如：2023.06 - 至今',
         contentLabel: '职责与产出',
         contentPlaceholder: `- **核心职责**：描述你负责的主导模块、要解决的核心问题\n- **量化结果**：列出清晰可证明的业务成效或量化数据\n- **项目收益**：项目顺利上线，得到了部门领导和用户的肯定`,
-        starTitle: '一键导入高专业度 STAR 原则描述示例',
+        starTitle: '导入 STAR 描述示例',
       },
       edu: {
         orgLabel: '毕业学校 / 培养机构',
@@ -49,7 +50,7 @@ const TRANSLATIONS = {
         timePlaceholder: '如：2020.09 - 2024.06',
         contentLabel: '在校表现 / 主修课程 / 荣誉成就',
         contentPlaceholder: `- **学业成绩**：绩点 GPA 3.8/4.0，专业前 5%\n- **主修课程**：高级数据结构、算法设计、操作系统、分布式计算\n- **荣誉成就**：国家奖学金、算法竞赛一等奖`,
-        starTitle: '一键导入高含金量学术在校履历模板',
+        starTitle: '导入学术履历模板',
       },
       project: {
         orgLabel: '项目名称',
@@ -59,7 +60,7 @@ const TRANSLATIONS = {
         timePlaceholder: '如：2024.01 - 2024.04',
         contentLabel: '项目详述与调优产出 (支持 STAR)',
         contentPlaceholder: `- **[Situation 业务背景]**：高并发下面临什么性能瓶颈\n- **[Task 核心任务]**：你负责攻克什么模块、调优指标\n- **[Action 关键行动]**：你做了什么核心技术方案、架构重构\n- **[Result 实际产出]**：响应延迟缩短 %，QPS 提升`,
-        starTitle: '一键导入高专业度 STAR 原则项目描述模板',
+        starTitle: '导入 STAR 项目模板',
       },
       work: {
         orgLabel: '公司 / 企业名称',
@@ -69,7 +70,7 @@ const TRANSLATIONS = {
         timePlaceholder: '如：2022.06 - 至今',
         contentLabel: '工作职责与量化产出',
         contentPlaceholder: `- **核心职责**：负责并主导...模块研发\n- **关键业绩**：攻克了...技术难关\n- **量化结果**：提升了...% 吞吐量或降低了故障率`,
-        starTitle: '一键导入高专业度工作履历 STAR 模板',
+        starTitle: '导入 STAR 工作模板',
       }
     }
   },
@@ -143,7 +144,7 @@ export function ItemEditor({
   const cat = dict.categories[catKey];
 
   return (
-    <div className="p-4 border border-slate-100 rounded-lg bg-slate-50/20 relative space-y-3 hover:border-slate-200 transition-all group/item">
+    <div className="p-4 border border-slate-200/60 rounded-xl bg-gradient-to-br from-white to-slate-50/60 relative space-y-3 transition-all group/item shadow-[0_2px_6px_rgba(15,23,42,0.01),inset_0_1.5px_2px_rgba(255,255,255,0.95)] hover:border-slate-300 hover:shadow-[0_4px_12px_rgba(15,23,42,0.03),inset_0_1.5px_2px_rgba(255,255,255,0.95)]">
       <div className="absolute right-3 top-3 flex items-center gap-1 opacity-40 group-hover/item:opacity-100 transition-opacity">
         <button type="button" onClick={onInsertStarTemplate} className="p-1 hover:bg-amber-50 text-amber-600 rounded transition-colors cursor-pointer" title={cat.starTitle}>
           <Sparkles className="w-3.5 h-3.5" />
@@ -159,47 +160,53 @@ export function ItemEditor({
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pr-24">
-        <div>
-          <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">{cat.orgLabel}</label>
-          <input type="text" value={item.org || ''} onChange={(e) => onFieldChange('org', e.target.value)} className="w-full px-2.5 py-1.5 text-xs font-semibold text-slate-800 bg-white border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder={cat.orgPlaceholder} />
+      <div className="flex flex-col md:flex-row gap-3 pr-24">
+        <div className="flex-1 min-w-0">
+          <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{cat.orgLabel}</label>
+          <input type="text" value={item.org || ''} onChange={(e) => onFieldChange('org', e.target.value)} className="w-full px-2.5 py-1.5 text-xs font-semibold text-slate-800 tactile-input" placeholder={cat.orgPlaceholder} />
         </div>
-        <div>
-          <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">{cat.roleLabel}</label>
-          <input type="text" value={item.role || ''} onChange={(e) => onFieldChange('role', e.target.value)} className="w-full px-2.5 py-1.5 text-xs font-semibold text-slate-800 bg-white border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder={cat.rolePlaceholder} />
+        <div className="flex-1 min-w-0">
+          <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{cat.roleLabel}</label>
+          <input type="text" value={item.role || ''} onChange={(e) => onFieldChange('role', e.target.value)} className="w-full px-2.5 py-1.5 text-xs font-semibold text-slate-800 tactile-input" placeholder={cat.rolePlaceholder} />
         </div>
-        <div>
-          <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">{dict.periodLabel}</label>
-          <input type="text" value={item.time || ''} onChange={(e) => onFieldChange('time', e.target.value)} className="w-full px-2.5 py-1.5 text-xs font-semibold text-slate-800 bg-white border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono" placeholder={cat.timePlaceholder} />
+        <div className="w-full md:w-[220px] shrink-0">
+          <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{dict.periodLabel}</label>
+          <MonthRangePicker
+            value={item.time || ''}
+            onChange={(val) => onFieldChange('time', val)}
+            className="px-2.5 py-1.5 text-xs font-semibold text-slate-800 tactile-input font-mono"
+            placeholder={cat.timePlaceholder}
+            lang={lang}
+          />
         </div>
       </div>
 
       {category === 'edu' && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div>
-            <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">{dict.gpaLabel}</label>
-            <input type="text" value={item.gpa || ''} onChange={(e) => onFieldChange('gpa', e.target.value)} className="w-full px-2.5 py-1.5 text-xs font-semibold text-slate-800 bg-white border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder={dict.gpaPlaceholder} />
+            <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{dict.gpaLabel}</label>
+            <input type="text" value={item.gpa || ''} onChange={(e) => onFieldChange('gpa', e.target.value)} className="w-full px-2.5 py-1.5 text-xs font-semibold text-slate-800 tactile-input" placeholder={dict.gpaPlaceholder} />
           </div>
           <div>
-            <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">{dict.coursesLabel}</label>
-            <input type="text" value={item.courses || ''} onChange={(e) => onFieldChange('courses', e.target.value)} className="w-full px-2.5 py-1.5 text-xs font-semibold text-slate-800 bg-white border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder={dict.coursesPlaceholder} />
+            <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{dict.coursesLabel}</label>
+            <input type="text" value={item.courses || ''} onChange={(e) => onFieldChange('courses', e.target.value)} className="w-full px-2.5 py-1.5 text-xs font-semibold text-slate-800 tactile-input" placeholder={dict.coursesPlaceholder} />
           </div>
           <div>
-            <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">{dict.honorsLabel}</label>
-            <input type="text" value={item.honors || ''} onChange={(e) => onFieldChange('honors', e.target.value)} className="w-full px-2.5 py-1.5 text-xs font-semibold text-slate-800 bg-white border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder={dict.honorsPlaceholder} />
+            <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{dict.honorsLabel}</label>
+            <input type="text" value={item.honors || ''} onChange={(e) => onFieldChange('honors', e.target.value)} className="w-full px-2.5 py-1.5 text-xs font-semibold text-slate-800 tactile-input" placeholder={dict.honorsPlaceholder} />
           </div>
         </div>
       )}
 
       <div>
         <div className="mb-1">
-          <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+          <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
             {category === 'edu' ? dict.eduSuppLabel : cat.contentLabel}
           </label>
         </div>
         <div className="flex flex-col mt-1">
           <FormTextareaToolbar textareaId={item.id} value={item.content} onChange={onContentChange} lang={lang} />
-          <textarea id={item.id} value={item.content} onChange={(e) => onContentChange(e.target.value)} rows={category === 'edu' ? 3 : 5} className="w-full p-2.5 text-xs font-mono leading-relaxed bg-white border border-slate-200 rounded-b-md rounded-t-none border-t-0 focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder={category === 'edu' ? dict.eduSuppPlaceholder : cat.contentPlaceholder} />
+          <textarea id={item.id} value={item.content} onChange={(e) => onContentChange(e.target.value)} rows={category === 'edu' ? 3 : 5} className="w-full p-2.5 text-xs font-mono leading-relaxed bg-slate-50/10 border border-slate-200/80 rounded-b-lg rounded-t-none border-t-0 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 shadow-[inset_0_1.5px_3px_rgba(15,23,42,0.04)] focus:shadow-none transition-all duration-200" placeholder={category === 'edu' ? dict.eduSuppPlaceholder : cat.contentPlaceholder} />
         </div>
       </div>
     </div>

@@ -2,6 +2,7 @@ import React from 'react';
 import { School, Calendar, BookOpen, Plus, Trash2, ChevronDown, ChevronUp, Award, Book, ArrowUp, ArrowDown, GraduationCap } from 'lucide-react';
 import { FormSection, FormItem } from '../../lib/form-types';
 import { FormTextareaToolbar } from './FormTextareaToolbar';
+import { MonthRangePicker } from './MonthRangePicker';
 
 interface EduSectionEditorProps {
   section: FormSection;
@@ -143,9 +144,20 @@ export function EduSectionEditor({
   };
 
   return (
-    <div id={`form-sec-${section.id}`} className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden scroll-mt-20">
+    <div 
+      id={`form-sec-${section.id}`} 
+      className={`rounded-xl overflow-hidden scroll-mt-20 transition-all duration-300 ${
+        expanded 
+          ? 'tactile-card shadow-[0_16px_36px_rgba(30,41,59,0.06),0_3px_10px_rgba(30,41,59,0.03)] border-indigo-200/50 scale-[1.002] ring-1 ring-indigo-50/50 mb-5' 
+          : 'bg-slate-50/60 border border-slate-200/50 shadow-[0_2px_6px_rgba(30,41,59,0.015)] opacity-85 hover:opacity-100 scale-[0.995] hover:scale-100 mb-3'
+      }`}
+    >
       <div 
-        className="flex items-center justify-between p-4 bg-slate-50 border-b border-slate-100 cursor-pointer hover:bg-slate-100 transition-colors"
+        className={`flex items-center justify-between p-4 bg-gradient-to-r cursor-pointer transition-colors ${
+          expanded 
+            ? 'from-indigo-50/40 to-slate-50 border-b border-indigo-100/40 hover:from-indigo-50/60 hover:to-slate-100/60' 
+            : 'from-slate-50/80 to-slate-100/30 border-b border-slate-200/40 hover:from-slate-100/60 hover:to-slate-100/90'
+        }`}
         onClick={onToggle}
       >
         <div className="flex items-center gap-3">
@@ -161,23 +173,6 @@ export function EduSectionEditor({
                 onChange={(e) => onTitleChange(e.target.value)}
                 className="font-bold text-slate-800 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-purple-500 focus:bg-white focus:outline-none px-1 rounded transition-all"
               />
-              {/* Type Badge */}
-              <span 
-                onClick={(e) => {
-                  if (onTypeChange) {
-                    e.stopPropagation();
-                    onTypeChange(section.type === 'items' ? 'text' : 'items');
-                  }
-                }}
-                className={`text-[10px] px-1.5 py-0.5 rounded font-medium transition-colors ${
-                  onTypeChange 
-                    ? 'bg-purple-100 hover:bg-purple-200 text-purple-700 cursor-pointer' 
-                    : 'bg-slate-200/60 text-slate-500'
-                }`}
-                title={onTypeChange ? t.typeTooltip : undefined}
-              >
-                {section.type === 'items' ? t.typeItems : t.typeText}
-              </span>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">{t.subtitle}</p>
           </div>
@@ -234,7 +229,7 @@ export function EduSectionEditor({
                   value={section.textValue || ''} 
                   onChange={(e) => onTextChange!(e.target.value)} 
                   rows={6}
-                  className="w-full p-3.5 text-xs font-mono leading-relaxed bg-white border border-slate-200 rounded-b-lg rounded-t-none border-t-0 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                  className="w-full p-3.5 text-xs font-mono leading-relaxed bg-slate-50/10 border border-slate-200/80 rounded-b-lg rounded-t-none border-t-0 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 shadow-[inset_0_1.5px_3px_rgba(15,23,42,0.04)] focus:shadow-none transition-all duration-200"
                   placeholder={t.textPlaceholder}
                 />
               </div>
@@ -242,7 +237,7 @@ export function EduSectionEditor({
           ) : (
             <>
               {section.items.map((item, itemIndex) => (
-                <div key={item.id} className="relative p-5 border border-slate-100 rounded-xl bg-slate-50/30 hover:border-purple-200 hover:bg-white transition-all group">
+                <div key={item.id} className="relative p-5 border border-slate-200/60 rounded-xl bg-gradient-to-br from-white to-slate-50/60 transition-all group shadow-[0_2px_6px_rgba(15,23,42,0.01),inset_0_1.5px_2px_rgba(255,255,255,0.95)] hover:border-purple-300 hover:shadow-[0_4px_12px_rgba(15,23,42,0.03),inset_0_1.5px_2px_rgba(255,255,255,0.95)]">
                   
                   {/* Action Buttons */}
                   <div className="absolute right-3 top-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all z-10">
@@ -278,24 +273,24 @@ export function EduSectionEditor({
                   </div>
 
                   {/* Primary Fields Row */}
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t.schoolLabel}</label>
+                  <div className="flex flex-col md:flex-row gap-4">
+                    <div className="flex-[1.5] min-w-0 space-y-1.5">
+                      <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.schoolLabel}</label>
                       <div className="relative">
                         <span className="absolute left-3 top-2.5 text-slate-400"><School className="w-3.5 h-3.5" /></span>
                         <input 
                           type="text" 
                           value={item.org || ''}
                           onChange={(e) => onItemChange(item.id, 'org', e.target.value)}
-                          className="w-full pl-9 pr-3 py-2 text-sm font-semibold bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                          className="w-full pl-9 pr-3 py-2 text-sm font-semibold tactile-input"
                           placeholder={t.schoolPlaceholder}
                         />
                       </div>
                     </div>
 
-                    <div className="space-y-1.5">
+                    <div className="flex-1 min-w-0 space-y-1.5">
                       <div className="flex justify-between items-center">
-                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t.degreeLabel}</label>
+                        <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.degreeLabel}</label>
                         <button
                           type="button"
                           onClick={() => toggleCustomDegree(item.id)}
@@ -311,7 +306,7 @@ export function EduSectionEditor({
                             type="text" 
                             value={item.degree || ''}
                             onChange={(e) => onItemChange(item.id, 'degree', e.target.value)}
-                            className="w-full pl-9 pr-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                            className="w-full pl-9 pr-3 py-2 text-sm tactile-input"
                             placeholder={t.degreePlaceholder}
                           />
                         ) : (
@@ -325,7 +320,7 @@ export function EduSectionEditor({
                                     onItemChange(item.id, 'degree', e.target.value);
                                   }
                               }}
-                              className="w-full pl-9 pr-8 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 appearance-none cursor-pointer"
+                              className="w-full pl-9 pr-8 py-2 text-sm tactile-input appearance-none cursor-pointer"
                             >
                               {t.degreeOptions.map(opt => (
                                 <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -340,74 +335,72 @@ export function EduSectionEditor({
                       </div>
                     </div>
 
-                    <div className="space-y-1.5">
-                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t.majorLabel}</label>
+                    <div className="flex-[1.2] min-w-0 space-y-1.5">
+                      <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.majorLabel}</label>
                       <div className="relative">
                         <span className="absolute left-3 top-2.5 text-slate-400"><BookOpen className="w-3.5 h-3.5" /></span>
                         <input 
                           type="text" 
                           value={item.role || ''}
                           onChange={(e) => onItemChange(item.id, 'role', e.target.value)}
-                          className="w-full pl-9 pr-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                          className="w-full pl-9 pr-3 py-2 text-sm tactile-input font-medium"
                           placeholder={t.majorPlaceholder}
                         />
                       </div>
                     </div>
 
-                    <div className="space-y-1.5">
-                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t.timeLabel}</label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-2.5 text-slate-400"><Calendar className="w-3.5 h-3.5" /></span>
-                        <input 
-                          type="text" 
-                          value={item.time || ''}
-                          onChange={(e) => onItemChange(item.id, 'time', e.target.value)}
-                          className="w-full pl-9 pr-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 font-mono"
-                          placeholder={t.timePlaceholder}
-                        />
-                      </div>
+                     <div className="w-full md:w-[220px] shrink-0 space-y-1.5">
+                      <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.timeLabel}</label>
+                      <MonthRangePicker
+                        value={item.time || ''}
+                        onChange={(val) => onItemChange(item.id, 'time', val)}
+                        className="pl-9 pr-3 py-2 text-sm tactile-input font-mono"
+                        placeholder={t.timePlaceholder}
+                        lang={lang}
+                        leftIcon={<Calendar className="w-3.5 h-3.5" />}
+                      />
                     </div>
                   </div>
 
                   {/* Secondary Fields Row: Academic & Achievements */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-4 border-t border-slate-100">
                     <div className="space-y-1.5">
-                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t.gpaLabel}</label>
+                      <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.gpaLabel}</label>
                       <div className="relative">
                         <span className="absolute left-3 top-2.5 text-slate-400"><Award className="w-3.5 h-3.5" /></span>
                         <input 
                           type="text" 
                           value={item.gpa || ''}
                           onChange={(e) => onItemChange(item.id, 'gpa', e.target.value)}
-                          className="w-full pl-9 pr-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                          className="w-full pl-9 pr-3 py-2 text-sm tactile-input"
                           placeholder={t.gpaPlaceholder}
                         />
                       </div>
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t.coursesLabel}</label>
+                      <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.coursesLabel}</label>
                       <div className="relative">
                         <span className="absolute left-3 top-2.5 text-slate-400"><Book className="w-3.5 h-3.5" /></span>
                         <input 
                           type="text" 
                           value={item.courses || ''}
                           onChange={(e) => onItemChange(item.id, 'courses', e.target.value)}
-                          className="w-full pl-9 pr-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                          className="w-full pl-9 pr-3 py-2 text-sm tactile-input"
                           placeholder={t.coursesPlaceholder}
                         />
                       </div>
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t.honorsLabel}</label>
+                      <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.honorsLabel}</label>
                       <div className="relative">
                         <span className="absolute left-3 top-2.5 text-slate-400"><Award className="w-3.5 h-3.5" /></span>
                         <input 
                           type="text" 
                           value={item.honors || ''}
                           onChange={(e) => onItemChange(item.id, 'honors', e.target.value)}
-                          className="w-full pl-9 pr-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                          className="w-full pl-9 pr-3 py-2 text-sm tactile-input"
                           placeholder={t.honorsPlaceholder}
                         />
                       </div>
@@ -417,7 +410,7 @@ export function EduSectionEditor({
                   {/* Supplemental Content / Description Textarea */}
                   <div className="mt-4 pt-4 border-t border-slate-100">
                     <div className="mb-1">
-                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t.descLabel}</label>
+                      <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.descLabel}</label>
                     </div>
                     <div className="flex flex-col mt-1.5">
                       <FormTextareaToolbar textareaId={item.id} value={item.content || ''} onChange={(val) => onItemChange(item.id, 'content', val)} lang={lang} />
@@ -426,7 +419,7 @@ export function EduSectionEditor({
                         value={item.content || ''}
                         onChange={(e) => onItemChange(item.id, 'content', e.target.value)}
                         rows={3}
-                        className="w-full p-3 text-xs font-mono leading-relaxed bg-white border border-slate-200 rounded-b-lg rounded-t-none border-t-0 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                        className="w-full p-3 text-xs font-mono leading-relaxed bg-slate-50/10 border border-slate-200/80 rounded-b-lg rounded-t-none border-t-0 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 shadow-[inset_0_1.5px_3px_rgba(15,23,42,0.04)] focus:shadow-none transition-all duration-200"
                         placeholder={t.descPlaceholder}
                       />
                     </div>

@@ -2,7 +2,7 @@
 
 English | [简体中文](./README.md)
 
-[![Version](https://img.shields.io/badge/version-v1.3.0--PRO-blue?style=flat-square&logo=github)](https://github.com/kunlong-luo/markdown-resume-builder)
+[![Version](https://img.shields.io/badge/version-v1.4.0--PRO-blue?style=flat-square&logo=github)](https://github.com/kunlong-luo/markdown-resume-builder)
 [![React](https://img.shields.io/badge/built%20with-React%2018-blueviolet?style=flat-square)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/bundler-Vite-646CFF?style=flat-square&logo=vite)](https://vite.dev/)
 [![TailwindCSS](https://img.shields.io/badge/styling-Tailwind%20v4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
@@ -83,13 +83,7 @@ cd markdown-resume-builder
 pnpm install
 ```
 
-### 3. Configure Environment Variables
-If you wish to unlock the integrated AI text enhancement and refactoring assistant, copy `.env.example` to `.env` and provide your Google Gemini API Key:
-```env
-GEMINI_API_KEY=your_gemini_api_key_here
-```
-
-### 4. Start the Dev Server
+### 3. Start the Dev Server
 ```bash
 pnpm dev
 ```

@@ -47,7 +47,7 @@ export function IframeWarningModal() {
               <div className="flex items-center gap-2 text-blue-600">
                 <AlertCircle className="w-5 h-5 text-amber-500 animate-bounce" />
                 <h3 className="font-bold text-slate-800 text-base">
-                  {isEn ? 'PDF Export Security Advisory' : '导出 PDF 安全权限提示'}
+                  {isEn ? 'PDF Export Security Advisory' : 'PDF 导出说明'}
                 </h3>
               </div>
               <button
@@ -71,7 +71,7 @@ export function IframeWarningModal() {
                     </>
                   ) : (
                     <>
-                      您当前正处于 AI Studio 的 <strong>iframe 预览沙箱环境</strong> 中。受现代浏览器严格的安全策略（同源及沙箱限制）保护，嵌套的 iframe 无法直接调起系统的打印引擎和另存为 PDF 功能。
+                      当前处于 <strong>iframe 预览沙箱环境</strong> 中。受现代浏览器安全策略（同源及沙箱限制）影响，嵌套的 iframe 无法直接调起系统的打印引擎和另存为 PDF 功能。
                     </>
                   )}
                 </p>
@@ -79,7 +79,7 @@ export function IframeWarningModal() {
 
               <div className="space-y-3">
                 <p className="text-xs font-bold text-slate-700">
-                  {isEn ? '💡 Simple Solution (Only 2 steps):' : '💡 极简解决方法（仅需两步）：'}
+                  {isEn ? '💡 Simple Solution (Only 2 steps):' : '💡 解决方法：'}
                 </p>
                 
                 <div className="space-y-2 text-xs text-slate-600">
@@ -111,7 +111,7 @@ export function IframeWarningModal() {
                         </>
                       ) : (
                         <>
-                          在新打开的独立页面中，直接点击 <strong className="text-slate-800">“Export PDF”</strong> 按钮。在浏览器打印预览面板中选择 <strong>「另存为 PDF / Save as PDF」</strong> 即可完美下载。
+                          在新页面中，点击 <strong className="text-slate-800">“Export PDF”</strong> 按钮，在浏览器打印预览面板中选择 <strong>「另存为 PDF」</strong> 即可保存。
                         </>
                       )}
                     </p>
@@ -124,7 +124,7 @@ export function IframeWarningModal() {
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-3.5 h-3.5 text-blue-500 shrink-0" />
                   <span>
-                    {isEn ? 'Supports pixel-perfect HD vector A4 PDF printing' : '独立窗口中支持高清矢量无损 A4 纸张排版'}
+                    {isEn ? 'Supports pixel-perfect HD vector A4 PDF printing' : '支持无损 A4 纸张排版与打印'}
                   </span>
                 </div>
                 <span className="text-[10px] font-semibold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">

@@ -22,6 +22,7 @@ export interface ResumeSettings {
   showPageBreakLine: boolean;
   templateLayout: TemplateLayout;
   lang?: Language;
+  isPrivacyMasked?: boolean;
 }
 
 export interface ResumeDraft {

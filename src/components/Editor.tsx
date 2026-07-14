@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { 
   Edit3, Copy, RotateCcw, Check, Bold, Italic, Link, List, ListOrdered, Table, Minus, Heading1, Heading2, Code, Info, Scissors, Undo, Redo,
-  Sparkles, Type, Layers, Award, Phone, GraduationCap, ChevronDown, Briefcase, Sliders
+  Sparkles, Type, Layers, Award, Phone, GraduationCap, ChevronDown, Briefcase, Sliders, ChevronsUp, ChevronsDown
 } from 'lucide-react';
 import { FormEditor } from './form/FormEditor';
 import { SectionSorter } from './layout/SectionSorter';
@@ -133,6 +133,25 @@ export function Editor() {
 
   const [copied, setCopied] = useState(false);
   const [activeMode, setActiveMode] = useState<'markdown' | 'form' | 'layout'>('form');
+  const [formExpandedState, setFormExpandedState] = useState<{ isAllExpanded: boolean; hasSections: boolean }>({
+    isAllExpanded: true,
+    hasSections: true
+  });
+
+  useEffect(() => {
+    const handleFormExpandedState = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      setFormExpandedState({
+        isAllExpanded: customEvent.detail.isAllExpanded,
+        hasSections: customEvent.detail.hasSections
+      });
+    };
+
+    document.addEventListener('form-expanded-state', handleFormExpandedState);
+    return () => {
+      document.removeEventListener('form-expanded-state', handleFormExpandedState);
+    };
+  }, []);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const preRef = useRef<HTMLPreElement>(null);
@@ -200,7 +219,7 @@ export function Editor() {
   };
 
   const insertStarTemplate = () => {
-    const starTemplate = `\n### **项目经历标题 (符合 STAR 原则描述)**\n- **[Situation 业务背景]**：面对...（描述背景，例如：原有支付网关在并发1W时延迟高、高频卡顿，导致核心下单率降低了15%）\n- **[Task 核心任务]**：作为重构技术负责人，我的目标是主导核心链路重构，将端到端支付耗时降低50%并支撑双十一大促\n- **[Action 关键行动]**：为了达成这一目标，我主导并实施了以下关键方案：\n  1. **架构重构**：使用 React Concurrent Features 与 Suspense 异步组件，大幅减少首屏体积 30% 并实现页面瞬时渲染\n  2. **高并发处理**：引入 Redis 集群缓存高频商品，并利用 Kafka 消息队列进行削峰填谷，彻底平抑了流量浪涌\n  3. **SQL性能优化**：针对全表扫描的查询建立联合索引，优化复杂多表 Join，实现慢查询占比降低 85%\n- **[Result 实际产出]**：项目上线后，首屏耗时由 2.5s 骤降至 0.7s，下单成功率由 83% 提升至 99.8%，完美承载双十一大促且零线上故障\n`;
+    const starTemplate = `\n### **项目经历标题 (符合 STAR 原则描述)**\n- **[Situation 业务背景]**：面对...（描述背景，例如：原有支付网关在并发1W时延迟高、高频卡顿，导致核心下单率降低了15%）\n- **[Task 核心任务]**：作为重构技术负责人，我的目标是主导核心链路重构，将端到端支付耗时降低50%并支撑双十一大促\n- **[Action 关键行动]**：为了达成这一目标，我主导并实施了以下关键方案：\n  1. **架构重构**：使用 React Concurrent Features 与 Suspense 异步组件，大幅减少首屏体积 30% 并实现页面瞬时渲染\n  2. **高并发处理**：引入 Redis 集群缓存高频商品，并利用 Kafka 消息队列进行削峰填谷，彻底平抑了流量浪涌\n  3. **SQL性能优化**：针对全表扫描的查询建立联合索引，优化复杂多表 Join，实现慢查询占比降低 85%\n- **[Result 实际产出]**：项目上线后，首屏耗时由 2.5s 骤降至 0.7s，下单成功率由 83% 提升至 99.8%，有效承载双十一大促且无线上故障\n`;
     
     insertMarkdown(starTemplate);
   };
@@ -220,35 +239,35 @@ export function Editor() {
         <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600"></div>
         
         {/* Toggle Mode Segmented Control */}
-        <div className="flex bg-slate-100 p-0.5 rounded-lg border border-slate-200/50">
+        <div className="flex bg-slate-100 p-0.5 rounded-lg border border-slate-200 shadow-[inset_0_1.5px_3px_rgba(15,23,42,0.04)]">
           <button
             onClick={() => setActiveMode('form')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-200 cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200 cursor-pointer ${
               activeMode === 'form'
-                ? 'bg-white text-blue-600 shadow-sm border border-slate-200/10'
-                : 'text-slate-600 hover:text-slate-800'
+                ? 'bg-gradient-to-b from-white to-slate-50 text-indigo-600 shadow-[0_2px_5px_rgba(15,23,42,0.08),0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)] border border-slate-200/80 font-extrabold'
+                : 'text-slate-600 hover:text-slate-800 hover:bg-white/40'
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
-            <span>{settings.lang === 'en' ? 'Visual Form Editor' : '可视化表单编辑'}</span>
+            <span>{settings.lang === 'en' ? 'Form Editor' : '表单编辑'}</span>
           </button>
           <button
             onClick={() => setActiveMode('markdown')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-200 cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200 cursor-pointer ${
               activeMode === 'markdown'
-                ? 'bg-white text-blue-600 shadow-sm border border-slate-200/10'
-                : 'text-slate-600 hover:text-slate-800'
+                ? 'bg-gradient-to-b from-white to-slate-50 text-indigo-600 shadow-[0_2px_5px_rgba(15,23,42,0.08),0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)] border border-slate-200/80 font-extrabold'
+                : 'text-slate-600 hover:text-slate-800 hover:bg-white/40'
             }`}
           >
             <Edit3 className="w-3.5 h-3.5" />
-            <span>{settings.lang === 'en' ? 'Markdown Editor' : 'Markdown 编辑'}</span>
+            <span>{settings.lang === 'en' ? 'Markdown' : '源码编辑'}</span>
           </button>
           <button
             onClick={() => setActiveMode('layout')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-200 cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200 cursor-pointer ${
               activeMode === 'layout'
-                ? 'bg-white text-blue-600 shadow-sm border border-slate-200/10'
-                : 'text-slate-600 hover:text-slate-800'
+                ? 'bg-gradient-to-b from-white to-slate-50 text-indigo-600 shadow-[0_2px_5px_rgba(15,23,42,0.08),0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)] border border-slate-200/80 font-extrabold'
+                : 'text-slate-600 hover:text-slate-800 hover:bg-white/40'
             }`}
           >
             <Sliders className="w-3.5 h-3.5" />
@@ -274,6 +293,39 @@ export function Editor() {
             <Redo className="w-3.5 h-3.5" />
           </button>
           <div className="w-px h-4 bg-gray-200 mx-1"></div>
+          {activeMode === 'form' && formExpandedState.hasSections && (
+            <>
+              <button 
+                onClick={() => {
+                  document.dispatchEvent(new CustomEvent('toggle-all-sections', {
+                    detail: { expand: !formExpandedState.isAllExpanded }
+                  }));
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md border transition-all active:scale-95 cursor-pointer shadow-xs ${
+                  formExpandedState.isAllExpanded 
+                    ? 'bg-slate-100 hover:bg-slate-200 border-slate-200/60 text-slate-600' 
+                    : 'bg-indigo-50 hover:bg-indigo-100 border-indigo-200 text-indigo-700'
+                }`}
+                title={formExpandedState.isAllExpanded 
+                  ? (settings.lang === 'en' ? 'Collapse all sections' : '一键折叠所有模块') 
+                  : (settings.lang === 'en' ? 'Expand all sections' : '一键展开所有模块')
+                }
+              >
+                {formExpandedState.isAllExpanded ? (
+                  <>
+                    <ChevronsUp className="w-3.5 h-3.5 text-slate-500" />
+                    <span>{settings.lang === 'en' ? 'Collapse All' : '全部折叠'}</span>
+                  </>
+                ) : (
+                  <>
+                    <ChevronsDown className="w-3.5 h-3.5 text-indigo-500" />
+                    <span>{settings.lang === 'en' ? 'Expand All' : '全部展开'}</span>
+                  </>
+                )}
+              </button>
+              <div className="w-px h-4 bg-gray-200 mx-1"></div>
+            </>
+          )}
           <button 
             onClick={handleCopy}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
@@ -491,10 +543,10 @@ export function Editor() {
                   ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
                   : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700 hover:text-indigo-800 border-indigo-200/50'
               }`}
-              title={settings.lang === 'en' ? 'One-click to insert standard spaces between Chinese, English and numbers to enhance spacing aesthetics' : '一键在中文与英文、数字之间添加标准空格，提升排版细节专业度'}
+              title={settings.lang === 'en' ? 'Magic Formatter (Ctrl+Shift+F) - One-click to insert standard spaces between Chinese, English and numbers' : '魔法排版 (Ctrl+Shift+F) - 一键在中文与英文、数字之间添加标准空格'}
             >
               <Type className="w-3 h-3 shrink-0" />
-              <span>{spaced ? (settings.lang === 'en' ? 'Optimized!' : '已优化！') : (settings.lang === 'en' ? 'Format Spacing' : '中英混排优化')}</span>
+              <span>{spaced ? (settings.lang === 'en' ? 'Optimized!' : '已优化！') : (settings.lang === 'en' ? 'Magic Formatter' : '魔法排版')}</span>
             </button>
           </div>
 
@@ -534,6 +586,10 @@ export function Editor() {
                     e.preventDefault();
                     onRedo();
                   }
+                }
+                if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'f') {
+                  e.preventDefault();
+                  handleAutoSpacing();
                 }
               }}
               placeholder="Type your resume in Markdown here..."

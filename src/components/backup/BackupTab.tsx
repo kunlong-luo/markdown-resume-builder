@@ -1,5 +1,5 @@
 import React from 'react';
-import { DownloadCloud, UploadCloud, FileJson } from 'lucide-react';
+import { DownloadCloud, UploadCloud, FileJson, ShieldAlert } from 'lucide-react';
 
 interface BackupTabProps {
   handleExportConfig: () => void;
@@ -24,38 +24,41 @@ export function BackupTab({
 
   return (
     <div className="space-y-6 h-full flex flex-col justify-between">
-      <div className="space-y-4">
-        <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-4 text-xs text-blue-800 leading-relaxed space-y-1">
-          <p className="font-bold flex items-center gap-1">
-            {isEn ? '📦 What is the Full Configuration File (.json)?' : '📦 什么是完整配置文件 (.json)？'}
+      <div className="space-y-5">
+        {/* Informational Card */}
+        <div className="bg-indigo-50/40 border border-indigo-100/50 rounded-xl p-4.5 text-xs text-slate-700 leading-relaxed space-y-1.5 shadow-sm">
+          <p className="font-bold text-slate-900 flex items-center gap-1.5 text-[12px]">
+            <span>📦</span>
+            <span>{isEn ? 'What is the Full Configuration File (.json)?' : '什么是 JSON 配置文件？'}</span>
           </p>
-          <p className="text-justify">
+          <p className="text-slate-500 text-justify text-[11px] font-medium leading-relaxed">
             {isEn ? (
               <>
                 Compared to exporting pure Markdown text, the <strong>Full Configuration File (.json)</strong> packs your <strong>resume content and all customized layout options (fonts, theme colors, spacing fine-tuning, page guide lines, etc.)</strong> into a single JSON file. Importing this file on any browser or computer restores your format settings with 100% pixel-perfect fidelity.
               </>
             ) : (
               <>
-                与单纯导出文本 (Markdown) 相比，<strong>完整配置文件 (.json)</strong> 会将您的 <strong>简历正文、所有的自定义排版设定（字体、主题颜色、无级微调间距、页面指南开关等）</strong> 打包存入一个文件中。在任何电脑、任何浏览器上导入此文件，即可百分百恢复您的一致排版。
+                JSON 备份包含简历全部文字及自定义排版参数（如字体、行高、页边距、主题色等）。在任意设备导入此文件，即可 100% 像素级还原您的简历与排版。
               </>
             )}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Action Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           {/* Export Section */}
-          <div className="border border-slate-200 rounded-xl p-5 bg-white shadow-sm flex flex-col justify-between space-y-4">
-            <div className="space-y-2">
-              <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg w-fit">
+          <div className="border border-slate-200/80 rounded-xl p-5 bg-white shadow-sm flex flex-col justify-between space-y-5 hover:border-slate-300 transition-all duration-200">
+            <div className="space-y-2.5">
+              <div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl w-fit border border-indigo-100/30">
                 <DownloadCloud className="w-5 h-5" />
               </div>
               <h4 className="font-bold text-slate-800 text-xs">
-                {isEn ? 'Export Full Backup' : '一键导出备份配置'}
+                {isEn ? 'Export Full Backup' : '导出 JSON 备份'}
               </h4>
-              <p className="text-[11px] text-slate-400 leading-relaxed">
+              <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
                 {isEn 
                   ? 'Bundle current resume markdown, line heights, spacing increments, font family, margins, and advanced parameters into a single JSON.'
-                  : '打包当前的简历正文、行高、微调间距、文字大小、纸张边距及所有高级渲染参数为单 JSON 备份。'}
+                  : '打包并下载当前的简历文字与全部排版参数。'}
               </p>
             </div>
             <button
@@ -63,7 +66,7 @@ export function BackupTab({
               className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 shadow-sm shadow-indigo-600/10 cursor-pointer"
             >
               <FileJson className="w-3.5 h-3.5" />
-              <span>{isEn ? 'Generate & Download .json' : '生成并下载 .json 备份'}</span>
+              <span>{isEn ? 'Generate & Download .json' : '导出 .json 备份'}</span>
             </button>
           </div>
 
@@ -74,23 +77,23 @@ export function BackupTab({
             onDragLeave={handleDrag}
             onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
-            className={`border-2 border-dashed rounded-xl p-5 flex flex-col items-center justify-center text-center cursor-pointer transition-all space-y-3 ${
+            className={`border-2 border-dashed rounded-xl p-5 flex flex-col items-center justify-center text-center cursor-pointer transition-all space-y-3.5 ${
               importDragActive
-                ? 'border-indigo-500 bg-indigo-50/30'
-                : 'border-slate-200 hover:border-indigo-400 bg-slate-50/30 hover:bg-indigo-50/10'
+                ? 'border-indigo-500 bg-indigo-50/40 shadow-sm'
+                : 'border-slate-200 hover:border-indigo-400 bg-slate-50/20 hover:bg-indigo-50/10'
             }`}
           >
-            <div className={`p-2 rounded-lg transition-colors ${importDragActive ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-100 text-slate-500'}`}>
+            <div className={`p-2.5 rounded-xl transition-colors border ${importDragActive ? 'bg-indigo-100 text-indigo-600 border-indigo-200' : 'bg-white text-slate-500 border-slate-100 shadow-sm'}`}>
               <UploadCloud className="w-5 h-5" />
             </div>
             <div>
               <h4 className="font-bold text-slate-800 text-xs">
-                {isEn ? 'Import Backup & Restore' : '导入备份文件恢复'}
+                {isEn ? 'Import Backup & Restore' : '导入 JSON 恢复'}
               </h4>
-              <p className="text-[10px] text-slate-400 max-w-[180px] mx-auto mt-1 leading-relaxed">
+              <p className="text-[10px] text-slate-400 max-w-[200px] mx-auto mt-1 leading-relaxed font-medium">
                 {isEn 
                   ? 'Drag & drop your configuration backup (.json) here, or click to browse and upload.'
-                  : '拖拽配置文件 (.json) 到此处，或点击浏览上传，将瞬间还原所有配置。'}
+                  : '拖拽备份文件 (.json) 到此处或点击上传，瞬间还原简历排版。'}
               </p>
             </div>
             <input
@@ -108,11 +111,14 @@ export function BackupTab({
         </div>
       </div>
 
-      {/* Aesthetic quote in footer */}
-      <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 text-[10px] text-slate-400 text-center leading-relaxed font-medium">
-        {isEn 
-          ? '🔒 Data Security Guarantee: All resume data is saved locally in your own browser cache. We never upload any details to any third-party external servers.'
-          : '🔒 数据安全保障：所有简历数据均保存在您的本地浏览器缓存中，不会被上传到任何外部第三方服务器，安全无忧。'}
+      {/* Security Info Panel */}
+      <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 px-4 text-[10px] text-slate-500 flex items-center justify-center gap-2 font-medium">
+        <ShieldAlert className="w-4 h-4 text-emerald-500 shrink-0" />
+        <span className="leading-relaxed">
+          {isEn 
+            ? '🔒 Data Security Guarantee: All resume data is saved locally in your own browser cache. We never upload any details to any third-party external servers.'
+            : '安全保障：所有简历数据均保存在您本地浏览器的缓存中，绝不上传服务器。'}
+        </span>
       </div>
     </div>
   );

@@ -12,6 +12,9 @@
     font-family: var(--font-sans);
     background-color: #f9fafb;
     color: #111827;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   /* Custom scrollbar for webkit */
@@ -65,12 +68,18 @@
   overflow-y: scroll !important;
   scrollbar-gutter: stable;
   scrollbar-width: thin !important;
+  scrollbar-color: transparent transparent !important;
   background: transparent !important;
   resize: none !important;
   border: 0 !important;
   outline: none !important;
   box-shadow: none !important;
   z-index: 10 !important;
+  transition: scrollbar-color 0.3s ease !important;
+}
+
+.editor-textarea:hover {
+  scrollbar-color: rgba(148, 163, 184, 0.35) transparent !important;
 }
 
 .editor-textarea:focus {
@@ -102,11 +111,15 @@
   background: transparent !important;
 }
 .editor-textarea::-webkit-scrollbar-thumb {
-  background-color: rgba(100, 116, 139, 0.3) !important;
+  background-color: transparent !important;
   border-radius: 3px !important;
+  transition: background-color 0.3s ease !important;
+}
+.editor-textarea:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(148, 163, 184, 0.3) !important;
 }
 .editor-textarea::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(100, 116, 139, 0.5) !important;
+  background-color: rgba(100, 116, 139, 0.6) !important;
 }
 .editor-pre::-webkit-scrollbar-thumb {
   background: transparent !important;
@@ -161,3 +174,114 @@
     display: block !important;
   }
 }
+
+/* 
+ * Tactile Micro-Isometric & Soft-morphic Design Tokens
+ * Incorporates double-shadowing (ambient drop + light inner emboss) and soft gradients
+ */
+@utility tactile-card {
+  background: linear-gradient(135deg, #ffffff 0%, #fcfdfe 100%);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 
+    0 4px 20px -2px rgba(15, 23, 42, 0.04), 
+    0 2px 6px -1px rgba(15, 23, 42, 0.02),
+    inset 0 2px 4px rgba(255, 255, 255, 0.95),
+    inset 0 -1px 3px rgba(15, 23, 42, 0.01);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@utility tactile-card-hover {
+  &:hover {
+    transform: translateY(-2px) scale(1.005);
+    border-color: rgba(99, 102, 241, 0.25);
+    box-shadow: 
+      0 20px 32px -8px rgba(15, 23, 42, 0.08), 
+      0 4px 12px -2px rgba(15, 23, 42, 0.04),
+      inset 0 2px 4px rgba(255, 255, 255, 0.95);
+  }
+}
+
+@utility tactile-btn {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(203, 213, 225, 0.8);
+  box-shadow: 
+    0 2px 4px -1px rgba(15, 23, 42, 0.03), 
+    0 1px 2px -1px rgba(15, 23, 42, 0.02),
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.9);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@utility tactile-btn-hover {
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    border-color: rgba(148, 163, 184, 0.8);
+    background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+    box-shadow: 
+      0 4px 10px -2px rgba(15, 23, 42, 0.06), 
+      0 2px 4px -1px rgba(15, 23, 42, 0.03),
+      inset 0 1.5px 2px rgba(255, 255, 255, 0.95);
+  }
+}
+
+@utility tactile-btn-active {
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+    background: #f1f5f9;
+    border-color: rgba(148, 163, 184, 0.6);
+    box-shadow: 
+      inset 0 2px 5px rgba(15, 23, 42, 0.06),
+      0 1px 1px rgba(255, 255, 255, 0.8);
+  }
+}
+
+@utility tactile-btn-primary {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  border: 1px solid rgba(79, 70, 229, 0.8);
+  color: #ffffff;
+  box-shadow: 
+    0 4px 12px -2px rgba(99, 102, 241, 0.3), 
+    0 2px 6px -1px rgba(99, 102, 241, 0.15),
+    inset 0 1.5px 3px rgba(255, 255, 255, 0.25),
+    inset 0 -1.5px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@utility tactile-btn-primary-hover {
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+    box-shadow: 
+      0 8px 16px -3px rgba(99, 102, 241, 0.45), 
+      0 4px 8px -1px rgba(99, 102, 241, 0.2),
+      inset 0 1.5px 3px rgba(255, 255, 255, 0.3);
+  }
+}
+
+@utility tactile-btn-primary-active {
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+    background: linear-gradient(135deg, #4338ca 0%, #3730a3 100%);
+    box-shadow: 
+      inset 0 3px 8px rgba(0, 0, 0, 0.15),
+      0 1px 1px rgba(255, 255, 255, 0.1);
+  }
+}
+
+@utility tactile-input {
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 
+    inset 0 1.5px 4px rgba(15, 23, 42, 0.04),
+    0 1px 2px rgba(255, 255, 255, 0.95);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  
+  &:focus {
+    background: #ffffff;
+    border-color: #6366f1;
+    box-shadow: 
+      0 0 0 3px rgba(99, 102, 241, 0.12),
+      inset 0 1px 3px rgba(15, 23, 42, 0.02);
+    outline: none;
+  }
+}
+

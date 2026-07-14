@@ -49,7 +49,21 @@ export function BackupDraftModal() {
     try {
       const saved = localStorage.getItem('resume-drafts');
       if (saved) {
-        setDrafts(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const sanitized = parsed.map((d: any) => {
+            if (d && d.isAutoSave && d.title && d.title.includes('自动备份 - ')) {
+              return {
+                ...d,
+                title: d.title.replace('自动备份 - ', '')
+              };
+            }
+            return d;
+          });
+          setDrafts(sanitized);
+        } else {
+          setDrafts(parsed);
+        }
       } else {
         setDrafts([]);
       }
@@ -246,97 +260,111 @@ export function BackupDraftModal() {
           />
 
           <motion.div
-            initial={{ opacity: 0, scale: 0.94, y: 15 }}
+            initial={{ opacity: 0, scale: 0.96, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.94, y: 15 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="relative bg-white w-full max-w-4xl h-[620px] rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-10 flex flex-col"
+            exit={{ opacity: 0, scale: 0.96, y: 12 }}
+            transition={{ type: 'spring', damping: 28, stiffness: 320 }}
+            className="relative bg-white w-full max-w-4xl h-[640px] rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-10 flex flex-col"
           >
-            <div className="h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600" />
+            {/* Top Gradient Accent Bar */}
+            <div className="h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
 
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-              <div className="flex items-center gap-2">
-                <Database className="w-5 h-5 text-indigo-600" />
+            {/* Header Area */}
+            <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100/80 bg-white">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-indigo-50/80 text-indigo-600 rounded-xl border border-indigo-100/50">
+                  <Database className="w-5 h-5" />
+                </div>
                 <div>
-                  <h3 className="font-bold text-slate-800 text-sm">
-                    {settings.lang === 'en' ? 'Data Storage & Multi-Version Backup Hub' : '数据存储与多版本备份 Hub'}
+                  <h3 className="font-bold text-slate-900 text-sm tracking-tight flex items-center gap-2">
+                    {settings.lang === 'en' ? 'Versions & Backup' : '版本备份'}
                   </h3>
-                  <p className="text-[10px] text-slate-400 font-medium">
+                  <p className="text-[11px] text-slate-500 mt-0.5">
                     {settings.lang === 'en' 
-                      ? 'Manage local draft versions, or export/import complete configurations (containing Markdown text and layout settings)'
-                      : '管理本地草稿版本，或导出/导入合并后的完整配置文件 (包含 Markdown 与 排版参数)'}
+                      ? 'Manage target-specific resume variations, local automatic auto-saves, and complete JSON configurations.'
+                      : '管理多岗位简历、本地历史草稿及 JSON 配置备份。'}
                   </p>
                 </div>
               </div>
               <button
                 onClick={onClose}
-                className="p-1 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600 transition-all cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="flex border-b border-slate-100 px-6 bg-slate-50/50">
-              <button
-                onClick={() => setActiveTab('matrix')}
-                className={`flex items-center gap-2 py-3 px-4 text-xs font-bold border-b-2 transition-all cursor-pointer ${
-                  activeTab === 'matrix'
-                    ? 'border-indigo-600 text-indigo-600'
-                    : 'border-transparent text-slate-500 hover:text-slate-800'
-                }`}
-              >
-                <Folder className="w-4 h-4" />
-                <span>
-                  {settings.lang === 'en' ? 'Resume Matrix' : '一职一简历 / 专属分享'}
-                </span>
-              </button>
-              <button
-                onClick={() => setActiveTab('drafts')}
-                className={`flex items-center gap-2 py-3 px-4 text-xs font-bold border-b-2 transition-all cursor-pointer ${
-                  activeTab === 'drafts'
-                    ? 'border-indigo-600 text-indigo-600'
-                    : 'border-transparent text-slate-500 hover:text-slate-800'
-                }`}
-              >
-                <History className="w-4 h-4" />
-                <span>
-                  {settings.lang === 'en' ? `Local Drafts (${drafts.length})` : `本地草稿版本 (${drafts.length})`}
-                </span>
-              </button>
-              <button
-                onClick={() => setActiveTab('backup')}
-                className={`flex items-center gap-2 py-3 px-4 text-xs font-bold border-b-2 transition-all cursor-pointer ${
-                  activeTab === 'backup'
-                    ? 'border-indigo-600 text-indigo-600'
-                    : 'border-transparent text-slate-500 hover:text-slate-800'
-                }`}
-              >
-                <FileJson className="w-4 h-4" />
-                <span>
-                  {settings.lang === 'en' ? 'Full Backup (.json)' : '完整配置备份 (.json)'}
-                </span>
-              </button>
+            {/* Tab Switched Navigation Bar */}
+            <div className="flex items-center justify-between px-6 py-3 bg-slate-50 border-b border-slate-100/80">
+              <div className="flex p-1 bg-slate-200/50 rounded-xl gap-1 shrink-0">
+                <button
+                  onClick={() => setActiveTab('matrix')}
+                  className={`flex items-center gap-1.5 py-1.5 px-4 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                    activeTab === 'matrix'
+                      ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-slate-100'
+                      : 'text-slate-500 hover:text-slate-800 hover:bg-white/40'
+                  }`}
+                >
+                  <Folder className="w-3.5 h-3.5" />
+                  <span>
+                    {settings.lang === 'en' ? 'Resume Matrix' : '版本矩阵'}
+                  </span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('drafts')}
+                  className={`flex items-center gap-1.5 py-1.5 px-4 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                    activeTab === 'drafts'
+                      ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-slate-100'
+                      : 'text-slate-500 hover:text-slate-800 hover:bg-white/40'
+                  }`}
+                >
+                  <History className="w-3.5 h-3.5" />
+                  <span>
+                    {settings.lang === 'en' ? `Local Drafts (${drafts.length})` : `历史草稿 (${drafts.length})`}
+                  </span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('backup')}
+                  className={`flex items-center gap-1.5 py-1.5 px-4 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                    activeTab === 'backup'
+                      ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-slate-100'
+                      : 'text-slate-500 hover:text-slate-800 hover:bg-white/40'
+                  }`}
+                >
+                  <FileJson className="w-3.5 h-3.5" />
+                  <span>
+                    {settings.lang === 'en' ? 'Full Backup (.json)' : 'JSON 备份'}
+                  </span>
+                </button>
+              </div>
+
+              {/* Small Tip Tag */}
+              <div className="hidden sm:flex items-center gap-1 text-[10px] text-slate-400 font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>{settings.lang === 'en' ? 'Local Storage Engine Active' : '本地存储已就绪'}</span>
+              </div>
             </div>
 
             <AnimatePresence>
               {(successMessage || errorMessage) && (
                 <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className={`absolute top-16 left-6 right-6 z-20 p-3 rounded-xl text-xs flex items-center gap-2 shadow-md border ${
+                  initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                  className={`absolute top-[125px] left-6 right-6 z-20 p-3.5 rounded-xl text-xs flex items-center gap-2.5 shadow-md border backdrop-blur-md ${
                     errorMessage 
-                      ? 'bg-rose-50 border-rose-100 text-rose-800' 
-                      : 'bg-emerald-50 border-emerald-100 text-emerald-800'
+                      ? 'bg-rose-50/95 border-rose-100 text-rose-800' 
+                      : 'bg-emerald-50/95 border-emerald-100 text-emerald-800'
                   }`}
                 >
                   <AlertCircle className={`w-4 h-4 ${errorMessage ? 'text-rose-600' : 'text-emerald-600'}`} />
-                  <span className="font-semibold">{successMessage || errorMessage}</span>
+                  <span className="font-bold">{successMessage || errorMessage}</span>
                 </motion.div>
               )}
             </AnimatePresence>
 
-            <div className="flex-1 overflow-y-auto p-6">
+            {/* Modal Body Container */}
+            <div className="flex-1 overflow-y-auto p-6 bg-white">
               {activeTab === 'matrix' ? (
                 <MatrixTab 
                   currentMarkdown={markdown}
@@ -373,10 +401,11 @@ export function BackupDraftModal() {
               )}
             </div>
 
-            <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end">
+            {/* Modal Footer Area */}
+            <div className="px-6 py-4.5 bg-slate-50 border-t border-slate-100 flex items-center justify-end">
               <button
                 onClick={onClose}
-                className="px-5 py-2 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition-all cursor-pointer"
+                className="px-5 py-2.5 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold rounded-lg transition-all cursor-pointer shadow-sm active:scale-98"
               >
                 {settings.lang === 'en' ? 'Close Hub' : '关闭 Hub'}
               </button>

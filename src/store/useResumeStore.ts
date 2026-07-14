@@ -15,6 +15,8 @@ interface ResumeState {
   isIframeModalOpen: boolean;
   isBackupHubOpen: boolean;
   isExportingPDF: boolean;
+  atsKeywords: string[];
+  jdText: string;
 
   // Actions
   setMarkdown: (markdown: string) => void;
@@ -26,6 +28,8 @@ interface ResumeState {
   setIsIframeModalOpen: (open: boolean) => void;
   setIsBackupHubOpen: (open: boolean) => void;
   setIsExportingPDF: (isExporting: boolean) => void;
+  setAtsKeywords: (keywords: string[]) => void;
+  setJdText: (text: string) => void;
   
   handleMarkdownChange: (newVal: string, immediate?: boolean) => void;
   handleUndo: () => void;
@@ -93,7 +97,8 @@ const getInitialTemplateId = (initialMarkdown: string): string => {
 const getInitialSettings = (): ResumeSettings => {
   const savedSettings = localStorage.getItem('resume-settings');
   const defaultSettings: ResumeSettings = {
-    themeColor: 'blue',
+    themeColor: 'indigo',
+    customColor: '#4F46E5',
     fontSize: 'standard',
     fontFamily: 'sans',
     margin: 'standard',
@@ -132,6 +137,8 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
   isIframeModalOpen: false,
   isBackupHubOpen: false,
   isExportingPDF: false,
+  atsKeywords: [],
+  jdText: '',
 
   // Simple setters
   setMarkdown: (markdown) => set({ markdown }),
@@ -146,6 +153,8 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
   setIsIframeModalOpen: (isIframeModalOpen) => set({ isIframeModalOpen }),
   setIsBackupHubOpen: (isBackupHubOpen) => set({ isBackupHubOpen }),
   setIsExportingPDF: (isExportingPDF) => set({ isExportingPDF }),
+  setAtsKeywords: (atsKeywords) => set({ atsKeywords }),
+  setJdText: (jdText) => set({ jdText }),
 
   // Complex operations
   handleMarkdownChange: (newVal, immediate = false) => {
