@@ -43,39 +43,6 @@ export function SectionHeader({
           className="font-semibold text-sm text-slate-800 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100/50 px-1.5 py-0.5 rounded transition-all w-48 md:w-64"
           title={isEn ? "Click to rename this section directly" : "点击可直接修改模块名称"}
         />
-        {onTypeChange && (
-          <div 
-            onClick={(e) => e.stopPropagation()} 
-            className="flex items-center bg-slate-100/70 p-0.5 rounded-lg border border-slate-200/50 shadow-[inset_0_1px_1px_rgba(0,0,0,0.02)]"
-          >
-            <button
-              type="button"
-              onClick={() => onTypeChange('items')}
-              className={`flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold transition-all ${
-                type === 'items'
-                  ? 'bg-white text-indigo-600 shadow-[0_1px_3px_rgba(30,41,59,0.08),0_1px_1px_rgba(30,41,59,0.02)]'
-                  : 'text-slate-400 hover:text-slate-600'
-              }`}
-              title={isEn ? "Switch to multi-item timeline layout" : "切换到多项经历时序布局"}
-            >
-              <List className="w-2.5 h-2.5" />
-              <span>{isEn ? 'List' : '多项经历'}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => onTypeChange('text')}
-              className={`flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold transition-all ${
-                type === 'text'
-                  ? 'bg-white text-indigo-600 shadow-[0_1px_3px_rgba(30,41,59,0.08),0_1px_1px_rgba(30,41,59,0.02)]'
-                  : 'text-slate-400 hover:text-slate-600'
-              }`}
-              title={isEn ? "Switch to single-block free text layout" : "切换到单段自由文本布局"}
-            >
-              <FileText className="w-2.5 h-2.5" />
-              <span>{isEn ? 'Text' : '单段文本'}</span>
-            </button>
-          </div>
-        )}
       </div>
       
       <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
