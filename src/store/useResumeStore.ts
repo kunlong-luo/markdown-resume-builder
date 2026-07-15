@@ -111,6 +111,7 @@ const getInitialSettings = (): ResumeSettings => {
     showPageBreakLine: true,
     templateLayout: 'single',
     lang: 'zh',
+    show3DBackdrop: false,
   };
   
   if (savedSettings) {

@@ -23,6 +23,7 @@ export interface ResumeSettings {
   templateLayout: TemplateLayout;
   lang?: Language;
   isPrivacyMasked?: boolean;
+  show3DBackdrop?: boolean;
 }
 
 export interface ResumeDraft {

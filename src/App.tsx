@@ -12,6 +12,8 @@ import { ResumeSettings } from './types';
 import { deserializeShareState } from './lib/share-utils';
 import { SharedResumePage } from './components/share/SharedResumePage';
 
+import { AestheticBackdrop } from './components/layout/AestheticBackdrop';
+
 export default function App() {
   const shareState = useMemo(() => {
     try {
@@ -97,16 +99,20 @@ export default function App() {
   }, [markdown, settings]);
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-[#f8fafc]">
-      <Header 
-        handleImportMarkdown={handleImportMarkdown}
-        handleExportMarkdown={handleExportMarkdown}
-        handleExportPDF={handleExportPDF}
-      />
+    <div className="flex flex-col h-screen overflow-hidden bg-[#f8fafc] relative">
+      <AestheticBackdrop />
+      
+      <div className="flex flex-col h-full w-full z-10 relative pointer-events-none">
+        <div className="pointer-events-auto">
+          <Header 
+            handleImportMarkdown={handleImportMarkdown}
+            handleExportMarkdown={handleExportMarkdown}
+            handleExportPDF={handleExportPDF}
+          />
+          <Toolbar />
+        </div>
 
-      <Toolbar />
-
-      <main className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+        <main className="flex-1 flex flex-col md:flex-row overflow-hidden relative pointer-events-auto">
         {(settings.layoutMode === 'split' || settings.layoutMode === 'editor') && (
           <section 
             id="editor-pane" 
@@ -140,6 +146,7 @@ export default function App() {
       <IframeWarningModal />
 
       <BackupDraftModal />
+      </div>
     </div>
   );
 }

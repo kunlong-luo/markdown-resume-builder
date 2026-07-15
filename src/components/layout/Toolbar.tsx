@@ -168,6 +168,7 @@ const TRANSLATIONS = {
     doneBtn: '确定',
     fontSelection: '字体选择',
     layoutAids: '排版辅助',
+    backdropBtn: '3D星轨背景',
   },
   en: {
     presetLabel: 'Style Presets',
@@ -208,6 +209,7 @@ const TRANSLATIONS = {
     doneBtn: 'Done',
     fontSelection: 'Font Selection',
     layoutAids: 'Layout Aids',
+    backdropBtn: '3D Backdrop',
   }
 };
 
@@ -606,26 +608,35 @@ export function Toolbar() {
                     </div>
                   </div>
 
-                  <div className="space-y-1.5">
+                  <div className="space-y-1.5 col-span-2">
                     <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">{t.layoutAids}</label>
-                    <div className="flex gap-2">
+                    <div className="grid grid-cols-3 gap-2">
                       <button
                         onClick={() => updateSetting('topAccentLine', !settings.topAccentLine)}
-                        className={`flex-1 flex items-center justify-center gap-1 py-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer h-[28px] active:translate-y-px ${
+                        className={`flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer h-[28px] active:translate-y-px truncate ${
                           settings.topAccentLine ? 'bg-blue-50 text-blue-700 border-blue-200/60 shadow-[0_1px_2px_rgba(59,130,246,0.05),inset_0_1.5px_2px_rgba(255,255,255,0.95)]' : 'bg-white text-slate-500 border-slate-200/80 shadow-[0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)] hover:bg-slate-50 hover:border-slate-350'
                         }`}
                       >
-                        <div className={`w-1.5 h-1.5 rounded-full ${settings.topAccentLine ? 'bg-blue-600' : 'bg-slate-300'}`} />
-                        <span>{t.topAccentBtn}</span>
+                        <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${settings.topAccentLine ? 'bg-blue-600' : 'bg-slate-300'}`} />
+                        <span className="truncate">{t.topAccentBtn}</span>
                       </button>
                       <button
                         onClick={() => updateSetting('showPageBreakLine', !settings.showPageBreakLine)}
-                        className={`flex-1 flex items-center justify-center gap-1 py-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer h-[28px] active:translate-y-px ${
+                        className={`flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer h-[28px] active:translate-y-px truncate ${
                           settings.showPageBreakLine ? 'bg-rose-50 text-rose-700 border-rose-200/60 shadow-[0_1px_2px_rgba(244,63,94,0.05),inset_0_1.5px_2px_rgba(255,255,255,0.95)]' : 'bg-white text-slate-500 border-slate-200/80 shadow-[0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)] hover:bg-slate-50 hover:border-slate-350'
                         }`}
                       >
-                        <div className={`w-1.5 h-1.5 rounded-full ${settings.showPageBreakLine ? 'bg-rose-500 animate-pulse' : 'bg-slate-300'}`} />
-                        <span>{t.pageBreakBtn}</span>
+                        <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${settings.showPageBreakLine ? 'bg-rose-500 animate-pulse' : 'bg-slate-300'}`} />
+                        <span className="truncate">{t.pageBreakBtn}</span>
+                      </button>
+                      <button
+                        onClick={() => updateSetting('show3DBackdrop', !settings.show3DBackdrop)}
+                        className={`flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer h-[28px] active:translate-y-px truncate ${
+                          settings.show3DBackdrop ? 'bg-indigo-50 text-indigo-700 border-indigo-200/60 shadow-[0_1px_2px_rgba(99,102,241,0.05),inset_0_1.5px_2px_rgba(255,255,255,0.95)]' : 'bg-white text-slate-500 border-slate-200/80 shadow-[0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)] hover:bg-slate-50 hover:border-slate-350'
+                        }`}
+                      >
+                        <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${settings.show3DBackdrop ? 'bg-indigo-500 animate-pulse' : 'bg-slate-300'}`} />
+                        <span className="truncate">{t.backdropBtn}</span>
                       </button>
                     </div>
                   </div>
