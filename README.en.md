@@ -2,7 +2,7 @@
 
 English | [简体中文](./README.md)
 
-[![Version](https://img.shields.io/badge/version-v1.4.0--PRO-blue?style=flat-square&logo=github)](https://github.com/kunlong-luo/markdown-resume-builder)
+[![Version](https://img.shields.io/badge/version-v1.5.0--PRO-blue?style=flat-square&logo=github)](https://github.com/kunlong-luo/markdown-resume-builder)
 [![React](https://img.shields.io/badge/built%20with-React%2018-blueviolet?style=flat-square)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/bundler-Vite-646CFF?style=flat-square&logo=vite)](https://vite.dev/)
 [![TailwindCSS](https://img.shields.io/badge/styling-Tailwind%20v4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
@@ -57,6 +57,12 @@ English | [简体中文](./README.md)
 
 ### 11. 🔍 Interactive Zoom & Screen Adaptation (Zoom & Fit Window)
 *   **The Feature**: Interactive zoom slider supporting `50% - 150%` scales, alongside a one-click "Fit to Window" function. Zoom out to supervise macro-level layout pages or zoom in to inspect microscopic line and padding details on any display.
+
+### 12. 🌙 Unified Tactile Dark Mode & A4 Paper Isolation
+*   **The Feature**: Upgraded dark mode experience for all tactile components (`tactile-card`, `tactile-btn`, `tactile-input`, and modal editors). Includes strict canvas isolation rules ensuring that live resume preview sheets and exported PDFs strictly maintain crisp dark text on white background without dark-mode text inversion issues.
+
+### 13. 🔤 Custom Styled Typography System
+*   **The Feature**: Tailored, elegant UI typography across the editor interface, elevating overall visual quality while strictly preserving resume preview & PDF export font settings for pixel-perfect document rendering.
 
 ---
 

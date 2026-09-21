@@ -2,7 +2,7 @@
 
 [English](./README.en.md) | 简体中文
 
-[![Version](https://img.shields.io/badge/version-v1.4.0--PRO-blue?style=flat-square&logo=github)](https://github.com/kunlong-luo/markdown-resume-builder)
+[![Version](https://img.shields.io/badge/version-v1.5.0--PRO-blue?style=flat-square&logo=github)](https://github.com/kunlong-luo/markdown-resume-builder)
 [![React](https://img.shields.io/badge/built%20with-React%2018-blueviolet?style=flat-square)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/bundler-Vite-646CFF?style=flat-square&logo=vite)](https://vite.dev/)
 [![TailwindCSS](https://img.shields.io/badge/styling-Tailwind%20v4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
@@ -57,6 +57,12 @@
 
 ### 11. 🔍 交互式缩放与窗口自适应 (Interactive Zoom & Fit)
 *   **特性**：提供 `50% - 150%` 自由缩放预览滑块，并支持「Fit 自适应屏幕」功能。让你在各种宽度的显示器上都能以最舒服的视角掌控全局排版。
+
+### 12. 🌙 统一触感深色模式 & A4 纸张隔离 (Dark Mode & Canvas Isolation)
+*   **特性**：全面升级全站触感 UI（包括触感卡片、按钮、选择器及表单弹窗）在深色模式下的暗调质感与高阶对比度。同时建立简历画布与导出 PDF 的样式强隔离机制，确保深色模式下预览纸张始终保持清晰白底黑字，绝无文字反色失真问题。
+
+### 13. 🔤 精致风格化字体系统 (Custom Styled Typography)
+*   **特性**：精选适配项目气质的风格化全局界面字体，大幅提升编辑器整体品质感；同时完整保留简历预览及导出 PDF 的专业排版字体配置，实现编辑器外观与导出文档的完美兼顾。
 
 ---
 

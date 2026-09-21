@@ -53,7 +53,7 @@ export function Header({
             <h1 className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-1.5 sm:gap-2">
               <span className="truncate max-w-[140px] sm:max-w-none">Markdown Resume</span>
               <span className="px-1.5 sm:px-2 py-0.5 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 text-[9px] sm:text-[10px] rounded-full font-bold border border-indigo-100/80 dark:border-indigo-800/60 shadow-xs">
-                v1.4
+                v1.5
               </span>
             </h1>
             <p className="text-[11px] text-slate-400 dark:text-slate-400 font-medium hidden sm:block">
