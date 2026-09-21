@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { User, Phone, Mail, Link, Layers, ChevronDown, ChevronUp, X, Code, Globe, Calendar, GraduationCap, Briefcase, MapPin, Activity } from 'lucide-react';
 import { ResumeFormModel } from '../../lib/form-types';
+import { CustomSelect, SelectOption } from '../ui/CustomSelect';
 
 interface BasicInfoEditorProps {
   model: ResumeFormModel;
@@ -231,7 +232,7 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
             <div className="space-y-2">
               <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{t.nameLabel}</label>
               <div className="relative">
-                <span className="absolute left-3 top-2.5 text-slate-400"><User className="w-4 h-4" /></span>
+                <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none"><User className="w-4 h-4" /></span>
                 <input 
                   type="text" 
                   value={model.name || ''}
@@ -245,7 +246,7 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
             <div className="space-y-2">
               <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{t.phoneLabel}</label>
               <div className="relative">
-                <span className="absolute left-3 top-2.5 text-slate-400"><Phone className="w-4 h-4" /></span>
+                <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none"><Phone className="w-4 h-4" /></span>
                 <input 
                   type="text" 
                   value={model.phone || ''}
@@ -259,7 +260,7 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
             <div className="space-y-2">
               <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{t.emailLabel}</label>
               <div className="relative">
-                <span className="absolute left-3 top-2.5 text-slate-400"><Mail className="w-4 h-4" /></span>
+                <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none"><Mail className="w-4 h-4" /></span>
                 <input 
                   type="email" 
                   value={model.email || ''}
@@ -295,7 +296,7 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
 
               <div className="flex gap-2">
                 <div className="relative flex-1">
-                  <span className="absolute left-3 top-2.5 text-slate-400"><Layers className="w-4 h-4" /></span>
+                  <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none"><Layers className="w-4 h-4" /></span>
                   <input 
                     type="text" 
                     value={tagInput}
@@ -320,7 +321,7 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                 <div className="space-y-2">
                   <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{t.socialLabel}</label>
                   <div className="relative">
-                    <span className="absolute left-3 top-2.5 text-slate-400">
+                    <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none">
                       {(() => {
                         const tLower = (model.social || '').toLowerCase();
                         if (tLower.includes('github')) return <GitHubIcon className="w-4 h-4" />;
@@ -338,9 +339,9 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                   </div>
                 </div>
 
-                <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
                   {/* 工作经验年限 */}
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     <div className="flex justify-between items-center">
                       <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.expLabel}</label>
                       <button
@@ -351,13 +352,13 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                             handleStructuredFieldChange('workYears', '');
                           }
                         }}
-                        className="text-[10px] text-blue-600 hover:text-blue-700 font-semibold cursor-pointer transition-colors"
+                        className="text-[10px] text-indigo-600 hover:text-indigo-700 font-bold cursor-pointer transition-colors"
                       >
                         {customWorkYears ? t.presetBtn : t.customBtn}
                       </button>
                     </div>
                     <div className="relative">
-                      <span className="absolute left-3 top-2.5 text-slate-400"><Briefcase className="w-4 h-4" /></span>
+                      <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none z-10"><Briefcase className="w-4 h-4" /></span>
                       {customWorkYears ? (
                         <input 
                           type="text" 
@@ -367,33 +368,31 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                           placeholder={t.expLabel}
                         />
                       ) : (
-                        <div className="relative">
-                          <select
-                             value={model.workYears || ''}
-                             onChange={(e) => {
-                               if (e.target.value === '__custom__') {
-                                 setCustomWorkYears(true);
-                               } else {
-                                 handleStructuredFieldChange('workYears', e.target.value);
-                               }
-                             }}
-                             className="w-full pl-9 pr-8 py-2 text-sm tactile-input appearance-none cursor-pointer"
-                           >
-                            {workYearsOptions.map(opt => (
-                              <option key={opt.value} value={opt.value}>{opt.label}</option>
-                            ))}
-                            <option value="__custom__">{t.customManual}</option>
-                          </select>
-                          <span className="absolute right-3 top-3 pointer-events-none text-slate-400">
-                            <ChevronDown className="w-4 h-4" />
-                          </span>
-                        </div>
+                        <CustomSelect
+                          value={model.workYears || ''}
+                          onChange={(val) => {
+                            if (val === '__custom__') {
+                              setCustomWorkYears(true);
+                            } else {
+                              handleStructuredFieldChange('workYears', val);
+                            }
+                          }}
+                          options={[
+                            ...(model.workYears && !workYearsOptions.some(opt => opt.value === model.workYears) ? [{ value: model.workYears, label: model.workYears }] : []),
+                            ...workYearsOptions,
+                            { value: '__custom__', label: t.customManual }
+                          ]}
+                          size="md"
+                          className="w-full"
+                          triggerClassName="w-full pl-9 pr-3 py-2 text-sm tactile-input font-normal bg-white"
+                          placeholder={t.expLabel}
+                        />
                       )}
                     </div>
                   </div>
 
                   {/* 最高学历 */}
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     <div className="flex justify-between items-center">
                       <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.degreeLabel}</label>
                       <button
@@ -404,13 +403,13 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                             handleStructuredFieldChange('degree', '');
                           }
                         }}
-                        className="text-[10px] text-blue-600 hover:text-blue-700 font-semibold cursor-pointer transition-colors"
+                        className="text-[10px] text-indigo-600 hover:text-indigo-700 font-bold cursor-pointer transition-colors"
                       >
                         {customDegree ? t.presetBtn : t.customBtn}
                       </button>
                     </div>
                     <div className="relative">
-                      <span className="absolute left-3 top-2.5 text-slate-400"><GraduationCap className="w-4 h-4" /></span>
+                      <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none z-10"><GraduationCap className="w-4 h-4" /></span>
                       {customDegree ? (
                         <input 
                           type="text" 
@@ -420,36 +419,34 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                           placeholder={t.schoolText}
                         />
                       ) : (
-                        <div className="relative">
-                          <select
-                            value={model.degree || ''}
-                            onChange={(e) => {
-                              if (e.target.value === '__custom__') {
-                                setCustomDegree(true);
-                              } else {
-                                handleStructuredFieldChange('degree', e.target.value);
-                              }
-                            }}
-                            className="w-full pl-9 pr-8 py-2 text-sm tactile-input appearance-none cursor-pointer"
-                          >
-                            {degreeOptions.map(opt => (
-                              <option key={opt.value} value={opt.value}>{opt.label}</option>
-                            ))}
-                            <option value="__custom__">{t.customManual}</option>
-                          </select>
-                          <span className="absolute right-3 top-3 pointer-events-none text-slate-400">
-                            <ChevronDown className="w-4 h-4" />
-                          </span>
-                        </div>
+                        <CustomSelect
+                          value={model.degree || ''}
+                          onChange={(val) => {
+                            if (val === '__custom__') {
+                              setCustomDegree(true);
+                            } else {
+                              handleStructuredFieldChange('degree', val);
+                            }
+                          }}
+                          options={[
+                            ...(model.degree && !degreeOptions.some(opt => opt.value === model.degree) ? [{ value: model.degree, label: model.degree }] : []),
+                            ...degreeOptions,
+                            { value: '__custom__', label: t.customManual }
+                          ]}
+                          size="md"
+                          className="w-full"
+                          triggerClassName="w-full pl-9 pr-3 py-2 text-sm tactile-input font-normal bg-white"
+                          placeholder={t.schoolText}
+                        />
                       )}
                     </div>
                   </div>
 
                   {/* 年龄 / 出生年份 */}
-                  <div className="space-y-2">
-                    <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{t.ageLabel}</label>
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.ageLabel}</label>
                     <div className="relative">
-                      <span className="absolute left-3 top-2.5 text-slate-400"><Calendar className="w-4 h-4" /></span>
+                      <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none"><Calendar className="w-4 h-4" /></span>
                       <input 
                         type="text" 
                         value={model.age || ''}
@@ -461,10 +458,10 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                   </div>
 
                   {/* 现居 / 意向城市 */}
-                  <div className="space-y-2">
-                    <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{t.cityLabel}</label>
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.cityLabel}</label>
                     <div className="relative">
-                      <span className="absolute left-3 top-2.5 text-slate-400"><MapPin className="w-4 h-4" /></span>
+                      <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none"><MapPin className="w-4 h-4" /></span>
                       <input 
                         type="text" 
                         value={model.city || ''}
@@ -476,7 +473,7 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                   </div>
 
                   {/* 求职状态 */}
-                  <div className="space-y-2 md:col-span-2">
+                  <div className="space-y-1.5 sm:col-span-2 lg:col-span-2">
                     <div className="flex justify-between items-center">
                       <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.statusLabel}</label>
                       <button
@@ -487,13 +484,13 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                             handleStructuredFieldChange('jobStatus', '');
                           }
                         }}
-                        className="text-[10px] text-blue-600 hover:text-blue-700 font-semibold cursor-pointer transition-colors"
+                        className="text-[10px] text-indigo-600 hover:text-indigo-700 font-bold cursor-pointer transition-colors"
                       >
                         {customJobStatus ? t.presetBtn : t.customBtn}
                       </button>
                     </div>
                     <div className="relative">
-                      <span className="absolute left-3 top-2.5 text-slate-400"><Activity className="w-4 h-4" /></span>
+                      <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none z-10"><Activity className="w-4 h-4" /></span>
                       {customJobStatus ? (
                         <input 
                           type="text" 
@@ -503,27 +500,25 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                           placeholder={t.statusLabel}
                         />
                       ) : (
-                        <div className="relative">
-                          <select
-                            value={model.jobStatus || ''}
-                            onChange={(e) => {
-                              if (e.target.value === '__custom__') {
-                                setCustomJobStatus(true);
-                              } else {
-                                handleStructuredFieldChange('jobStatus', e.target.value);
-                              }
-                            }}
-                            className="w-full pl-9 pr-8 py-2 text-sm tactile-input appearance-none cursor-pointer"
-                          >
-                            {jobStatusOptions.map(opt => (
-                              <option key={opt.value} value={opt.value}>{opt.label}</option>
-                            ))}
-                            <option value="__custom__">{t.customManual}</option>
-                          </select>
-                          <span className="absolute right-3 top-3 pointer-events-none text-slate-400">
-                            <ChevronDown className="w-3.5 h-3.5" />
-                          </span>
-                        </div>
+                        <CustomSelect
+                          value={model.jobStatus || ''}
+                          onChange={(val) => {
+                            if (val === '__custom__') {
+                              setCustomJobStatus(true);
+                            } else {
+                              handleStructuredFieldChange('jobStatus', val);
+                            }
+                          }}
+                          options={[
+                            ...(model.jobStatus && !jobStatusOptions.some(opt => opt.value === model.jobStatus) ? [{ value: model.jobStatus, label: model.jobStatus }] : []),
+                            ...jobStatusOptions,
+                            { value: '__custom__', label: t.customManual }
+                          ]}
+                          size="md"
+                          className="w-full"
+                          triggerClassName="w-full pl-9 pr-3 py-2 text-sm tactile-input font-normal bg-white"
+                          placeholder={t.statusLabel}
+                        />
                       )}
                     </div>
                   </div>

@@ -4,6 +4,9 @@ import { ResumeSettings, ThemeColor, FontSize, PaperMargin, FontFamily, Template
 import { TEMPLATES } from '../../data';
 import { useResumeStore } from '../../store/useResumeStore';
 import { useConfirm } from '../../context/ConfirmContext';
+import { CustomSelect, SelectOption } from '../ui/CustomSelect';
+import { CustomSlider } from '../ui/CustomSlider';
+import { CustomColorPicker } from '../ui/CustomColorPicker';
 
 const MASTER_PRESETS = [
   {
@@ -17,15 +20,17 @@ const MASTER_PRESETS = [
       lineHeight: 1.55,
       blockGap: 0.9,
       letterSpacing: 0.02,
-      h2Style: 'accent-line'
+      h2Style: 'accent-line',
+      margin: 'standard',
+      topAccentLine: true
     }
   },
   {
     id: 'minimalist_finance',
-    name: '极简金融风 (Navy Compact)',
+    name: '极简商科 (Navy Compact)',
     settings: {
       themeColor: 'custom',
-      customColor: '#0F172A',
+      customColor: '#1E3A8A',
       fontFamily: 'serif',
       fontSize: 'compact',
       lineHeight: 1.4,
@@ -47,7 +52,9 @@ const MASTER_PRESETS = [
       lineHeight: 1.6,
       blockGap: 1.0,
       letterSpacing: 0.0,
-      h2Style: 'accent-line'
+      h2Style: 'accent-line',
+      margin: 'standard',
+      topAccentLine: true
     }
   },
   {
@@ -77,7 +84,9 @@ const MASTER_PRESETS = [
       lineHeight: 1.5,
       blockGap: 0.8,
       letterSpacing: -0.01,
-      h2Style: 'minimal-clean'
+      h2Style: 'minimal-clean',
+      margin: 'standard',
+      topAccentLine: true
     }
   },
   {
@@ -97,17 +106,35 @@ const MASTER_PRESETS = [
     }
   },
   {
-    id: 'creative',
-    name: '设计创意 (Emerald Warm)',
+    id: 'cambridge_green',
+    name: '剑桥墨绿 (Cambridge Emerald)',
     settings: {
-      themeColor: 'emerald',
-      customColor: '#10B981',
+      themeColor: 'custom',
+      customColor: '#14532D',
+      fontFamily: 'serif',
+      fontSize: 'standard',
+      lineHeight: 1.55,
+      blockGap: 0.85,
+      letterSpacing: 0.01,
+      h2Style: 'accent-line',
+      margin: 'standard',
+      topAccentLine: true
+    }
+  },
+  {
+    id: 'creative',
+    name: '设计创意 (Warm Caramel)',
+    settings: {
+      themeColor: 'custom',
+      customColor: '#78350F',
       fontFamily: 'sans',
       fontSize: 'standard',
       lineHeight: 1.65,
       blockGap: 1.1,
       letterSpacing: 0.02,
-      h2Style: 'accent-line'
+      h2Style: 'accent-line',
+      margin: 'standard',
+      topAccentLine: true
     }
   },
   {
@@ -121,7 +148,9 @@ const MASTER_PRESETS = [
       lineHeight: 1.6,
       blockGap: 1.0,
       letterSpacing: 0.01,
-      h2Style: 'accent-line'
+      h2Style: 'accent-line',
+      margin: 'standard',
+      topAccentLine: true
     }
   }
 ];
@@ -275,18 +304,38 @@ export function Toolbar() {
     { name: 'amber', bg: 'bg-amber-600', ring: 'ring-amber-600/30' },
   ];
 
+  const [selectedPresetId, setSelectedPresetId] = useState<string>('tech');
+
   const handleApplyPreset = (presetId: string) => {
     if (!presetId) return;
     const preset = MASTER_PRESETS.find(p => p.id === presetId);
     if (!preset) return;
     
+    setSelectedPresetId(presetId);
     // Apply all settings in the preset at once!
     updateSettings(preset.settings as Partial<ResumeSettings>);
   };
 
   const getCurrentPresetId = () => {
+    // If selectedPresetId still matches active settings, return it
+    if (selectedPresetId) {
+      const active = MASTER_PRESETS.find(p => p.id === selectedPresetId);
+      if (active) {
+        const matches = Object.entries(active.settings).every(([key, val]) => {
+          if (key === 'customColor') {
+            return String(settings.customColor || '').toLowerCase() === String(val).toLowerCase();
+          }
+          return settings[key as keyof ResumeSettings] === val;
+        });
+        if (matches) return selectedPresetId;
+      }
+    }
+
     const matched = MASTER_PRESETS.find(preset => {
       return Object.entries(preset.settings).every(([key, val]) => {
+        if (key === 'customColor') {
+          return String(settings.customColor || '').toLowerCase() === String(val).toLowerCase();
+        }
         return settings[key as keyof ResumeSettings] === val;
       });
     });
@@ -296,17 +345,65 @@ export function Toolbar() {
   const isEn = settings.lang === 'en';
   const t = isEn ? TRANSLATIONS.en : TRANSLATIONS.zh;
 
+  const presetOptions: SelectOption[] = [
+    ...(getCurrentPresetId() === '' ? [{ value: '', label: isEn ? 'Custom Style' : '自定义配置', disabled: true }] : []),
+    ...MASTER_PRESETS.map(p => {
+      let displayName = p.name;
+      if (isEn) {
+        if (p.id === 'finance') displayName = 'Finance/Consulting (Navy)';
+        if (p.id === 'minimalist_finance') displayName = 'Minimalist Finance (Navy Compact)';
+        if (p.id === 'tech') displayName = 'Tech/Startups (Modern Indigo)';
+        if (p.id === 'geek_tech') displayName = 'Geek Tech (Monospace Mint)';
+        if (p.id === 'academic') displayName = 'Academic/R&D (Charcoal)';
+        if (p.id === 'latex_academic') displayName = 'LaTeX Academic (TeX High Contrast)';
+        if (p.id === 'cambridge_green') displayName = 'Cambridge Emerald (Academic Green)';
+        if (p.id === 'creative') displayName = 'Creative/Design (Caramel Warm)';
+        if (p.id === 'executive') displayName = 'Executives (Bronze Gold)';
+      }
+      return { value: p.id, label: displayName };
+    })
+  ];
+
+  const templateOptions: SelectOption[] = TEMPLATES.map(tmpl => {
+    let name = tmpl.name;
+    if (isEn) {
+      if (tmpl.id === 'ai_backend') name = 'AI Backend Developer';
+      if (tmpl.id === 'frontend') name = 'AI Frontend Developer';
+      if (tmpl.id === 'pm_lead') name = 'Technical PM / Director';
+      if (tmpl.id === 'operations') name = 'Product Operations';
+      if (tmpl.id === 'campus') name = 'Campus Graduate';
+    }
+    return { value: tmpl.id, label: name };
+  });
+
+  const layoutOptions: SelectOption[] = [
+    { value: 'single', label: t.layoutSingle },
+    { value: 'two-column', label: t.layoutDouble },
+  ];
+
+  const titleStyleOptions: SelectOption[] = [
+    { value: 'accent-line', label: t.titleStyleLine },
+    { value: 'modern-badge', label: t.titleStyleBadge },
+    { value: 'minimal-clean', label: t.titleStyleMinimal },
+  ];
+
+  const fontFamilyOptions: SelectOption[] = [
+    { value: 'sans', label: t.fontSans },
+    { value: 'serif', label: t.fontSerif },
+    { value: 'mono', label: t.fontMono },
+  ];
+
   return (
-    <div className="flex items-center justify-between px-6 py-2.5 bg-gradient-to-r from-slate-50 to-white border-b border-slate-200/80 z-30 gap-3 select-none relative shadow-[0_2px_4px_rgba(15,23,42,0.02),inset_0_1px_0_rgba(255,255,255,0.95)] w-full">
-      <div className="flex items-center gap-2 text-xs overflow-x-auto scrollbar-none flex-nowrap min-w-0 shrink">
+    <div className="flex items-center justify-between px-6 py-2 bg-white/80 backdrop-blur-md border-b border-slate-200/80 z-30 gap-3 relative shadow-[0_1px_2px_rgba(15,23,42,0.02)] w-full">
+      <div className="flex items-center gap-2.5 text-xs overflow-x-auto scrollbar-none flex-nowrap min-w-0 shrink">
         {/* Language Selection */}
-        <div className="flex items-center gap-1.5 pr-2.5 border-r border-slate-200 shrink-0">
-          <Globe className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-          <div className="bg-indigo-50 p-0.5 rounded-lg flex items-center border border-indigo-100">
+        <div className="flex items-center gap-1.5 pr-2.5 border-r border-slate-200/90 shrink-0">
+          <Globe className="w-3.5 h-3.5 text-indigo-500 shrink-0 pointer-events-none" />
+          <div className="bg-slate-100 p-0.5 rounded-lg flex items-center border border-slate-200/60 shadow-2xs">
             <button
               onClick={() => updateSetting('lang', 'zh')}
               className={`px-2 py-0.5 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
-                settings.lang !== 'en' ? 'bg-indigo-600 text-white shadow-xs' : 'text-indigo-600 hover:text-indigo-800'
+                settings.lang !== 'en' ? 'bg-white text-indigo-600 shadow-xs' : 'text-slate-500 hover:text-slate-800'
               }`}
               title="切换到中文表单编辑"
             >
@@ -315,7 +412,7 @@ export function Toolbar() {
             <button
               onClick={() => updateSetting('lang', 'en')}
               className={`px-2 py-0.5 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
-                settings.lang === 'en' ? 'bg-indigo-600 text-white shadow-xs' : 'text-indigo-600 hover:text-indigo-800'
+                settings.lang === 'en' ? 'bg-white text-indigo-600 shadow-xs' : 'text-slate-500 hover:text-slate-800'
               }`}
               title="Switch to English Editor Labels"
             >
@@ -325,80 +422,50 @@ export function Toolbar() {
         </div>
 
         {/* Style Preset Selector */}
-        <div className="flex items-center gap-1.5 pr-2.5 border-r border-slate-200 shrink-0">
-          <Sparkles className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-          <select
+        <div className="flex items-center gap-1.5 pr-2.5 border-r border-slate-200/90 shrink-0">
+          <Sparkles className="w-3.5 h-3.5 text-indigo-500 shrink-0 pointer-events-none" />
+          <CustomSelect
             value={getCurrentPresetId()}
-            onChange={(e) => {
-              handleApplyPreset(e.target.value);
-            }}
-            className="bg-indigo-50/75 border border-indigo-200/60 text-indigo-900 rounded-lg px-2.5 py-0.5 font-bold text-[11px] cursor-pointer hover:bg-indigo-50 hover:border-indigo-300 transition-all shadow-[0_1px_2px_rgba(79,70,229,0.02),inset_0_1px_1px_rgba(255,255,255,0.9)] focus:outline-none focus:ring-1 focus:ring-indigo-500 max-w-[150px] sm:max-w-none"
-          >
-            {getCurrentPresetId() === '' && (
-              <option value="" disabled>{isEn ? 'Custom Style' : '自定义配置'}</option>
-            )}
-            {MASTER_PRESETS.map(p => {
-              let displayName = p.name;
-              if (isEn) {
-                if (p.id === 'finance') displayName = 'Finance/Consulting (Navy)';
-                if (p.id === 'minimalist_finance') displayName = 'Minimalist Finance (Navy Compact)';
-                if (p.id === 'tech') displayName = 'Tech/Startups (Modern Indigo)';
-                if (p.id === 'geek_tech') displayName = 'Geek Tech (Monospace Mint)';
-                if (p.id === 'academic') displayName = 'Academic/R&D (Charcoal)';
-                if (p.id === 'latex_academic') displayName = 'LaTeX Academic (TeX High Contrast)';
-                if (p.id === 'creative') displayName = 'Creative/Design (Emerald)';
-                if (p.id === 'executive') displayName = 'Executives (Bronze Gold)';
-              }
-              return <option key={p.id} value={p.id}>{displayName}</option>;
-            })}
-          </select>
+            onChange={handleApplyPreset}
+            options={presetOptions}
+            placeholder={isEn ? 'Custom Style' : '自定义配置'}
+            size="xs"
+            triggerClassName="bg-indigo-50/90 border-indigo-200/80 text-indigo-950 font-bold text-[11px] h-7 rounded-lg hover:bg-indigo-100/80 shadow-2xs"
+          />
         </div>
 
         {/* Template Selector */}
-        <div className="flex items-center gap-1.5 pr-2.5 border-r border-slate-200 shrink-0">
-          <LayoutGrid className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-          <select
+        <div className="flex items-center gap-1.5 pr-2.5 border-r border-slate-200/90 shrink-0">
+          <LayoutGrid className="w-3.5 h-3.5 text-blue-500 shrink-0 pointer-events-none" />
+          <CustomSelect
             value={currentTemplateId}
-            onChange={(e) => handleTemplateChange(e.target.value)}
-            className="bg-white border border-slate-200/75 text-slate-700 rounded-lg px-2.5 py-0.5 font-semibold text-[11px] cursor-pointer hover:border-slate-300 transition-all shadow-[0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)] focus:outline-none focus:ring-1 focus:ring-blue-500"
-          >
-            {TEMPLATES.map(tmpl => {
-              let name = tmpl.name;
-              if (isEn) {
-                if (tmpl.id === 'ai_backend') name = 'AI Backend Developer';
-                if (tmpl.id === 'frontend') name = 'AI Frontend Developer';
-                if (tmpl.id === 'pm_lead') name = 'Technical PM / Director';
-                if (tmpl.id === 'operations') name = 'Product Operations';
-                if (tmpl.id === 'campus') name = 'Campus Graduate';
-              }
-              return <option key={tmpl.id} value={tmpl.id}>{name}</option>;
-            })}
-          </select>
+            onChange={handleTemplateChange}
+            options={templateOptions}
+            size="xs"
+            triggerClassName="bg-white border-slate-200/90 text-slate-700 font-semibold text-[11px] h-7 rounded-lg hover:border-slate-300 shadow-2xs"
+          />
         </div>
 
         {/* Template Column Layout Selector */}
-        <div className="flex items-center gap-1.5 pr-2.5 border-r border-slate-200 shrink-0">
-          <select
+        <div className="flex items-center gap-1.5 pr-2.5 border-r border-slate-200/90 shrink-0">
+          <CustomSelect
             value={settings.templateLayout}
-            onChange={(e) => updateSetting('templateLayout', e.target.value as TemplateLayout)}
-            className="bg-white border border-slate-200/75 text-slate-700 rounded-lg px-2.5 py-0.5 font-medium text-[11px] cursor-pointer hover:border-slate-300 transition-all shadow-[0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)] focus:outline-none focus:ring-1 focus:ring-blue-500"
-          >
-            <option value="single">{t.layoutSingle}</option>
-            <option value="two-column">{t.layoutDouble}</option>
-          </select>
+            onChange={(val) => updateSetting('templateLayout', val as TemplateLayout)}
+            options={layoutOptions}
+            size="xs"
+            triggerClassName="bg-white border-slate-200/90 text-slate-700 font-medium text-[11px] h-7 rounded-lg hover:border-slate-300 shadow-2xs"
+          />
         </div>
 
         {/* Title Style Selector */}
         <div className="flex items-center gap-1.5 shrink-0">
-          <select
+          <CustomSelect
             value={settings.h2Style}
-            onChange={(e) => updateSetting('h2Style', e.target.value as H2Style)}
-            className="bg-white border border-slate-200/75 text-slate-700 rounded-lg px-2.5 py-0.5 font-medium text-[11px] cursor-pointer hover:border-slate-300 transition-all shadow-[0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)] focus:outline-none focus:ring-1 focus:ring-blue-500"
-          >
-            <option value="accent-line">{t.titleStyleLine}</option>
-            <option value="modern-badge">{t.titleStyleBadge}</option>
-            <option value="minimal-clean">{t.titleStyleMinimal}</option>
-          </select>
+            onChange={(val) => updateSetting('h2Style', val as H2Style)}
+            options={titleStyleOptions}
+            size="xs"
+            triggerClassName="bg-white border-slate-200/90 text-slate-700 font-medium text-[11px] h-7 rounded-lg hover:border-slate-300 shadow-2xs"
+          />
         </div>
       </div>
 
@@ -406,23 +473,23 @@ export function Toolbar() {
       <div className="flex items-center gap-2.5 text-xs shrink-0 relative flex-nowrap">
         {/* Custom File Name Input */}
         <div className="hidden sm:flex items-center gap-1.5 shrink-0">
-          <span className="font-bold text-slate-500">{t.exportNameLabel}</span>
+          <span className="font-bold text-slate-500 text-[11px]">{t.exportNameLabel}</span>
           <input
             type="text"
             value={customFileName}
             onChange={(e) => setCustomFileName(e.target.value)}
             placeholder={`${exportTitle}_简历`}
-            className="bg-white border border-slate-200/75 text-slate-700 rounded-lg py-0.5 px-2 font-semibold text-[11px] w-24 hover:border-slate-300 transition-all shadow-[inset_0_1.2px_2.5px_rgba(15,23,42,0.04)] focus:shadow-none focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="bg-white border border-slate-200/90 text-slate-700 rounded-lg py-1 px-2.5 font-semibold text-[11px] w-28 hover:border-slate-300 transition-all shadow-2xs focus:shadow-none focus:outline-none focus:ring-1.5 focus:ring-indigo-500"
           />
         </div>
 
         {/* Aesthetics Panel Toggle Button */}
         <button
           onClick={() => setIsAestheticsOpen(!isAestheticsOpen)}
-          className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] font-bold border transition-all cursor-pointer shrink-0 active:translate-y-px ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all cursor-pointer shrink-0 active:translate-y-px ${
             isAestheticsOpen
-              ? 'bg-indigo-600 text-white border-indigo-600 shadow-[0_2px_4px_rgba(79,70,229,0.2),inset_0_1.5px_2px_rgba(255,255,255,0.25)]'
-              : 'bg-white text-slate-700 border-slate-200/80 shadow-[0_1.2px_2.5px_rgba(15,23,42,0.02),inset_0_1.5px_2.5px_rgba(255,255,255,0.95)] hover:bg-slate-50 hover:border-slate-350'
+              ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20'
+              : 'bg-white text-slate-700 border-slate-200/90 shadow-2xs hover:bg-slate-50 hover:border-slate-300'
           }`}
           title={t.aestheticsTooltip}
         >
@@ -432,11 +499,11 @@ export function Toolbar() {
         </button>
 
         {/* Layout Mode Toggle Group */}
-        <div className="bg-slate-100 p-0.5 rounded-lg flex items-center text-[11px] shrink-0 border border-slate-200/50 shadow-[inset_0_1px_2px_rgba(0,0,0,0.03)]">
+        <div className="bg-slate-100 p-0.5 rounded-lg flex items-center text-[11px] shrink-0 border border-slate-200/60 shadow-2xs">
           <button
             onClick={() => updateSetting('layoutMode', 'editor')}
-            className={`flex items-center gap-1 px-2.5 py-0.5 rounded-md font-bold transition-all cursor-pointer ${
-              settings.layoutMode === 'editor' ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-500 hover:text-slate-800'
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-md font-bold transition-all cursor-pointer ${
+              settings.layoutMode === 'editor' ? 'bg-white text-indigo-600 shadow-xs' : 'text-slate-500 hover:text-slate-800'
             }`}
           >
             <Maximize2 className="w-3 h-3" />
@@ -444,8 +511,8 @@ export function Toolbar() {
           </button>
           <button
             onClick={() => updateSetting('layoutMode', 'split')}
-            className={`flex items-center gap-1 px-2.5 py-0.5 rounded-md font-bold transition-all cursor-pointer ${
-              settings.layoutMode === 'split' ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-500 hover:text-slate-800'
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-md font-bold transition-all cursor-pointer ${
+              settings.layoutMode === 'split' ? 'bg-white text-indigo-600 shadow-xs' : 'text-slate-500 hover:text-slate-800'
             }`}
           >
             <Columns className="w-3 h-3" />
@@ -453,8 +520,8 @@ export function Toolbar() {
           </button>
           <button
             onClick={() => updateSetting('layoutMode', 'preview')}
-            className={`flex items-center gap-1 px-2.5 py-0.5 rounded-md font-bold transition-all cursor-pointer ${
-              settings.layoutMode === 'preview' ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-500 hover:text-slate-800'
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-md font-bold transition-all cursor-pointer ${
+              settings.layoutMode === 'preview' ? 'bg-white text-indigo-600 shadow-xs' : 'text-slate-500 hover:text-slate-800'
             }`}
           >
             <Eye className="w-3 h-3" />
@@ -472,7 +539,7 @@ export function Toolbar() {
             />
             
             {/* Panel Card */}
-            <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-gradient-to-b from-white to-slate-50 border border-slate-200 shadow-[0_20px_40px_rgba(15,23,42,0.12),inset_0_1.5px_2px_rgba(255,255,255,0.95)] rounded-2xl p-5 z-50 flex flex-col gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-[0_20px_48px_rgba(15,23,42,0.12),0_4px_12px_rgba(15,23,42,0.05)] rounded-2xl p-5 z-50 flex flex-col gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
               <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
                 <div className="flex items-center gap-1.5 font-extrabold text-slate-800">
                   <Palette className="w-4 h-4 text-indigo-500" />
@@ -529,26 +596,10 @@ export function Toolbar() {
                       </button>
                       {settings.themeColor === 'custom' && (
                         <div className="flex items-center gap-1 animate-in fade-in slide-in-from-left-2 duration-150">
-                          <input 
-                            type="color"
+                          <CustomColorPicker
                             value={settings.customColor || '#4f46e5'}
-                            onChange={(e) => updateSetting('customColor', e.target.value)}
-                            className="w-5 h-5 p-0 border-0 rounded cursor-pointer bg-transparent focus:outline-none"
-                            title={t.customColorTitle}
-                          />
-                          <input 
-                            type="text"
-                            value={(settings.customColor || '#4f46e5').toUpperCase()}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              if (val.startsWith('#') && val.length <= 7) {
-                                updateSetting('customColor', val);
-                              } else if (!val.startsWith('#') && val.length <= 6) {
-                                updateSetting('customColor', '#' + val);
-                              }
-                            }}
-                            className="w-16 px-1.5 py-0.5 text-[10px] font-mono border border-slate-200 rounded text-slate-700 bg-white uppercase text-center focus:outline-none focus:ring-1 focus:ring-blue-500"
-                            placeholder={t.customColorPlaceholder}
+                            onChange={(color) => updateSetting('customColor', color)}
+                            size="xs"
                           />
                         </div>
                       )}
@@ -560,15 +611,13 @@ export function Toolbar() {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">{t.fontSelection}</label>
-                    <select
+                    <CustomSelect
                       value={settings.fontFamily}
-                      onChange={(e) => updateSetting('fontFamily', e.target.value as FontFamily)}
-                      className="w-full bg-white border border-slate-200/75 text-slate-700 rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold text-xs cursor-pointer hover:border-slate-300 transition-all shadow-[0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)]"
-                    >
-                      <option value="sans">{t.fontSans}</option>
-                      <option value="serif">{t.fontSerif}</option>
-                      <option value="mono">{t.fontMono}</option>
-                    </select>
+                      onChange={(val) => updateSetting('fontFamily', val as FontFamily)}
+                      options={fontFamilyOptions}
+                      size="sm"
+                      triggerClassName="w-full bg-white border-slate-200/75 text-slate-700 rounded-lg px-2.5 py-1 text-xs"
+                    />
                   </div>
 
                   <div className="space-y-1.5">
@@ -672,49 +721,43 @@ export function Toolbar() {
 
                   {/* Line Height Slider */}
                   <div className="space-y-1">
-                    <div className="flex items-center justify-between text-[11px] font-semibold text-slate-600">
-                      <span>{t.lineHeightLabel}</span>
-                      <span className="font-mono font-bold bg-white px-1.5 py-0.2 rounded border border-slate-150 text-slate-700 text-[10px]">
-                        {settings.lineHeight.toFixed(2)}
-                      </span>
-                    </div>
-                    <input 
-                      type="range" min="1.2" max="2.2" step="0.05"
+                    <CustomSlider
+                      label={t.lineHeightLabel}
                       value={settings.lineHeight}
-                      onChange={(e) => updateSetting('lineHeight', parseFloat(e.target.value))}
-                      className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus:outline-none"
+                      onChange={(val) => updateSetting('lineHeight', val)}
+                      min={1.2}
+                      max={2.2}
+                      step={0.05}
+                      valueDisplay={settings.lineHeight.toFixed(2)}
+                      size="sm"
                     />
                   </div>
 
                   {/* Block Gap Slider */}
                   <div className="space-y-1">
-                    <div className="flex items-center justify-between text-[11px] font-semibold text-slate-600">
-                      <span>{t.blockGapLabel}</span>
-                      <span className="font-mono font-bold bg-white px-1.5 py-0.2 rounded border border-slate-150 text-slate-700 text-[10px]">
-                        {settings.blockGap.toFixed(2)}
-                      </span>
-                    </div>
-                    <input 
-                      type="range" min="0.3" max="2.0" step="0.05"
+                    <CustomSlider
+                      label={t.blockGapLabel}
                       value={settings.blockGap}
-                      onChange={(e) => updateSetting('blockGap', parseFloat(e.target.value))}
-                      className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus:outline-none"
+                      onChange={(val) => updateSetting('blockGap', val)}
+                      min={0.3}
+                      max={2.0}
+                      step={0.05}
+                      valueDisplay={settings.blockGap.toFixed(2)}
+                      size="sm"
                     />
                   </div>
 
                   {/* Letter Spacing Slider */}
                   <div className="space-y-1">
-                    <div className="flex items-center justify-between text-[11px] font-semibold text-slate-600">
-                      <span>{t.letterSpacingLabel}</span>
-                      <span className="font-mono font-bold bg-white px-1.5 py-0.2 rounded border border-slate-150 text-slate-700 text-[10px]">
-                        {settings.letterSpacing > 0 ? '+' : ''}{settings.letterSpacing.toFixed(2)}
-                      </span>
-                    </div>
-                    <input 
-                      type="range" min="-0.04" max="0.12" step="0.01"
+                    <CustomSlider
+                      label={t.letterSpacingLabel}
                       value={settings.letterSpacing}
-                      onChange={(e) => updateSetting('letterSpacing', parseFloat(e.target.value))}
-                      className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus:outline-none"
+                      onChange={(val) => updateSetting('letterSpacing', val)}
+                      min={-0.04}
+                      max={0.12}
+                      step={0.01}
+                      valueDisplay={`${settings.letterSpacing > 0 ? '+' : ''}${settings.letterSpacing.toFixed(2)}`}
+                      size="sm"
                     />
                   </div>
                 </div>

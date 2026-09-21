@@ -203,9 +203,16 @@ export function analyzeResume(
   }
 
   // 6. Page split control
-  const charCount = markdown.length;
+  const pureContent = markdown
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/[#*`_~>[\]()-]/g, '')
+    .replace(/\s+/g, '')
+    .trim();
+  const pureCharCount = pureContent.length;
   const hasPageBreak = /<!--\s*pagebreak\s*-->/gi.test(markdown);
-  if (charCount > 2200) {
+  // A standard A4 single page accommodates around 1200-1800 pure characters.
+  // Resumes exceeding 2400 pure characters legitimately require multiple pages.
+  if (pureCharCount > 2400) {
     if (hasPageBreak) {
       issues.push({
         type: 'success',

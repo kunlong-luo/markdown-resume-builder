@@ -2,7 +2,7 @@ import { FormItem, FormSection, ResumeFormModel } from './form-types';
 
 export function isTimeString(s: string): boolean {
   const clean = s.replace(/[*_]/g, '').trim();
-  if (/\d{4}/.test(clean) || clean.includes('至今') || clean.includes('present') || clean.includes('Present') || clean.includes('毕业')) {
+  if (/\b(?:19|20)\d{2}\b/.test(clean) || clean.includes('至今') || clean.includes('present') || clean.includes('Present') || clean.includes('毕业')) {
     return true;
   }
   return false;
@@ -10,20 +10,23 @@ export function isTimeString(s: string): boolean {
 
 export function cleanPart(s: string): string {
   let res = s.trim();
-  if (res.startsWith('**') && res.endsWith('**')) {
-    res = res.slice(2, -2).trim();
-  }
-  if (res.startsWith('*') && res.endsWith('*')) {
-    res = res.slice(1, -1).trim();
-  }
-  if (res.startsWith('__') && res.endsWith('__')) {
-    res = res.slice(2, -2).trim();
-  }
-  if (res.startsWith('_') && res.endsWith('_')) {
-    res = res.slice(1, -1).trim();
+  // Strip outer markdown bold and italics
+  while (
+    (res.startsWith('**') && res.endsWith('**')) ||
+    (res.startsWith('*') && res.endsWith('*')) ||
+    (res.startsWith('__') && res.endsWith('__')) ||
+    (res.startsWith('_') && res.endsWith('_'))
+  ) {
+    if (res.startsWith('**') && res.endsWith('**')) res = res.slice(2, -2).trim();
+    else if (res.startsWith('*') && res.endsWith('*')) res = res.slice(1, -1).trim();
+    else if (res.startsWith('__') && res.endsWith('__')) res = res.slice(2, -2).trim();
+    else if (res.startsWith('_') && res.endsWith('_')) res = res.slice(1, -1).trim();
   }
   return res;
 }
+
+const DEGREE_REGEX = /^(本科|学士|硕士|博士|大专|高职|专科|中专|高中|双学士|研究生|PhD|Ph\.D|Master|Bachelor|Associate)$/i;
+const DEGREE_EXTRACT_REGEX = /[（\(](本科|学士|硕士|博士|大专|高职|专科|双学士|研究生|PhD|Master|Bachelor)[）\)]/i;
 
 export function splitItemTitle(titleStr: string): { org: string; role: string; time: string; degree?: string } {
   let clean = titleStr.trim();
@@ -31,70 +34,97 @@ export function splitItemTitle(titleStr: string): { org: string; role: string; t
     clean = clean.slice(2, -2).trim();
   }
   
-  const parts = clean.split(/[｜|　]|\s{2,}/).map(p => p.trim()).filter(Boolean);
-
-  if (parts.length === 0) {
-    return { org: '', role: '', time: '', degree: '' };
+  // 1. Check for time range and extract it if explicitly present
+  // Matches: 2024.03 — 至今, *2024.03 — 至今*, 2021.06 - 2024.02, 2018 - 2022, 2020.09 ~ 2024.06, etc.
+  const TIME_PATTERN = /(?:\*|_)?(?:\b(?:19|20)\d{2}(?:[年\.\-\/]\d{1,2}(?:[月\.\-\/]\d{1,2})?|年?)?\s*(?:[-—–―~～至到\s]+)\s*(?:(?:19|20)\d{2}(?:[年\.\-\/]\d{1,2}(?:[月\.\-\/]\d{1,2})?|年?)?|至今|现在|present|Present|毕业)|(?:\b(?:19|20)\d{2}(?:[年\.\-\/]\d{1,2}(?:月)?)?)\s*(?:至今|现在|present|Present|毕业)|\b(?:19|20)\d{2}\s*[-—–―~～]\s*(?:19|20)\d{2}\b)(?:\*|_)?/i;
+  
+  let extractedTime = '';
+  const timeMatch = clean.match(TIME_PATTERN);
+  if (timeMatch && timeMatch.index !== undefined) {
+    extractedTime = cleanPart(timeMatch[0]);
+    // Remove the time from the string along with nearby delimiters
+    clean = (clean.slice(0, timeMatch.index) + ' ' + clean.slice(timeMatch.index + timeMatch[0].length)).trim();
   }
 
-  if (parts.length === 1) {
-    return { org: cleanPart(parts[0]), role: '', time: '', degree: '' };
+  // 2. Split remainder by universal separators:
+  // - Full/half-width pipe: | or ｜
+  // - Full-width ideographic space: \u3000
+  // - Middle dots / bullets: · or • or ● or ▪
+  // - Slashes with spaces: / or ／
+  // - Hyphens/dashes with spaces: - or — or – or ―
+  // - Multiple spaces: \s{2,}
+  const SEPARATOR_REGEX = /\s*[|｜\u3000]\s*|\s*[·•●▪]\s*|\s+[/／]\s+|\s+[-—–―]\s+|\s{2,}/;
+  
+  const rawParts = clean.split(SEPARATOR_REGEX).map(p => cleanPart(p)).filter(Boolean);
+
+  let org = '';
+  let role = '';
+  let degree = '';
+  let time = extractedTime;
+
+  // If time wasn't found via regex, check if the last segment is a time string
+  if (!time && rawParts.length > 1 && isTimeString(rawParts[rawParts.length - 1])) {
+    time = rawParts.pop()!;
   }
 
-  if (parts.length === 2) {
-    const p0 = cleanPart(parts[0]);
-    const p1 = cleanPart(parts[1]);
-    if (isTimeString(parts[1])) {
-      return { org: p0, role: '', time: p1, degree: '' };
+  // 3. Process remaining segments
+  if (rawParts.length === 1) {
+    org = rawParts[0];
+  } else if (rawParts.length === 2) {
+    const p0 = rawParts[0];
+    const p1 = rawParts[1];
+    if (DEGREE_REGEX.test(p1)) {
+      org = p0;
+      degree = p1;
+    } else if (DEGREE_REGEX.test(p0)) {
+      degree = p0;
+      role = p1;
     } else {
-      return { org: p0, role: p1, time: '', degree: '' };
+      org = p0;
+      role = p1;
+    }
+  } else if (rawParts.length === 3) {
+    const p0 = rawParts[0];
+    const p1 = rawParts[1];
+    const p2 = rawParts[2];
+    if (DEGREE_REGEX.test(p1)) {
+      org = p0;
+      degree = p1;
+      role = p2;
+    } else if (DEGREE_REGEX.test(p2)) {
+      org = p0;
+      role = p1;
+      degree = p2;
+    } else {
+      org = p0;
+      role = `${p1} ｜ ${p2}`;
+    }
+  } else if (rawParts.length >= 4) {
+    org = rawParts[0];
+    if (DEGREE_REGEX.test(rawParts[1])) {
+      degree = rawParts[1];
+      role = rawParts.slice(2).join(' ｜ ');
+    } else {
+      role = rawParts.slice(1).join(' ｜ ');
     }
   }
 
-  if (parts.length === 3) {
-    const p0 = cleanPart(parts[0]);
-    const p1 = cleanPart(parts[1]);
-    const p2 = cleanPart(parts[2]);
-    
-    if (isTimeString(parts[2])) {
-      // Could be org | role | time
-      const isDegree = /本科|硕士|博士|大专|高中|中专|学士|研究生|PhD|Master|Bachelor|Associate/i.test(p1);
-      if (isDegree) {
-        return { org: p0, degree: p1, role: '', time: p2 };
+  // 4. Secondary check: Extract embedded degree from parentheses (e.g. "计算机科学 (硕士)")
+  if (!degree) {
+    const roleMatch = role.match(DEGREE_EXTRACT_REGEX);
+    if (roleMatch) {
+      degree = roleMatch[1];
+      role = role.replace(DEGREE_EXTRACT_REGEX, '').trim();
+    } else {
+      const orgMatch = org.match(DEGREE_EXTRACT_REGEX);
+      if (orgMatch) {
+        degree = orgMatch[1];
+        org = org.replace(DEGREE_EXTRACT_REGEX, '').trim();
       }
-      return { org: p0, role: p1, time: p2, degree: '' };
-    } else {
-      // Could be org | degree | role
-      return { org: p0, degree: p1, role: p2, time: '' };
     }
   }
 
-  if (parts.length === 4) {
-    return {
-      org: cleanPart(parts[0]),
-      degree: cleanPart(parts[1]),
-      role: cleanPart(parts[2]),
-      time: cleanPart(parts[3])
-    };
-  }
-
-  const lastIdx = parts.length - 1;
-  const lastPart = parts[lastIdx];
-  if (isTimeString(lastPart)) {
-    return {
-      org: cleanPart(parts[0]),
-      degree: cleanPart(parts[1]),
-      role: parts.slice(2, lastIdx).map(p => cleanPart(p)).join(' ｜ '),
-      time: cleanPart(lastPart)
-    };
-  } else {
-    return {
-      org: cleanPart(parts[0]),
-      degree: cleanPart(parts[1]),
-      role: parts.slice(2).map(p => cleanPart(p)).join(' ｜ '),
-      time: ''
-    };
-  }
+  return { org, role, time, degree };
 }
 
 export function parseContactString(contactStr: string) {
@@ -112,14 +142,14 @@ export function parseContactString(contactStr: string) {
   }
 
   // 2. Extract phone with prefixes if present
-  const phonePrefixRegex = /(?:电话|手机|手机号|手机号码|电话号码|联系方式|联系电话|Tel|Mobile|Phone|Contact)[:：\s-]*((?:\+?86[\s-]?)?1[3-9]\d(?:\s*-?\s*\d){8}|(?:0\d{2,3}-)?\d{7,8})/i;
+  const phonePrefixRegex = /(?:电话|手机|手机号|手机号码|电话号码|联系方式|联系电话|Tel|Mobile|Phone|Contact)[:：\s-]*((?:\+?\d{1,4}[\s-]?)?(?:\(?\d{2,4}\)?[\s-]?)?\d{3,4}[\s-]?\d{4}|\d{7,15})/i;
   const phonePrefixMatch = remaining.match(phonePrefixRegex);
   if (phonePrefixMatch) {
     phone = phonePrefixMatch[1].trim();
     remaining = remaining.replace(phonePrefixRegex, '').trim();
   } else {
-    // Extract Chinese mobile or standard landline alone without prefixes
-    const phoneAloneRegex = /(?:\+?86[\s-]?)?1[3-9]\d(?:\s*-?\s*\d){8}|(?:0\d{2,3}-)?\d{7,8}/;
+    // Extract Chinese mobile, landline, or international alone without prefixes
+    const phoneAloneRegex = /(?:\+?86[\s-]?)?1[3-9]\d(?:\s*-?\s*\d){8}|(?:0\d{2,3}-)?\d{7,8}|\b1[3-9]\d{10}\b|(?:\+?1[\s-]?)?\(?\d{3}\)?[\s-]?\d{3}[\s-]?\d{4}/;
     const phoneMatch = remaining.match(phoneAloneRegex);
     if (phoneMatch) {
       phone = phoneMatch[0].trim();
@@ -161,8 +191,13 @@ export function classifySubsequentLines(subsequent: string[]): { subtitle: strin
   const isContactLine = (s: string) => {
     const clean = s.toLowerCase();
     if (clean.includes('@')) return true;
-    if (/\d{7,}/.test(clean.replace(/[^\d]/g, ''))) return true;
-    if (clean.includes('github') || clean.includes('gitee') || clean.includes('wechat') || clean.includes('微信') || clean.includes('博客') || clean.includes('blog') || clean.includes('linkedin') || clean.includes('http') || clean.includes('https') || clean.includes('电话') || clean.includes('手机') || clean.includes('邮箱') || clean.includes('tel:') || clean.includes('phone') || clean.includes('mobile')) return true;
+    const hasDateRange = /(?:19|20)\d{2}(?:[\.\-\/]\d{1,2})?\s*[-—–~至到]/i.test(clean);
+    if (!hasDateRange) {
+      if (/^(?:电话|手机|手机号|手机号码|联系方式|联系电话|tel|mobile|phone|contact)[:：\s-]*[+0-9\s\-()]{7,25}/i.test(clean)) return true;
+      if (/(?:\+?86[\s-]?)?1[3-9](?:[\s-]?\d){9}/.test(clean) && !/(?:经验|运营|负责|工作|年限|学校|学历|能力)/.test(clean)) return true;
+      if (/^\+?[\d\s\-\(\)]{7,20}$/.test(clean.trim())) return true;
+    }
+    if (clean.includes('github') || clean.includes('gitee') || clean.includes('wechat') || clean.includes('微信') || clean.includes('博客') || clean.includes('blog') || clean.includes('linkedin') || clean.includes('http') || clean.includes('https') || clean.includes('电话') || clean.includes('手机') || clean.includes('邮箱') || clean.includes('tel') || clean.includes('phone') || clean.includes('mobile')) return true;
     return false;
   };
 
@@ -177,6 +212,8 @@ export function classifySubsequentLines(subsequent: string[]): { subtitle: strin
     if (/\d+岁|生于|出生于|19\d{2}年|20\d{2}年/.test(clean)) return true;
     // 4. Job search status
     if (/在职|离职|到岗|考虑|求职|寻找|随时到岗/i.test(clean)) return true;
+    // 5. English ability & skills/credentials
+    if (/英语能力|英语|语言|证书|资质|CET|四级|六级/i.test(clean)) return true;
     return false;
   };
 
@@ -186,13 +223,28 @@ export function classifySubsequentLines(subsequent: string[]): { subtitle: strin
 
   subsequent.forEach(line => {
     const trimmed = line.trim();
-    if (!trimmed) return;
-    if (isContactLine(trimmed)) {
-      contactLines.push(trimmed);
-    } else if (isExperienceLine(trimmed)) {
-      expLines.push(trimmed);
+    if (!trimmed || trimmed === '---' || trimmed === '***' || trimmed === '___') return;
+    let stripped = trimmed
+      .replace(/^[-*+•●▪■◆]\s+/, '')
+      .replace(/^\d{1,2}[\.\)）]\s+/, '')
+      .trim();
+
+    if ((stripped.startsWith('**') && stripped.endsWith('**')) || (stripped.startsWith('__') && stripped.endsWith('__'))) {
+      stripped = stripped.slice(2, -2).trim();
+    } else if ((stripped.startsWith('*') && stripped.endsWith('*')) || (stripped.startsWith('_') && stripped.endsWith('_'))) {
+      stripped = stripped.slice(1, -1).trim();
+    }
+    if (!stripped) return;
+
+    if (isContactLine(stripped)) {
+      contactLines.push(stripped);
+    } else if (isExperienceLine(stripped)) {
+      expLines.push(stripped);
     } else {
-      otherLines.push(trimmed);
+      const cleanOther = stripped.replace(/^(?:求职方向|求职意向|求职目标|目标岗位|应聘职位|应聘岗位|意向岗位)[:：\s]*/, '').trim();
+      if (cleanOther) {
+        otherLines.push(cleanOther);
+      }
     }
   });
 
@@ -249,6 +301,45 @@ export function parseTextSectionToItems(text: string, category: 'edu' | 'work' |
     const trimmed = line.trim();
     if (!trimmed) continue;
 
+    // Check if current line is an attribute of the existing currentItem (time, role/degree)
+    if (currentItem && currentItem.org) {
+      if (!currentItem.time && isTimeString(trimmed)) {
+        currentItem.time = cleanPart(trimmed);
+        continue;
+      }
+      if (category === 'edu' && (!currentItem.role || !currentItem.degree) && !trimmed.startsWith('- ') && !trimmed.startsWith('* ') && !trimmed.startsWith('### ')) {
+        const cleanT = cleanPart(trimmed);
+        const parts = cleanT.split(/[｜|　]|\s{2,}/).map(p => p.trim()).filter(Boolean);
+        if (parts.length > 0) {
+          if (parts.length === 1) {
+            if (/大专|本科|硕士|博士|学士|双学位|高中|中专/.test(parts[0])) {
+              currentItem.degree = parts[0];
+            } else {
+              currentItem.role = parts[0];
+            }
+          } else {
+            // Find which part is degree
+            const degIdx = parts.findIndex(p => /大专|本科|硕士|博士|学士|双学位|高中|中专/.test(p));
+            if (degIdx !== -1) {
+              currentItem.degree = parts[degIdx];
+              const rest = parts.filter((_, idx) => idx !== degIdx);
+              currentItem.role = rest.join(' · ');
+            } else {
+              currentItem.role = parts.join(' · ');
+            }
+          }
+          continue;
+        }
+      }
+      if ((category === 'work' || category === 'project') && !currentItem.role && !trimmed.startsWith('- ') && !trimmed.startsWith('* ') && !trimmed.startsWith('### ')) {
+        if (trimmed.startsWith('**') || trimmed.includes('｜') || trimmed.includes('|')) {
+          const cleanT = cleanPart(trimmed);
+          currentItem.role = cleanT;
+          continue;
+        }
+      }
+    }
+
     let isHeader = false;
 
     if (trimmed.startsWith('### ')) {
@@ -295,19 +386,6 @@ export function parseTextSectionToItems(text: string, category: 'edu' | 'work' |
         };
       }
       
-      if (category === 'edu' && !currentItem.role && !currentItem.degree && !trimmed.startsWith('- ') && !trimmed.startsWith('* ')) {
-        const parts = trimmed.split(/[｜|　]|\s{2,}/).map(p => p.trim()).filter(Boolean);
-        if (parts.length > 0) {
-          if (parts.length === 1) {
-            currentItem.role = cleanPart(parts[0]);
-          } else {
-            currentItem.degree = cleanPart(parts[0]);
-            currentItem.role = cleanPart(parts[1]);
-          }
-          continue;
-        }
-      }
-
       currentItem.content += line + '\n';
     }
   }
@@ -379,7 +457,51 @@ export function parseMarkdownToForm(md: string): ResumeFormModel {
           currentSection.items.push(currentItem);
         }
         const itemTitle = trimmed.substring(4).trim();
-        const { org, role, time, degree } = splitItemTitle(itemTitle);
+        let { org, role, time, degree } = splitItemTitle(itemTitle);
+
+        // Look ahead for subsequent lines defining role or date (common in resumes where role & date are on lines 2 & 3)
+        let nextIdx = i + 1;
+        while (nextIdx < lines.length && nextIdx <= i + 4) {
+          const nextTrimmed = lines[nextIdx].trim();
+          if (!nextTrimmed) {
+            nextIdx++;
+            continue;
+          }
+          if (nextTrimmed.startsWith('#') || nextTrimmed.startsWith('- ') || nextTrimmed.startsWith('* ') || nextTrimmed.startsWith('>')) {
+            break;
+          }
+
+          // Check if next line is a time string, e.g. **2024.01 — 2026.02**
+          if (!time && isTimeString(nextTrimmed)) {
+            time = cleanPart(nextTrimmed);
+            i = nextIdx;
+            nextIdx++;
+            continue;
+          }
+
+          // Check if next line is bold role/details line, e.g. **跨境电商亚马逊运营｜Amazon 美国站**
+          const isBoldOrDetails = (nextTrimmed.startsWith('**') && nextTrimmed.endsWith('**')) || nextTrimmed.includes('｜') || nextTrimmed.includes('|');
+          if (isBoldOrDetails && (!role || !time)) {
+            const parsed = splitItemTitle(nextTrimmed);
+            if (!role && parsed.org && !isTimeString(nextTrimmed)) {
+              role = parsed.role ? `${parsed.org} · ${parsed.role}` : parsed.org;
+            } else if (!role && parsed.role) {
+              role = parsed.role;
+            }
+            if (!time && parsed.time) {
+              time = parsed.time;
+            }
+            if (!degree && parsed.degree) {
+              degree = parsed.degree;
+            }
+            i = nextIdx;
+            nextIdx++;
+            continue;
+          }
+
+          break;
+        }
+
         currentItem = {
           id: `item_${i}_${Math.random().toString(36).substring(2, 7)}`,
           org,
@@ -410,12 +532,12 @@ export function parseMarkdownToForm(md: string): ResumeFormModel {
   let nameIndex = -1;
   for (let i = 0; i < headerLines.length; i++) {
     const hl = headerLines[i].trim();
-    if (hl.startsWith('# ')) {
-      model.name = hl.replace('# ', '').trim();
+    if (/^#\s+[^\#]/.test(hl) || /^#[^\#\s]+/.test(hl)) {
+      model.name = hl.replace(/^#+\s*/, '').replace(/[\*\_]+/g, '').trim();
       nameIndex = i;
       break;
-    } else if (hl && nameIndex === -1) {
-      model.name = hl;
+    } else if (hl && nameIndex === -1 && !hl.startsWith('- ') && !hl.startsWith('* ') && !hl.startsWith('+ ')) {
+      model.name = hl.replace(/[\*\_]+/g, '').trim();
       nameIndex = i;
     }
   }
@@ -425,7 +547,10 @@ export function parseMarkdownToForm(md: string): ResumeFormModel {
     if (i === nameIndex) continue;
     const hl = headerLines[i].trim();
     if (hl) {
-      const cleanedHl = hl.replace(/^[-*•\s+]+\s*/, '').replace(/^\d{1,2}[\.\s)）:：、]+\s*/, '').trim();
+      const cleanedHl = hl
+        .replace(/^[-*+•●▪■◆]\s+/, '')
+        .replace(/^\d{1,2}[\.\)）]\s+/, '')
+        .trim();
       if (cleanedHl) {
         subsequent.push(cleanedHl);
       }
@@ -459,19 +584,8 @@ export function parseMarkdownToForm(md: string): ResumeFormModel {
             sec.items = parsedItems;
             sec.type = 'items';
             sec.textValue = '';
-          } else {
-            const defaultItem: FormItem = {
-              id: `item_fallback_${Date.now()}_${Math.random().toString(36).substring(2, 5)}`,
-              org: category === 'edu' ? '毕业院校' : (category === 'work' ? '公司/企业' : '项目名称'),
-              role: category === 'edu' ? '所学专业' : (category === 'work' ? '职务角色' : '担当角色'),
-              time: '至今',
-              content: sec.textValue,
-              degree: category === 'edu' ? '学历学位' : ''
-            };
-            sec.items = [defaultItem];
-            sec.type = 'items';
-            sec.textValue = '';
           }
+          // If no items parsed, preserve sec.type = 'text' gracefully rather than injecting fake items
         }
       }
     }
@@ -601,7 +715,7 @@ export function parseFormToMarkdown(model: ResumeFormModel): string {
           titleParts.push(t);
         }
 
-        const itemTitle = titleParts.join('　');
+        const itemTitle = titleParts.join(' ｜ ');
         md += `### ${itemTitle}\n`;
         
         const category = getSectionCategory(sec.title);

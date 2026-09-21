@@ -94,7 +94,7 @@ export function SectionPresets({ onAddPreset, lang = 'zh' }: SectionPresetsProps
             className="flex items-center justify-center gap-2.5 p-3 bg-gradient-to-b from-white to-slate-50/50 border border-slate-200/80 hover:border-slate-350 rounded-xl text-xs font-bold text-slate-700 hover:text-slate-900 transition-all cursor-pointer shadow-[0_1.5px_3px_rgba(15,23,42,0.01),inset_0_1.5px_2px_rgba(255,255,255,0.95)] active:translate-y-px group"
           >
             <FileText className="w-4 h-4 text-slate-500" />
-            <span>{isEn ? 'Single-Text Section' : '自定义单段文本'}</span>
+            <span>{isEn ? 'Custom Freeform Section' : '自定义描述板块'}</span>
           </button>
           
           <button
@@ -102,7 +102,7 @@ export function SectionPresets({ onAddPreset, lang = 'zh' }: SectionPresetsProps
             className="flex items-center justify-center gap-2.5 p-3 bg-gradient-to-b from-white to-slate-50/50 border border-slate-200/80 hover:border-slate-350 rounded-xl text-xs font-bold text-slate-700 hover:text-slate-900 transition-all cursor-pointer shadow-[0_1.5px_3px_rgba(15,23,42,0.01),inset_0_1.5px_2px_rgba(255,255,255,0.95)] active:translate-y-px group"
           >
             <Layers className="w-4 h-4 text-slate-500" />
-            <span>{isEn ? 'Multi-Item Section' : '自定义多项列表'}</span>
+            <span>{isEn ? 'Custom Itemized Section' : '自定义经历板块'}</span>
           </button>
         </div>
       </div>

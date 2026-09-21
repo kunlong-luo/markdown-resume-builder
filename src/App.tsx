@@ -1,4 +1,4 @@
-import React, { useRef, useMemo, useEffect } from 'react';
+import React, { useRef, useMemo, useEffect, useState, useCallback } from 'react';
 import { Editor } from './components/Editor';
 import { Preview } from './components/preview/Preview';
 import { ResumeChecker } from './components/resume-checker/ResumeChecker';
@@ -11,7 +11,6 @@ import { useResumeActions } from './hooks/useResumeActions';
 import { ResumeSettings } from './types';
 import { deserializeShareState } from './lib/share-utils';
 import { SharedResumePage } from './components/share/SharedResumePage';
-
 import { AestheticBackdrop } from './components/layout/AestheticBackdrop';
 
 export default function App() {
@@ -42,6 +41,53 @@ export default function App() {
   } = useResumeStore();
 
   const contentRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLElement>(null);
+
+  // Resizable split ratio (percentage for editor width)
+  const [splitRatio, setSplitRatio] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('resume-split-ratio');
+      if (saved) {
+        const parsed = parseFloat(saved);
+        if (parsed >= 25 && parsed <= 75) return parsed;
+      }
+    } catch (e) {}
+    return 50;
+  });
+
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const newRatio = ((e.clientX - rect.left) / rect.width) * 100;
+      // Clamp between 28% and 72%
+      const clamped = Math.min(Math.max(newRatio, 28), 72);
+      setSplitRatio(clamped);
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      try {
+        localStorage.setItem('resume-split-ratio', String(splitRatio));
+      } catch (e) {}
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, splitRatio]);
 
   const {
     handleExportPDF,
@@ -64,7 +110,7 @@ export default function App() {
       const now = new Date();
       const pad = (num: number) => String(num).padStart(2, '0');
       setLastSaved(`${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`);
-    }, 1000); // Save after 1 second of inactivity
+    }, 1000);
 
     return () => clearTimeout(saveTimer);
   }, [markdown, setLastSaved]);
@@ -99,11 +145,11 @@ export default function App() {
   }, [markdown, settings]);
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-[#f8fafc] relative">
+    <div className={`flex flex-col h-screen overflow-hidden bg-[#f8fafc] relative ${isDragging ? 'select-none cursor-col-resize' : ''}`}>
       <AestheticBackdrop />
       
-      <div className="flex flex-col h-full w-full z-10 relative pointer-events-none">
-        <div className="pointer-events-auto">
+      <div className="flex flex-col h-full w-full z-10 relative">
+        <div>
           <Header 
             handleImportMarkdown={handleImportMarkdown}
             handleExportMarkdown={handleExportMarkdown}
@@ -112,40 +158,60 @@ export default function App() {
           <Toolbar />
         </div>
 
-        <main className="flex-1 flex flex-col md:flex-row overflow-hidden relative pointer-events-auto">
-        {(settings.layoutMode === 'split' || settings.layoutMode === 'editor') && (
-          <section 
-            id="editor-pane" 
-            className={`z-10 relative border-r border-slate-200 transition-all duration-300 ${
-              settings.layoutMode === 'editor' 
-                ? 'w-full h-full' 
-                : 'w-full md:w-1/2 h-1/2 md:h-full border-b md:border-b-0 border-slate-200'
-            }`}
-          >
-            <Editor />
-          </section>
-        )}
+        <main 
+          ref={containerRef}
+          className="flex-1 flex flex-col md:flex-row overflow-hidden relative"
+        >
+          {(settings.layoutMode === 'split' || settings.layoutMode === 'editor') && (
+            <section 
+              id="editor-pane" 
+              style={{
+                width: settings.layoutMode === 'split' ? (window.innerWidth >= 768 ? `${splitRatio}%` : '100%') : '100%'
+              }}
+              className={`z-10 relative border-r border-slate-200/90 transition-none ${
+                settings.layoutMode === 'editor' 
+                  ? 'w-full h-full' 
+                  : 'h-1/2 md:h-full border-b md:border-b-0 border-slate-200/90'
+              }`}
+            >
+              <Editor />
+            </section>
+          )}
 
-        {(settings.layoutMode === 'split' || settings.layoutMode === 'preview') && (
-          <section 
-            className={`relative transition-all duration-300 ${
-              settings.layoutMode === 'preview' 
-                ? 'w-full h-full' 
-                : 'w-full md:w-1/2 h-1/2 md:h-full'
-            }`}
-          >
-            <Preview 
-              ref={contentRef} 
-            />
-          </section>
-        )}
+          {/* Draggable Divider for Split Mode */}
+          {settings.layoutMode === 'split' && (
+            <div 
+              onMouseDown={handleMouseDown}
+              className="hidden md:flex items-center justify-center w-3 -mx-1.5 z-30 cursor-col-resize group hover:w-3.5 transition-all select-none"
+              title="拖拽调节编辑器与预览区宽度（双击复位 50%）"
+              onDoubleClick={() => setSplitRatio(50)}
+            >
+              <div className={`w-1 h-8 rounded-full transition-all duration-200 ${isDragging ? 'bg-indigo-600 scale-y-125' : 'bg-slate-300 group-hover:bg-indigo-400 group-hover:scale-y-110'}`} />
+            </div>
+          )}
 
-        <ResumeChecker />
-      </main>
+          {(settings.layoutMode === 'split' || settings.layoutMode === 'preview') && (
+            <section 
+              style={{
+                width: settings.layoutMode === 'split' ? (window.innerWidth >= 768 ? `${100 - splitRatio}%` : '100%') : '100%'
+              }}
+              className={`relative transition-none ${
+                settings.layoutMode === 'preview' 
+                  ? 'w-full h-full' 
+                  : 'h-1/2 md:h-full'
+              }`}
+            >
+              <Preview 
+                ref={contentRef} 
+              />
+            </section>
+          )}
 
-      <IframeWarningModal />
+          <ResumeChecker />
+        </main>
 
-      <BackupDraftModal />
+        <IframeWarningModal />
+        <BackupDraftModal />
       </div>
     </div>
   );

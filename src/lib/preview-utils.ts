@@ -127,11 +127,11 @@ export function parseResumeHeader(markdown: string) {
   let h1Index = -1;
   let foundH1 = false;
 
-  // Locate the name (H1)
+  // Locate the name (H1 or first header)
   for (let i = 0; i < Math.min(lines.length, 12); i++) {
     const line = lines[i].trim();
-    if (line.startsWith('# ')) {
-      name = line.substring(2).trim();
+    if (/^#\s+[^\#]/.test(line) || /^#[^\#\s]+/.test(line)) {
+      name = line.replace(/^#+\s*/, '').replace(/[\*\_]+/g, '').trim();
       foundH1 = true;
       h1Index = i;
       break;
@@ -140,42 +140,95 @@ export function parseResumeHeader(markdown: string) {
 
   if (foundH1) {
     let bodyStartIndex = h1Index + 1;
-    // Inspect next non-empty lines for profile information
-    for (let i = h1Index + 1; i < Math.min(lines.length, h1Index + 8); i++) {
+    const expParts: string[] = [];
+
+    // Inspect next non-empty lines for profile information until first H2
+    for (let i = h1Index + 1; i < lines.length; i++) {
       const line = lines[i].trim();
       if (line.startsWith('##')) {
         bodyStartIndex = i;
         break;
       }
-      if (line === '') {
+      if (line === '' || line === '---' || line === '***' || line === '___') {
+        bodyStartIndex = i + 1;
         continue;
       }
 
-      // Check content types
-      const hasSeparators = line.includes('｜') || line.includes('|') || line.includes('·') || line.includes('•') || line.includes('●') || line.includes('▪') || line.includes('■') || line.includes('◆') || line.includes('・');
-      const isContact = line.includes('@') || /^\d{11}/.test(line) || /\d{3,4}-\d{7,8}/.test(line) || line.toLowerCase().includes('github') || line.toLowerCase().includes('gitee') || line.toLowerCase().includes('wechat') || line.includes('微信') || line.toLowerCase().includes('linkedin') || line.includes('领英');
+      // Safely strip bullet points (- , * , + , • , 1. ) WITHOUT stripping digits of phone numbers!
+      let stripped = line
+        .replace(/^[-*+•●▪■◆]\s+/, '')
+        .replace(/^\d{1,2}[\.\)）]\s+/, '')
+        .trim();
 
-      if (isContact || hasSeparators) {
-        if (isContact) {
-          // Comprehensive contact splitter regex supporting all dots, pipes, slashes, double spaces, and standard punctuation delimiters
-          const contactSeparatorRegex = /[·•●▪■◆・|｜,，;；\t]|\s{2,}|\s+\/\s+|\s+-\s+|\s+—\s+/;
-          contacts = line.split(contactSeparatorRegex).map(c => c.trim()).filter(Boolean);
-        } else if (line.includes('｜') || line.includes('|') || line.includes('·') || line.includes('•') || line.includes('●') || line.includes('▪') || line.includes('■') || line.includes('◆') || line.includes('・')) {
-          // Split title line using separators
-          titles = line.split(/[｜|·•●▪■◆・]|\s{2,}/).map(t => t.trim()).filter(Boolean);
+      // Strip outer wrapping markdown bold/italic (**...** or *...*)
+      if ((stripped.startsWith('**') && stripped.endsWith('**')) || (stripped.startsWith('__') && stripped.endsWith('__'))) {
+        stripped = stripped.slice(2, -2).trim();
+      } else if ((stripped.startsWith('*') && stripped.endsWith('*')) || (stripped.startsWith('_') && stripped.endsWith('_'))) {
+        stripped = stripped.slice(1, -1).trim();
+      }
+
+      const lower = stripped.toLowerCase();
+      const digitsOnly = stripped.replace(/[^\d]/g, '');
+
+      // 1. Check if job target / intention line
+      const isTargetJob = /^(?:\*\*|\*|)(?:求职方向|求职意向|求职目标|目标岗位|应聘职位|应聘岗位|意向岗位)[:：\s]*/.test(stripped) ||
+        (titles.length === 0 && !line.startsWith('- ') && !line.startsWith('* ') && (lower.includes('运营') || lower.includes('工程师') || lower.includes('开发') || lower.includes('架构师') || lower.includes('总监') || lower.includes('经理') || lower.includes('主管') || lower.includes('专员') || lower.includes('设计师') || lower.includes('产品') || lower.includes('developer') || lower.includes('engineer') || lower.includes('manager')));
+
+      // 2. Check if contact line (phone, email, social link, etc.)
+      const hasDateRange = /(?:19|20)\d{2}(?:[\.\-\/]\d{1,2})?\s*[-—–~至到]/i.test(stripped);
+      const isPhoneLike = !hasDateRange && (
+        /^(?:电话|手机|手机号|手机号码|联系方式|联系电话|Tel|Mobile|Phone|Contact)[:：\s-]*[+0-9\s\-()]{7,25}/i.test(stripped) ||
+        (/(?:\+?86[\s-]?)?1[3-9](?:[\s-]?\d){9}/.test(stripped) && !/(?:经验|运营|负责|工作|年限|学校|学历|能力)/.test(stripped)) ||
+        (/^\+?[\d\s\-\(\)]{7,20}$/.test(stripped))
+      );
+
+      const isContact = lower.includes('@') ||
+        isPhoneLike ||
+        /^(?:电话|手机|手机号|手机号码|邮箱|微信|wechat|tel|phone|mobile|email|github|gitee|linkedin|blog|博客|网站|主页)[:：\s]/i.test(stripped) ||
+        lower.includes('github') || lower.includes('gitee') || lower.includes('wechat') || lower.includes('微信') || lower.includes('linkedin') || lower.includes('领英');
+
+      // 3. Check if experience / background / status / degree / english ability
+      const isExpOrSkill = /^(?:经验|工作经验|工作年限|经验年限|年限|工作|在职|离职|到岗|年龄|岁|学历|学位|本科|硕士|大专|英语能力|英语|语言|资格)[:：\s]*/.test(stripped) ||
+        /(?:经验|年工作|在校|大学|学院|本科|硕士|大专|英语|CET|六级|四级)/i.test(stripped);
+
+      if (isTargetJob) {
+        const cleaned = stripped.replace(/[\*\_]+/g, '').replace(/^(?:求职方向|求职意向|求职目标|目标岗位|应聘职位|应聘岗位|意向岗位)[:：\s]*/, '').trim();
+        const parts = cleaned.split(/[\/|｜·•,，]|\s{2,}/).map(t => t.trim()).filter(Boolean);
+        if (parts.length > 0) {
+          titles.push(...parts);
         }
         bodyStartIndex = i + 1;
-      } else if (line.includes('经验') || line.includes('工作') || /^\d+年/.test(line)) {
-        experience = line;
+      } else if (isContact) {
+        const contactSeparatorRegex = /[·•●▪■◆・|｜;；\t]|\s{2,}|\s+[\/／]\s+/;
+        const subContacts = stripped.split(contactSeparatorRegex).map(c => c.replace(/[\*\_]+/g, '').trim()).filter(Boolean);
+        contacts.push(...subContacts);
+        bodyStartIndex = i + 1;
+      } else if (isExpOrSkill) {
+        const cleanExp = stripped.replace(/[\*\_]+/g, '').trim();
+        expParts.push(cleanExp);
         bodyStartIndex = i + 1;
       } else {
-        // If titles list is empty, treat as title list, otherwise keep in body
-        if (titles.length === 0) {
-          titles = [line];
+        if (titles.length === 0 && stripped.length < 60) {
+          const cleaned = stripped.replace(/[\*\_]+/g, '').trim();
+          titles = cleaned.split(/[\/|｜·•,，]|\s{2,}/).map(t => t.trim()).filter(Boolean);
           bodyStartIndex = i + 1;
         } else {
           break;
         }
+      }
+    }
+
+    if (expParts.length > 0) {
+      experience = expParts.join(' ｜ ');
+    }
+
+    // Skip any trailing empty lines or dividers (like `---`) between header and body start
+    while (bodyStartIndex < lines.length) {
+      const nextLine = lines[bodyStartIndex].trim();
+      if (nextLine === '' || nextLine === '---' || nextLine === '***' || nextLine === '___') {
+        bodyStartIndex++;
+      } else {
+        break;
       }
     }
 

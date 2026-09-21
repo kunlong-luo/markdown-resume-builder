@@ -15,6 +15,7 @@ import {
 import { createMarkdownComponents } from './PreviewRenderers';
 import { HeightGuard } from './HeightGuard';
 import { ResumeHeader } from './ResumeHeader';
+import { CustomSlider } from '../ui/CustomSlider';
 
 interface PreviewProps {
   overrideMarkdown?: string;
@@ -25,7 +26,8 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
   const {
     markdown: storeMarkdown,
     settings: storeSettings,
-    updateSetting: onChangeSettings
+    updateSetting: onChangeSettings,
+    setMeasuredPageCount
   } = useResumeStore();
 
   const activeMarkdown = overrideMarkdown !== undefined ? overrideMarkdown : storeMarkdown;
@@ -62,6 +64,7 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
   const [metrics, setMetrics] = useState({
     isOver: false,
     overflowPercent: 0,
+    overflowPixels: 0,
   });
 
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -82,15 +85,24 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
     const element = wrapperRef.current;
     if (!element) return;
 
+    let rafId: number | null = null;
     const handleResize = () => {
-      setWrapperWidth(element.clientWidth);
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        if (!element) return;
+        const newWidth = element.clientWidth;
+        setWrapperWidth((prev) => (Math.abs(prev - newWidth) > 1 ? newWidth : prev));
+      });
     };
 
     handleResize();
     const observer = new ResizeObserver(handleResize);
     observer.observe(element);
 
-    return () => observer.disconnect();
+    return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      observer.disconnect();
+    };
   }, []);
 
   const calculatedZoom = useMemo(() => {
@@ -106,19 +118,36 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
     const element = ref && 'current' in ref ? ref.current : null;
     if (!element) return;
 
+    let rafId: number | null = null;
     const measure = () => {
-      const width = element.clientWidth;
-      const height = element.clientHeight;
-      if (!width || !height) return;
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        if (!element) return;
+        const width = element.clientWidth;
+        const height = element.clientHeight;
+        if (!width || !height) return;
 
-      setUnscaledHeight(height);
+        setUnscaledHeight(height);
 
-      const pHeight = width * 1.4142857; 
-      const limitHeight = targetPageLimit * pHeight;
-      const isOver = height > limitHeight + 8;
-      const overflowPercent = Math.round((height / limitHeight) * 100);
+        // Standard A4 aspect ratio height: 297mm / 210mm = 1.4142857
+        const pHeight = (width / 210) * 297;
+        
+        // Calculate actual rendered page count with a 24px (~6.3mm) buffer
+        // to avoid subpixel rounding errors on min-h-[297mm] falsely reporting 2 pages.
+        const tolerance = 24;
+        const actualPages = Math.max(1, Math.floor((height - tolerance) / pHeight) + 1);
+        setMeasuredPageCount(actualPages);
 
-      setMetrics({ isOver, overflowPercent });
+        const limitHeight = targetPageLimit * pHeight;
+        const isOver = height > limitHeight + tolerance;
+        const overflowPixels = Math.max(0, Math.round(height - limitHeight));
+        const overflowPercent = Math.min(
+          150,
+          Math.max(10, Math.round((height / limitHeight) * 100))
+        );
+
+        setMetrics({ isOver, overflowPercent, overflowPixels });
+      });
     };
 
     measure();
@@ -126,22 +155,11 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
     observer.observe(element);
     const timer = setTimeout(measure, 300);
     return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
       observer.disconnect();
       clearTimeout(timer);
     };
-  }, [markdown, settings, ref, targetPageLimit]);
-
-  useEffect(() => {
-    const element = ref && 'current' in ref ? ref.current : null;
-    if (!element) return;
-    const width = element.clientWidth;
-    const height = element.clientHeight;
-    if (width && height) {
-      const pHeight = width * 1.4142857;
-      const pages = Math.ceil(height / pHeight);
-      if (pages === 2 || pages === 3) setTargetPageLimit(pages as 1 | 2 | 3);
-    }
-  }, [markdown]);
+  }, [markdown, settings, ref, targetPageLimit, setMeasuredPageCount]);
 
   useEffect(() => {
     if (!isAutoFitting || !onChangeSettings) return;
@@ -258,6 +276,7 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
           .resume-content p { margin-bottom: calc(0.5rem * ${settings.blockGap ?? 1.0}) !important; line-height: ${settings.lineHeight ?? 1.6} !important; letter-spacing: ${settings.letterSpacing ?? 0}em !important; }
           .resume-content li { margin-bottom: calc(0.25rem * ${settings.blockGap ?? 1.0}) !important; line-height: ${settings.lineHeight ?? 1.6} !important; letter-spacing: ${settings.letterSpacing ?? 0}em !important; }
           .resume-content h3 { margin-top: calc(1rem * ${settings.blockGap ?? 1.0}) !important; margin-bottom: calc(0.25rem * ${settings.blockGap ?? 1.0}) !important; letter-spacing: ${settings.letterSpacing ?? 0}em !important; }
+          .resume-content h4 { margin-top: calc(0.75rem * ${settings.blockGap ?? 1.0}) !important; margin-bottom: calc(0.2rem * ${settings.blockGap ?? 1.0}) !important; letter-spacing: ${settings.letterSpacing ?? 0}em !important; }
           .resume-content h2 { margin-top: calc(1.5rem * ${settings.blockGap ?? 1.0}) !important; margin-bottom: calc(0.75rem * ${settings.blockGap ?? 1.0}) !important; letter-spacing: ${settings.letterSpacing ?? 0}em !important; }
           .resume-content ul { margin-bottom: calc(0.75rem * ${settings.blockGap ?? 1.0}) !important; }
           .resume-content .flex-row.items-baseline { margin-top: calc(1.25rem * ${settings.blockGap ?? 1.0}) !important; margin-bottom: calc(0.375rem * ${settings.blockGap ?? 1.0}) !important; }
@@ -395,20 +414,20 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
               <ZoomOut className="w-3.5 h-3.5" />
             </button>
             
-            <input 
-              type="range"
-              min="0.5"
-              max="1.5"
-              step="0.05"
-              value={calculatedZoom}
-              onChange={(e) => {
-                const val = parseFloat(e.target.value);
-                setZoomMode(val);
-                localStorage.setItem('resume_preview_zoom', String(val));
-              }}
-              className="w-16 sm:w-20 md:w-24 h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600 focus:outline-none"
-              title={t.zoomSlider}
-            />
+            <div className="w-16 sm:w-20 md:w-24">
+              <CustomSlider
+                min={0.5}
+                max={1.5}
+                step={0.05}
+                value={calculatedZoom}
+                onChange={(val) => {
+                  setZoomMode(val);
+                  localStorage.setItem('resume_preview_zoom', String(val));
+                }}
+                colorTheme="blue"
+                size="sm"
+              />
+            </div>
             
             <button 
               onClick={() => {
@@ -524,7 +543,7 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
         <div 
           ref={wrapperRef}
           id="resume-preview-wrapper" 
-          className="flex-1 overflow-y-auto p-4 sm:p-8 bg-gray-100/50 w-full flex justify-center items-start relative scrollbar-thin"
+          className="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-100/60 w-full flex justify-center items-start relative scrollbar-thin"
         >
           <div 
             style={{
@@ -547,10 +566,10 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
                 left: '50%',
                 transform: `translateX(-50%) scale(${calculatedZoom})`,
               }}
-              className={`bg-white shadow-[0_1px_3px_rgba(15,23,42,0.015),0_8px_24px_rgba(15,23,42,0.03),0_20px_48px_rgba(15,23,42,0.05)] resume-content w-full max-w-[210mm] min-h-[297mm] h-fit mx-auto print:shadow-none print:ring-0 print:m-0 print:w-full relative origin-top transition-all duration-200 print:relative print:left-auto print:top-auto print:transform-none print:max-w-full print:w-full ${fontClass} ${marginClasses} ${
+              className={`bg-white resume-content w-full max-w-[210mm] min-h-[297mm] h-fit mx-auto print:shadow-none print:ring-0 print:m-0 print:w-full relative origin-top transition-all duration-200 print:relative print:left-auto print:top-auto print:transform-none print:max-w-full print:w-full ${fontClass} ${marginClasses} ${
                 metrics.isOver 
-                  ? 'ring-4 ring-rose-500/80 shadow-[0_0_25px_rgba(244,63,94,0.3)]' 
-                  : 'ring-1 ring-slate-100/60 shadow-[0_2px_4px_rgba(15,23,42,0.01),0_16px_32px_rgba(15,23,42,0.035),0_28px_64px_rgba(15,23,42,0.045)]'
+                  ? 'ring-4 ring-rose-500/80 shadow-[0_0_30px_rgba(244,63,94,0.35)]' 
+                  : 'shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02),0_12px_28px_-4px_rgba(15,23,42,0.06),0_24px_60px_-12px_rgba(15,23,42,0.08),0_0_0_1px_rgba(15,23,42,0.04)] ring-1 ring-black/5'
               }`}
             >
               {resumeInnerContent}
@@ -564,7 +583,7 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
         initial={{ opacity: 0, y: 15, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.35, ease: 'easeOut' }}
-        className="absolute bottom-5 left-5 z-40 print:hidden hidden sm:flex items-center gap-2 bg-white/90 backdrop-blur-md border border-slate-200/80 shadow-lg rounded-xl p-1.5 transition-all duration-300 hover:shadow-xl hover:bg-white/95 group"
+        className="absolute bottom-5 left-5 z-40 print:hidden hidden sm:flex items-center gap-2.5 bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-[0_12px_32px_rgba(15,23,42,0.12),0_2px_6px_rgba(15,23,42,0.04)] rounded-2xl p-2 transition-all duration-300 hover:shadow-[0_16px_40px_rgba(15,23,42,0.16)] group"
       >
         <div className="flex items-center gap-1">
           <button 
@@ -580,23 +599,18 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
             <ZoomOut className="w-4 h-4" />
           </button>
           
-          <div className="flex items-center gap-2 px-1">
-            <input 
-              type="range"
-              min="0.5"
-              max="1.5"
-              step="0.05"
+          <div className="flex items-center gap-2 px-1 w-24 md:w-32">
+            <CustomSlider
+              min={0.5}
+              max={1.5}
+              step={0.05}
               value={calculatedZoom}
-              onChange={(e) => {
-                const val = parseFloat(e.target.value);
+              onChange={(val) => {
                 setZoomMode(val);
                 localStorage.setItem('resume_preview_zoom', String(val));
               }}
-              className="w-24 md:w-32 h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus:outline-none transition-all duration-200"
-              style={{
-                background: `linear-gradient(to right, rgb(79, 70, 229) 0%, rgb(79, 70, 229) ${((calculatedZoom - 0.5) / 1.0) * 100}%, rgb(226, 232, 240) ${((calculatedZoom - 0.5) / 1.0) * 100}%, rgb(226, 232, 240) 100%)`
-              }}
-              title={t.zoomSlider}
+              colorTheme="indigo"
+              size="sm"
             />
           </div>
 

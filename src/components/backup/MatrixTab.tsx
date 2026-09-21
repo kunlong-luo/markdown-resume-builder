@@ -5,6 +5,7 @@ import {
 import { ResumeSettings, ResumeDraft } from '../../types';
 import { generateShareUrl, ShareState } from '../../lib/share-utils';
 import { splitMarkdownIntoSections } from '../../lib/markdown-utils';
+import { CustomSelect } from '../ui/CustomSelect';
 
 interface MatrixTabProps {
   currentMarkdown: string;
@@ -302,16 +303,15 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
               {isEn ? 'Compare section structures & modified texts with other versions side-by-side' : '可视化比对当前简历与其它版本的正文及排版差异。'}
             </p>
             <div className="flex gap-2">
-              <select
+              <CustomSelect
                 value={compareWithId}
-                onChange={(e) => setCompareWithId(e.target.value)}
-                className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 shadow-sm"
-              >
-                <option value="">-- {isEn ? 'Select version to compare' : '选择一个对比版本'} --</option>
-                {matrixVersions.map(v => (
-                  <option key={v.id} value={v.id}>{v.title}</option>
-                ))}
-              </select>
+                onChange={(val) => setCompareWithId(val)}
+                options={matrixVersions.map(v => ({ value: v.id, label: v.title }))}
+                placeholder={isEn ? '-- Select version to compare --' : '-- 选择一个对比版本 --'}
+                size="sm"
+                className="flex-1"
+                triggerClassName="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs shadow-sm"
+              />
               {compareWithId && (
                 <button
                   onClick={() => setShowCompareModal(true)}

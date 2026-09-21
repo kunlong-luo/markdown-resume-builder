@@ -3,6 +3,7 @@ import { School, Calendar, BookOpen, Plus, Trash2, ChevronDown, ChevronUp, Award
 import { FormSection, FormItem } from '../../lib/form-types';
 import { FormTextareaToolbar } from './FormTextareaToolbar';
 import { MonthRangePicker } from './MonthRangePicker';
+import { CustomSelect } from '../ui/CustomSelect';
 
 interface EduSectionEditorProps {
   section: FormSection;
@@ -25,9 +26,6 @@ interface EduSectionEditorProps {
 const TRANSLATIONS = {
   zh: {
     subtitle: '院校名称、学历专业与就读表现',
-    typeText: '单段文本',
-    typeItems: '多项经历',
-    typeTooltip: '点击切换该模块布局模式 (单段文本/多项经历)',
     schoolLabel: '院校名称',
     schoolPlaceholder: '如：清华大学',
     degreeLabel: '学历',
@@ -63,9 +61,6 @@ const TRANSLATIONS = {
   },
   en: {
     subtitle: 'Institution name, degree, major, and performance',
-    typeText: 'Text Block',
-    typeItems: 'Multiple Items',
-    typeTooltip: 'Click to toggle section layout (Text Block / Multiple Items)',
     schoolLabel: 'Institution Name',
     schoolPlaceholder: 'e.g. Harvard University',
     degreeLabel: 'Degree',
@@ -277,7 +272,7 @@ export function EduSectionEditor({
                     <div className="flex-[1.5] min-w-0 space-y-1.5">
                       <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.schoolLabel}</label>
                       <div className="relative">
-                        <span className="absolute left-3 top-2.5 text-slate-400"><School className="w-3.5 h-3.5" /></span>
+                        <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none"><School className="w-3.5 h-3.5" /></span>
                         <input 
                           type="text" 
                           value={item.org || ''}
@@ -300,7 +295,7 @@ export function EduSectionEditor({
                         </button>
                       </div>
                       <div className="relative">
-                        <span className="absolute left-3 top-2.5 text-slate-400"><GraduationCap className="w-3.5 h-3.5" /></span>
+                        <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none z-10"><GraduationCap className="w-3.5 h-3.5" /></span>
                         {customDegrees[item.id] ? (
                           <input 
                             type="text" 
@@ -310,27 +305,25 @@ export function EduSectionEditor({
                             placeholder={t.degreePlaceholder}
                           />
                         ) : (
-                          <div className="relative">
-                            <select
-                              value={item.degree || ''}
-                              onChange={(e) => {
-                                  if (e.target.value === '__custom__') {
-                                    toggleCustomDegree(item.id);
-                                  } else {
-                                    onItemChange(item.id, 'degree', e.target.value);
-                                  }
-                              }}
-                              className="w-full pl-9 pr-8 py-2 text-sm tactile-input appearance-none cursor-pointer"
-                            >
-                              {t.degreeOptions.map(opt => (
-                                <option key={opt.value} value={opt.value}>{opt.label}</option>
-                              ))}
-                              <option value="__custom__">{t.customOption}</option>
-                            </select>
-                            <span className="absolute right-3 top-3 pointer-events-none text-slate-400">
-                              <ChevronDown className="w-3.5 h-3.5" />
-                            </span>
-                          </div>
+                          <CustomSelect
+                            value={item.degree || ''}
+                            onChange={(val) => {
+                              if (val === '__custom__') {
+                                toggleCustomDegree(item.id);
+                              } else {
+                                onItemChange(item.id, 'degree', val);
+                              }
+                            }}
+                            options={[
+                              ...(item.degree && !t.degreeOptions.some(opt => opt.value === item.degree) ? [{ value: item.degree, label: item.degree }] : []),
+                              ...t.degreeOptions,
+                              { value: '__custom__', label: t.customOption }
+                            ]}
+                            size="md"
+                            className="w-full"
+                            triggerClassName="w-full pl-9 pr-3 py-2 text-sm tactile-input font-normal bg-white"
+                            placeholder={t.degreePlaceholder}
+                          />
                         )}
                       </div>
                     </div>
@@ -338,7 +331,7 @@ export function EduSectionEditor({
                     <div className="flex-[1.2] min-w-0 space-y-1.5">
                       <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.majorLabel}</label>
                       <div className="relative">
-                        <span className="absolute left-3 top-2.5 text-slate-400"><BookOpen className="w-3.5 h-3.5" /></span>
+                        <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none"><BookOpen className="w-3.5 h-3.5" /></span>
                         <input 
                           type="text" 
                           value={item.role || ''}
@@ -367,7 +360,7 @@ export function EduSectionEditor({
                     <div className="space-y-1.5">
                       <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.gpaLabel}</label>
                       <div className="relative">
-                        <span className="absolute left-3 top-2.5 text-slate-400"><Award className="w-3.5 h-3.5" /></span>
+                        <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none"><Award className="w-3.5 h-3.5" /></span>
                         <input 
                           type="text" 
                           value={item.gpa || ''}
@@ -381,7 +374,7 @@ export function EduSectionEditor({
                     <div className="space-y-1.5">
                       <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.coursesLabel}</label>
                       <div className="relative">
-                        <span className="absolute left-3 top-2.5 text-slate-400"><Book className="w-3.5 h-3.5" /></span>
+                        <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none"><Book className="w-3.5 h-3.5" /></span>
                         <input 
                           type="text" 
                           value={item.courses || ''}
@@ -395,7 +388,7 @@ export function EduSectionEditor({
                     <div className="space-y-1.5">
                       <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.honorsLabel}</label>
                       <div className="relative">
-                        <span className="absolute left-3 top-2.5 text-slate-400"><Award className="w-3.5 h-3.5" /></span>
+                        <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none"><Award className="w-3.5 h-3.5" /></span>
                         <input 
                           type="text" 
                           value={item.honors || ''}

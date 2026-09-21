@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Calendar, Check, X, RotateCcw } from 'lucide-react';
+import { CustomSelect } from '../ui/CustomSelect';
+import { CustomCheckbox } from '../ui/CustomCheckbox';
 
 interface MonthRangePickerProps {
   value: string;
@@ -101,6 +103,10 @@ export function MonthRangePicker({
   // Handle click outside to close the picker
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
+      const target = event.target as HTMLElement | null;
+      if (target && target.closest('[data-custom-select-portal="true"]')) {
+        return;
+      }
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
@@ -198,15 +204,15 @@ export function MonthRangePicker({
                 <span className="text-[10px] font-extrabold text-indigo-600 uppercase tracking-wider bg-indigo-50 px-2 py-0.5 rounded">
                   {isEn ? 'Start' : '起始时间'}
                 </span>
-                <select
+                <CustomSelect
                   value={startYear}
-                  onChange={(e) => setStartYear(e.target.value)}
-                  className="text-xs font-bold bg-slate-50 border border-slate-200 rounded-md px-1.5 py-0.5 text-slate-700 outline-none cursor-pointer hover:bg-slate-100 transition-colors"
-                >
-                  {years.map(y => (
-                    <option key={y} value={y}>{y}</option>
-                  ))}
-                </select>
+                  onChange={(val) => setStartYear(val)}
+                  options={years.map(y => ({ value: y, label: y }))}
+                  size="xs"
+                  align="right"
+                  maxMenuHeight="max-h-44"
+                  triggerClassName="font-bold bg-slate-50 border-slate-200 rounded-md px-2 py-0.5 text-slate-700"
+                />
               </div>
 
               {/* Month Grid */}
@@ -238,29 +244,27 @@ export function MonthRangePicker({
                   <span className="text-[10px] font-extrabold text-indigo-600 uppercase tracking-wider bg-indigo-50 px-2 py-0.5 rounded">
                     {isEn ? 'End' : '结束时间'}
                   </span>
-                  <label className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 cursor-pointer select-none" title={isEn ? "Automatically use current year and month" : "自动使用当年当月的日期"}>
-                    <input
-                      type="checkbox"
-                      checked={isOngoing}
-                      onChange={(e) => setIsOngoing(e.target.checked)}
-                      className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-3 h-3 cursor-pointer"
-                    />
-                    <span>{isEn ? 'Present' : '至今'}</span>
-                  </label>
+                  <CustomCheckbox
+                    checked={isOngoing}
+                    onChange={(checked) => setIsOngoing(checked)}
+                    label={<span className="text-[11px] font-bold text-slate-500">{isEn ? 'Present' : '至今'}</span>}
+                    size="sm"
+                    colorTheme="indigo"
+                  />
                 </div>
                 
-                <select
+                <CustomSelect
                   disabled={isOngoing}
                   value={endYear}
-                  onChange={(e) => setEndYear(e.target.value)}
-                  className={`text-xs font-bold bg-slate-50 border border-slate-200 rounded-md px-1.5 py-0.5 text-slate-700 outline-none cursor-pointer hover:bg-slate-100 transition-colors ${
+                  onChange={(val) => setEndYear(val)}
+                  options={years.map(y => ({ value: y, label: y }))}
+                  size="xs"
+                  align="right"
+                  maxMenuHeight="max-h-44"
+                  triggerClassName={`font-bold bg-slate-50 border-slate-200 rounded-md px-2 py-0.5 text-slate-700 ${
                     isOngoing ? 'opacity-40 cursor-not-allowed text-slate-400 bg-slate-100' : ''
                   }`}
-                >
-                  {years.map(y => (
-                    <option key={y} value={y}>{y}</option>
-                  ))}
-                </select>
+                />
               </div>
 
               {/* Month Grid */}

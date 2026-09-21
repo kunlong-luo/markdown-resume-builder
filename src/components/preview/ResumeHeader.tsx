@@ -27,8 +27,8 @@ export function ResumeHeader({ headerInfo, theme }: ResumeHeaderProps) {
             {headerInfo.name}
           </h1>
           
-          {/* Titles badges */}
-          {headerInfo.titles.length > 0 && (
+          {/* Titles & experience badges */}
+          {(headerInfo.titles.length > 0 || headerInfo.experience) && (
             <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
               {headerInfo.titles.map((title, idx) => (
                 <span 
@@ -38,11 +38,14 @@ export function ResumeHeader({ headerInfo, theme }: ResumeHeaderProps) {
                   {title}
                 </span>
               ))}
-              {headerInfo.experience && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-gray-100 text-gray-600 border border-gray-200/50">
-                  {headerInfo.experience}
+              {headerInfo.experience && headerInfo.experience.split(/[·|｜\s{2,}]/).map(s => s.trim()).filter(Boolean).map((expItem, idx) => (
+                <span 
+                  key={`exp-${idx}`} 
+                  className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-gray-100/80 text-gray-600 border border-gray-200/50"
+                >
+                  {expItem}
                 </span>
-              )}
+              ))}
             </div>
           )}
         </div>
@@ -57,8 +60,15 @@ export function ResumeHeader({ headerInfo, theme }: ResumeHeaderProps) {
               const isGithub = contactLower.includes('github');
               const isLinkedin = contactLower.includes('linkedin') || contactLower.includes('领英');
               const isWechat = contactLower.includes('wechat') || contactLower.includes('微信') || contactLower.includes('wx');
-              const isPhone = /^\d{11}/.test(contact) || contact.includes('1') && contact.length >= 11;
-              const isUrl = contactLower.includes('http') || contactLower.includes('.com') || contactLower.includes('.org') || contactLower.includes('.net');
+              const digitsOnly = contact.replace(/[^\d]/g, '');
+              const isPhone = !isEmail && (
+                /电话|手机|tel|phone|mobile/i.test(contact) ||
+                /(?:\+?86[\s-]?)?1[3-9](?:[\s-]?\d){9}/.test(contact) ||
+                /\d{3,4}[\s-]?\d{7,8}/.test(contact) ||
+                /^\+?[\d\s\-\(\)]{7,20}$/.test(contact.trim()) ||
+                (digitsOnly.length >= 7 && digitsOnly.length <= 15)
+              );
+              const isUrl = !isEmail && !isPhone && (contactLower.includes('http') || contactLower.includes('github.com') || contactLower.includes('gitee.com') || contactLower.includes('.com') || contactLower.includes('.org') || contactLower.includes('.net') || contactLower.includes('.io'));
               
               if (isEmail) {
                 icon = <Mail className={`w-3.5 h-3.5 ${theme.iconColor}`} />;
@@ -76,10 +86,32 @@ export function ResumeHeader({ headerInfo, theme }: ResumeHeaderProps) {
                 icon = <div className={`w-1.5 h-1.5 rounded-full ${theme.iconColor}`} />;
               }
               
+              let href = '';
+              if (isEmail) {
+                const cleanEmail = contact.replace(/^(?:邮箱|email|mail)[:：\s]*/i, '').trim();
+                href = `mailto:${cleanEmail}`;
+              } else if (isPhone) {
+                href = `tel:${contact.trim().replace(/[^\d+]/g, '')}`;
+              } else if (isUrl) {
+                const urlClean = contact.replace(/^(?:GitHub|Gitee|Blog|博客|主页)[:：\s]*/i, '').trim();
+                href = urlClean.startsWith('http') ? urlClean : `https://${urlClean}`;
+              }
+
               return (
                 <div key={idx} className="flex items-center gap-1.5 hover:text-gray-950 transition-colors">
                   {icon}
-                  <span>{contact}</span>
+                  {href ? (
+                    <a 
+                      href={href} 
+                      target={isEmail || isPhone ? undefined : "_blank"} 
+                      rel={isEmail || isPhone ? undefined : "noopener noreferrer"}
+                      className="hover:underline underline-offset-2"
+                    >
+                      {contact}
+                    </a>
+                  ) : (
+                    <span>{contact}</span>
+                  )}
                 </div>
               );
             })}

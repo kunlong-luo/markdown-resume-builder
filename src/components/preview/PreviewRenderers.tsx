@@ -54,10 +54,10 @@ function renderStructuralRow(
     mainText = mainText.replace(/^[\*\s\(\)]+/, '').trim();
   }
 
-  const hasDivider = DIVIDER_REGEX.test(mainText) || datePart !== '';
-  const isShortLine = textContent.length < 150;
+  const hasExplicitDivider = /[|｜\u3000]|\s*[·•]\s*|\s+[/／]\s+/.test(mainText);
+  const isShortLine = textContent.length < 90;
 
-  if (hasDivider && isShortLine && (datePart || DIVIDER_REGEX.test(mainText))) {
+  if (isShortLine && (hasExplicitDivider || datePart !== '') && (datePart || (hasExplicitDivider && textContent.length < 50))) {
     // Split segments
     const segments = mainText.split(SPLIT_REGEX).map(s => s.trim()).filter(Boolean);
 
@@ -158,6 +158,11 @@ export function createMarkdownComponents({
         <h3 className={sizeClasses.h3} {...props}>{children}</h3>
       ));
     },
+    h4: ({ node, children, ...props }: any) => {
+      return renderStructuralRow(children, sizeClasses, theme, () => (
+        <h4 className="text-[13px] font-bold text-gray-800 mt-2 mb-1" {...props}>{children}</h4>
+      ));
+    },
     p: ({ node, children, ...props }: any) => {
       return renderStructuralRow(children, sizeClasses, theme, () => (
         <p className={sizeClasses.p} {...props}>{children}</p>
@@ -165,11 +170,7 @@ export function createMarkdownComponents({
     },
     ul: ({ node, ...props }: any) => <ul className={sizeClasses.ul} {...props} />,
     ol: ({ node, ...props }: any) => <ol className={sizeClasses.ol} {...props} />,
-    li: ({ node, children, ...props }: any) => {
-      return renderStructuralRow(children, sizeClasses, theme, () => (
-        <li className={sizeClasses.li} {...props}>{children}</li>
-      ));
-    },
+    li: ({ node, ...props }: any) => <li className={sizeClasses.li} {...props} />,
     strong: ({ node, ...props }: any) => <strong className="font-bold text-gray-900" {...props} />,
     em: ({ node, ...props }: any) => <em className="italic text-gray-500 font-normal" {...props} />,
     hr: ({ node, ...props }: any) => <hr className={sizeClasses.hr} {...props} />,

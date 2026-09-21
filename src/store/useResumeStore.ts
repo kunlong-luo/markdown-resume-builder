@@ -17,6 +17,7 @@ interface ResumeState {
   isExportingPDF: boolean;
   atsKeywords: string[];
   jdText: string;
+  measuredPageCount: number;
 
   // Actions
   setMarkdown: (markdown: string) => void;
@@ -30,6 +31,7 @@ interface ResumeState {
   setIsExportingPDF: (isExporting: boolean) => void;
   setAtsKeywords: (keywords: string[]) => void;
   setJdText: (text: string) => void;
+  setMeasuredPageCount: (count: number) => void;
   
   handleMarkdownChange: (newVal: string, immediate?: boolean) => void;
   handleUndo: () => void;
@@ -140,6 +142,7 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
   isExportingPDF: false,
   atsKeywords: [],
   jdText: '',
+  measuredPageCount: 1,
 
   // Simple setters
   setMarkdown: (markdown) => set({ markdown }),
@@ -156,6 +159,7 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
   setIsExportingPDF: (isExportingPDF) => set({ isExportingPDF }),
   setAtsKeywords: (atsKeywords) => set({ atsKeywords }),
   setJdText: (jdText) => set({ jdText }),
+  setMeasuredPageCount: (measuredPageCount) => set({ measuredPageCount }),
 
   // Complex operations
   handleMarkdownChange: (newVal, immediate = false) => {
