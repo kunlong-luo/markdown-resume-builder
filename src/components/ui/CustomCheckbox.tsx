@@ -1,5 +1,6 @@
 import React from 'react';
 import { Check, Minus } from 'lucide-react';
+import { THEME_TOKENS } from '../../lib/theme-tokens';
 
 export interface CustomCheckboxProps {
   id?: string;
@@ -13,29 +14,6 @@ export interface CustomCheckboxProps {
   className?: string;
   colorTheme?: 'indigo' | 'blue' | 'emerald' | 'rose' | 'slate';
 }
-
-const COLOR_MAP = {
-  indigo: {
-    checked: 'bg-indigo-600 border-indigo-600 text-white shadow-indigo-200/50',
-    ring: 'focus-visible:ring-indigo-500/30',
-  },
-  blue: {
-    checked: 'bg-blue-600 border-blue-600 text-white shadow-blue-200/50',
-    ring: 'focus-visible:ring-blue-500/30',
-  },
-  emerald: {
-    checked: 'bg-emerald-600 border-emerald-600 text-white shadow-emerald-200/50',
-    ring: 'focus-visible:ring-emerald-500/30',
-  },
-  rose: {
-    checked: 'bg-rose-600 border-rose-600 text-white shadow-rose-200/50',
-    ring: 'focus-visible:ring-rose-500/30',
-  },
-  slate: {
-    checked: 'bg-slate-800 border-slate-800 text-white shadow-slate-200/50',
-    ring: 'focus-visible:ring-slate-500/30',
-  },
-};
 
 const SIZE_MAP = {
   sm: {
@@ -67,7 +45,7 @@ export const CustomCheckbox: React.FC<CustomCheckboxProps> = ({
   className = '',
   colorTheme = 'indigo',
 }) => {
-  const styles = COLOR_MAP[colorTheme];
+  const accent = THEME_TOKENS.themeAccents[colorTheme] || THEME_TOKENS.themeAccents.indigo;
   const sizeStyles = SIZE_MAP[size];
 
   const handleClick = (e: React.MouseEvent) => {
@@ -109,10 +87,10 @@ export const CustomCheckbox: React.FC<CustomCheckboxProps> = ({
           ${sizeStyles.box}
           ${
             checked || indeterminate
-              ? styles.checked
-              : 'bg-white border-slate-300 group-hover:border-slate-400 group-hover:bg-slate-50/50'
+              ? accent.checked
+              : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 group-hover:border-slate-400 dark:group-hover:border-slate-500 group-hover:bg-slate-50/50 dark:group-hover:bg-slate-750'
           }
-          focus-visible:ring-2 ${styles.ring}
+          focus-visible:ring-2 ${accent.ring}
         `}
       >
         {indeterminate ? (
@@ -126,13 +104,13 @@ export const CustomCheckbox: React.FC<CustomCheckboxProps> = ({
         <div className="flex flex-col select-none">
           {label && (
             <span
-              className={`font-medium text-slate-700 leading-tight group-hover:text-slate-900 transition-colors ${sizeStyles.text}`}
+              className={`font-medium text-slate-700 dark:text-slate-200 leading-tight group-hover:text-slate-900 dark:group-hover:text-white transition-colors ${sizeStyles.text}`}
             >
               {label}
             </span>
           )}
           {description && (
-            <span className="text-xs text-slate-400 mt-0.5 leading-normal">
+            <span className="text-xs text-slate-400 dark:text-slate-500 mt-0.5 leading-normal">
               {description}
             </span>
           )}

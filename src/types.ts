@@ -6,10 +6,12 @@ export type LayoutMode = 'split' | 'editor' | 'preview';
 export type H2Style = 'accent-line' | 'modern-badge' | 'minimal-clean';
 export type TemplateLayout = 'single' | 'two-column';
 export type Language = 'zh' | 'en';
+export type ThemeMode = 'light' | 'dark' | 'system';
 
 export interface ResumeSettings {
   themeColor: ThemeColor;
   customColor?: string;
+  themeMode?: ThemeMode;
   fontSize: FontSize;
   fontFamily: FontFamily;
   margin: PaperMargin;

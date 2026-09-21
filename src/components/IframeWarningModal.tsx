@@ -37,22 +37,22 @@ export function IframeWarningModal() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.94, y: 15 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="relative bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-10 flex flex-col"
+            className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden z-10 flex flex-col transition-colors"
           >
             {/* Accent colored top bar */}
             <div className="h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
 
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-              <div className="flex items-center gap-2 text-blue-600">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
                 <AlertCircle className="w-5 h-5 text-amber-500 animate-bounce" />
-                <h3 className="font-bold text-slate-800 text-base">
+                <h3 className="font-bold text-slate-800 dark:text-slate-100 text-base">
                   {isEn ? 'PDF Export Security Advisory' : 'PDF 导出说明'}
                 </h3>
               </div>
               <button
                 onClick={onClose}
-                className="p-1 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -60,7 +60,7 @@ export function IframeWarningModal() {
 
             {/* Body */}
             <div className="p-6 space-y-4">
-              <div className="bg-amber-50/50 border border-amber-100 rounded-xl p-4 text-xs text-amber-800 leading-relaxed space-y-1">
+              <div className="bg-amber-50/50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900/40 rounded-xl p-4 text-xs text-amber-800 dark:text-amber-200 leading-relaxed space-y-1">
                 <p className="font-bold flex items-center gap-1">
                   ⚠️ {isEn ? 'Why cannot download directly?' : '为什么无法直接下载？'}
                 </p>
@@ -78,40 +78,40 @@ export function IframeWarningModal() {
               </div>
 
               <div className="space-y-3">
-                <p className="text-xs font-bold text-slate-700">
+                <p className="text-xs font-bold text-slate-700 dark:text-slate-200">
                   {isEn ? '💡 Simple Solution (Only 2 steps):' : '💡 解决方法：'}
                 </p>
                 
-                <div className="space-y-2 text-xs text-slate-600">
+                <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
                   <div className="flex items-start gap-2.5">
-                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-50 text-blue-600 font-bold text-[10px] shrink-0 mt-0.5">
+                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-50 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 font-bold text-[10px] shrink-0 mt-0.5">
                       1
                     </span>
                     <p className="leading-relaxed">
                       {isEn ? (
                         <>
-                          Click the <strong className="text-blue-600">"Open in New Tab"</strong> button below, or click the <strong>"Open in New Window ↗"</strong> icon in the top right corner of the preview area.
+                          Click the <strong className="text-blue-600 dark:text-blue-400">"Open in New Tab"</strong> button below, or click the <strong>"Open in New Window ↗"</strong> icon in the top right corner of the preview area.
                         </>
                       ) : (
                         <>
-                          点击下方 <strong className="text-blue-600">“在新标签页中打开”</strong> 按钮，或者点击 AI Studio 预览区右上角的 <strong>“新窗口打开 ↗”</strong> 按钮。
+                          点击下方 <strong className="text-blue-600 dark:text-blue-400">“在新标签页中打开”</strong> 按钮，或者点击 AI Studio 预览区右上角的 <strong>“新窗口打开 ↗”</strong> 按钮。
                         </>
                       )}
                     </p>
                   </div>
 
                   <div className="flex items-start gap-2.5">
-                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-50 text-blue-600 font-bold text-[10px] shrink-0 mt-0.5">
+                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-50 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 font-bold text-[10px] shrink-0 mt-0.5">
                       2
                     </span>
                     <p className="leading-relaxed">
                       {isEn ? (
                         <>
-                          On the newly opened standalone page, click the <strong className="text-slate-800">"Export PDF"</strong> button. Select <strong>"Save as PDF"</strong> in the browser print panel.
+                          On the newly opened standalone page, click the <strong className="text-slate-800 dark:text-slate-100">"Export PDF"</strong> button. Select <strong>"Save as PDF"</strong> in the browser print panel.
                         </>
                       ) : (
                         <>
-                          在新页面中，点击 <strong className="text-slate-800">“Export PDF”</strong> 按钮，在浏览器打印预览面板中选择 <strong>「另存为 PDF」</strong> 即可保存。
+                          在新页面中，点击 <strong className="text-slate-800 dark:text-slate-100">“Export PDF”</strong> 按钮，在浏览器打印预览面板中选择 <strong>「另存为 PDF」</strong> 即可保存。
                         </>
                       )}
                     </p>
@@ -120,24 +120,24 @@ export function IframeWarningModal() {
               </div>
 
               {/* Graphic/Visual Aid */}
-              <div className="bg-slate-50 border border-slate-100 rounded-xl p-3.5 flex items-center justify-between text-[11px] text-slate-500">
+              <div className="bg-slate-50 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-750 rounded-xl p-3.5 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-3.5 h-3.5 text-blue-500 shrink-0" />
                   <span>
                     {isEn ? 'Supports pixel-perfect HD vector A4 PDF printing' : '支持无损 A4 纸张排版与打印'}
                   </span>
                 </div>
-                <span className="text-[10px] font-semibold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
+                <span className="text-[10px] font-semibold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded-full">
                   {isEn ? 'Watermark-free' : '无水印'}
                 </span>
               </div>
             </div>
 
             {/* Footer */}
-            <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-end gap-2">
+            <div className="px-6 py-4 bg-slate-50 dark:bg-slate-850 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-end gap-2">
               <button
                 onClick={onClose}
-                className="w-full sm:w-auto px-4 py-2 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition-all cursor-pointer text-center"
+                className="w-full sm:w-auto px-4 py-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-lg transition-all cursor-pointer text-center"
               >
                 {isEn ? 'Back to Editor' : '返回编辑'}
               </button>

@@ -132,9 +132,9 @@ export const CustomSlider: React.FC<CustomSliderProps> = ({
     <div id={id} className={`w-full select-none ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}>
       {(label || valueDisplay !== undefined) && (
         <div className="flex items-center justify-between mb-1 text-xs">
-          {label && <span className="font-semibold text-slate-600">{label}</span>}
+          {label && <span className="font-semibold text-slate-600 dark:text-slate-300">{label}</span>}
           {valueDisplay !== undefined && (
-            <span className="font-mono text-slate-500 font-bold">{formattedDisplay}</span>
+            <span className="font-mono text-slate-500 dark:text-slate-400 font-bold">{formattedDisplay}</span>
           )}
         </div>
       )}
@@ -148,7 +148,7 @@ export const CustomSlider: React.FC<CustomSliderProps> = ({
         `}
       >
         {/* Track Background */}
-        <div className={`w-full ${trackHeight} bg-slate-200/80 rounded-full overflow-hidden shadow-inner`}>
+        <div className={`w-full ${trackHeight} bg-slate-200/80 dark:bg-slate-700/80 rounded-full overflow-hidden shadow-inner`}>
           {/* Filled Portion */}
           <div
             className={`h-full ${theme.fill} transition-[width] duration-75`}
@@ -168,7 +168,7 @@ export const CustomSlider: React.FC<CustomSliderProps> = ({
           style={{ left: `${percentage}%` }}
           className={`
             absolute top-1/2 -translate-x-1/2 -translate-y-1/2
-            ${thumbSize} rounded-full bg-white border-2
+            ${thumbSize} rounded-full bg-white dark:bg-slate-900 border-2
             shadow-md transition-transform duration-100 ease-out outline-none
             focus-visible:ring-4
             ${theme.thumb}

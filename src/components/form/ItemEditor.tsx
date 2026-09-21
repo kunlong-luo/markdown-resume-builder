@@ -144,37 +144,37 @@ export function ItemEditor({
   const cat = dict.categories[catKey];
 
   return (
-    <div className="p-3 sm:p-4 border border-slate-200/60 rounded-xl bg-gradient-to-br from-white to-slate-50/60 relative space-y-2.5 sm:space-y-3 transition-all group/item shadow-[0_2px_6px_rgba(15,23,42,0.01),inset_0_1.5px_2px_rgba(255,255,255,0.95)] hover:border-slate-300 hover:shadow-[0_4px_12px_rgba(15,23,42,0.03),inset_0_1.5px_2px_rgba(255,255,255,0.95)]">
+    <div className="p-3 sm:p-4 border border-slate-200/60 dark:border-slate-800 rounded-xl bg-gradient-to-br from-white to-slate-50/60 dark:from-slate-850 dark:to-slate-900/90 relative space-y-2.5 sm:space-y-3 transition-all group/item shadow-[0_2px_6px_rgba(15,23,42,0.01),inset_0_1.5px_2px_rgba(255,255,255,0.95)] dark:shadow-none hover:border-slate-300 dark:hover:border-slate-700">
       <div className="flex items-center justify-end gap-1 sm:absolute sm:right-3 sm:top-3 sm:opacity-40 sm:group-hover/item:opacity-100 transition-opacity">
-        <button type="button" onClick={onInsertStarTemplate} className="p-1 hover:bg-amber-50 text-amber-600 rounded transition-colors cursor-pointer" title={cat.starTitle}>
+        <button type="button" onClick={onInsertStarTemplate} className="p-1 hover:bg-amber-50 dark:hover:bg-amber-950/50 text-amber-600 dark:text-amber-400 rounded transition-colors cursor-pointer" title={cat.starTitle}>
           <Sparkles className="w-3.5 h-3.5" />
         </button>
-        <button type="button" onClick={() => onMove('up')} disabled={index === 0} className={`p-1 rounded transition-colors ${index === 0 ? 'text-slate-200 cursor-not-allowed' : 'text-slate-500 hover:bg-white hover:text-slate-800 cursor-pointer'}`} title={dict.moveUp}>
+        <button type="button" onClick={() => onMove('up')} disabled={index === 0} className={`p-1 rounded transition-colors ${index === 0 ? 'text-slate-200 dark:text-slate-700 cursor-not-allowed' : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-750 hover:text-slate-800 dark:hover:text-slate-100 cursor-pointer'}`} title={dict.moveUp}>
           <ArrowUp className="w-3.5 h-3.5" />
         </button>
-        <button type="button" onClick={() => onMove('down')} disabled={index === totalItems - 1} className={`p-1 rounded transition-colors ${index === totalItems - 1 ? 'text-slate-200 cursor-not-allowed' : 'text-slate-500 hover:bg-white hover:text-slate-800 cursor-pointer'}`} title={dict.moveDown}>
+        <button type="button" onClick={() => onMove('down')} disabled={index === totalItems - 1} className={`p-1 rounded transition-colors ${index === totalItems - 1 ? 'text-slate-200 dark:text-slate-700 cursor-not-allowed' : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-750 hover:text-slate-800 dark:hover:text-slate-100 cursor-pointer'}`} title={dict.moveDown}>
           <ArrowDown className="w-3.5 h-3.5" />
         </button>
-        <button type="button" onClick={onDelete} className="p-1 hover:bg-red-50 text-red-500 hover:text-red-700 rounded transition-colors cursor-pointer" title={dict.deleteItem}>
+        <button type="button" onClick={onDelete} className="p-1 hover:bg-red-50 dark:hover:bg-rose-950/50 text-red-500 dark:text-rose-400 hover:text-red-700 dark:hover:text-rose-300 rounded transition-colors cursor-pointer" title={dict.deleteItem}>
           <Trash2 className="w-3.5 h-3.5" />
         </button>
       </div>
 
       <div className="flex flex-col md:flex-row gap-2.5 sm:gap-3 sm:pr-24">
         <div className="flex-1 min-w-0">
-          <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{cat.orgLabel}</label>
-          <input type="text" value={item.org || ''} onChange={(e) => onFieldChange('org', e.target.value)} className="w-full px-2.5 py-1.5 text-xs font-semibold text-slate-800 tactile-input" placeholder={cat.orgPlaceholder} />
+          <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-1">{cat.orgLabel}</label>
+          <input type="text" value={item.org || ''} onChange={(e) => onFieldChange('org', e.target.value)} className="w-full px-2.5 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-100 tactile-input" placeholder={cat.orgPlaceholder} />
         </div>
         <div className="flex-1 min-w-0">
-          <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{cat.roleLabel}</label>
-          <input type="text" value={item.role || ''} onChange={(e) => onFieldChange('role', e.target.value)} className="w-full px-2.5 py-1.5 text-xs font-semibold text-slate-800 tactile-input" placeholder={cat.rolePlaceholder} />
+          <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-1">{cat.roleLabel}</label>
+          <input type="text" value={item.role || ''} onChange={(e) => onFieldChange('role', e.target.value)} className="w-full px-2.5 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-100 tactile-input" placeholder={cat.rolePlaceholder} />
         </div>
         <div className="w-full md:w-[220px] shrink-0">
-          <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{dict.periodLabel}</label>
+          <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-1">{dict.periodLabel}</label>
           <MonthRangePicker
             value={item.time || ''}
             onChange={(val) => onFieldChange('time', val)}
-            className="px-2.5 py-1.5 text-xs font-semibold text-slate-800 tactile-input font-mono"
+            className="px-2.5 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-100 tactile-input font-mono"
             placeholder={cat.timePlaceholder}
             lang={lang}
           />
@@ -184,29 +184,29 @@ export function ItemEditor({
       {category === 'edu' && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div>
-            <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{dict.gpaLabel}</label>
-            <input type="text" value={item.gpa || ''} onChange={(e) => onFieldChange('gpa', e.target.value)} className="w-full px-2.5 py-1.5 text-xs font-semibold text-slate-800 tactile-input" placeholder={dict.gpaPlaceholder} />
+            <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-1">{dict.gpaLabel}</label>
+            <input type="text" value={item.gpa || ''} onChange={(e) => onFieldChange('gpa', e.target.value)} className="w-full px-2.5 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-100 tactile-input" placeholder={dict.gpaPlaceholder} />
           </div>
           <div>
-            <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{dict.coursesLabel}</label>
-            <input type="text" value={item.courses || ''} onChange={(e) => onFieldChange('courses', e.target.value)} className="w-full px-2.5 py-1.5 text-xs font-semibold text-slate-800 tactile-input" placeholder={dict.coursesPlaceholder} />
+            <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-1">{dict.coursesLabel}</label>
+            <input type="text" value={item.courses || ''} onChange={(e) => onFieldChange('courses', e.target.value)} className="w-full px-2.5 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-100 tactile-input" placeholder={dict.coursesPlaceholder} />
           </div>
           <div>
-            <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{dict.honorsLabel}</label>
-            <input type="text" value={item.honors || ''} onChange={(e) => onFieldChange('honors', e.target.value)} className="w-full px-2.5 py-1.5 text-xs font-semibold text-slate-800 tactile-input" placeholder={dict.honorsPlaceholder} />
+            <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-1">{dict.honorsLabel}</label>
+            <input type="text" value={item.honors || ''} onChange={(e) => onFieldChange('honors', e.target.value)} className="w-full px-2.5 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-100 tactile-input" placeholder={dict.honorsPlaceholder} />
           </div>
         </div>
       )}
 
       <div>
         <div className="mb-1">
-          <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+          <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest">
             {category === 'edu' ? dict.eduSuppLabel : cat.contentLabel}
           </label>
         </div>
         <div className="flex flex-col mt-1">
           <FormTextareaToolbar textareaId={item.id} value={item.content} onChange={onContentChange} lang={lang} />
-          <textarea id={item.id} value={item.content} onChange={(e) => onContentChange(e.target.value)} rows={category === 'edu' ? 3 : 5} className="w-full p-2.5 text-xs font-mono leading-relaxed bg-slate-50/10 border border-slate-200/80 rounded-b-lg rounded-t-none border-t-0 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 shadow-[inset_0_1.5px_3px_rgba(15,23,42,0.04)] focus:shadow-none transition-all duration-200" placeholder={category === 'edu' ? dict.eduSuppPlaceholder : cat.contentPlaceholder} />
+          <textarea id={item.id} value={item.content} onChange={(e) => onContentChange(e.target.value)} rows={category === 'edu' ? 3 : 5} className="w-full p-2.5 text-xs font-mono leading-relaxed bg-slate-50/10 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-750 rounded-b-lg rounded-t-none border-t-0 text-slate-800 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 shadow-[inset_0_1.5px_3px_rgba(15,23,42,0.04)] focus:shadow-none transition-all duration-200" placeholder={category === 'edu' ? dict.eduSuppPlaceholder : cat.contentPlaceholder} />
         </div>
       </div>
     </div>

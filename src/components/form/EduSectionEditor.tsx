@@ -143,20 +143,20 @@ export function EduSectionEditor({
       id={`form-sec-${section.id}`} 
       className={`rounded-xl overflow-hidden scroll-mt-20 transition-all duration-300 ${
         expanded 
-          ? 'tactile-card shadow-[0_16px_36px_rgba(30,41,59,0.06),0_3px_10px_rgba(30,41,59,0.03)] border-indigo-200/50 scale-[1.002] ring-1 ring-indigo-50/50 mb-5' 
-          : 'bg-slate-50/60 border border-slate-200/50 shadow-[0_2px_6px_rgba(30,41,59,0.015)] opacity-85 hover:opacity-100 scale-[0.995] hover:scale-100 mb-3'
+          ? 'tactile-card shadow-[0_16px_36px_rgba(30,41,59,0.06),0_3px_10px_rgba(30,41,59,0.03)] border-indigo-200/50 dark:border-slate-800 scale-[1.002] ring-1 ring-indigo-50/50 dark:ring-slate-800 mb-5' 
+          : 'bg-slate-50/60 dark:bg-slate-900/60 border border-slate-200/50 dark:border-slate-800 shadow-[0_2px_6px_rgba(30,41,59,0.015)] opacity-85 hover:opacity-100 scale-[0.995] hover:scale-100 mb-3'
       }`}
     >
       <div 
         className={`flex items-center justify-between p-4 bg-gradient-to-r cursor-pointer transition-colors ${
           expanded 
-            ? 'from-indigo-50/40 to-slate-50 border-b border-indigo-100/40 hover:from-indigo-50/60 hover:to-slate-100/60' 
-            : 'from-slate-50/80 to-slate-100/30 border-b border-slate-200/40 hover:from-slate-100/60 hover:to-slate-100/90'
+            ? 'from-indigo-50/40 to-slate-50 dark:from-indigo-950/30 dark:to-slate-900/60 border-b border-indigo-100/40 dark:border-indigo-900/40 hover:from-indigo-50/60 hover:to-slate-100/60 dark:hover:from-indigo-950/50 dark:hover:to-slate-900/80' 
+            : 'from-slate-50/80 to-slate-100/30 dark:from-slate-850/60 dark:to-slate-900/40 border-b border-slate-200/40 dark:border-slate-800 hover:from-slate-100/60 hover:to-slate-100/90 dark:hover:from-slate-800 dark:hover:to-slate-800/80'
         }`}
         onClick={onToggle}
       >
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-purple-100 text-purple-600 rounded-lg">
+          <div className="p-2 bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 rounded-lg">
             <GraduationCap className="w-5 h-5" />
           </div>
           <div>
@@ -166,10 +166,10 @@ export function EduSectionEditor({
                 value={section.title}
                 onClick={(e) => e.stopPropagation()}
                 onChange={(e) => onTitleChange(e.target.value)}
-                className="font-bold text-slate-800 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-purple-500 focus:bg-white focus:outline-none px-1 rounded transition-all"
+                className="font-bold text-slate-800 dark:text-slate-100 bg-transparent border-b border-transparent hover:border-slate-300 dark:hover:border-slate-600 focus:border-purple-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none px-1 rounded transition-all"
               />
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">{t.subtitle}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{t.subtitle}</p>
           </div>
         </div>
         
@@ -179,7 +179,7 @@ export function EduSectionEditor({
               <button
                 onClick={() => onMove('up')}
                 disabled={isFirst}
-                className={`p-1.5 rounded transition-colors ${isFirst ? 'text-slate-200 cursor-not-allowed' : 'text-slate-500 hover:bg-white hover:text-slate-800'}`}
+                className={`p-1.5 rounded transition-colors ${isFirst ? 'text-slate-200 dark:text-slate-700 cursor-not-allowed' : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-100'}`}
                 title={t.moveUp}
               >
                 <ArrowUp className="w-4 h-4" />
@@ -187,7 +187,7 @@ export function EduSectionEditor({
               <button
                 onClick={() => onMove('down')}
                 disabled={isLast}
-                className={`p-1.5 rounded transition-colors ${isLast ? 'text-slate-200 cursor-not-allowed' : 'text-slate-500 hover:bg-white hover:text-slate-800'}`}
+                className={`p-1.5 rounded transition-colors ${isLast ? 'text-slate-200 dark:text-slate-700 cursor-not-allowed' : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-100'}`}
                 title={t.moveDown}
               >
                 <ArrowDown className="w-4 h-4" />
@@ -197,14 +197,14 @@ export function EduSectionEditor({
           {onDelete && (
             <button
               onClick={onDelete}
-              className="p-1.5 hover:bg-red-50 text-red-500 hover:text-red-700 rounded transition-colors"
+              className="p-1.5 hover:bg-red-50 dark:hover:bg-rose-950/50 text-red-500 dark:text-rose-400 hover:text-red-700 dark:hover:text-rose-300 rounded transition-colors"
               title={t.deleteSec}
             >
               <Trash2 className="w-4 h-4" />
             </button>
           )}
-          <div className="w-px h-4 bg-slate-200 mx-1"></div>
-          <div className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-lg transition-colors" onClick={onToggle}>
+          <div className="w-px h-4 bg-slate-200 dark:bg-slate-750 mx-1"></div>
+          <div className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer" onClick={onToggle}>
             {expanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
           </div>
         </div>
@@ -224,7 +224,7 @@ export function EduSectionEditor({
                   value={section.textValue || ''} 
                   onChange={(e) => onTextChange!(e.target.value)} 
                   rows={6}
-                  className="w-full p-3.5 text-xs font-mono leading-relaxed bg-slate-50/10 border border-slate-200/80 rounded-b-lg rounded-t-none border-t-0 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 shadow-[inset_0_1.5px_3px_rgba(15,23,42,0.04)] focus:shadow-none transition-all duration-200"
+                  className="w-full p-3.5 text-xs font-mono leading-relaxed bg-slate-50/10 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-750 rounded-b-lg rounded-t-none border-t-0 text-slate-800 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 shadow-[inset_0_1.5px_3px_rgba(15,23,42,0.04)] focus:shadow-none transition-all duration-200"
                   placeholder={t.textPlaceholder}
                 />
               </div>
@@ -232,7 +232,7 @@ export function EduSectionEditor({
           ) : (
             <>
               {section.items.map((item, itemIndex) => (
-                <div key={item.id} className="relative p-5 border border-slate-200/60 rounded-xl bg-gradient-to-br from-white to-slate-50/60 transition-all group shadow-[0_2px_6px_rgba(15,23,42,0.01),inset_0_1.5px_2px_rgba(255,255,255,0.95)] hover:border-purple-300 hover:shadow-[0_4px_12px_rgba(15,23,42,0.03),inset_0_1.5px_2px_rgba(255,255,255,0.95)]">
+                <div key={item.id} className="relative p-5 border border-slate-200/60 dark:border-slate-800 rounded-xl bg-gradient-to-br from-white to-slate-50/60 dark:from-slate-850 dark:to-slate-900/90 transition-all group shadow-[0_2px_6px_rgba(15,23,42,0.01),inset_0_1.5px_2px_rgba(255,255,255,0.95)] dark:shadow-none hover:border-purple-300 dark:hover:border-purple-800 hover:shadow-[0_4px_12px_rgba(15,23,42,0.03),inset_0_1.5px_2px_rgba(255,255,255,0.95)]">
                   
                   {/* Action Buttons */}
                   <div className="absolute right-3 top-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all z-10">
@@ -242,7 +242,7 @@ export function EduSectionEditor({
                           type="button" 
                           onClick={() => onMoveItem(itemIndex, 'up')} 
                           disabled={itemIndex === 0} 
-                          className={`p-1 rounded transition-colors ${itemIndex === 0 ? 'text-slate-200 cursor-not-allowed' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800 cursor-pointer'}`} 
+                          className={`p-1 rounded transition-colors ${itemIndex === 0 ? 'text-slate-200 dark:text-slate-700 cursor-not-allowed' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-100 cursor-pointer'}`} 
                           title={lang === 'en' ? 'Move Item Up' : '上移此项'}
                         >
                           <ArrowUp className="w-3.5 h-3.5" />
@@ -251,7 +251,7 @@ export function EduSectionEditor({
                           type="button" 
                           onClick={() => onMoveItem(itemIndex, 'down')} 
                           disabled={itemIndex === section.items.length - 1} 
-                          className={`p-1 rounded transition-colors ${itemIndex === section.items.length - 1 ? 'text-slate-200 cursor-not-allowed' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800 cursor-pointer'}`} 
+                          className={`p-1 rounded transition-colors ${itemIndex === section.items.length - 1 ? 'text-slate-200 dark:text-slate-700 cursor-not-allowed' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-100 cursor-pointer'}`} 
                           title={lang === 'en' ? 'Move Item Down' : '下移此项'}
                         >
                           <ArrowDown className="w-3.5 h-3.5" />
@@ -260,7 +260,7 @@ export function EduSectionEditor({
                     )}
                     <button 
                       onClick={() => onDeleteItem(item.id, item.org)}
-                      className="p-1 hover:bg-red-50 text-red-500 hover:text-red-700 rounded transition-colors cursor-pointer"
+                      className="p-1 hover:bg-red-50 dark:hover:bg-rose-950/50 text-red-500 dark:text-rose-400 hover:text-red-700 dark:hover:text-rose-300 rounded transition-colors cursor-pointer"
                       title={lang === 'en' ? 'Delete Item' : '删除此项'}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -321,7 +321,7 @@ export function EduSectionEditor({
                             ]}
                             size="md"
                             className="w-full"
-                            triggerClassName="w-full pl-9 pr-3 py-2 text-sm tactile-input font-normal bg-white"
+                            triggerClassName="w-full pl-9 pr-3 py-2 text-sm tactile-input font-normal bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100"
                             placeholder={t.degreePlaceholder}
                           />
                         )}
@@ -356,7 +356,7 @@ export function EduSectionEditor({
                   </div>
 
                   {/* Secondary Fields Row: Academic & Achievements */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-4 border-t border-slate-100">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                     <div className="space-y-1.5">
                       <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.gpaLabel}</label>
                       <div className="relative">
@@ -401,7 +401,7 @@ export function EduSectionEditor({
                   </div>
 
                   {/* Supplemental Content / Description Textarea */}
-                  <div className="mt-4 pt-4 border-t border-slate-100">
+                  <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                     <div className="mb-1">
                       <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.descLabel}</label>
                     </div>
@@ -412,7 +412,7 @@ export function EduSectionEditor({
                         value={item.content || ''}
                         onChange={(e) => onItemChange(item.id, 'content', e.target.value)}
                         rows={3}
-                        className="w-full p-3 text-xs font-mono leading-relaxed bg-slate-50/10 border border-slate-200/80 rounded-b-lg rounded-t-none border-t-0 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 shadow-[inset_0_1.5px_3px_rgba(15,23,42,0.04)] focus:shadow-none transition-all duration-200"
+                        className="w-full p-3 text-xs font-mono leading-relaxed bg-slate-50/10 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-750 rounded-b-lg rounded-t-none border-t-0 text-slate-800 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 shadow-[inset_0_1.5px_3px_rgba(15,23,42,0.04)] focus:shadow-none transition-all duration-200"
                         placeholder={t.descPlaceholder}
                       />
                     </div>
@@ -424,7 +424,7 @@ export function EduSectionEditor({
                 <button
                   type="button"
                   onClick={onAddItem}
-                  className="flex-1 py-2.5 flex items-center justify-center gap-2 text-sm font-bold text-purple-600 bg-purple-50 hover:bg-purple-100 border border-dashed border-purple-200 rounded-xl transition-all group cursor-pointer"
+                  className="flex-1 py-2.5 flex items-center justify-center gap-2 text-sm font-bold text-purple-600 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/50 border border-dashed border-purple-200 dark:border-purple-800 rounded-xl transition-all group cursor-pointer"
                 >
                   <Plus className="w-4 h-4 group-hover:scale-110 transition-transform" />
                   <span>{t.addBtn}</span>

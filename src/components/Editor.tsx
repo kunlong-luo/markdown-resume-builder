@@ -16,21 +16,21 @@ function highlightInline(text: string): string {
   let parsed = text;
 
   // STAR bold patterns like **[Situation 业务背景]** or **[Task]**
-  parsed = parsed.replace(/\*\*\[([^\]]+)\]\*\*/g, '<span class="text-blue-600 font-bold bg-blue-50/70">**[$1]**</span>');
+  parsed = parsed.replace(/\*\*\[([^\]]+)\]\*\*/g, '<span class="text-blue-600 dark:text-blue-400 font-bold bg-blue-50/70 dark:bg-blue-950/40">**[$1]**</span>');
 
   // Inline bold: **text** or __text__
-  parsed = parsed.replace(/\*\*([^*]+)\*\*/g, '<span class="text-slate-900 font-bold">**$1**</span>');
-  parsed = parsed.replace(/__([^_]+)__/g, '<span class="text-slate-900 font-bold">__$1__</span>');
+  parsed = parsed.replace(/\*\*([^*]+)\*\*/g, '<span class="text-slate-900 dark:text-slate-100 font-bold">**$1**</span>');
+  parsed = parsed.replace(/__([^_]+)__/g, '<span class="text-slate-900 dark:text-slate-100 font-bold">__$1__</span>');
 
   // Inline italic: *text* or _text_
-  parsed = parsed.replace(/\*([^*]+)\*/g, '<span class="text-slate-500 italic">*$1*</span>');
-  parsed = parsed.replace(/_([^_]+)_/g, '<span class="text-slate-500 italic">_$1_</span>');
+  parsed = parsed.replace(/\*([^*]+)\*/g, '<span class="text-slate-500 dark:text-slate-400 italic">*$1*</span>');
+  parsed = parsed.replace(/_([^_]+)_/g, '<span class="text-slate-500 dark:text-slate-400 italic">_$1_</span>');
 
   // Inline code: `code`
-  parsed = parsed.replace(/`([^`]+)`/g, '<span class="text-rose-600 bg-rose-50 font-semibold">`$1`</span>');
+  parsed = parsed.replace(/`([^`]+)`/g, '<span class="text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 font-semibold">`$1`</span>');
 
   // Links: [text](url)
-  parsed = parsed.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<span class="text-blue-500 font-medium underline">[$1]</span><span class="text-slate-400">($2)</span>');
+  parsed = parsed.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<span class="text-blue-500 dark:text-blue-400 font-medium underline">[$1]</span><span class="text-slate-400 dark:text-slate-500">($2)</span>');
 
   // Star ratings (e.g. ★★★★☆)
   parsed = parsed.replace(/([★☆]+)/g, '<span class="text-amber-500 font-bold">$1</span>');
@@ -56,40 +56,40 @@ function highlightMarkdown(text: string): string {
 
     // Headers
     if (line.startsWith('### ')) {
-      return `<span class="text-indigo-600 font-bold">### ${highlightInline(line.substring(4))}</span>`;
+      return `<span class="text-indigo-600 dark:text-indigo-400 font-bold">### ${highlightInline(line.substring(4))}</span>`;
     }
     if (line.startsWith('## ')) {
-      return `<span class="text-blue-600 font-bold">## ${highlightInline(line.substring(3))}</span>`;
+      return `<span class="text-blue-600 dark:text-blue-400 font-bold">## ${highlightInline(line.substring(3))}</span>`;
     }
     if (line.startsWith('# ')) {
-      return `<span class="text-slate-900 font-extrabold"># ${highlightInline(line.substring(2))}</span>`;
+      return `<span class="text-slate-900 dark:text-slate-100 font-extrabold"># ${highlightInline(line.substring(2))}</span>`;
     }
 
     // Blockquotes
     if (line.startsWith('&gt; ')) {
-      return `<span class="text-slate-400 italic font-semibold">&gt; </span><span class="text-slate-500 italic">${highlightInline(line.substring(5))}</span>`;
+      return `<span class="text-slate-400 dark:text-slate-500 italic font-semibold">&gt; </span><span class="text-slate-500 dark:text-slate-400 italic">${highlightInline(line.substring(5))}</span>`;
     }
 
     // Bullet List Items
     if (line.startsWith('- ') || line.startsWith('* ')) {
-      return `<span class="text-indigo-500 font-bold">${line.substring(0, 2)}</span>${highlightInline(line.substring(2))}`;
+      return `<span class="text-indigo-500 dark:text-indigo-400 font-bold">${line.substring(0, 2)}</span>${highlightInline(line.substring(2))}`;
     }
 
     // Numbered List Items
     const numMatch = line.match(/^(\d+\.\s)/);
     if (numMatch) {
       const numPrefix = numMatch[1];
-      return `<span class="text-indigo-500 font-bold">${numPrefix}</span>${highlightInline(line.substring(numPrefix.length))}`;
+      return `<span class="text-indigo-500 dark:text-indigo-400 font-bold">${numPrefix}</span>${highlightInline(line.substring(numPrefix.length))}`;
     }
 
     // Divider
     if (line.trim() === '---' || line.trim() === '***') {
-      return `<span class="text-slate-400 bg-slate-100 font-semibold">${line}</span>`;
+      return `<span class="text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 font-semibold">${line}</span>`;
     }
 
     // Page Break
     if (line.includes('&lt;!-- pagebreak --&gt;')) {
-      return line.replace(/&lt;!-- pagebreak --&gt;/g, '<span class="text-amber-600 bg-amber-50 font-semibold">&lt;!-- pagebreak --&gt;</span>');
+      return line.replace(/&lt;!-- pagebreak --&gt;/g, '<span class="text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 font-semibold">&lt;!-- pagebreak --&gt;</span>');
     }
 
     return highlightInline(line);
@@ -234,19 +234,19 @@ export function Editor() {
   const highlightedHtml = useMemo(() => highlightMarkdown(value) + '\n', [value]);
 
   return (
-    <div className="flex flex-col h-full bg-[#fdfdfd] border-r border-gray-200 shadow-[inset_-4px_0_12px_rgb(0,0,0,0.02)] min-w-0 overflow-hidden">
+    <div className="flex flex-col h-full bg-[#fdfdfd] dark:bg-slate-900 border-r border-gray-200 dark:border-slate-800 shadow-[inset_-4px_0_12px_rgb(0,0,0,0.02)] min-w-0 overflow-hidden">
       {/* Editor Header */}
-      <div className="flex items-center justify-between px-2.5 sm:px-6 py-1.5 sm:py-2 bg-white/90 backdrop-blur-md border-b border-slate-200/80 gap-1.5 sm:gap-3 relative overflow-x-auto scrollbar-none flex-nowrap">
-        <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-600 rounded-r"></div>
+      <div className="flex items-center justify-between px-2.5 sm:px-6 py-1.5 sm:py-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 gap-1.5 sm:gap-3 relative overflow-x-auto scrollbar-none flex-nowrap">
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-600 dark:bg-indigo-500 rounded-r"></div>
         
         {/* Toggle Mode Segmented Control */}
-        <div className="flex bg-slate-100 p-0.5 rounded-xl border border-slate-200 shadow-inner shrink-0">
+        <div className="flex bg-slate-100 dark:bg-slate-800/90 p-0.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-inner shrink-0">
           <button
             onClick={() => setActiveMode('form')}
             className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1 text-xs font-bold rounded-lg transition-all duration-150 cursor-pointer whitespace-nowrap shrink-0 ${
               activeMode === 'form'
-                ? 'bg-white text-indigo-700 shadow-xs border border-slate-200/60 font-extrabold'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                ? 'bg-white dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 shadow-xs border border-slate-200/60 dark:border-slate-600 font-extrabold'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-700/50'
             }`}
           >
             <Layers className="w-3.5 h-3.5 shrink-0" />
@@ -256,8 +256,8 @@ export function Editor() {
             onClick={() => setActiveMode('markdown')}
             className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1 text-xs font-bold rounded-lg transition-all duration-150 cursor-pointer whitespace-nowrap shrink-0 ${
               activeMode === 'markdown'
-                ? 'bg-white text-indigo-700 shadow-xs border border-slate-200/60 font-extrabold'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                ? 'bg-white dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 shadow-xs border border-slate-200/60 dark:border-slate-600 font-extrabold'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-700/50'
             }`}
           >
             <Edit3 className="w-3.5 h-3.5 shrink-0" />
@@ -267,8 +267,8 @@ export function Editor() {
             onClick={() => setActiveMode('layout')}
             className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1 text-xs font-bold rounded-lg transition-all duration-150 cursor-pointer whitespace-nowrap shrink-0 ${
               activeMode === 'layout'
-                ? 'bg-white text-indigo-700 shadow-xs border border-slate-200/60 font-extrabold'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                ? 'bg-white dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 shadow-xs border border-slate-200/60 dark:border-slate-600 font-extrabold'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-700/50'
             }`}
           >
             <Sliders className="w-3.5 h-3.5 shrink-0" />
@@ -280,7 +280,7 @@ export function Editor() {
           <button 
             onClick={onUndo}
             disabled={!canUndo}
-            className={`p-1.5 rounded-lg transition-colors shrink-0 ${canUndo ? 'text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 cursor-pointer' : 'text-slate-300 cursor-not-allowed'}`}
+            className={`p-1.5 rounded-lg transition-colors shrink-0 ${canUndo ? 'text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 cursor-pointer' : 'text-slate-300 dark:text-slate-600 cursor-not-allowed'}`}
             title={settings.lang === 'en' ? 'Undo (Ctrl+Z)' : '撤销 (Ctrl+Z)'}
           >
             <Undo className="w-3.5 h-3.5" />
@@ -288,12 +288,12 @@ export function Editor() {
           <button 
             onClick={onRedo}
             disabled={!canRedo}
-            className={`p-1.5 rounded-lg transition-colors shrink-0 ${canRedo ? 'text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 cursor-pointer' : 'text-slate-300 cursor-not-allowed'}`}
+            className={`p-1.5 rounded-lg transition-colors shrink-0 ${canRedo ? 'text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 cursor-pointer' : 'text-slate-300 dark:text-slate-600 cursor-not-allowed'}`}
             title={settings.lang === 'en' ? 'Redo (Ctrl+Y)' : '重做 (Ctrl+Y)'}
           >
             <Redo className="w-3.5 h-3.5" />
           </button>
-          <div className="w-px h-4 bg-slate-200 mx-0.5 sm:mx-1 shrink-0"></div>
+          <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-0.5 sm:mx-1 shrink-0"></div>
           {activeMode === 'form' && formExpandedState.hasSections && (
             <>
               <button 
@@ -304,8 +304,8 @@ export function Editor() {
                 }}
                 className={`flex items-center gap-1.5 px-2 sm:px-2.5 py-1 text-xs font-bold rounded-lg border transition-all active:scale-95 cursor-pointer shadow-2xs whitespace-nowrap shrink-0 ${
                   formExpandedState.isAllExpanded 
-                    ? 'bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-700' 
-                    : 'bg-indigo-50 hover:bg-indigo-100 border-indigo-200 text-indigo-700'
+                    ? 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200' 
+                    : 'bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300'
                 }`}
                 title={formExpandedState.isAllExpanded 
                   ? (settings.lang === 'en' ? 'Collapse all sections' : '一键折叠所有模块') 
@@ -314,30 +314,30 @@ export function Editor() {
               >
                 {formExpandedState.isAllExpanded ? (
                   <>
-                    <ChevronsUp className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                    <ChevronsUp className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
                     <span className="whitespace-nowrap">{settings.lang === 'en' ? 'Collapse All' : '全部折叠'}</span>
                   </>
                 ) : (
                   <>
-                    <ChevronsDown className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                    <ChevronsDown className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400 shrink-0" />
                     <span className="whitespace-nowrap">{settings.lang === 'en' ? 'Expand All' : '全部展开'}</span>
                   </>
                 )}
               </button>
-              <div className="w-px h-4 bg-slate-200 mx-0.5 sm:mx-1 shrink-0"></div>
+              <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-0.5 sm:mx-1 shrink-0"></div>
             </>
           )}
           <button 
             onClick={handleCopy}
-            className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 text-xs font-semibold text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer whitespace-nowrap shrink-0"
+            className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded-lg transition-colors cursor-pointer whitespace-nowrap shrink-0"
           >
             {copied ? <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> : <Copy className="w-3.5 h-3.5 shrink-0" />}
             <span className="whitespace-nowrap">{copied ? (settings.lang === 'en' ? 'Copied!' : '已复制！') : (settings.lang === 'en' ? 'Copy All' : '复制全文')}</span>
           </button>
-          <div className="w-px h-4 bg-slate-200 mx-0.5 sm:mx-1 shrink-0"></div>
+          <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-0.5 sm:mx-1 shrink-0"></div>
           <button 
             onClick={onReset}
-            className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 text-xs font-semibold text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer whitespace-nowrap shrink-0"
+            className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors cursor-pointer whitespace-nowrap shrink-0"
             title={settings.lang === 'en' ? 'Reset to Default Template' : '重置为默认模板'}
           >
             <RotateCcw className="w-3.5 h-3.5 shrink-0" />
@@ -349,99 +349,99 @@ export function Editor() {
       {activeMode === 'markdown' ? (
         <>
           {/* Formatting Help Toolbar */}
-          <div className="flex items-center flex-wrap gap-1 px-4 py-1.5 bg-gray-50/70 border-b border-gray-100">
+          <div className="flex items-center flex-wrap gap-1 px-4 py-1.5 bg-gray-50/70 dark:bg-slate-850 border-b border-gray-100 dark:border-slate-800">
             <button
               onClick={() => insertMarkdown('# text')}
-              className="p-1.5 hover:bg-gray-200/60 text-gray-600 hover:text-gray-900 rounded transition-colors"
+              className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors"
               title="Heading 1"
             >
               <Heading1 className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => insertMarkdown('## text')}
-              className="p-1.5 hover:bg-gray-200/60 text-gray-600 hover:text-gray-900 rounded transition-colors"
+              className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors"
               title="Section Heading 2"
             >
               <Heading2 className="w-3.5 h-3.5" />
             </button>
-            <div className="w-px h-3.5 bg-gray-200 mx-1"></div>
+            <div className="w-px h-3.5 bg-gray-200 dark:bg-slate-700 mx-1"></div>
             <button
               onClick={() => insertMarkdown('**text**')}
-              className="p-1.5 hover:bg-gray-200/60 text-gray-600 hover:text-gray-900 rounded transition-colors"
+              className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors"
               title="Bold"
             >
               <Bold className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => insertMarkdown('*text*')}
-              className="p-1.5 hover:bg-gray-200/60 text-gray-600 hover:text-gray-900 rounded transition-colors"
+              className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors"
               title="Italic"
             >
               <Italic className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => insertMarkdown('`text`')}
-              className="p-1.5 hover:bg-gray-200/60 text-gray-600 hover:text-gray-900 rounded transition-colors"
+              className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors"
               title="Code"
             >
               <Code className="w-3.5 h-3.5" />
             </button>
-            <div className="w-px h-3.5 bg-gray-200 mx-1"></div>
+            <div className="w-px h-3.5 bg-gray-200 dark:bg-slate-700 mx-1"></div>
             <button
               onClick={() => insertMarkdown('- text')}
-              className="p-1.5 hover:bg-gray-200/60 text-gray-600 hover:text-gray-900 rounded transition-colors"
+              className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors"
               title="Bullet List"
             >
               <List className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => insertMarkdown('1. text')}
-              className="p-1.5 hover:bg-gray-200/60 text-gray-600 hover:text-gray-900 rounded transition-colors"
+              className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors"
               title="Numbered List"
             >
               <ListOrdered className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => insertMarkdown('[link](url)')}
-              className="p-1.5 hover:bg-gray-200/60 text-gray-600 hover:text-gray-900 rounded transition-colors"
+              className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors"
               title="Link"
             >
               <Link className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => insertMarkdown('\n---\n')}
-              className="p-1.5 hover:bg-gray-200/60 text-gray-600 hover:text-gray-900 rounded transition-colors"
+              className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors"
               title="Divider Line"
             >
               <Minus className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => insertMarkdown('\n<!-- pagebreak -->\n')}
-              className="p-1.5 hover:bg-gray-200/60 text-gray-600 hover:text-gray-900 rounded transition-colors"
+              className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors"
               title="Insert Page Break (插入打印分页符)"
             >
-              <Scissors className="w-3.5 h-3.5 text-amber-600" />
+              <Scissors className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
             </button>
             <button
               onClick={() => insertMarkdown('\n| Header 1 | Header 2 |\n| -------- | -------- |\n| Item 1   | Item 2   |\n')}
-              className="p-1.5 hover:bg-gray-200/60 text-gray-600 hover:text-gray-900 rounded transition-colors"
+              className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors"
               title="Table"
             >
               <Table className="w-3.5 h-3.5" />
             </button>
 
-            <div className="w-px h-3.5 bg-gray-200 mx-1.5"></div>
+            <div className="w-px h-3.5 bg-gray-200 dark:bg-slate-700 mx-1.5"></div>
 
             {/* Quick Snippets Inserter Dropdown */}
             <div className="relative">
               <button
                 onClick={() => setIsSnippetsDropdownOpen(!isSnippetsDropdownOpen)}
-                className="flex items-center gap-1 px-2.5 py-1 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 text-blue-700 hover:text-indigo-800 rounded border border-blue-200/50 text-[11px] font-semibold transition-all shadow-sm cursor-pointer ml-1 active:scale-95"
+                className="flex items-center gap-1 px-2.5 py-1 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-indigo-950/60 dark:to-blue-950/60 hover:from-blue-100 hover:to-indigo-100 dark:hover:from-indigo-900/70 dark:hover:to-blue-900/70 text-blue-700 dark:text-blue-300 hover:text-indigo-800 dark:hover:text-white rounded border border-blue-200/50 dark:border-indigo-800 text-[11px] font-semibold transition-all shadow-sm cursor-pointer ml-1 active:scale-95"
                 title={settings.lang === 'en' ? 'Insert common resume templates at cursor' : '一键在光标处插入常用简历排版模块'}
               >
-                <Layers className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                <Layers className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
                 <span>{settings.lang === 'en' ? 'Insert Snippets' : '插入常用模块'}</span>
-                <ChevronDown className={`w-3 h-3 text-blue-500 transition-transform ${isSnippetsDropdownOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-3 h-3 text-blue-500 dark:text-blue-400 transition-transform ${isSnippetsDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
 
               {isSnippetsDropdownOpen && (
@@ -452,8 +452,8 @@ export function Editor() {
                     onClick={() => setIsSnippetsDropdownOpen(false)}
                   />
                   {/* Dropdown Items list */}
-                  <div className="absolute left-1 mt-1 w-56 bg-white border border-gray-200 shadow-xl rounded-lg py-1.5 z-50 flex flex-col animate-in fade-in slide-in-from-top-1 duration-150">
-                    <div className="px-2.5 py-1 text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 mb-1">
+                  <div className="absolute left-1 mt-1 w-56 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 shadow-xl rounded-lg py-1.5 z-50 flex flex-col animate-in fade-in slide-in-from-top-1 duration-150">
+                    <div className="px-2.5 py-1 text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-widest border-b border-gray-100 dark:border-slate-700 mb-1">
                       {settings.lang === 'en' ? 'Select Snippet to Insert' : '选择常用模块插入'}
                     </div>
                     
@@ -466,9 +466,9 @@ export function Editor() {
                         insertMarkdown(snippet);
                         setIsSnippetsDropdownOpen(false);
                       }}
-                      className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors cursor-pointer text-left font-medium"
+                      className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-slate-750 hover:text-blue-700 dark:hover:text-blue-300 transition-colors cursor-pointer text-left font-medium"
                     >
-                      <Briefcase className="w-3.5 h-3.5 text-blue-500" />
+                      <Briefcase className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
                       <span>{settings.lang === 'en' ? 'Work Experience' : '工作经历模板'}</span>
                     </button>
 
@@ -481,9 +481,9 @@ export function Editor() {
                         insertMarkdown(snippet);
                         setIsSnippetsDropdownOpen(false);
                       }}
-                      className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors cursor-pointer text-left font-medium"
+                      className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-slate-750 hover:text-blue-700 dark:hover:text-blue-300 transition-colors cursor-pointer text-left font-medium"
                     >
-                      <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                      <Sparkles className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
                       <span>{settings.lang === 'en' ? 'Project Experience (STAR)' : '项目经历模板 (STAR)'}</span>
                     </button>
 
@@ -496,9 +496,9 @@ export function Editor() {
                         insertMarkdown(snippet);
                         setIsSnippetsDropdownOpen(false);
                       }}
-                      className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors cursor-pointer text-left font-medium"
+                      className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-slate-750 hover:text-blue-700 dark:hover:text-blue-300 transition-colors cursor-pointer text-left font-medium"
                     >
-                      <Award className="w-3.5 h-3.5 text-emerald-500" />
+                      <Award className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
                       <span>{settings.lang === 'en' ? 'Skills & Ratings' : '技能掌握度 (带星级)'}</span>
                     </button>
 
@@ -511,9 +511,9 @@ export function Editor() {
                         insertMarkdown(snippet);
                         setIsSnippetsDropdownOpen(false);
                       }}
-                      className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors cursor-pointer text-left font-medium"
+                      className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-slate-750 hover:text-blue-700 dark:hover:text-blue-300 transition-colors cursor-pointer text-left font-medium"
                     >
-                      <Phone className="w-3.5 h-3.5 text-indigo-500" />
+                      <Phone className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
                       <span>{settings.lang === 'en' ? 'Contact Info Header' : '个人联系方式栏'}</span>
                     </button>
 
@@ -526,9 +526,9 @@ export function Editor() {
                         insertMarkdown(snippet);
                         setIsSnippetsDropdownOpen(false);
                       }}
-                      className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors cursor-pointer text-left font-medium"
+                      className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-slate-750 hover:text-blue-700 dark:hover:text-blue-300 transition-colors cursor-pointer text-left font-medium"
                     >
-                      <GraduationCap className="w-3.5 h-3.5 text-purple-500" />
+                      <GraduationCap className="w-3.5 h-3.5 text-purple-500 dark:text-purple-400" />
                       <span>{settings.lang === 'en' ? 'Education Background' : '教育背景模板'}</span>
                     </button>
                   </div>
@@ -541,8 +541,8 @@ export function Editor() {
               onClick={handleAutoSpacing}
               className={`flex items-center gap-1 px-2.5 py-1 rounded border text-[11px] font-semibold transition-all shadow-sm cursor-pointer ml-1 active:scale-95 ${
                 spaced 
-                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
-                  : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700 hover:text-indigo-800 border-indigo-200/50'
+                  ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' 
+                  : 'bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 hover:text-indigo-800 dark:hover:text-white border-indigo-200/50 dark:border-indigo-800'
               }`}
               title={settings.lang === 'en' ? 'Magic Formatter (Ctrl+Shift+F) - One-click to insert standard spaces between Chinese, English and numbers' : '魔法排版 (Ctrl+Shift+F) - 一键在中文与英文、数字之间添加标准空格'}
             >
@@ -552,11 +552,11 @@ export function Editor() {
           </div>
 
           {/* Main Textarea with Highlighted Overlay */}
-          <div className="relative flex-1 w-full overflow-hidden bg-white border-t border-gray-100">
+          <div className="relative flex-1 w-full overflow-hidden bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800">
             {/* Syntax Highlighted Layer (behind the transparent textarea) */}
             <pre
               ref={preRef}
-              className="absolute inset-0 w-full h-full editor-font-base editor-pre text-slate-800"
+              className="absolute inset-0 w-full h-full editor-font-base editor-pre text-slate-800 dark:text-slate-200"
               dangerouslySetInnerHTML={{ __html: highlightedHtml }}
               aria-hidden="true"
             />
@@ -564,7 +564,7 @@ export function Editor() {
             <textarea
               id="markdown-textarea"
               ref={textareaRef}
-              className="absolute inset-0 w-full h-full editor-font-base editor-textarea text-transparent focus:outline-none focus:ring-0 selection:bg-blue-100/60"
+              className="absolute inset-0 w-full h-full editor-font-base editor-textarea text-transparent focus:outline-none focus:ring-0 selection:bg-blue-100/60 dark:selection:bg-indigo-900/60"
               value={value}
               onChange={(e) => onChange(e.target.value)}
               onScroll={handleScroll}
@@ -605,18 +605,18 @@ export function Editor() {
       )}
 
       {/* Status Bar */}
-      <div className="flex items-center justify-between px-3 sm:px-5 py-1.5 sm:py-2 bg-gray-50 border-t border-gray-100 text-[10px] sm:text-[11px] text-gray-500 font-medium z-10 overflow-x-auto scrollbar-none whitespace-nowrap gap-2">
+      <div className="flex items-center justify-between px-3 sm:px-5 py-1.5 sm:py-2 bg-gray-50 dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800 text-[10px] sm:text-[11px] text-gray-500 dark:text-slate-400 font-medium z-10 overflow-x-auto scrollbar-none whitespace-nowrap gap-2">
         <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-          <span>{settings.lang === 'en' ? 'Words' : '总字数'}: <strong className="text-gray-700">{wordCount}</strong></span>
-          <span>{settings.lang === 'en' ? 'Chars' : '字符数'}: <strong className="text-gray-700">{charCount}</strong></span>
-          <span className="hidden xs:inline">{settings.lang === 'en' ? 'Lines' : '行数'}: <strong className="text-gray-700">{lineCount}</strong></span>
+          <span>{settings.lang === 'en' ? 'Words' : '总字数'}: <strong className="text-gray-700 dark:text-slate-200">{wordCount}</strong></span>
+          <span>{settings.lang === 'en' ? 'Chars' : '字符数'}: <strong className="text-gray-700 dark:text-slate-200">{charCount}</strong></span>
+          <span className="hidden xs:inline">{settings.lang === 'en' ? 'Lines' : '行数'}: <strong className="text-gray-700 dark:text-slate-200">{lineCount}</strong></span>
         </div>
-        <div className="flex items-center gap-2 sm:gap-3 text-blue-600 shrink-0">
-          <div className="hidden md:flex items-center gap-1 text-gray-400 cursor-help" title={settings.lang === 'en' ? "Click the scissors icon in toolbar to insert <!-- pagebreak --> where you want to force page partition" : "在需要强制分页的地方点击剪刀按钮插入 <!-- pagebreak -->"}>
+        <div className="flex items-center gap-2 sm:gap-3 text-blue-600 dark:text-blue-400 shrink-0">
+          <div className="hidden md:flex items-center gap-1 text-gray-400 dark:text-slate-500 cursor-help" title={settings.lang === 'en' ? "Click the scissors icon in toolbar to insert <!-- pagebreak --> where you want to force page partition" : "在需要强制分页的地方点击剪刀按钮插入 <!-- pagebreak -->"}>
             <Info className="w-3 h-3" />
             <span>{settings.lang === 'en' ? 'Supports <!-- pagebreak --> force paging' : '支持 <!-- pagebreak --> 强制分页'}</span>
           </div>
-          <div className="w-px h-3 bg-gray-200 hidden md:block"></div>
+          <div className="w-px h-3 bg-gray-200 dark:bg-slate-700 hidden md:block"></div>
           <div className="flex items-center gap-1.5">
             <span>{settings.lang === 'en' ? 'Est. Pages' : '预估页数'}: <strong className="font-bold">{estPages}</strong></span>
           </div>

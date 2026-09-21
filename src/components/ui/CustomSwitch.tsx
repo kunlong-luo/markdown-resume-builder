@@ -1,4 +1,5 @@
 import React from 'react';
+import { THEME_TOKENS } from '../../lib/theme-tokens';
 
 export interface CustomSwitchProps {
   id?: string;
@@ -9,14 +10,8 @@ export interface CustomSwitchProps {
   description?: React.ReactNode;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
-  colorTheme?: 'indigo' | 'blue' | 'emerald';
+  colorTheme?: 'indigo' | 'blue' | 'emerald' | 'rose' | 'slate';
 }
-
-const THEME_MAP = {
-  indigo: 'bg-indigo-600 focus-visible:ring-indigo-500/30',
-  blue: 'bg-blue-600 focus-visible:ring-blue-500/30',
-  emerald: 'bg-emerald-600 focus-visible:ring-emerald-500/30',
-};
 
 const SIZE_MAP = {
   sm: {
@@ -50,7 +45,7 @@ export const CustomSwitch: React.FC<CustomSwitchProps> = ({
   className = '',
   colorTheme = 'indigo',
 }) => {
-  const themeClass = THEME_MAP[colorTheme];
+  const accent = THEME_TOKENS.themeAccents[colorTheme] || THEME_TOKENS.themeAccents.indigo;
   const sizeConfig = SIZE_MAP[size];
 
   const handleClick = (e: React.MouseEvent) => {
@@ -90,12 +85,16 @@ export const CustomSwitch: React.FC<CustomSwitchProps> = ({
           transition-colors duration-200 ease-in-out outline-none
           focus-visible:ring-2
           ${sizeConfig.track}
-          ${checked ? themeClass : 'bg-slate-200 group-hover:bg-slate-300'}
+          ${
+            checked
+              ? accent.track
+              : 'bg-slate-200 dark:bg-slate-700 group-hover:bg-slate-300 dark:group-hover:bg-slate-600'
+          }
         `}
       >
         <span
           className={`
-            pointer-events-none inline-block rounded-full bg-white shadow-sm ring-0
+            pointer-events-none inline-block rounded-full bg-white dark:bg-slate-100 shadow-sm ring-0
             transform transition duration-200 ease-in-out
             ${sizeConfig.thumb}
             ${checked ? sizeConfig.translate : 'translate-x-0.5'}
@@ -107,13 +106,13 @@ export const CustomSwitch: React.FC<CustomSwitchProps> = ({
         <div className="flex flex-col select-none">
           {label && (
             <span
-              className={`font-medium text-slate-700 leading-tight group-hover:text-slate-900 transition-colors ${sizeConfig.text}`}
+              className={`font-medium text-slate-700 dark:text-slate-200 leading-tight group-hover:text-slate-900 dark:group-hover:text-white transition-colors ${sizeConfig.text}`}
             >
               {label}
             </span>
           )}
           {description && (
-            <span className="text-xs text-slate-400 mt-0.5 leading-normal">
+            <span className="text-xs text-slate-400 dark:text-slate-500 mt-0.5 leading-normal">
               {description}
             </span>
           )}

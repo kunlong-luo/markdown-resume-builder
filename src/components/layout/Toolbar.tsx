@@ -431,16 +431,16 @@ export function Toolbar() {
   ];
 
   return (
-    <div className="flex items-center justify-between px-2.5 sm:px-6 py-1.5 sm:py-2 bg-white/80 backdrop-blur-md border-b border-slate-200/80 z-30 gap-2 sm:gap-3 relative shadow-[0_1px_2px_rgba(15,23,42,0.02)] w-full">
+    <div className="flex items-center justify-between px-2.5 sm:px-6 py-1.5 sm:py-2 bg-white/80 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/90 z-30 gap-2 sm:gap-3 relative shadow-[0_1px_2px_rgba(15,23,42,0.02)] dark:shadow-[0_2px_8px_rgba(0,0,0,0.3)] w-full transition-colors duration-200">
       <div className="flex items-center gap-1.5 sm:gap-2.5 text-xs overflow-x-auto scrollbar-none flex-nowrap min-w-0 shrink py-0.5">
         {/* Language Selection */}
-        <div className="flex items-center gap-1.5 pr-2.5 border-r border-slate-200/90 shrink-0">
+        <div className="flex items-center gap-1.5 pr-2.5 border-r border-slate-200/90 dark:border-slate-800 shrink-0">
           <Globe className="w-3.5 h-3.5 text-indigo-500 shrink-0 pointer-events-none" />
-          <div className="bg-slate-100 p-0.5 rounded-lg flex items-center border border-slate-200/60 shadow-2xs">
+          <div className="bg-slate-100 dark:bg-slate-800/90 p-0.5 rounded-lg flex items-center border border-slate-200/60 dark:border-slate-700/60 shadow-2xs">
             <button
               onClick={() => updateSetting('lang', 'zh')}
               className={`px-2 py-0.5 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
-                settings.lang !== 'en' ? 'bg-white text-indigo-600 shadow-xs' : 'text-slate-500 hover:text-slate-800'
+                settings.lang !== 'en' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
               title="切换到中文表单编辑"
             >
@@ -449,7 +449,7 @@ export function Toolbar() {
             <button
               onClick={() => updateSetting('lang', 'en')}
               className={`px-2 py-0.5 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
-                settings.lang === 'en' ? 'bg-white text-indigo-600 shadow-xs' : 'text-slate-500 hover:text-slate-800'
+                settings.lang === 'en' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
               title="Switch to English Editor Labels"
             >
@@ -459,7 +459,7 @@ export function Toolbar() {
         </div>
 
         {/* Style Preset Selector */}
-        <div className="flex items-center gap-1.5 pr-2.5 border-r border-slate-200/90 shrink-0">
+        <div className="flex items-center gap-1.5 pr-2.5 border-r border-slate-200/90 dark:border-slate-800 shrink-0">
           <Sparkles className="w-3.5 h-3.5 text-indigo-500 shrink-0 pointer-events-none" />
           <CustomSelect
             value={getCurrentPresetId()}
@@ -467,30 +467,30 @@ export function Toolbar() {
             options={presetOptions}
             placeholder={isEn ? 'Custom Style' : '自定义配置'}
             size="xs"
-            triggerClassName="bg-indigo-50/90 border-indigo-200/80 text-indigo-950 font-bold text-[11px] h-7 rounded-lg hover:bg-indigo-100/80 shadow-2xs"
+            triggerClassName="bg-indigo-50/90 dark:bg-indigo-950/60 border-indigo-200/80 dark:border-indigo-800/60 text-indigo-950 dark:text-indigo-300 font-bold text-[11px] h-7 rounded-lg hover:bg-indigo-100/80 dark:hover:bg-indigo-900/60 shadow-2xs"
           />
         </div>
 
         {/* Template Selector */}
-        <div className="flex items-center gap-1.5 pr-2.5 border-r border-slate-200/90 shrink-0">
+        <div className="flex items-center gap-1.5 pr-2.5 border-r border-slate-200/90 dark:border-slate-800 shrink-0">
           <LayoutGrid className="w-3.5 h-3.5 text-blue-500 shrink-0 pointer-events-none" />
           <CustomSelect
             value={currentTemplateId}
             onChange={handleTemplateChange}
             options={templateOptions}
             size="xs"
-            triggerClassName="bg-white border-slate-200/90 text-slate-700 font-semibold text-[11px] h-7 rounded-lg hover:border-slate-300 shadow-2xs"
+            triggerClassName="bg-white dark:bg-slate-800 border-slate-200/90 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-[11px] h-7 rounded-lg hover:border-slate-300 dark:hover:border-slate-600 shadow-2xs"
           />
         </div>
 
         {/* Template Column Layout Selector */}
-        <div className="flex items-center gap-1.5 pr-2.5 border-r border-slate-200/90 shrink-0">
+        <div className="flex items-center gap-1.5 pr-2.5 border-r border-slate-200/90 dark:border-slate-800 shrink-0">
           <CustomSelect
             value={settings.templateLayout}
             onChange={(val) => updateSetting('templateLayout', val as TemplateLayout)}
             options={layoutOptions}
             size="xs"
-            triggerClassName="bg-white border-slate-200/90 text-slate-700 font-medium text-[11px] h-7 rounded-lg hover:border-slate-300 shadow-2xs"
+            triggerClassName="bg-white dark:bg-slate-800 border-slate-200/90 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-medium text-[11px] h-7 rounded-lg hover:border-slate-300 dark:hover:border-slate-600 shadow-2xs"
           />
         </div>
 
@@ -501,7 +501,7 @@ export function Toolbar() {
             onChange={(val) => updateSetting('h2Style', val as H2Style)}
             options={titleStyleOptions}
             size="xs"
-            triggerClassName="bg-white border-slate-200/90 text-slate-700 font-medium text-[11px] h-7 rounded-lg hover:border-slate-300 shadow-2xs"
+            triggerClassName="bg-white dark:bg-slate-800 border-slate-200/90 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-medium text-[11px] h-7 rounded-lg hover:border-slate-300 dark:hover:border-slate-600 shadow-2xs"
           />
         </div>
       </div>
@@ -510,13 +510,13 @@ export function Toolbar() {
       <div className="flex items-center gap-2.5 text-xs shrink-0 relative flex-nowrap">
         {/* Custom File Name Input */}
         <div className="hidden sm:flex items-center gap-1.5 shrink-0">
-          <span className="font-bold text-slate-500 text-[11px]">{t.exportNameLabel}</span>
+          <span className="font-bold text-slate-500 dark:text-slate-400 text-[11px]">{t.exportNameLabel}</span>
           <input
             type="text"
             value={customFileName}
             onChange={(e) => setCustomFileName(e.target.value)}
             placeholder={`${exportTitle}_简历`}
-            className="bg-white border border-slate-200/90 text-slate-700 rounded-lg py-1 px-2.5 font-semibold text-[11px] w-28 hover:border-slate-300 transition-all shadow-2xs focus:shadow-none focus:outline-none focus:ring-1.5 focus:ring-indigo-500"
+            className="bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-lg py-1 px-2.5 font-semibold text-[11px] w-28 hover:border-slate-300 dark:hover:border-slate-600 transition-all shadow-2xs focus:shadow-none focus:outline-none focus:ring-1.5 focus:ring-indigo-500"
           />
         </div>
 
@@ -527,7 +527,7 @@ export function Toolbar() {
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all cursor-pointer shrink-0 active:translate-y-px ${
             isAestheticsOpen
               ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20'
-              : 'bg-white text-slate-700 border-slate-200/90 shadow-2xs hover:bg-slate-50 hover:border-slate-300'
+              : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200/90 dark:border-slate-700 shadow-2xs hover:bg-slate-50 dark:hover:bg-slate-750 hover:border-slate-300 dark:hover:border-slate-600'
           }`}
           title={t.aestheticsTooltip}
         >
@@ -537,11 +537,11 @@ export function Toolbar() {
         </button>
 
         {/* Layout Mode Toggle Group */}
-        <div className="bg-slate-100 p-0.5 rounded-lg flex items-center text-[11px] shrink-0 border border-slate-200/60 shadow-2xs">
+        <div className="bg-slate-100 dark:bg-slate-800/90 p-0.5 rounded-lg flex items-center text-[11px] shrink-0 border border-slate-200/60 dark:border-slate-700/60 shadow-2xs">
           <button
             onClick={() => updateSetting('layoutMode', 'editor')}
             className={`flex items-center gap-1 px-2.5 py-1 rounded-md font-bold transition-all cursor-pointer ${
-              settings.layoutMode === 'editor' ? 'bg-white text-indigo-600 shadow-xs' : 'text-slate-500 hover:text-slate-800'
+              settings.layoutMode === 'editor' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
             }`}
           >
             <Maximize2 className="w-3 h-3" />
@@ -550,7 +550,7 @@ export function Toolbar() {
           <button
             onClick={() => updateSetting('layoutMode', 'split')}
             className={`flex items-center gap-1 px-2.5 py-1 rounded-md font-bold transition-all cursor-pointer ${
-              settings.layoutMode === 'split' ? 'bg-white text-indigo-600 shadow-xs' : 'text-slate-500 hover:text-slate-800'
+              settings.layoutMode === 'split' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
             }`}
           >
             <Columns className="w-3 h-3" />
@@ -559,7 +559,7 @@ export function Toolbar() {
           <button
             onClick={() => updateSetting('layoutMode', 'preview')}
             className={`flex items-center gap-1 px-2.5 py-1 rounded-md font-bold transition-all cursor-pointer ${
-              settings.layoutMode === 'preview' ? 'bg-white text-indigo-600 shadow-xs' : 'text-slate-500 hover:text-slate-800'
+              settings.layoutMode === 'preview' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
             }`}
           >
             <Eye className="w-3 h-3" />
@@ -572,7 +572,7 @@ export function Toolbar() {
           <>
             {/* High-priority click outside backdrop */}
             <div 
-              className="fixed inset-0 z-[120] bg-slate-900/10 backdrop-blur-[0.5px] transition-opacity cursor-default" 
+              className="fixed inset-0 z-[120] bg-slate-900/10 dark:bg-black/40 backdrop-blur-[0.5px] transition-opacity cursor-default" 
               onClick={() => setIsAestheticsOpen(false)} 
             />
             
@@ -584,17 +584,17 @@ export function Toolbar() {
                 right: `${panelCoords.right}px`,
                 maxHeight: `calc(100vh - ${panelCoords.top + 16}px)`,
               }}
-              className="w-84 sm:w-96 max-w-[calc(100vw-1.25rem)] bg-white/98 backdrop-blur-xl border border-slate-200/90 shadow-[0_20px_48px_rgba(15,23,42,0.18),0_4px_16px_rgba(15,23,42,0.06)] rounded-2xl p-4 sm:p-5 z-[130] flex flex-col gap-4 animate-in fade-in slide-in-from-top-2 duration-150 scrollbar-thin overflow-y-auto"
+              className="w-84 sm:w-96 max-w-[calc(100vw-1.25rem)] bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 shadow-[0_20px_48px_rgba(15,23,42,0.18),0_4px_16px_rgba(15,23,42,0.06)] dark:shadow-[0_24px_56px_rgba(0,0,0,0.6)] rounded-2xl p-4 sm:p-5 z-[130] flex flex-col gap-4 animate-in fade-in slide-in-from-top-2 duration-150 scrollbar-thin overflow-y-auto"
             >
               {/* Header */}
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5 shrink-0">
-                <div className="flex items-center gap-1.5 font-extrabold text-slate-800">
+              <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5 shrink-0">
+                <div className="flex items-center gap-1.5 font-extrabold text-slate-800 dark:text-white">
                   <Palette className="w-4 h-4 text-indigo-500" />
                   <span>{t.aestheticsLabel}</span>
                 </div>
                 <button 
                   onClick={() => setIsAestheticsOpen(false)}
-                  className="text-slate-500 hover:text-slate-700 text-xs font-bold bg-white border border-slate-200 hover:bg-slate-50 px-2.5 py-1 rounded-md transition-all shadow-[0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)] active:translate-y-px cursor-pointer"
+                  className="text-slate-500 dark:text-slate-300 hover:text-slate-700 dark:hover:text-white text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750 px-2.5 py-1 rounded-md transition-all shadow-[0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)] active:translate-y-px cursor-pointer"
                 >
                   {t.doneBtn}
                 </button>
@@ -605,7 +605,7 @@ export function Toolbar() {
                 {/* 1. Visual Accent & Colors */}
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">{t.visualLabel}</label>
-                  <div className="flex flex-wrap items-center gap-2 bg-slate-50/80 p-2.5 rounded-xl border border-slate-100">
+                  <div className="flex flex-wrap items-center gap-2 bg-slate-50/80 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-750">
                     {colors.map(color => (
                       <button
                         key={color.name}
@@ -622,7 +622,7 @@ export function Toolbar() {
                     ))}
 
                     {/* Custom Color Selector */}
-                    <div className="flex items-center gap-1.5 ml-1 pl-1.5 border-l border-slate-200">
+                    <div className="flex items-center gap-1.5 ml-1 pl-1.5 border-l border-slate-200 dark:border-slate-700">
                       <button
                         onClick={() => {
                           updateSetting('themeColor', 'custom');
@@ -630,7 +630,7 @@ export function Toolbar() {
                             updateSetting('customColor', '#4f46e5');
                           }
                         }}
-                        className={`w-5 h-5 rounded-full relative transition-all duration-150 hover:scale-110 focus:outline-none flex items-center justify-center border border-slate-300 cursor-pointer ${
+                        className={`w-5 h-5 rounded-full relative transition-all duration-150 hover:scale-110 focus:outline-none flex items-center justify-center border border-slate-300 dark:border-slate-600 cursor-pointer ${
                           settings.themeColor === 'custom' ? 'ring-2 ring-indigo-600/40 ring-offset-2 scale-110' : 'opacity-85 hover:opacity-100'
                         }`}
                         style={{ background: settings.themeColor === 'custom' ? (settings.customColor || '#4f46e5') : 'conic-gradient(from 0deg, red, yellow, green, cyan, blue, magenta, red)' }}
@@ -662,19 +662,19 @@ export function Toolbar() {
                       onChange={(val) => updateSetting('fontFamily', val as FontFamily)}
                       options={fontFamilyOptions}
                       size="sm"
-                      triggerClassName="w-full bg-white border-slate-200/90 text-slate-700 rounded-lg px-2.5 py-1 text-xs"
+                      triggerClassName="w-full bg-white dark:bg-slate-800 border-slate-200/90 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-lg px-2.5 py-1 text-xs"
                     />
                   </div>
 
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">{t.fontSizeLabel}</label>
-                    <div className="bg-slate-100 p-0.5 rounded-lg flex items-center h-[28px] border border-slate-200/60 shadow-[inset_0_1px_2px_rgba(0,0,0,0.03)]">
+                    <div className="bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg flex items-center h-[28px] border border-slate-200/60 dark:border-slate-700/60 shadow-[inset_0_1px_2px_rgba(0,0,0,0.03)]">
                       {(['compact', 'standard', 'relaxed'] as FontSize[]).map(sz => (
                         <button
                           key={sz}
                           onClick={() => updateSetting('fontSize', sz)}
                           className={`flex-1 text-center py-0.5 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
-                            settings.fontSize === sz ? 'bg-white text-slate-800 shadow-xs border border-slate-200/50' : 'text-slate-500 hover:text-slate-800'
+                            settings.fontSize === sz ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-white shadow-xs border border-slate-200/50 dark:border-slate-600' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
                           }`}
                         >
                           {sz === 'compact' ? t.fontSizeCompact : sz === 'standard' ? t.fontSizeStandard : t.fontSizeRelaxed}
@@ -688,13 +688,13 @@ export function Toolbar() {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">{t.marginLabel}</label>
-                    <div className="bg-slate-100 p-0.5 rounded-lg flex items-center h-[28px] border border-slate-200/60 shadow-[inset_0_1px_2px_rgba(0,0,0,0.03)]">
+                    <div className="bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg flex items-center h-[28px] border border-slate-200/60 dark:border-slate-700/60 shadow-[inset_0_1px_2px_rgba(0,0,0,0.03)]">
                       {(['compact', 'standard', 'relaxed'] as PaperMargin[]).map(m => (
                         <button
                           key={m}
                           onClick={() => updateSetting('margin', m)}
                           className={`flex-1 text-center py-0.5 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
-                            settings.margin === m ? 'bg-white text-slate-800 shadow-xs border border-slate-200/50' : 'text-slate-500 hover:text-slate-800'
+                            settings.margin === m ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-white shadow-xs border border-slate-200/50 dark:border-slate-600' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
                           }`}
                         >
                           {m === 'compact' ? t.marginCompact : m === 'standard' ? t.marginStandard : t.marginRelaxed}
@@ -710,7 +710,7 @@ export function Toolbar() {
                       onChange={(val) => updateSetting('h2Style', val as H2Style)}
                       options={titleStyleOptions}
                       size="sm"
-                      triggerClassName="w-full bg-white border-slate-200/90 text-slate-700 rounded-lg px-2.5 py-1 text-xs"
+                      triggerClassName="w-full bg-white dark:bg-slate-800 border-slate-200/90 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-lg px-2.5 py-1 text-xs"
                     />
                   </div>
                 </div>
@@ -722,7 +722,7 @@ export function Toolbar() {
                     <button
                       onClick={() => updateSetting('topAccentLine', !settings.topAccentLine)}
                       className={`flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer h-[28px] active:translate-y-px truncate ${
-                        settings.topAccentLine ? 'bg-blue-50 text-blue-700 border-blue-200/60 shadow-[0_1px_2px_rgba(59,130,246,0.05),inset_0_1.5px_2px_rgba(255,255,255,0.95)]' : 'bg-white text-slate-500 border-slate-200/80 shadow-[0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)] hover:bg-slate-50 hover:border-slate-350'
+                        settings.topAccentLine ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border-blue-200/60 dark:border-blue-800/60 shadow-[0_1px_2px_rgba(59,130,246,0.05),inset_0_1.5px_2px_rgba(255,255,255,0.95)]' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200/80 dark:border-slate-700 shadow-[0_1px_2px_rgba(15,23,42,0.02)] hover:bg-slate-50 dark:hover:bg-slate-750 hover:border-slate-350'
                       }`}
                     >
                       <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${settings.topAccentLine ? 'bg-blue-600' : 'bg-slate-300'}`} />
@@ -731,7 +731,7 @@ export function Toolbar() {
                     <button
                       onClick={() => updateSetting('showPageBreakLine', !settings.showPageBreakLine)}
                       className={`flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer h-[28px] active:translate-y-px truncate ${
-                        settings.showPageBreakLine ? 'bg-rose-50 text-rose-700 border-rose-200/60 shadow-[0_1px_2px_rgba(244,63,94,0.05),inset_0_1.5px_2px_rgba(255,255,255,0.95)]' : 'bg-white text-slate-500 border-slate-200/80 shadow-[0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)] hover:bg-slate-50 hover:border-slate-350'
+                        settings.showPageBreakLine ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border-rose-200/60 dark:border-rose-800/60 shadow-[0_1px_2px_rgba(244,63,94,0.05),inset_0_1.5px_2px_rgba(255,255,255,0.95)]' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200/80 dark:border-slate-700 shadow-[0_1px_2px_rgba(15,23,42,0.02)] hover:bg-slate-50 dark:hover:bg-slate-750 hover:border-slate-350'
                       }`}
                     >
                       <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${settings.showPageBreakLine ? 'bg-rose-500 animate-pulse' : 'bg-slate-300'}`} />
@@ -740,7 +740,7 @@ export function Toolbar() {
                     <button
                       onClick={() => updateSetting('show3DBackdrop', !settings.show3DBackdrop)}
                       className={`flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer h-[28px] active:translate-y-px truncate ${
-                        settings.show3DBackdrop ? 'bg-indigo-50 text-indigo-700 border-indigo-200/60 shadow-[0_1px_2px_rgba(99,102,241,0.05),inset_0_1.5px_2px_rgba(255,255,255,0.95)]' : 'bg-white text-slate-500 border-slate-200/80 shadow-[0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)] hover:bg-slate-50 hover:border-slate-350'
+                        settings.show3DBackdrop ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border-indigo-200/60 dark:border-indigo-800/60 shadow-[0_1px_2px_rgba(99,102,241,0.05),inset_0_1.5px_2px_rgba(255,255,255,0.95)]' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200/80 dark:border-slate-700 shadow-[0_1px_2px_rgba(15,23,42,0.02)] hover:bg-slate-50 dark:hover:bg-slate-750 hover:border-slate-350'
                       }`}
                     >
                       <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${settings.show3DBackdrop ? 'bg-indigo-500 animate-pulse' : 'bg-slate-300'}`} />
@@ -750,19 +750,19 @@ export function Toolbar() {
                 </div>
 
                 {/* Export File Name on Mobile / Smaller popup widths */}
-                <div className="flex sm:hidden flex-col gap-1.5 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                <div className="flex sm:hidden flex-col gap-1.5 bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-750">
                   <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">{t.exportNameLabel}</span>
                   <input
                     type="text"
                     value={customFileName}
                     onChange={(e) => setCustomFileName(e.target.value)}
                     placeholder={`${exportTitle}_简历`}
-                    className="bg-white border border-slate-200 text-slate-700 rounded-lg py-1 px-2.5 focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium text-xs w-full hover:border-slate-300 transition-colors"
+                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-lg py-1 px-2.5 focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium text-xs w-full hover:border-slate-300 transition-colors"
                   />
                 </div>
 
                 {/* 5. Fine Spacing Adjustments */}
-                <div className="space-y-3 bg-slate-50/80 p-3.5 rounded-xl border border-slate-100">
+                <div className="space-y-3 bg-slate-50/80 dark:bg-slate-800/60 p-3.5 rounded-xl border border-slate-100 dark:border-slate-750">
                   <div className="flex items-center justify-between">
                     <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">{t.spacingLabel}</label>
                     <button
@@ -771,7 +771,7 @@ export function Toolbar() {
                         updateSetting('blockGap', 1.0);
                         updateSetting('letterSpacing', 0.0);
                       }}
-                      className="text-[10px] text-indigo-600 hover:text-indigo-800 font-bold transition-all cursor-pointer"
+                      className="text-[10px] text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-bold transition-all cursor-pointer"
                     >
                       {t.resetBtn}
                     </button>

@@ -172,8 +172,37 @@ export default function App() {
     return () => clearInterval(interval);
   }, [markdown, settings]);
 
+  // Dark mode / Studio Dark synchronization
+  useEffect(() => {
+    const applyTheme = () => {
+      const mode = settings.themeMode || 'light';
+      let isDark = false;
+      if (mode === 'dark') {
+        isDark = true;
+      } else if (mode === 'system') {
+        isDark = typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      }
+
+      if (typeof document !== 'undefined') {
+        document.documentElement.classList.toggle('dark', isDark);
+      }
+      try {
+        localStorage.setItem('resume_theme_mode', mode);
+      } catch (e) {}
+    };
+
+    applyTheme();
+
+    if (settings.themeMode === 'system' && typeof window !== 'undefined') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const listener = () => applyTheme();
+      mediaQuery.addEventListener('change', listener);
+      return () => mediaQuery.removeEventListener('change', listener);
+    }
+  }, [settings.themeMode]);
+
   return (
-    <div className={`flex flex-col h-screen overflow-hidden bg-[#f8fafc] relative ${isDragging ? 'select-none cursor-col-resize' : ''}`}>
+    <div className={`flex flex-col h-screen overflow-hidden bg-[#f8fafc] dark:bg-[#070a13] text-slate-900 dark:text-slate-100 relative transition-colors duration-200 ${isDragging ? 'select-none cursor-col-resize' : ''}`}>
       <AestheticBackdrop />
       
       <div className="flex flex-col h-full w-full z-10 relative">
@@ -196,10 +225,10 @@ export default function App() {
               style={{
                 width: settings.layoutMode === 'split' ? (!isMobile ? `${splitRatio}%` : '100%') : '100%'
               }}
-              className={`z-10 relative border-r border-slate-200/90 transition-none ${
+              className={`z-10 relative border-r border-slate-200/90 dark:border-slate-800 transition-none ${
                 settings.layoutMode === 'editor' 
                   ? 'w-full h-full' 
-                  : 'h-1/2 md:h-full border-b md:border-b-0 border-slate-200/90'
+                  : 'h-1/2 md:h-full border-b md:border-b-0 border-slate-200/90 dark:border-slate-800'
               }`}
             >
               <Editor />
@@ -215,7 +244,7 @@ export default function App() {
               title="拖拽调节编辑器与预览区宽度（双击复位 50%）"
               onDoubleClick={() => setSplitRatio(50)}
             >
-              <div className={`w-1 h-8 rounded-full transition-all duration-200 ${isDragging ? 'bg-indigo-600 scale-y-125' : 'bg-slate-300 group-hover:bg-indigo-400 group-hover:scale-y-110'}`} />
+              <div className={`w-1 h-8 rounded-full transition-all duration-200 ${isDragging ? 'bg-indigo-600 scale-y-125' : 'bg-slate-300 dark:bg-slate-700 group-hover:bg-indigo-400 dark:group-hover:bg-indigo-400 group-hover:scale-y-110'}`} />
             </div>
           )}
 

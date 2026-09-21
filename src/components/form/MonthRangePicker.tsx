@@ -170,7 +170,7 @@ export function MonthRangePicker({
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="absolute right-2 p-1 text-slate-400 hover:text-indigo-600 rounded-md hover:bg-slate-50 transition-colors cursor-pointer"
+          className="absolute right-2 p-1 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           title={isEn ? "Open Date Picker" : "打开日期选择器"}
         >
           <Calendar className="w-3.5 h-3.5" />
@@ -178,18 +178,18 @@ export function MonthRangePicker({
       </div>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-80 sm:w-[410px] max-w-[calc(100vw-1.5rem)] max-h-[85vh] overflow-y-auto bg-white border border-slate-200/90 shadow-[0_20px_48px_rgba(30,41,59,0.14)] rounded-2xl p-3.5 sm:p-4.5 z-50 flex flex-col gap-3.5 sm:gap-4 animate-in fade-in slide-in-from-top-2 duration-200 scrollbar-thin">
+        <div className="absolute right-0 top-full mt-2 w-80 sm:w-[410px] max-w-[calc(100vw-1.5rem)] max-h-[85vh] overflow-y-auto bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-[0_20px_48px_rgba(30,41,59,0.14)] dark:shadow-[0_20px_48px_rgba(0,0,0,0.5)] rounded-2xl p-3.5 sm:p-4.5 z-50 flex flex-col gap-3.5 sm:gap-4 animate-in fade-in slide-in-from-top-2 duration-200 scrollbar-thin">
           
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-            <span className="text-xs font-extrabold text-slate-800 flex items-center gap-1.5">
-              <Calendar className="w-4 h-4 text-indigo-500" />
+          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
+            <span className="text-xs font-extrabold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
+              <Calendar className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
               {isEn ? 'Select Period' : '选择起止时间'}
             </span>
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="text-slate-400 hover:text-slate-600 p-0.5 rounded-lg hover:bg-slate-50 transition-colors"
+              className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -201,7 +201,7 @@ export function MonthRangePicker({
             {/* Start Date Panel */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-extrabold text-indigo-600 uppercase tracking-wider bg-indigo-50 px-2 py-0.5 rounded">
+                <span className="text-[10px] font-extrabold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded">
                   {isEn ? 'Start' : '起始时间'}
                 </span>
                 <CustomSelect
@@ -211,7 +211,7 @@ export function MonthRangePicker({
                   size="xs"
                   align="right"
                   maxMenuHeight="max-h-44"
-                  triggerClassName="font-bold bg-slate-50 border-slate-200 rounded-md px-2 py-0.5 text-slate-700"
+                  triggerClassName="font-bold bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-md px-2 py-0.5 text-slate-700 dark:text-slate-200"
                 />
               </div>
 
@@ -227,7 +227,7 @@ export function MonthRangePicker({
                       className={`py-1 text-[11px] font-bold rounded-lg transition-all cursor-pointer ${
                         isSelected
                           ? 'bg-indigo-600 text-white shadow-sm'
-                          : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                          : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
                       }`}
                     >
                       {m}{isEn ? '' : '月'}
@@ -241,13 +241,13 @@ export function MonthRangePicker({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-extrabold text-indigo-600 uppercase tracking-wider bg-indigo-50 px-2 py-0.5 rounded">
+                  <span className="text-[10px] font-extrabold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded">
                     {isEn ? 'End' : '结束时间'}
                   </span>
                   <CustomCheckbox
                     checked={isOngoing}
                     onChange={(checked) => setIsOngoing(checked)}
-                    label={<span className="text-[11px] font-bold text-slate-500">{isEn ? 'Present' : '至今'}</span>}
+                    label={<span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">{isEn ? 'Present' : '至今'}</span>}
                     size="sm"
                     colorTheme="indigo"
                   />
@@ -261,8 +261,8 @@ export function MonthRangePicker({
                   size="xs"
                   align="right"
                   maxMenuHeight="max-h-44"
-                  triggerClassName={`font-bold bg-slate-50 border-slate-200 rounded-md px-2 py-0.5 text-slate-700 ${
-                    isOngoing ? 'opacity-40 cursor-not-allowed text-slate-400 bg-slate-100' : ''
+                  triggerClassName={`font-bold bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-md px-2 py-0.5 text-slate-700 dark:text-slate-200 ${
+                    isOngoing ? 'opacity-40 cursor-not-allowed text-slate-400 bg-slate-100 dark:bg-slate-850' : ''
                   }`}
                 />
               </div>
@@ -279,10 +279,10 @@ export function MonthRangePicker({
                       onClick={() => setEndMonth(m)}
                       className={`py-1 text-[11px] font-bold rounded-lg transition-all ${
                         isOngoing
-                          ? 'bg-slate-100 text-slate-300 cursor-not-allowed'
+                          ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-300 dark:text-slate-600 cursor-not-allowed'
                           : isSelected
                           ? 'bg-indigo-600 text-white shadow-sm cursor-pointer'
-                          : 'bg-slate-50 text-slate-600 hover:bg-slate-100 cursor-pointer'
+                          : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer'
                       }`}
                     >
                       {m}{isEn ? '' : '月'}
@@ -295,11 +295,11 @@ export function MonthRangePicker({
           </div>
 
           {/* Footer Action Buttons */}
-          <div className="flex items-center justify-between border-t border-slate-100 pt-2.5 mt-1">
+          <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-2.5 mt-1">
             <button
               type="button"
               onClick={handleClear}
-              className="text-[11px] font-bold text-slate-500 hover:text-rose-600 px-2.5 py-1.5 rounded-lg border border-slate-200/80 hover:bg-rose-50/20 hover:border-rose-200 transition-all cursor-pointer flex items-center gap-1 active:translate-y-px"
+              className="text-[11px] font-bold text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 px-2.5 py-1.5 rounded-lg border border-slate-200/80 dark:border-slate-750 hover:bg-rose-50/20 dark:hover:bg-rose-950/30 hover:border-rose-200 dark:hover:border-rose-800 transition-all cursor-pointer flex items-center gap-1 active:translate-y-px"
             >
               <RotateCcw className="w-3 h-3" />
               {isEn ? 'Clear' : '清除'}
@@ -308,7 +308,7 @@ export function MonthRangePicker({
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="text-[11px] font-bold text-slate-600 hover:text-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition-all cursor-pointer"
+                className="text-[11px] font-bold text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer"
               >
                 {isEn ? 'Cancel' : '取消'}
               </button>

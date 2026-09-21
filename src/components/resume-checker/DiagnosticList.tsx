@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'motion/react';
 import { AlertCircle, AlertTriangle, CheckCircle2, Zap } from 'lucide-react';
@@ -15,7 +14,7 @@ export function DiagnosticList({ issues, lang }: DiagnosticListProps) {
     <div className="space-y-4">
       {/* Diagnostics Title */}
       <div className="flex items-center justify-between">
-        <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+        <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
           {isEn ? `Diagnostic Report (${issues.length} items)` : `诊断报告 (${issues.length}项)`}
         </span>
       </div>
@@ -30,19 +29,19 @@ export function DiagnosticList({ issues, lang }: DiagnosticListProps) {
 
           if (issue.type === 'error') {
             icon = <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />;
-            bgClass = 'bg-rose-50/40';
-            borderClass = 'border-rose-100';
-            textClass = 'text-rose-900';
+            bgClass = 'bg-rose-50/50 dark:bg-rose-950/40';
+            borderClass = 'border-rose-100 dark:border-rose-900/50';
+            textClass = 'text-rose-900 dark:text-rose-200';
           } else if (issue.type === 'warning') {
             icon = <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />;
-            bgClass = 'bg-amber-50/30';
-            borderClass = 'border-amber-100/70';
-            textClass = 'text-amber-900';
+            bgClass = 'bg-amber-50/40 dark:bg-amber-950/30';
+            borderClass = 'border-amber-100/70 dark:border-amber-900/40';
+            textClass = 'text-amber-900 dark:text-amber-200';
           } else {
             icon = <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />;
-            bgClass = 'bg-emerald-50/20';
-            borderClass = 'border-emerald-100/50';
-            textClass = 'text-emerald-950';
+            bgClass = 'bg-emerald-50/30 dark:bg-emerald-950/30';
+            borderClass = 'border-emerald-100/60 dark:border-emerald-900/40';
+            textClass = 'text-emerald-950 dark:text-emerald-200';
           }
 
           return (
@@ -56,11 +55,11 @@ export function DiagnosticList({ issues, lang }: DiagnosticListProps) {
               {icon}
               <div className="flex-1 space-y-1">
                 <p className={`text-xs font-bold ${textClass}`}>{issue.title}</p>
-                <p className="text-[11px] text-slate-500 leading-relaxed text-justify">{issue.desc}</p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed text-justify">{issue.desc}</p>
                 {issue.fixable && issue.onFix && (
                   <button
                     onClick={issue.onFix}
-                    className="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-[10px] font-bold rounded transition-all cursor-pointer shadow-sm shadow-blue-600/10"
+                    className="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-[10px] font-bold rounded transition-all cursor-pointer shadow-xs shadow-blue-600/10"
                   >
                     <Zap className="w-2.5 h-2.5" />
                     <span>{isEn ? 'Auto Fix' : '一键智能修正'}</span>

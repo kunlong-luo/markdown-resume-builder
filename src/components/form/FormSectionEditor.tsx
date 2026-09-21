@@ -77,8 +77,8 @@ export function FormSectionEditor({
       id={`form-sec-${sec.id}`} 
       className={`rounded-xl overflow-hidden relative group/section scroll-mt-20 transition-all duration-300 ${
         isExpanded 
-          ? 'tactile-card shadow-[0_16px_36px_rgba(30,41,59,0.06),0_3px_10px_rgba(30,41,59,0.03)] border-indigo-200/50 scale-[1.002] ring-1 ring-indigo-50/50 mb-5' 
-          : 'bg-slate-50/60 border border-slate-200/50 shadow-[0_2px_6px_rgba(30,41,59,0.015)] opacity-85 hover:opacity-100 scale-[0.995] hover:scale-100 mb-3'
+          ? 'tactile-card shadow-[0_16px_36px_rgba(30,41,59,0.06),0_3px_10px_rgba(30,41,59,0.03)] border-indigo-200/50 dark:border-slate-800 scale-[1.002] ring-1 ring-indigo-50/50 dark:ring-slate-800 mb-5' 
+          : 'bg-slate-50/60 dark:bg-slate-900/60 border border-slate-200/50 dark:border-slate-800 shadow-[0_2px_6px_rgba(30,41,59,0.015)] opacity-85 hover:opacity-100 scale-[0.995] hover:scale-100 mb-3'
       }`}
     >
       <SectionHeader 
@@ -92,13 +92,13 @@ export function FormSectionEditor({
           {sec.type === 'text' ? (
             <div>
               <div className="mb-1.5">
-                <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.textLabel}</label>
+                <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest">{t.textLabel}</label>
               </div>
               <div className="flex flex-col mt-1">
                 <FormTextareaToolbar textareaId={sec.id} value={sec.textValue} onChange={onTextChange} lang={lang} />
                 <textarea
                   id={sec.id} value={sec.textValue} onChange={(e) => onTextChange(e.target.value)} rows={6}
-                  className="w-full p-3.5 text-xs font-mono leading-relaxed bg-slate-50/10 border border-slate-200/80 rounded-b-lg rounded-t-none border-t-0 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 shadow-[inset_0_1.5px_3px_rgba(15,23,42,0.04)] focus:shadow-none transition-all duration-200"
+                  className="w-full p-3.5 text-xs font-mono leading-relaxed bg-slate-50/10 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-750 rounded-b-lg rounded-t-none border-t-0 text-slate-800 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 shadow-[inset_0_1.5px_3px_rgba(15,23,42,0.04)] focus:shadow-none transition-all duration-200"
                   placeholder={t.textPlaceholder}
                 />
               </div>
@@ -106,7 +106,7 @@ export function FormSectionEditor({
           ) : (
             <div className="space-y-4">
               {sec.items.length === 0 ? (
-                <div className="text-center py-6 border border-dashed border-slate-200 rounded-lg text-xs text-slate-400">{t.noItems}</div>
+                <div className="text-center py-6 border border-dashed border-slate-200 dark:border-slate-800 rounded-lg text-xs text-slate-400 dark:text-slate-500">{t.noItems}</div>
               ) : (
                 <div className="space-y-4">
                   {sec.items.map((item, itemIndex) => (
@@ -124,7 +124,7 @@ export function FormSectionEditor({
               )}
               <button
                 type="button" onClick={onAddItem}
-                className="flex items-center justify-center gap-1.5 w-full py-2.5 bg-gradient-to-r from-slate-50 to-white hover:from-indigo-50/30 hover:to-white text-slate-600 hover:text-indigo-700 border border-dashed border-slate-200 hover:border-indigo-300 rounded-xl text-xs font-bold transition-all shadow-[0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)] hover:shadow-[0_2px_6px_rgba(99,102,241,0.04),inset_0_1.5px_2px_rgba(255,255,255,0.95)] cursor-pointer active:translate-y-px"
+                className="flex items-center justify-center gap-1.5 w-full py-2.5 bg-gradient-to-r from-slate-50 to-white dark:from-slate-850 dark:to-slate-800 hover:from-indigo-50/30 hover:to-white dark:hover:from-indigo-950/40 dark:hover:to-slate-800 text-slate-600 dark:text-slate-300 hover:text-indigo-700 dark:hover:text-indigo-300 border border-dashed border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-600 rounded-xl text-xs font-bold transition-all shadow-[0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)] dark:shadow-none cursor-pointer active:translate-y-px"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>{t.addItem}</span>

@@ -80,7 +80,7 @@ export function QuickNav({ sections, expandedSections, setExpandedSections, lang
   }, [sections, expandedSections]);
 
   return (
-    <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-md border-b border-slate-200/50 pb-3 pt-2.5 px-6 w-full min-w-0 shrink-0">
+    <div className="sticky top-0 z-10 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/50 dark:border-slate-800/80 pb-3 pt-2.5 px-6 w-full min-w-0 shrink-0">
       {/* Section Quick Jumping */}
       <div className="flex items-center gap-2 overflow-x-auto scrollbar-none w-full min-w-0 py-0.5">
         <button
@@ -100,10 +100,10 @@ export function QuickNav({ sections, expandedSections, setExpandedSections, lang
           className={`px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 ${
             activeSectionId === 'basic'
               ? 'tactile-btn-primary tactile-btn-primary-hover tactile-btn-primary-active font-bold border-indigo-600/20 text-white'
-              : 'tactile-btn tactile-btn-hover tactile-btn-active border-slate-200/80 text-slate-600 hover:text-slate-800'
+              : 'tactile-btn tactile-btn-hover tactile-btn-active border-slate-200/80 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white'
           }`}
         >
-          <User className={`w-3.5 h-3.5 ${activeSectionId === 'basic' ? 'text-white' : 'text-slate-400'}`} />
+          <User className={`w-3.5 h-3.5 ${activeSectionId === 'basic' ? 'text-white' : 'text-slate-400 dark:text-slate-400'}`} />
           <span>{isEn ? 'Basic Info' : '基本信息'}</span>
         </button>
         
@@ -128,7 +128,7 @@ export function QuickNav({ sections, expandedSections, setExpandedSections, lang
               className={`px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 ${
                 isActive
                   ? 'tactile-btn-primary tactile-btn-primary-hover tactile-btn-primary-active font-bold border-indigo-600/20 text-white'
-                  : 'tactile-btn tactile-btn-hover tactile-btn-active border-slate-200/80 text-slate-600 hover:text-slate-800'
+                  : 'tactile-btn tactile-btn-hover tactile-btn-active border-slate-200/80 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white'
               }`}
             >
               <span className={`flex items-center justify-center shrink-0 ${isActive ? '[&_svg]:text-white [&_svg]:stroke-white text-white' : ''}`}>

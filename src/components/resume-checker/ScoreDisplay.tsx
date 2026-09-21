@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'motion/react';
 import { AnalysisResult } from '../../lib/resume-checker-utils';
@@ -18,8 +17,8 @@ export function ScoreDisplay({ analysis, scoreBadge, lang }: ScoreDisplayProps) 
   return (
     <div className="space-y-6">
       {/* Score Ring Display */}
-      <div className="bg-gradient-to-br from-slate-50 to-white border border-slate-100 rounded-2xl p-5 shadow-sm text-center relative overflow-hidden">
-        <div className="absolute top-2 right-2">
+      <div className="bg-gradient-to-br from-slate-50 to-white dark:from-slate-800/80 dark:to-slate-850 border border-slate-100 dark:border-slate-800 rounded-2xl p-5 shadow-sm text-center relative overflow-hidden">
+        <div className="absolute top-2.5 right-2.5">
           <span className={`text-[10px] px-2 py-0.5 rounded-full border font-bold ${scoreBadge.color}`}>
             {scoreBadge.label}
           </span>
@@ -33,7 +32,7 @@ export function ScoreDisplay({ analysis, scoreBadge, lang }: ScoreDisplayProps) 
                 cx="56" 
                 cy="56" 
                 r="46" 
-                className="stroke-slate-100" 
+                className="stroke-slate-100 dark:stroke-slate-800" 
                 strokeWidth="8" 
                 fill="transparent" 
               />
@@ -55,20 +54,20 @@ export function ScoreDisplay({ analysis, scoreBadge, lang }: ScoreDisplayProps) 
               />
             </svg>
             <div className="absolute flex flex-col items-center">
-              <span className="text-3xl font-black text-slate-800 tracking-tighter">
+              <span className="text-3xl font-black text-slate-800 dark:text-slate-100 tracking-tighter">
                 {analysis.score}
               </span>
-              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">
                 {isEn ? 'Score' : 'Score分'}
               </span>
             </div>
           </div>
 
           <div className="mt-2 space-y-1">
-            <p className="text-xs font-semibold text-slate-700">
+            <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">
               {isEn ? 'Resume Competitiveness Score' : '简历竞争力得分'}
             </p>
-            <p className="text-[11px] text-slate-400 px-3">
+            <p className="text-[11px] text-slate-400 dark:text-slate-400 px-3">
               {isEn 
                 ? 'Calculated based on information integrity, action verbs, quantified results, and template guidelines.'
                 : '根据基本信息完整度、行业动词数量、量化成果比例、格式残留等方面智能演算'}
@@ -79,28 +78,28 @@ export function ScoreDisplay({ analysis, scoreBadge, lang }: ScoreDisplayProps) 
 
       {/* Quick Stats Summary */}
       <div className="grid grid-cols-2 gap-2.5">
-        <div className="bg-slate-50/50 hover:bg-slate-50 border border-slate-100 rounded-xl p-3 text-center transition-colors">
-          <p className="text-[10px] font-semibold text-slate-400 mb-0.5">
+        <div className="bg-slate-50/60 dark:bg-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-100 dark:border-slate-800 rounded-xl p-3 text-center transition-colors">
+          <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-400 mb-0.5">
             {isEn ? 'Quantified Results' : '量化成果指标'}
           </p>
           <div className="flex items-baseline justify-center gap-1">
-            <span className={`text-lg font-black ${analysis.metricCount >= 5 ? 'text-emerald-600' : 'text-amber-600'}`}>
+            <span className={`text-lg font-black ${analysis.metricCount >= 5 ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
               {analysis.metricCount}
             </span>
-            <span className="text-[10px] text-slate-400">
+            <span className="text-[10px] text-slate-400 dark:text-slate-500">
               {isEn ? 'item(s)' : '个'}
             </span>
           </div>
         </div>
-        <div className="bg-slate-50/50 hover:bg-slate-50 border border-slate-100 rounded-xl p-3 text-center transition-colors">
-          <p className="text-[10px] font-semibold text-slate-400 mb-0.5">
+        <div className="bg-slate-50/60 dark:bg-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-100 dark:border-slate-800 rounded-xl p-3 text-center transition-colors">
+          <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-400 mb-0.5">
             {isEn ? 'Action Verbs' : '强行动词数'}
           </p>
           <div className="flex items-baseline justify-center gap-1">
-            <span className="text-lg font-black text-blue-600">
+            <span className="text-lg font-black text-blue-600 dark:text-blue-400">
               {analysis.foundVerbsCount}
             </span>
-            <span className="text-[10px] text-slate-400">
+            <span className="text-[10px] text-slate-400 dark:text-slate-500">
               {isEn ? 'word(s)' : '个'}
             </span>
           </div>

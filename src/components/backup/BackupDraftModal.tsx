@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Database, History, FileJson, AlertCircle, Folder } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -8,6 +7,7 @@ import { BackupTab } from './BackupTab';
 import { MatrixTab } from './MatrixTab';
 import { useConfirm } from '../../context/ConfirmContext';
 import { useResumeStore } from '../../store/useResumeStore';
+import { storage, STORAGE_KEYS } from '../../lib/storage';
 
 export function BackupDraftModal() {
   const {
@@ -47,23 +47,18 @@ export function BackupDraftModal() {
 
   const loadDrafts = () => {
     try {
-      const saved = localStorage.getItem('resume-drafts');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          const sanitized = parsed.map((d: any) => {
-            if (d && d.isAutoSave && d.title && d.title.includes('自动备份 - ')) {
-              return {
-                ...d,
-                title: d.title.replace('自动备份 - ', '')
-              };
-            }
-            return d;
-          });
-          setDrafts(sanitized);
-        } else {
-          setDrafts(parsed);
-        }
+      const parsed = storage.get<ResumeDraft[]>(STORAGE_KEYS.DRAFTS, []);
+      if (Array.isArray(parsed)) {
+        const sanitized = parsed.map((d: any) => {
+          if (d && d.isAutoSave && d.title && d.title.includes('自动备份 - ')) {
+            return {
+              ...d,
+              title: d.title.replace('自动备份 - ', '')
+            };
+          }
+          return d;
+        });
+        setDrafts(sanitized);
       } else {
         setDrafts([]);
       }
@@ -74,7 +69,7 @@ export function BackupDraftModal() {
   };
 
   const saveDraftsList = (updatedDrafts: ResumeDraft[]) => {
-    localStorage.setItem('resume-drafts', JSON.stringify(updatedDrafts));
+    storage.set(STORAGE_KEYS.DRAFTS, updatedDrafts);
     setDrafts(updatedDrafts);
   };
 
@@ -256,7 +251,7 @@ export function BackupDraftModal() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-slate-900/60 backdrop-blur-[3px] cursor-pointer"
+            className="absolute inset-0 bg-slate-950/60 backdrop-blur-[3px] cursor-pointer"
           />
 
           <motion.div
@@ -264,22 +259,22 @@ export function BackupDraftModal() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 12 }}
             transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-            className="relative bg-white w-full max-w-4xl h-[640px] max-h-[92vh] rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-10 flex flex-col"
+            className="relative bg-white dark:bg-slate-900 w-full max-w-4xl h-[640px] max-h-[92vh] rounded-2xl shadow-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden z-10 flex flex-col transition-colors"
           >
             {/* Top Gradient Accent Bar */}
             <div className="h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
 
             {/* Header Area */}
-            <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-5 border-b border-slate-100/80 bg-white">
+            <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-5 border-b border-slate-100/80 dark:border-slate-800 bg-white dark:bg-slate-900">
               <div className="flex items-center gap-2.5 sm:gap-3">
-                <div className="p-1.5 sm:p-2 bg-indigo-50/80 text-indigo-600 rounded-xl border border-indigo-100/50 shrink-0">
+                <div className="p-1.5 sm:p-2 bg-indigo-50/80 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-xl border border-indigo-100/50 dark:border-indigo-800/60 shrink-0">
                   <Database className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-900 text-xs sm:text-sm tracking-tight flex items-center gap-2">
+                  <h3 className="font-bold text-slate-900 dark:text-slate-100 text-xs sm:text-sm tracking-tight flex items-center gap-2">
                     {settings.lang === 'en' ? 'Versions & Backup' : '版本备份'}
                   </h3>
-                  <p className="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 line-clamp-1 sm:line-clamp-none">
+                  <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1 sm:line-clamp-none">
                     {settings.lang === 'en' 
                       ? 'Manage target-specific resume variations, local automatic auto-saves, and complete JSON configurations.'
                       : '管理多岗位简历、本地历史草稿及 JSON 配置备份。'}
@@ -288,21 +283,21 @@ export function BackupDraftModal() {
               </div>
               <button
                 onClick={onClose}
-                className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600 transition-all cursor-pointer shrink-0"
+                className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-all cursor-pointer shrink-0"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* Tab Switched Navigation Bar */}
-            <div className="flex items-center justify-between px-3 sm:px-6 py-2 sm:py-3 bg-slate-50 border-b border-slate-100/80 overflow-x-auto scrollbar-none">
-              <div className="flex p-1 bg-slate-200/50 rounded-xl gap-1 shrink-0">
+            <div className="flex items-center justify-between px-3 sm:px-6 py-2 sm:py-3 bg-slate-50 dark:bg-slate-850 border-b border-slate-100/80 dark:border-slate-800 overflow-x-auto scrollbar-none">
+              <div className="flex p-1 bg-slate-200/60 dark:bg-slate-800 rounded-xl gap-1 shrink-0">
                 <button
                   onClick={() => setActiveTab('matrix')}
                   className={`flex items-center gap-1.5 py-1 sm:py-1.5 px-2.5 sm:px-4 text-xs font-bold rounded-lg transition-all cursor-pointer shrink-0 whitespace-nowrap ${
                     activeTab === 'matrix'
-                      ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-slate-100'
-                      : 'text-slate-500 hover:text-slate-800 hover:bg-white/40'
+                      ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm ring-1 ring-slate-100 dark:ring-slate-600'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-white/40 dark:hover:bg-slate-750'
                   }`}
                 >
                   <Folder className="w-3.5 h-3.5" />
@@ -314,8 +309,8 @@ export function BackupDraftModal() {
                   onClick={() => setActiveTab('drafts')}
                   className={`flex items-center gap-1.5 py-1 sm:py-1.5 px-2.5 sm:px-4 text-xs font-bold rounded-lg transition-all cursor-pointer shrink-0 whitespace-nowrap ${
                     activeTab === 'drafts'
-                      ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-slate-100'
-                      : 'text-slate-500 hover:text-slate-800 hover:bg-white/40'
+                      ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm ring-1 ring-slate-100 dark:ring-slate-600'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-white/40 dark:hover:bg-slate-750'
                   }`}
                 >
                   <History className="w-3.5 h-3.5" />
@@ -327,8 +322,8 @@ export function BackupDraftModal() {
                   onClick={() => setActiveTab('backup')}
                   className={`flex items-center gap-1.5 py-1.5 px-4 text-xs font-bold rounded-lg transition-all cursor-pointer ${
                     activeTab === 'backup'
-                      ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-slate-100'
-                      : 'text-slate-500 hover:text-slate-800 hover:bg-white/40'
+                      ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm ring-1 ring-slate-100 dark:ring-slate-600'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-white/40 dark:hover:bg-slate-750'
                   }`}
                 >
                   <FileJson className="w-3.5 h-3.5" />
@@ -339,7 +334,7 @@ export function BackupDraftModal() {
               </div>
 
               {/* Small Tip Tag */}
-              <div className="hidden sm:flex items-center gap-1 text-[10px] text-slate-400 font-medium">
+              <div className="hidden sm:flex items-center gap-1 text-[10px] text-slate-400 dark:text-slate-500 font-medium">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 <span>{settings.lang === 'en' ? 'Local Storage Engine Active' : '本地存储已就绪'}</span>
               </div>
@@ -353,18 +348,18 @@ export function BackupDraftModal() {
                   exit={{ opacity: 0, y: -8, scale: 0.98 }}
                   className={`absolute top-[125px] left-6 right-6 z-20 p-3.5 rounded-xl text-xs flex items-center gap-2.5 shadow-md border backdrop-blur-md ${
                     errorMessage 
-                      ? 'bg-rose-50/95 border-rose-100 text-rose-800' 
-                      : 'bg-emerald-50/95 border-emerald-100 text-emerald-800'
+                      ? 'bg-rose-50/95 dark:bg-rose-950/95 border-rose-100 dark:border-rose-900 text-rose-800 dark:text-rose-200' 
+                      : 'bg-emerald-50/95 dark:bg-emerald-950/95 border-emerald-100 dark:border-emerald-900 text-emerald-800 dark:text-emerald-200'
                   }`}
                 >
-                  <AlertCircle className={`w-4 h-4 ${errorMessage ? 'text-rose-600' : 'text-emerald-600'}`} />
+                  <AlertCircle className={`w-4 h-4 ${errorMessage ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`} />
                   <span className="font-bold">{successMessage || errorMessage}</span>
                 </motion.div>
               )}
             </AnimatePresence>
 
             {/* Modal Body Container */}
-            <div className="flex-1 overflow-y-auto p-6 bg-white">
+            <div className="flex-1 overflow-y-auto p-6 bg-white dark:bg-slate-900 scrollbar-thin">
               {activeTab === 'matrix' ? (
                 <MatrixTab 
                   currentMarkdown={markdown}
@@ -402,10 +397,10 @@ export function BackupDraftModal() {
             </div>
 
             {/* Modal Footer Area */}
-            <div className="px-6 py-4.5 bg-slate-50 border-t border-slate-100 flex items-center justify-end">
+            <div className="px-6 py-4.5 bg-slate-50 dark:bg-slate-850 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end">
               <button
                 onClick={onClose}
-                className="px-5 py-2.5 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold rounded-lg transition-all cursor-pointer shadow-sm active:scale-98"
+                className="px-5 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-lg transition-all cursor-pointer shadow-sm active:scale-98"
               >
                 {settings.lang === 'en' ? 'Close Hub' : '关闭 Hub'}
               </button>

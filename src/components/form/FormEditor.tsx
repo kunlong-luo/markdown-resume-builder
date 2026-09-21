@@ -428,7 +428,7 @@ export function FormEditor({ value, onChange, settings }: FormEditorProps) {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto bg-slate-50/50 min-w-0 overflow-x-hidden flex flex-col">
+    <div className="flex-1 overflow-y-auto bg-slate-50/50 dark:bg-slate-900/60 min-w-0 overflow-x-hidden flex flex-col">
       <QuickNav 
         sections={localModel.sections} 
         expandedSections={expandedSections} 

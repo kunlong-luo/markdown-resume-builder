@@ -67,29 +67,29 @@ export const CustomInput: React.FC<CustomInputProps> = ({
   const getVariantStyles = () => {
     if (variant === 'tactile') {
       return `
-        bg-white border rounded-xl text-slate-800 placeholder-slate-400
+        bg-white dark:bg-slate-800/90 border rounded-xl text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500
         ${
           error
-            ? 'border-rose-400 focus:ring-2 focus:ring-rose-400/30'
+            ? 'border-rose-400 dark:border-rose-500 focus:ring-2 focus:ring-rose-400/30'
             : isFocused
-            ? 'border-indigo-500 ring-2 ring-indigo-500/20 shadow-sm'
-            : 'border-slate-200/90 hover:border-slate-300 shadow-[0_1px_2px_rgba(15,23,42,0.03)]'
+            ? 'border-indigo-500 dark:border-indigo-400 ring-2 ring-indigo-500/20 dark:ring-indigo-400/20 shadow-sm'
+            : 'border-slate-200/90 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 shadow-[0_1px_2px_rgba(15,23,42,0.03)]'
         }
       `;
     }
     if (variant === 'ghost') {
       return `
-        bg-slate-50/70 border border-transparent rounded-lg text-slate-800 placeholder-slate-400
+        bg-slate-50/70 dark:bg-slate-800/50 border border-transparent rounded-lg text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500
         ${
           error
-            ? 'border-rose-400 focus:bg-white'
+            ? 'border-rose-400 dark:border-rose-500 focus:bg-white dark:focus:bg-slate-800'
             : isFocused
-            ? 'bg-white border-indigo-500 ring-1 ring-indigo-500/30'
-            : 'hover:bg-slate-100/70'
+            ? 'bg-white dark:bg-slate-800 border-indigo-500 dark:border-indigo-400 ring-1 ring-indigo-500/30'
+            : 'hover:bg-slate-100/70 dark:hover:bg-slate-750'
         }
       `;
     }
-    return 'border-b border-slate-200 focus:border-indigo-500';
+    return 'border-b border-slate-200 dark:border-slate-700 focus:border-indigo-500 dark:focus:border-indigo-400 text-slate-800 dark:text-slate-100';
   };
 
   return (
@@ -99,7 +99,7 @@ export const CustomInput: React.FC<CustomInputProps> = ({
           <div
             className={`
               absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center transition-colors
-              ${isFocused ? 'text-indigo-600' : 'text-slate-400'}
+              ${isFocused ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500'}
             `}
           >
             {leftIcon}
@@ -130,7 +130,7 @@ export const CustomInput: React.FC<CustomInputProps> = ({
             ${leftIcon ? PADDING_WITH_LEFT_ICON[size] : ''}
             ${rightIcon || (clearable && value && !disabled) ? PADDING_WITH_RIGHT_ICON[size] : ''}
             ${getVariantStyles()}
-            ${disabled ? 'bg-slate-100/70 cursor-not-allowed opacity-60' : ''}
+            ${disabled ? 'bg-slate-100/70 dark:bg-slate-800/50 cursor-not-allowed opacity-60 text-slate-400 dark:text-slate-600' : ''}
             ${className}
           `}
           {...restProps}
@@ -140,20 +140,20 @@ export const CustomInput: React.FC<CustomInputProps> = ({
           <button
             type="button"
             onClick={handleClear}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-slate-300 hover:text-slate-600 rounded-full hover:bg-slate-100 transition-colors"
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-slate-300 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
           >
             <X className="w-3.5 h-3.5" />
           </button>
         )}
 
         {rightIcon && (
-          <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center justify-center text-slate-400 pointer-events-none">
+          <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center justify-center text-slate-400 dark:text-slate-500 pointer-events-none">
             {rightIcon}
           </div>
         )}
       </div>
 
-      {error && <span className="text-[11px] text-rose-500 mt-1 font-medium">{error}</span>}
+      {error && <span className="text-[11px] text-rose-500 dark:text-rose-400 mt-1 font-medium">{error}</span>}
     </div>
   );
 };

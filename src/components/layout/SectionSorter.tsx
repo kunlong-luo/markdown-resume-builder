@@ -87,13 +87,13 @@ export function SectionSorter({ markdown, onChange, lang }: SectionSorterProps) 
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/30">
+    <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/30 dark:bg-slate-900/50">
       <div className="space-y-1">
-        <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-          <Move className="w-4 h-4 text-indigo-600 animate-pulse" />
+        <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+          <Move className="w-4 h-4 text-indigo-600 dark:text-indigo-400 animate-pulse" />
           <span>{isEn ? 'Section Ordering' : '板块排序'}</span>
         </h3>
-        <p className="text-xs text-slate-500 leading-relaxed">
+        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
           {isEn
             ? 'Drag and drop blocks to reorder or use arrows. Changes sync in real-time.'
             : '支持鼠标直接拖拽板块排序，或使用方向键微调。所有编辑模式实时同步更新。'}
@@ -101,8 +101,8 @@ export function SectionSorter({ markdown, onChange, lang }: SectionSorterProps) 
       </div>
 
       {sections.length === 0 ? (
-        <div className="border border-dashed border-slate-200 rounded-xl p-8 text-center text-slate-400 flex flex-col items-center justify-center gap-2">
-          <Info className="w-8 h-8 text-slate-300 stroke-[1.5]" />
+        <div className="border border-dashed border-slate-200 dark:border-slate-800 rounded-xl p-8 text-center text-slate-400 dark:text-slate-500 flex flex-col items-center justify-center gap-2">
+          <Info className="w-8 h-8 text-slate-300 dark:text-slate-600 stroke-[1.5]" />
           <p className="text-xs">
             {isEn ? 'No primary sections (H2 ## headings) detected' : '未检测到主要的简历板块（以 ## 开头的二级标题）'}
           </p>
@@ -150,12 +150,12 @@ export function SectionSorter({ markdown, onChange, lang }: SectionSorterProps) 
                   setDraggedIndex(null);
                   setDragOverIndex(null);
                 }}
-                className={`relative flex items-center justify-between p-4 pl-6 rounded-xl border select-none overflow-hidden transition-all duration-300 ease-out ${theme.bg} ${
+                className={`relative flex items-center justify-between p-4 pl-6 rounded-xl border select-none overflow-hidden transition-all duration-300 ease-out ${theme.bg} dark:bg-slate-850 dark:border-slate-700/80 ${
                   isDragging 
-                    ? 'opacity-30 scale-[0.97] border-dashed border-indigo-300 bg-indigo-50/5 shadow-[inset_0_2px_8px_rgba(15,23,42,0.05)]' 
+                    ? 'opacity-30 scale-[0.97] border-dashed border-indigo-300 dark:border-indigo-500 bg-indigo-50/5 dark:bg-indigo-950/20 shadow-[inset_0_2px_8px_rgba(15,23,42,0.05)]' 
                     : isDragOver
-                    ? 'border-indigo-400 ring-4 ring-indigo-500/10 scale-[1.02] shadow-[0_20px_40px_-8px_rgba(99,102,241,0.18),0_4px_12px_rgba(99,102,241,0.06),inset_0_2px_4px_rgba(255,255,255,0.95)]'
-                    : `shadow-[0_4px_12px_rgba(15,23,42,0.03),0_1px_2px_rgba(15,23,42,0.02),inset_0_2px_4px_rgba(255,255,255,0.95),inset_0_-1px_3px_rgba(15,23,42,0.02)] hover:-translate-y-1 hover:scale-[1.008] hover:shadow-[0_16px_32px_-4px_rgba(15,23,42,0.08),0_4px_8px_-2px_rgba(15,23,42,0.04),inset_0_2px_4px_rgba(255,255,255,0.95)] active:scale-[0.99] active:translate-y-0 active:shadow-[inset_0_2px_6px_rgba(15,23,42,0.06)] ${theme.border}`
+                    ? 'border-indigo-400 dark:border-indigo-400 ring-4 ring-indigo-500/10 scale-[1.02] shadow-[0_20px_40px_-8px_rgba(99,102,241,0.18),0_4px_12px_rgba(99,102,241,0.06),inset_0_2px_4px_rgba(255,255,255,0.95)]'
+                    : `shadow-[0_4px_12px_rgba(15,23,42,0.03),0_1px_2px_rgba(15,23,42,0.02),inset_0_2px_4px_rgba(255,255,255,0.95),inset_0_-1px_3px_rgba(15,23,42,0.02)] dark:shadow-[0_4px_12px_rgba(0,0,0,0.3)] hover:-translate-y-1 hover:scale-[1.008] hover:shadow-[0_16px_32px_-4px_rgba(15,23,42,0.08),0_4px_8px_-2px_rgba(15,23,42,0.04),inset_0_2px_4px_rgba(255,255,255,0.95)] active:scale-[0.99] active:translate-y-0 active:shadow-[inset_0_2px_6px_rgba(15,23,42,0.06)] ${theme.border}`
                 }`}
               >
                 {/* Elegant left-most brand-colored strip */}
@@ -163,18 +163,18 @@ export function SectionSorter({ markdown, onChange, lang }: SectionSorterProps) 
 
                 <div className="flex items-center gap-3 min-w-0 flex-1 pr-4 cursor-grab active:cursor-grabbing">
                   {/* Grip controller icon */}
-                  <GripVertical className="w-4 h-4 text-slate-400 hover:text-slate-600 transition-colors shrink-0" />
+                  <GripVertical className="w-4 h-4 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors shrink-0" />
                   
                   <div className="min-w-0 space-y-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-bold text-slate-800 text-sm">
+                      <span className="font-bold text-slate-800 dark:text-slate-100 text-sm">
                         {section.title}
                       </span>
-                      <span className="text-[10px] px-1.5 py-0.5 rounded font-bold bg-slate-100 text-slate-600">
+                      <span className="text-[10px] px-1.5 py-0.5 rounded font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
                         {theme.badge}
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-400 truncate font-medium">
+                    <p className="text-[11px] text-slate-400 dark:text-slate-400 truncate font-medium">
                       {contentPreview || (isEn ? '(Empty content)' : '(内容暂未填写)')}
                     </p>
                   </div>
@@ -187,8 +187,8 @@ export function SectionSorter({ markdown, onChange, lang }: SectionSorterProps) 
                     onClick={() => handleMoveUp(idx)}
                     className={`p-1.5 rounded-lg border transition-all ${
                       idx === 0
-                        ? 'border-slate-100 text-slate-300 bg-slate-50 cursor-not-allowed'
-                        : 'border-slate-200 text-slate-600 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50/30 cursor-pointer active:scale-95'
+                        ? 'border-slate-100 dark:border-slate-800 text-slate-300 dark:text-slate-600 bg-slate-50 dark:bg-slate-850 cursor-not-allowed'
+                        : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-200 dark:hover:border-indigo-600 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/40 cursor-pointer active:scale-95'
                     }`}
                     title={isEn ? 'Move up' : '上移板块'}
                   >
@@ -199,8 +199,8 @@ export function SectionSorter({ markdown, onChange, lang }: SectionSorterProps) 
                     onClick={() => handleMoveDown(idx)}
                     className={`p-1.5 rounded-lg border transition-all ${
                       idx === sections.length - 1
-                        ? 'border-slate-100 text-slate-300 bg-slate-50 cursor-not-allowed'
-                        : 'border-slate-200 text-slate-600 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50/30 cursor-pointer active:scale-95'
+                        ? 'border-slate-100 dark:border-slate-800 text-slate-300 dark:text-slate-600 bg-slate-50 dark:bg-slate-850 cursor-not-allowed'
+                        : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-200 dark:hover:border-indigo-600 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/40 cursor-pointer active:scale-95'
                     }`}
                     title={isEn ? 'Move down' : '下移板块'}
                   >
@@ -214,8 +214,8 @@ export function SectionSorter({ markdown, onChange, lang }: SectionSorterProps) 
       )}
 
       {sections.length > 0 && (
-        <div className="p-3 bg-indigo-50/40 border border-indigo-100/30 rounded-xl flex items-start gap-2 text-[11px] text-indigo-700">
-          <Info className="w-3.5 h-3.5 shrink-0 text-indigo-500 mt-0.5" />
+        <div className="p-3 bg-indigo-50/40 dark:bg-indigo-950/40 border border-indigo-100/30 dark:border-indigo-900/40 rounded-xl flex items-start gap-2 text-[11px] text-indigo-700 dark:text-indigo-300">
+          <Info className="w-3.5 h-3.5 shrink-0 text-indigo-500 dark:text-indigo-400 mt-0.5" />
           <p className="leading-relaxed">
             {isEn
               ? 'Tip: You can drag sections by their grip handle or anywhere on the block cards to reorder them.'

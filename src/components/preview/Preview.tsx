@@ -7,6 +7,7 @@ import { motion } from 'motion/react';
 import { ResumeSettings } from '../../types';
 import { useResumeStore } from '../../store/useResumeStore';
 import { ThreePreview } from './ThreePreview';
+import { storage, STORAGE_KEYS } from '../../lib/storage';
 
 import { 
   THEME_MAP, FONT_FAMILY_CLASSES, parseResumeHeader, cleanMarkdown, 
@@ -39,17 +40,17 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
 
   const [targetPageLimit, setTargetPageLimit] = useState<1 | 2 | 3>(1);
   const [showGrid, setShowGrid] = useState<boolean>(() => {
-    return localStorage.getItem('resume_preview_show_grid') === 'true';
+    return storage.get<boolean>('resume_preview_show_grid', false);
   });
 
   const [show3D, setShow3D] = useState<boolean>(() => {
-    return localStorage.getItem('resume_preview_show_3d') === 'true';
+    return storage.get<boolean>('resume_preview_show_3d', false);
   });
 
   const toggleGrid = () => {
     setShowGrid(prev => {
       const next = !prev;
-      localStorage.setItem('resume_preview_show_grid', String(next));
+      storage.set('resume_preview_show_grid', next);
       return next;
     });
   };
@@ -57,7 +58,7 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
   const toggle3D = () => {
     setShow3D(prev => {
       const next = !prev;
-      localStorage.setItem('resume_preview_show_3d', String(next));
+      storage.set('resume_preview_show_3d', next);
       return next;
     });
   };
@@ -71,7 +72,7 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
   const [wrapperWidth, setWrapperWidth] = useState<number>(850);
   const [unscaledHeight, setUnscaledHeight] = useState<number>(0);
   const [zoomMode, setZoomMode] = useState<'fit' | number>(() => {
-    const saved = localStorage.getItem('resume_preview_zoom');
+    const saved = storage.getString(STORAGE_KEYS.PREVIEW_ZOOM);
     if (saved) {
       if (saved === 'fit') return 'fit';
       const parsed = parseFloat(saved);
@@ -288,18 +289,19 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
             {[1, 2, 3].map(p => (
               <div 
                 key={p} 
-                className="absolute left-0 right-0 border-b border-dashed border-rose-400/50 hover:border-rose-500/80 transition-all flex items-center justify-between text-[9.5px] font-extrabold text-rose-500/80 select-none h-0" 
+                className="absolute left-0 right-0 border-b border-dashed border-rose-300/70 dark:border-rose-700/60 flex items-center justify-between text-[9.5px] select-none h-0" 
                 style={{ top: `${p * 297}mm` }}
               >
-                {/* Left side scissor indicator */}
-                <div className="bg-rose-50/90 backdrop-blur-sm border border-rose-200/80 text-rose-600 px-2 py-0.5 rounded-full shadow-[0_2px_6px_rgba(244,63,94,0.1)] ml-6 -translate-y-1/2 font-sans flex items-center gap-1.5 font-extrabold tracking-wider transition-transform hover:scale-105">
-                  <span>✂️</span>
-                  <span>{settings.lang === 'en' ? 'CUT / FOLD LINE' : '折叠剪裁辅助线'}</span>
+                {/* Left side guide tag */}
+                <div className="bg-white/95 dark:bg-slate-850/95 backdrop-blur-md border border-slate-200/90 dark:border-slate-700 text-slate-600 dark:text-slate-300 px-2.5 py-0.5 rounded-md shadow-xs ml-4 -translate-y-1/2 flex items-center gap-1.5 font-medium tracking-tight">
+                  <span className="text-[10px] opacity-70">✂️</span>
+                  <span className="text-[9px] font-mono tracking-wider">{settings.lang === 'en' ? 'A4 Page Fold' : 'A4 分页裁切线'}</span>
                 </div>
                 {/* Right side page number badge */}
-                <span className="bg-rose-50/90 backdrop-blur-sm border border-rose-200/80 text-rose-600 px-2.5 py-0.5 rounded-full shadow-[0_2px_6px_rgba(244,63,94,0.1)] mr-6 -translate-y-1/2 font-sans flex items-center gap-1 font-extrabold tracking-wider transition-transform hover:scale-105">
-                  {pageBreakLabel.replace('{p}', String(p)).replace('{size}', String(p * 297))}
-                </span>
+                <div className="bg-white/95 dark:bg-slate-850/95 backdrop-blur-md border border-slate-200/90 dark:border-slate-700 text-slate-600 dark:text-slate-300 px-2.5 py-0.5 rounded-md shadow-xs mr-4 -translate-y-1/2 font-mono flex items-center gap-1.5 text-[9px] font-medium tracking-tight">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500/80 inline-block" />
+                  <span>{pageBreakLabel.replace('{p}', String(p)).replace('{size}', String(p * 297))}</span>
+                </div>
               </div>
             ))}
           </div>
@@ -394,106 +396,19 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
   return (
     <div className="relative w-full h-full flex flex-col overflow-hidden">
       {/* Zoom and Preview Toolbar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between px-2.5 sm:px-4 py-1.5 sm:py-2 bg-slate-50 border-b border-slate-200/60 backdrop-blur-sm z-30 select-none print:hidden shrink-0 gap-1.5 sm:gap-2">
-        <div className="flex items-center gap-1">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t.previewHeader}</span>
+      <div className="flex flex-row items-center justify-between px-3 sm:px-4 py-1.5 sm:py-2 bg-slate-50/95 dark:bg-slate-900/95 border-b border-slate-200/60 dark:border-slate-800/80 backdrop-blur-sm z-30 select-none print:hidden shrink-0 gap-2">
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{t.previewHeader}</span>
         </div>
         
-        <div className="flex items-center flex-wrap gap-1.5 sm:gap-3">
-          {/* Zoom slider control */}
-          <div className="flex items-center gap-1.5 bg-slate-100 px-2 py-1 rounded-lg border border-slate-200/40">
-            <button 
-              onClick={() => {
-                const current = calculatedZoom;
-                const next = Math.max(0.5, Math.round((current - 0.05) * 100) / 100);
-                setZoomMode(next);
-                localStorage.setItem('resume_preview_zoom', String(next));
-              }}
-              className="p-0.5 text-slate-500 hover:text-slate-800 hover:bg-slate-200 rounded transition-colors cursor-pointer"
-              title={t.zoomOut}
-            >
-              <ZoomOut className="w-3.5 h-3.5" />
-            </button>
-            
-            <div className="w-16 sm:w-20 md:w-24">
-              <CustomSlider
-                min={0.5}
-                max={1.5}
-                step={0.05}
-                value={calculatedZoom}
-                onChange={(val) => {
-                  setZoomMode(val);
-                  localStorage.setItem('resume_preview_zoom', String(val));
-                }}
-                colorTheme="blue"
-                size="sm"
-              />
-            </div>
-            
-            <button 
-              onClick={() => {
-                const current = calculatedZoom;
-                const next = Math.min(1.5, Math.round((current + 0.05) * 100) / 100);
-                setZoomMode(next);
-                localStorage.setItem('resume_preview_zoom', String(next));
-              }}
-              className="p-0.5 text-slate-500 hover:text-slate-800 hover:bg-slate-200 rounded transition-colors cursor-pointer"
-              title={t.zoomIn}
-            >
-              <ZoomIn className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          {/* Quick preset buttons */}
-          <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200/40 text-[10px] font-bold">
-            <button
-              onClick={() => {
-                setZoomMode(0.75);
-                localStorage.setItem('resume_preview_zoom', '0.75');
-              }}
-              className={`px-2 py-1 rounded-md transition-all cursor-pointer ${
-                zoomMode === 0.75 
-                  ? 'bg-white text-blue-600 shadow-sm border border-slate-200/20' 
-                  : 'text-slate-500 hover:text-slate-800'
-              }`}
-            >
-              75%
-            </button>
-            <button
-              onClick={() => {
-                setZoomMode(1.0);
-                localStorage.setItem('resume_preview_zoom', '1.0');
-              }}
-              className={`px-2 py-1 rounded-md transition-all cursor-pointer ${
-                zoomMode === 1.0 
-                  ? 'bg-white text-blue-600 shadow-sm border border-slate-200/20' 
-                  : 'text-slate-500 hover:text-slate-800'
-              }`}
-            >
-              100%
-            </button>
-            <button
-              onClick={() => {
-                setZoomMode('fit');
-                localStorage.setItem('resume_preview_zoom', 'fit');
-              }}
-              className={`px-2 py-1 rounded-md transition-all cursor-pointer ${
-                zoomMode === 'fit' 
-                  ? 'bg-white text-blue-600 shadow-sm border border-slate-200/20' 
-                  : 'text-slate-500 hover:text-slate-800'
-              }`}
-            >
-              {t.zoomFit}
-            </button>
-          </div>
-
+        <div className="flex items-center gap-2 sm:gap-3">
           {/* Grid Toggle Button */}
           <button
             onClick={toggleGrid}
             className={`flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold rounded-lg border transition-all cursor-pointer ${
               showGrid
-                ? 'bg-indigo-50 text-indigo-600 border-indigo-200/50 shadow-sm'
-                : 'bg-white text-slate-500 border-slate-200/40 hover:text-slate-700 hover:bg-slate-50'
+                ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border-indigo-200/50 dark:border-indigo-800/50 shadow-sm'
+                : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200/60 dark:border-slate-700/60 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-750'
             }`}
             title={settings.lang === 'en' ? 'Toggle alignment grid lines' : '显示/隐藏高精度排版网格辅助线'}
           >
@@ -506,8 +421,8 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
             onClick={toggle3D}
             className={`flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold rounded-lg border transition-all cursor-pointer ${
               show3D
-                ? 'bg-blue-600 text-white border-blue-500 shadow-[0_2px_6px_rgba(37,99,235,0.3)]'
-                : 'bg-white text-slate-500 border-slate-200/40 hover:text-slate-700 hover:bg-slate-50'
+                ? 'bg-indigo-600 text-white border-indigo-500 shadow-[0_2px_6px_rgba(99,102,241,0.3)]'
+                : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200/60 dark:border-slate-700/60 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-750'
             }`}
             title={settings.lang === 'en' ? 'Toggle 3D Immersive Studio' : '进入 3D 拟真排版空间'}
           >
@@ -515,7 +430,7 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
             <span>{settings.lang === 'en' ? '3D View' : '3D 空间'}</span>
           </button>
 
-          <span className="text-[10px] font-mono font-bold text-slate-500 min-w-[32px] text-right">
+          <span className="text-[10px] font-mono font-bold text-slate-400 dark:text-slate-500 min-w-[32px] text-right">
             {Math.round(calculatedZoom * 100)}%
           </span>
         </div>
@@ -544,7 +459,7 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
         <div 
           ref={wrapperRef}
           id="resume-preview-wrapper" 
-          className="flex-1 overflow-y-auto p-2 sm:p-6 md:p-8 bg-slate-100/60 w-full flex justify-center items-start relative scrollbar-thin"
+          className="flex-1 overflow-y-auto p-2 sm:p-6 md:p-8 bg-slate-100/70 dark:bg-[#090d16] w-full flex justify-center items-start relative scrollbar-thin"
         >
           <div 
             style={{
@@ -567,12 +482,20 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
                 left: '50%',
                 transform: `translateX(-50%) scale(${calculatedZoom})`,
               }}
-              className={`bg-white resume-content w-full max-w-[210mm] min-h-[297mm] h-fit mx-auto print:shadow-none print:ring-0 print:m-0 print:w-full relative origin-top transition-all duration-200 print:relative print:left-auto print:top-auto print:transform-none print:max-w-full print:w-full ${fontClass} ${marginClasses} ${
+              className={`bg-white resume-content w-full max-w-[210mm] min-h-[297mm] h-fit mx-auto print:shadow-none print:ring-0 print:m-0 print:w-full relative origin-top transition-all duration-300 print:relative print:left-auto print:top-auto print:transform-none print:max-w-full print:w-full ${fontClass} ${marginClasses} ${
                 metrics.isOver 
-                  ? 'ring-4 ring-rose-500/80 shadow-[0_0_30px_rgba(244,63,94,0.35)]' 
+                  ? 'shadow-[0_4px_24px_rgba(244,63,94,0.08),0_16px_40px_-6px_rgba(15,23,42,0.12),0_0_0_1.5px_rgba(244,63,94,0.4)] ring-1 ring-rose-400/30' 
                   : 'shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02),0_12px_28px_-4px_rgba(15,23,42,0.06),0_24px_60px_-12px_rgba(15,23,42,0.08),0_0_0_1px_rgba(15,23,42,0.04)] ring-1 ring-black/5'
               }`}
             >
+              {metrics.isOver && (
+                <div className="absolute -top-3.5 right-6 z-40 print:hidden select-none pointer-events-none animate-in fade-in slide-in-from-top-1 duration-200">
+                  <div className="flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-rose-500 to-rose-600 text-white text-[10px] font-bold rounded-full shadow-[0_4px_12px_rgba(244,63,94,0.3)] border border-white/20 tracking-tight">
+                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                    <span>{settings.lang === 'en' ? `Over Limit (${metrics.overflowPercent}%)` : `内容超出边界 (${metrics.overflowPercent}%)`}</span>
+                  </div>
+                </div>
+              )}
               {resumeInnerContent}
             </div>
           </div>
@@ -584,7 +507,7 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
         initial={{ opacity: 0, y: 15, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.35, ease: 'easeOut' }}
-        className="absolute bottom-5 left-5 z-40 print:hidden hidden sm:flex items-center gap-2.5 bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-[0_12px_32px_rgba(15,23,42,0.12),0_2px_6px_rgba(15,23,42,0.04)] rounded-2xl p-2 transition-all duration-300 hover:shadow-[0_16px_40px_rgba(15,23,42,0.16)] group"
+        className="absolute bottom-5 left-5 z-40 print:hidden hidden sm:flex items-center gap-2.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800/90 shadow-[0_12px_32px_rgba(15,23,42,0.12),0_2px_6px_rgba(15,23,42,0.04)] dark:shadow-[0_12px_32px_rgba(0,0,0,0.4)] rounded-2xl p-2 transition-all duration-300 hover:shadow-[0_16px_40px_rgba(15,23,42,0.16)] group"
       >
         <div className="flex items-center gap-1">
           <button 
@@ -592,9 +515,9 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
               const current = calculatedZoom;
               const next = Math.max(0.5, Math.round((current - 0.05) * 100) / 100);
               setZoomMode(next);
-              localStorage.setItem('resume_preview_zoom', String(next));
+              storage.set(STORAGE_KEYS.PREVIEW_ZOOM, String(next));
             }}
-            className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+            className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
             title={t.zoomOut}
           >
             <ZoomOut className="w-4 h-4" />
@@ -608,7 +531,7 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
               value={calculatedZoom}
               onChange={(val) => {
                 setZoomMode(val);
-                localStorage.setItem('resume_preview_zoom', String(val));
+                storage.set(STORAGE_KEYS.PREVIEW_ZOOM, String(val));
               }}
               colorTheme="indigo"
               size="sm"
@@ -620,27 +543,27 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
               const current = calculatedZoom;
               const next = Math.min(1.5, Math.round((current + 0.05) * 100) / 100);
               setZoomMode(next);
-              localStorage.setItem('resume_preview_zoom', String(next));
+              storage.set(STORAGE_KEYS.PREVIEW_ZOOM, String(next));
             }}
-            className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+            className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
             title={t.zoomIn}
           >
             <ZoomIn className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="h-4 w-[1px] bg-slate-200/80" />
+        <div className="h-4 w-[1px] bg-slate-200/80 dark:bg-slate-800" />
 
         <div className="flex items-center gap-1">
           <button
             onClick={() => {
               setZoomMode('fit');
-              localStorage.setItem('resume_preview_zoom', 'fit');
+              storage.set(STORAGE_KEYS.PREVIEW_ZOOM, 'fit');
             }}
             className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
               zoomMode === 'fit' 
-                ? 'bg-indigo-50 text-indigo-600 border border-indigo-100 shadow-sm font-sans' 
-                : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100 border border-transparent font-sans'
+                ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800/60 shadow-sm font-sans' 
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent font-sans'
             }`}
           >
             {t.zoomFit}
@@ -649,21 +572,21 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
           <button
             onClick={() => {
               setZoomMode(1.0);
-              localStorage.setItem('resume_preview_zoom', '1.0');
+              storage.set(STORAGE_KEYS.PREVIEW_ZOOM, '1.0');
             }}
             className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
               zoomMode === 1.0 
-                ? 'bg-indigo-50 text-indigo-600 border border-indigo-100 shadow-sm font-sans' 
-                : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100 border border-transparent font-sans'
+                ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800/60 shadow-sm font-sans' 
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent font-sans'
             }`}
           >
             100%
           </button>
         </div>
 
-        <div className="h-4 w-[1px] bg-slate-200/80" />
+        <div className="h-4 w-[1px] bg-slate-200/80 dark:bg-slate-800" />
 
-        <span className="text-[10px] font-mono font-bold text-slate-600 min-w-[36px] text-center pr-1 select-none">
+        <span className="text-[10px] font-mono font-bold text-slate-600 dark:text-slate-300 min-w-[36px] text-center pr-1 select-none">
           {Math.round(calculatedZoom * 100)}%
         </span>
       </motion.div>

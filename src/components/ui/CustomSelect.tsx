@@ -153,8 +153,8 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
   };
 
   const defaultTriggerStyles = `
-    inline-flex items-center justify-between font-semibold text-slate-700 bg-white 
-    border border-slate-200/90 hover:border-slate-300 hover:bg-slate-50/70
+    inline-flex items-center justify-between font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800
+    border border-slate-200/90 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50/70 dark:hover:bg-slate-750
     transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500
     shadow-[0_1px_2px_rgba(15,23,42,0.03)]
   `;
@@ -172,7 +172,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
           ${sizeClasses[size]}
           ${defaultTriggerStyles}
           ${disabled ? 'opacity-50 cursor-not-allowed bg-slate-100 hover:bg-slate-100 border-slate-200' : 'cursor-pointer'}
-          ${isOpen ? 'ring-2 ring-indigo-500/25 border-indigo-500 bg-white' : ''}
+          ${isOpen ? 'ring-2 ring-indigo-500/25 border-indigo-500 bg-white dark:bg-slate-800' : ''}
           ${triggerClassName}
         `}
       >
@@ -214,9 +214,9 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
                 data-custom-select-portal="true"
                 className={`
                   max-w-[min(320px,calc(100vw-24px))] w-max
-                  bg-white border border-slate-200/90 rounded-xl
-                  shadow-[0_12px_30px_-4px_rgba(15,23,42,0.16),0_4px_8px_-2px_rgba(15,23,42,0.06)]
-                  p-1 overflow-y-auto ${maxMenuHeight} scrollbar-thin scrollbar-thumb-slate-200
+                  bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-xl
+                  shadow-[0_12px_30px_-4px_rgba(15,23,42,0.16),0_4px_8px_-2px_rgba(15,23,42,0.06)] dark:shadow-[0_16px_36px_rgba(0,0,0,0.6)]
+                  p-1 overflow-y-auto ${maxMenuHeight} scrollbar-thin
                   ${menuClassName}
                 `}
               >
@@ -245,8 +245,8 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
                           ${option.disabled ? 'opacity-40 cursor-not-allowed bg-transparent' : ''}
                           ${
                             isSelected
-                              ? 'bg-indigo-50 text-indigo-900 font-bold'
-                              : 'text-slate-700 hover:bg-slate-100/80 hover:text-slate-900'
+                              ? 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-900 dark:text-indigo-300 font-bold'
+                              : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
                           }
                         `}
                       >
@@ -255,7 +255,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
                           <span className="truncate">{option.label}</span>
                         </span>
                         {isSelected && (
-                          <Check className="w-3.5 h-3.5 text-indigo-600 shrink-0 ml-1" />
+                          <Check className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0 ml-1" />
                         )}
                       </button>
                     );

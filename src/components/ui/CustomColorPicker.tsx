@@ -127,15 +127,15 @@ export const CustomColorPicker: React.FC<CustomColorPickerProps> = ({
 
   return (
     <div id={id} className={`inline-flex flex-col relative ${className}`}>
-      {label && <span className="text-xs font-semibold text-slate-600 mb-1">{label}</span>}
+      {label && <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">{label}</span>}
 
       <button
         ref={triggerRef}
         type="button"
         onClick={handleOpen}
         className={`
-          flex items-center justify-between bg-white border border-slate-200/90 rounded-lg
-          hover:border-slate-300 hover:bg-slate-50/50 shadow-sm transition-all outline-none
+          flex items-center justify-between bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 rounded-lg
+          hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50/50 dark:hover:bg-slate-750 shadow-sm transition-all outline-none
           focus-visible:ring-2 focus-visible:ring-indigo-500/30
           ${sizeClasses[size]}
         `}
@@ -145,7 +145,7 @@ export const CustomColorPicker: React.FC<CustomColorPickerProps> = ({
             className={`${swatchSizes[size]} rounded-md shadow-[inset_0_0_0_1px_rgba(0,0,0,0.15)] shrink-0`}
             style={{ backgroundColor: value }}
           />
-          <span className="font-mono text-slate-700 font-semibold tracking-tight uppercase">
+          <span className="font-mono text-slate-700 dark:text-slate-200 font-semibold tracking-tight uppercase">
             {value}
           </span>
         </div>
@@ -163,7 +163,7 @@ export const CustomColorPicker: React.FC<CustomColorPickerProps> = ({
               left: `${popoverPos.left}px`,
               zIndex: 99999,
             }}
-            className="w-56 bg-white border border-slate-200/90 rounded-xl shadow-xl p-3 animate-in fade-in zoom-in-95 duration-150"
+            className="w-56 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-xl shadow-xl dark:shadow-[0_16px_36px_rgba(0,0,0,0.6)] p-3 animate-in fade-in zoom-in-95 duration-150"
           >
             <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
               Preset Palette
@@ -196,7 +196,7 @@ export const CustomColorPicker: React.FC<CustomColorPickerProps> = ({
             </div>
 
             {/* Custom Hex Input and Color Dropper */}
-            <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
+            <div className="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
               <div className="relative flex-1">
                 <span className="absolute left-2 top-1.5 text-xs text-slate-400 font-mono">#</span>
                 <input
@@ -205,7 +205,7 @@ export const CustomColorPicker: React.FC<CustomColorPickerProps> = ({
                   onChange={(e) => handleHexChange({ ...e, target: { ...e.target, value: `#${e.target.value}` } })}
                   placeholder="000000"
                   maxLength={6}
-                  className="w-full pl-5 pr-2 py-1 text-xs font-mono font-bold bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 uppercase"
+                  className="w-full pl-5 pr-2 py-1 text-xs font-mono font-bold bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-md focus:bg-white dark:focus:bg-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 uppercase"
                 />
               </div>
 
@@ -214,7 +214,7 @@ export const CustomColorPicker: React.FC<CustomColorPickerProps> = ({
                 type="button"
                 onClick={() => nativeColorInputRef.current?.click()}
                 title="Spectrum color picker"
-                className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-md transition-colors shrink-0"
+                className="p-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-md transition-colors shrink-0 cursor-pointer"
               >
                 <Pipette className="w-4 h-4" />
                 <input

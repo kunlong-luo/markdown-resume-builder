@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
-  Folder, FolderOpen, GitCompare, Share2, Lock, Eye, EyeOff, Copy, Check, QrCode, Trash2, Plus, ArrowRight, Download, Info, Shield, ShieldCheck
+  Folder, FolderOpen, GitCompare, Share2, Lock, Eye, EyeOff, Copy, Check, Trash2, Plus, Shield, ShieldCheck
 } from 'lucide-react';
 import { ResumeSettings, ResumeDraft } from '../../types';
 import { generateShareUrl, ShareState } from '../../lib/share-utils';
 import { splitMarkdownIntoSections } from '../../lib/markdown-utils';
 import { CustomSelect } from '../ui/CustomSelect';
+import { storage, STORAGE_KEYS } from '../../lib/storage';
 
 interface MatrixTabProps {
   currentMarkdown: string;
@@ -34,12 +35,12 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
   const [generatedLink, setGeneratedLink] = useState('');
   const [copied, setCopied] = useState(false);
 
-  // Load from localStorage
+  // Load from storage
   useEffect(() => {
     try {
-      const saved = localStorage.getItem('resume-matrix');
-      if (saved) {
-        setMatrixVersions(JSON.parse(saved));
+      const saved = storage.get<ResumeDraft[] | null>(STORAGE_KEYS.MATRIX, null);
+      if (saved && Array.isArray(saved) && saved.length > 0) {
+        setMatrixVersions(saved);
       } else {
         // Seed default template folders to show user how they look
         const defaultSeeds: ResumeDraft[] = [
@@ -60,7 +61,7 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
             isAutoSave: false
           }
         ];
-        localStorage.setItem('resume-matrix', JSON.stringify(defaultSeeds));
+        storage.set(STORAGE_KEYS.MATRIX, defaultSeeds);
         setMatrixVersions(defaultSeeds);
       }
     } catch (e) {
@@ -69,7 +70,7 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
   }, [lang]);
 
   const saveMatrix = (updated: ResumeDraft[]) => {
-    localStorage.setItem('resume-matrix', JSON.stringify(updated));
+    storage.set(STORAGE_KEYS.MATRIX, updated);
     setMatrixVersions(updated);
   };
 
@@ -170,23 +171,23 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
   };
 
   return (
-    <div className="space-y-6 h-full flex flex-col text-slate-700">
+    <div className="space-y-6 h-full flex flex-col text-slate-700 dark:text-slate-200">
       
       {/* Upper Grid Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 overflow-y-auto pr-1">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 overflow-y-auto pr-1 scrollbar-thin">
         
         {/* Left Side: Versions List */}
         <div className="space-y-4 flex flex-col">
           <div className="flex items-center justify-between">
-            <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-              <FolderOpen className="w-4 h-4 text-indigo-600" />
+            <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider flex items-center gap-2">
+              <FolderOpen className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
               <span>{isEn ? 'Targeted Resume Folders' : '版本列表'}</span>
             </h4>
             
             {!isCreatingVersion && (
               <button
                 onClick={() => setIsCreatingVersion(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-indigo-600 bg-indigo-50/80 hover:bg-indigo-100/80 rounded-lg transition-all cursor-pointer active:scale-95 border border-indigo-100/50"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50/80 dark:bg-indigo-950/60 hover:bg-indigo-100/80 dark:hover:bg-indigo-900/80 rounded-lg transition-all cursor-pointer active:scale-95 border border-indigo-100/50 dark:border-indigo-800/60"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>{isEn ? 'New Version' : '新建版本'}</span>
@@ -195,13 +196,13 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
           </div>
 
           {isCreatingVersion && (
-            <form onSubmit={handleCreateVersion} className="flex gap-2 p-3.5 bg-slate-50 rounded-xl border border-slate-200/60 animate-in fade-in slide-in-from-top-1.5 duration-250">
+            <form onSubmit={handleCreateVersion} className="flex gap-2 p-3.5 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200/60 dark:border-slate-700 animate-in fade-in slide-in-from-top-1.5 duration-250">
               <input
                 type="text"
                 placeholder={isEn ? "e.g., Python Backend Dev" : "输入版本名称 (如: 算法工程师、外企版)..."}
                 value={newVersionName}
                 onChange={(e) => setNewVersionName(e.target.value)}
-                className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 shadow-inner"
+                className="flex-1 bg-white dark:bg-slate-750 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 shadow-inner"
                 required
                 autoFocus
               />
@@ -214,7 +215,7 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
               <button
                 type="button"
                 onClick={() => setIsCreatingVersion(false)}
-                className="px-3 py-2 border border-slate-200 text-slate-500 hover:bg-slate-100 text-xs rounded-lg transition-colors"
+                className="px-3 py-2 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 text-xs rounded-lg transition-colors"
               >
                 {isEn ? 'Cancel' : '取消'}
               </button>
@@ -228,14 +229,14 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
               // Map the theme colors to accurate border/accent colors
               const themeColorName = version.settings?.themeColor || 'indigo';
               const colorMap: Record<string, { border: string, bg: string, text: string }> = {
-                blue: { border: 'border-l-blue-500', bg: 'bg-blue-500', text: 'text-blue-600' },
-                indigo: { border: 'border-l-indigo-500', bg: 'bg-indigo-500', text: 'text-indigo-600' },
-                purple: { border: 'border-l-purple-500', bg: 'bg-purple-500', text: 'text-purple-600' },
-                emerald: { border: 'border-l-emerald-500', bg: 'bg-emerald-500', text: 'text-emerald-600' },
-                rose: { border: 'border-l-rose-500', bg: 'bg-rose-500', text: 'text-rose-600' },
-                amber: { border: 'border-l-amber-500', bg: 'bg-amber-500', text: 'text-amber-600' },
-                teal: { border: 'border-l-teal-500', bg: 'bg-teal-500', text: 'text-teal-600' },
-                slate: { border: 'border-l-slate-500', bg: 'bg-slate-500', text: 'text-slate-600' },
+                blue: { border: 'border-l-blue-500', bg: 'bg-blue-500', text: 'text-blue-600 dark:text-blue-400' },
+                indigo: { border: 'border-l-indigo-500', bg: 'bg-indigo-500', text: 'text-indigo-600 dark:text-indigo-400' },
+                purple: { border: 'border-l-purple-500', bg: 'bg-purple-500', text: 'text-purple-600 dark:text-purple-400' },
+                emerald: { border: 'border-l-emerald-500', bg: 'bg-emerald-500', text: 'text-emerald-600 dark:text-emerald-400' },
+                rose: { border: 'border-l-rose-500', bg: 'bg-rose-500', text: 'text-rose-600 dark:text-rose-400' },
+                amber: { border: 'border-l-amber-500', bg: 'bg-amber-500', text: 'text-amber-600 dark:text-amber-400' },
+                teal: { border: 'border-l-teal-500', bg: 'bg-teal-500', text: 'text-teal-600 dark:text-teal-400' },
+                slate: { border: 'border-l-slate-500', bg: 'bg-slate-500', text: 'text-slate-600 dark:text-slate-400' },
               };
               const colorInfo = colorMap[themeColorName] || colorMap.indigo;
 
@@ -245,21 +246,21 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
                   onClick={() => handleLoadVersion(version)}
                   className={`group p-4 rounded-xl border-l-4 border-y border-r transition-all duration-250 cursor-pointer flex items-center justify-between shadow-sm hover:shadow ${
                     isSelectedForShare
-                      ? 'border-indigo-500 bg-indigo-50/20 shadow-indigo-100/50'
-                      : `border-slate-100 hover:border-slate-200/80 bg-white ${colorInfo.border}`
+                      ? 'border-indigo-500 bg-indigo-50/20 dark:bg-indigo-950/30 shadow-indigo-100/50'
+                      : `border-slate-100 dark:border-slate-700 hover:border-slate-200/80 dark:hover:border-slate-600 bg-white dark:bg-slate-800 ${colorInfo.border}`
                   }`}
                 >
                   <div className="min-w-0 pr-4 space-y-1">
                     <div className="flex items-center gap-2">
                       <Folder className={`w-4 h-4 ${colorInfo.text} group-hover:scale-110 transition-transform shrink-0`} />
-                      <span className="font-bold text-slate-800 text-xs truncate group-hover:text-slate-950 transition-colors">
+                      <span className="font-bold text-slate-800 dark:text-slate-100 text-xs truncate group-hover:text-slate-950 dark:group-hover:text-white transition-colors">
                         {version.title}
                       </span>
-                      <span className="text-[9px] px-1.5 py-0.2 bg-slate-100 text-slate-500 rounded font-bold uppercase">
+                      <span className="text-[9px] px-1.5 py-0.2 bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 rounded font-bold uppercase">
                         {themeColorName}
                       </span>
                     </div>
-                    <p className="text-[10px] text-slate-400 font-medium flex items-center gap-1">
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium flex items-center gap-1">
                       <span>{isEn ? 'Updated at' : '更新时间'}: {version.timestamp}</span>
                       <span>·</span>
                       <span>{version.markdown.length} {isEn ? 'Chars' : '字符'}</span>
@@ -270,7 +271,7 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
                   <div className="flex items-center gap-1.5 shrink-0 opacity-80 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
                     <button
                       onClick={() => handleGenerateShare(version)}
-                      className="p-1.5 px-2.5 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 font-bold text-[10px] flex items-center gap-1.5 transition-all cursor-pointer border border-indigo-100/40"
+                      className="p-1.5 px-2.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 font-bold text-[10px] flex items-center gap-1.5 transition-all cursor-pointer border border-indigo-100/40 dark:border-indigo-800/40"
                       title={isEn ? "Generate exclusive share page" : "分享该版本"}
                     >
                       <Share2 className="w-3 h-3" />
@@ -278,7 +279,7 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
                     </button>
                     <button
                       onClick={(e) => handleDeleteVersion(version.id, e)}
-                      className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                      className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors cursor-pointer"
                       title={isEn ? "Delete version" : "删除本版本"}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -291,15 +292,15 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
         </div>
 
         {/* Right Side: Comparisons and QR/Link Generation */}
-        <div className="space-y-4 flex flex-col bg-slate-50/50 p-5 rounded-xl border border-slate-100 shadow-inner">
+        <div className="space-y-4 flex flex-col bg-slate-50/50 dark:bg-slate-850 p-5 rounded-xl border border-slate-100 dark:border-slate-800 shadow-inner">
           
           {/* Section 1: Comparison Selector */}
           <div className="space-y-2.5">
-            <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-              <GitCompare className="w-4 h-4 text-emerald-600" />
+            <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider flex items-center gap-2">
+              <GitCompare className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               <span>{isEn ? 'One-Click Matrix Comparison' : '版本差异比对'}</span>
             </h4>
-            <p className="text-[10px] text-slate-400">
+            <p className="text-[10px] text-slate-400 dark:text-slate-500">
               {isEn ? 'Compare section structures & modified texts with other versions side-by-side' : '可视化比对当前简历与其它版本的正文及排版差异。'}
             </p>
             <div className="flex gap-2">
@@ -310,7 +311,7 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
                 placeholder={isEn ? '-- Select version to compare --' : '-- 选择一个对比版本 --'}
                 size="sm"
                 className="flex-1"
-                triggerClassName="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs shadow-sm"
+                triggerClassName="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-lg px-3 py-2 text-xs shadow-sm"
               />
               {compareWithId && (
                 <button
@@ -325,18 +326,18 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
           </div>
 
           {/* Section 2: Link Share & Password Lock */}
-          <div className="border-t border-slate-200/60 pt-4 space-y-4 flex-1 flex flex-col justify-end">
-            <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-              <Share2 className="w-4 h-4 text-indigo-600" />
+          <div className="border-t border-slate-200/60 dark:border-slate-700 pt-4 space-y-4 flex-1 flex flex-col justify-end">
+            <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider flex items-center gap-2">
+              <Share2 className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
               <span>{isEn ? 'Share Link & Password Security' : '加密在线分享'}</span>
             </h4>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
+              <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block">
                 {isEn ? 'Optional Password Challenge (Password Lock)' : '访问密码 (留空为公开访问)'}
               </label>
               <div className="flex gap-1.5 relative">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">
                   <Lock className="w-3.5 h-3.5" />
                 </div>
                 <input
@@ -350,12 +351,12 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
                       if (ver) handleGenerateShare(ver);
                     }
                   }}
-                  className="flex-1 bg-white border border-slate-200 rounded-lg pl-9 pr-9 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="flex-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 rounded-lg pl-9 pr-9 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
                 >
                   {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                 </button>
@@ -363,17 +364,17 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
             </div>
 
             {generatedLink ? (
-              <div className="p-4 bg-white border border-slate-100 rounded-xl space-y-4 shadow-sm animate-in fade-in zoom-in-95 duration-200">
-                <div className="flex items-center gap-2 text-indigo-900 text-xs font-bold">
+              <div className="p-4 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl space-y-4 shadow-sm animate-in fade-in zoom-in-95 duration-200">
+                <div className="flex items-center gap-2 text-indigo-900 dark:text-indigo-300 text-xs font-bold">
                   {sharePassword.trim() ? (
                     <>
                       <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
-                      <span className="text-emerald-700">{isEn ? 'Password Lock Active!' : '已加密分享'}</span>
+                      <span className="text-emerald-700 dark:text-emerald-400">{isEn ? 'Password Lock Active!' : '已加密分享'}</span>
                     </>
                   ) : (
                     <>
                       <Shield className="w-4 h-4 text-indigo-500 shrink-0" />
-                      <span className="text-indigo-700">{isEn ? 'Public link generated.' : '公开分享链接已生成'}</span>
+                      <span className="text-indigo-700 dark:text-indigo-300">{isEn ? 'Public link generated.' : '公开分享链接已生成'}</span>
                     </>
                   )}
                 </div>
@@ -381,18 +382,18 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
                 {/* QR Code and URL Row */}
                 <div className="flex items-start gap-4">
                   {/* QR Code using public API */}
-                  <div className="bg-slate-50 p-1.5 rounded-xl border border-slate-100 shadow-inner shrink-0 flex flex-col items-center justify-center gap-1.5 hover:scale-105 transition-transform duration-250">
+                  <div className="bg-slate-50 dark:bg-slate-700 p-1.5 rounded-xl border border-slate-100 dark:border-slate-600 shadow-inner shrink-0 flex flex-col items-center justify-center gap-1.5 hover:scale-105 transition-transform duration-250">
                     <img
                       src={`https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=${encodeURIComponent(generatedLink)}`}
                       alt="HR QR Code"
                       referrerPolicy="no-referrer"
                       className="w-[90px] h-[90px] rounded-lg"
                     />
-                    <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">{isEn ? 'HR SCAN' : 'HR扫码预览'}</span>
+                    <span className="text-[9px] text-slate-400 dark:text-slate-300 font-bold uppercase tracking-wider">{isEn ? 'HR SCAN' : 'HR扫码预览'}</span>
                   </div>
 
                   <div className="flex-1 min-w-0 space-y-2.5">
-                    <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
                       {isEn 
                         ? 'Recruiters can scan or open the link to preview your responsive H5 resume instantly on any device and print/save PDF.' 
                         : 'HR 扫码或打开链接即可免下载在线预览简历，支持保存或直接打印 PDF。'}
@@ -402,7 +403,7 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
                         type="text"
                         readOnly
                         value={generatedLink}
-                        className="flex-1 bg-slate-50 border border-slate-200 rounded px-2.5 py-1.5 text-[10px] font-mono text-slate-500 focus:outline-none"
+                        className="flex-1 bg-slate-50 dark:bg-slate-750 border border-slate-200 dark:border-slate-600 rounded px-2.5 py-1.5 text-[10px] font-mono text-slate-600 dark:text-slate-300 focus:outline-none"
                       />
                       <button
                         onClick={copyToClipboard}
@@ -416,7 +417,7 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
                 </div>
               </div>
             ) : (
-              <div className="border border-dashed border-slate-200 bg-white rounded-xl p-6 text-center text-slate-400 text-xs">
+              <div className="border border-dashed border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl p-6 text-center text-slate-400 dark:text-slate-500 text-xs">
                 {isEn ? 'Select a resume version on the left, then click "Share" to generate the QR code and HR preview link.' : '选择左侧的一个版本并点击「在线分享」，在此生成 HR 专属链接与二维码。'}
               </div>
             )}
@@ -429,18 +430,18 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
       {/* Comparison Modal (Side-by-Side Diff View) */}
       {showCompareModal && comparisonDiffs && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-[3px]" onClick={() => setShowCompareModal(false)} />
+          <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-[3px]" onClick={() => setShowCompareModal(false)} />
           
-          <div className="relative bg-white w-full max-w-5xl h-[85vh] rounded-2xl shadow-2xl border border-slate-100 flex flex-col overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200">
+          <div className="relative bg-white dark:bg-slate-900 w-full max-w-5xl h-[85vh] rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 flex flex-col overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200">
             {/* Header */}
-            <div className="px-6 py-4.5 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+            <div className="px-6 py-4.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-850 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <GitCompare className="w-5 h-5 text-indigo-600 animate-pulse" />
+                <GitCompare className="w-5 h-5 text-indigo-600 dark:text-indigo-400 animate-pulse" />
                 <div>
-                  <h3 className="font-bold text-slate-800 text-sm">
+                  <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm">
                     {isEn ? 'Matrix Resume Comparative Diff Analysis' : '版本差异对比'}
                   </h3>
-                  <p className="text-[10px] text-slate-400 font-medium">
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
                     {isEn 
                       ? `Comparing: Active Editor Resume VS ${comparisonDiffs.targetTitle}`
                       : `对比对象：当前编辑区简历 🆚 ${comparisonDiffs.targetTitle}`}
@@ -449,35 +450,35 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
               </div>
               <button
                 onClick={() => setShowCompareModal(false)}
-                className="px-3 py-1.5 bg-slate-200/60 hover:bg-slate-200 text-slate-600 hover:text-slate-800 rounded-lg text-xs font-bold transition-all cursor-pointer"
+                className="px-3 py-1.5 bg-slate-200/60 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white rounded-lg text-xs font-bold transition-all cursor-pointer"
               >
                 {isEn ? 'Close Diff View' : '关闭对比面板'}
               </button>
             </div>
 
             {/* Comparison Body */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/20">
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/20 dark:bg-slate-950/40 scrollbar-thin">
               {comparisonDiffs.diffList.every(d => d.status === 'identical') ? (
-                <div className="border border-emerald-100 bg-emerald-50/20 rounded-xl p-8 text-center text-emerald-800 flex flex-col items-center justify-center gap-2">
+                <div className="border border-emerald-100 dark:border-emerald-800 bg-emerald-50/20 dark:bg-emerald-950/20 rounded-xl p-8 text-center text-emerald-800 dark:text-emerald-300 flex flex-col items-center justify-center gap-2">
                   <Check className="w-8 h-8 text-emerald-500" />
                   <p className="text-xs font-bold">{isEn ? 'Both versions are identical' : '两个版本的简历模块与强调内容完全一致！'}</p>
                 </div>
               ) : (
                 <div className="space-y-5">
                   {comparisonDiffs.diffList.map((diff, index) => {
-                    if (diff.status === 'identical') return null; // Only show modified or unique modules for extreme focus!
+                    if (diff.status === 'identical') return null;
                     
                     return (
-                      <div key={index} className="border border-slate-200/80 rounded-xl bg-white shadow-sm overflow-hidden">
-                        <div className="px-4 py-2.5 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between">
-                          <span className="font-bold text-xs text-slate-800 flex items-center gap-1.5">
+                      <div key={index} className="border border-slate-200/80 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-850 shadow-sm overflow-hidden">
+                        <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800 flex items-center justify-between">
+                          <span className="font-bold text-xs text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
                             <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
                             {diff.title}
                           </span>
                           <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${
-                            diff.status === 'modified' ? 'bg-amber-50 text-amber-700 border border-amber-100' :
-                            diff.status === 'added_in_target' ? 'bg-purple-50 text-purple-700 border border-purple-100' :
-                            'bg-rose-50 text-rose-700 border border-rose-100'
+                            diff.status === 'modified' ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-100 dark:border-amber-800/60' :
+                            diff.status === 'added_in_target' ? 'bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-100 dark:border-purple-800/60' :
+                            'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-100 dark:border-rose-800/60'
                           }`}>
                             {diff.status === 'modified' ? (isEn ? 'Differences found' : '存在差异与强调变动') :
                              diff.status === 'added_in_target' ? (isEn ? 'Only in Target' : '仅存在于对比版本中') :
@@ -486,23 +487,23 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
                         </div>
 
                         {/* Side-by-Side Contents */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-100 text-xs font-mono">
+                        <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-100 dark:divide-slate-800 text-xs font-mono">
                           {/* Active Current Editor */}
                           <div className="p-4 space-y-1">
-                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                            <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">
                               {isEn ? 'Active Current Editor' : '当前编辑区内容'}
                             </div>
-                            <pre className="whitespace-pre-wrap font-sans text-slate-600 leading-relaxed text-[11px] bg-slate-50/30 p-2.5 rounded border border-slate-100/40">
+                            <pre className="whitespace-pre-wrap font-sans text-slate-600 dark:text-slate-300 leading-relaxed text-[11px] bg-slate-50/30 dark:bg-slate-900/60 p-2.5 rounded border border-slate-100/40 dark:border-slate-800">
                               {diff.currContent.trim() || (isEn ? '(Section not present)' : '(当前版无该大板块)')}
                             </pre>
                           </div>
 
                           {/* Selected Target Version */}
-                          <div className="p-4 space-y-1 bg-indigo-50/5">
-                            <div className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest mb-1.5">
+                          <div className="p-4 space-y-1 bg-indigo-50/5 dark:bg-indigo-950/10">
+                            <div className="text-[10px] font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-widest mb-1.5">
                               {comparisonDiffs.targetTitle}
                             </div>
-                            <pre className="whitespace-pre-wrap font-sans text-slate-600 leading-relaxed text-[11px] bg-indigo-50/10 p-2.5 rounded border border-indigo-100/10">
+                            <pre className="whitespace-pre-wrap font-sans text-slate-600 dark:text-slate-300 leading-relaxed text-[11px] bg-indigo-50/10 dark:bg-indigo-950/30 p-2.5 rounded border border-indigo-100/10 dark:border-indigo-900/30">
                               {diff.targetContent.trim() || (isEn ? '(Section not present)' : '(对比版无该大板块)')}
                             </pre>
                           </div>

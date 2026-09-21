@@ -200,28 +200,28 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
       id="form-sec-basic" 
       className={`rounded-xl overflow-hidden scroll-mt-20 transition-all duration-300 ${
         expanded 
-          ? 'tactile-card shadow-[0_16px_36px_rgba(30,41,59,0.06),0_3px_10px_rgba(30,41,59,0.03)] border-indigo-200/50 scale-[1.002] ring-1 ring-indigo-50/50 mb-5' 
-          : 'bg-slate-50/60 border border-slate-200/50 shadow-[0_2px_6px_rgba(30,41,59,0.015)] opacity-85 hover:opacity-100 scale-[0.995] hover:scale-100 mb-3'
+          ? 'tactile-card shadow-[0_16px_36px_rgba(30,41,59,0.06),0_3px_10px_rgba(30,41,59,0.03)] border-indigo-200/50 dark:border-slate-800 scale-[1.002] ring-1 ring-indigo-50/50 dark:ring-slate-800 mb-5' 
+          : 'bg-slate-50/60 dark:bg-slate-900/60 border border-slate-200/50 dark:border-slate-800 shadow-[0_2px_6px_rgba(30,41,59,0.015)] opacity-85 hover:opacity-100 scale-[0.995] hover:scale-100 mb-3'
       }`}
     >
       <div 
         className={`flex items-center justify-between p-4 bg-gradient-to-r cursor-pointer transition-colors ${
           expanded 
-            ? 'from-indigo-50/40 to-slate-50 border-b border-indigo-100/40 hover:from-indigo-50/60 hover:to-slate-100/60' 
-            : 'from-slate-50/80 to-slate-100/30 border-b border-slate-200/40 hover:from-slate-100/60 hover:to-slate-100/90'
+            ? 'from-indigo-50/40 to-slate-50 dark:from-indigo-950/30 dark:to-slate-900/60 border-b border-indigo-100/40 dark:border-indigo-900/40 hover:from-indigo-50/60 hover:to-slate-100/60 dark:hover:from-indigo-950/50 dark:hover:to-slate-900/80' 
+            : 'from-slate-50/80 to-slate-100/30 dark:from-slate-850/60 dark:to-slate-900/40 border-b border-slate-200/40 dark:border-slate-800 hover:from-slate-100/60 hover:to-slate-100/90 dark:hover:from-slate-800 dark:hover:to-slate-800/80'
         }`}
         onClick={onToggleExpanded}
       >
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
+          <div className="p-2 bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 rounded-lg">
             <User className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-bold text-slate-800">{t.basicInfo}</h3>
-            <p className="text-xs text-slate-500 mt-0.5">{t.basicDesc}</p>
+            <h3 className="font-bold text-slate-800 dark:text-slate-100">{t.basicInfo}</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{t.basicDesc}</p>
           </div>
         </div>
-        <div className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-lg transition-colors">
+        <div className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer">
           {expanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
         </div>
       </div>
@@ -230,28 +230,28 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
         <div className="p-3.5 sm:p-5">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-5">
             <div className="space-y-2">
-              <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{t.nameLabel}</label>
+              <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-1">{t.nameLabel}</label>
               <div className="relative">
                 <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none"><User className="w-4 h-4" /></span>
                 <input 
                   type="text" 
                   value={model.name || ''}
                   onChange={(e) => handleBasicInfoChange('name', e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 text-sm font-semibold tactile-input"
+                  className="w-full pl-9 pr-3 py-2 text-sm font-semibold tactile-input text-slate-800 dark:text-slate-100"
                   placeholder={t.namePlaceholder}
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{t.phoneLabel}</label>
+              <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-1">{t.phoneLabel}</label>
               <div className="relative">
                 <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none"><Phone className="w-4 h-4" /></span>
                 <input 
                   type="text" 
                   value={model.phone || ''}
                   onChange={(e) => handleBasicInfoChange('phone', e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 text-sm tactile-input font-mono"
+                  className="w-full pl-9 pr-3 py-2 text-sm tactile-input font-mono text-slate-800 dark:text-slate-100"
                   placeholder={t.phonePlaceholder}
                 />
               </div>

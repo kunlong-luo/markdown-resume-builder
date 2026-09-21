@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { DEFAULT_MARKDOWN, TEMPLATES } from '../data';
 import { ResumeSettings } from '../types';
+import { storage, STORAGE_KEYS } from '../lib/storage';
 
 interface ResumeState {
   // States
@@ -46,13 +47,13 @@ let isUndoRedoAction = false;
 
 // Helper to initialize markdown
 const getInitialMarkdown = (): string => {
-  const saved = localStorage.getItem('resume-markdown');
+  const saved = storage.getString(STORAGE_KEYS.MARKDOWN);
   let md = saved || DEFAULT_MARKDOWN;
   
   // Discard any old stored resumes containing real-world experiences to respect privacy
   if (md.includes('陆云腾') || md.includes('极光智云') || md.includes('苏州瀚海星空') || md.includes('天拓云创') || md.includes('微云传动')) {
     md = DEFAULT_MARKDOWN;
-    localStorage.setItem('resume-markdown', DEFAULT_MARKDOWN);
+    storage.set(STORAGE_KEYS.MARKDOWN, DEFAULT_MARKDOWN);
   }
   
   // Migration: Rename "教育经历" to "教育背景" to match the new convention and avoid duplicates
@@ -97,7 +98,6 @@ const getInitialTemplateId = (initialMarkdown: string): string => {
 
 // Helper to initialize settings
 const getInitialSettings = (): ResumeSettings => {
-  const savedSettings = localStorage.getItem('resume-settings');
   const defaultSettings: ResumeSettings = {
     themeColor: 'indigo',
     customColor: '#4F46E5',
@@ -113,14 +113,13 @@ const getInitialSettings = (): ResumeSettings => {
     showPageBreakLine: true,
     templateLayout: 'single',
     lang: 'zh',
+    themeMode: (storage.getString(STORAGE_KEYS.THEME_MODE, 'light') as 'light' | 'dark' | 'system'),
     show3DBackdrop: false,
   };
   
+  const savedSettings = storage.get<Partial<ResumeSettings> | null>(STORAGE_KEYS.SETTINGS, null);
   if (savedSettings) {
-    try {
-      const parsed = JSON.parse(savedSettings);
-      return { ...defaultSettings, ...parsed };
-    } catch (e) {}
+    return { ...defaultSettings, ...savedSettings };
   }
   return defaultSettings;
 };
@@ -147,7 +146,7 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
   // Simple setters
   setMarkdown: (markdown) => set({ markdown }),
   setSettings: (settings) => {
-    localStorage.setItem('resume-settings', JSON.stringify(settings));
+    storage.set(STORAGE_KEYS.SETTINGS, settings);
     set({ settings });
   },
   setCurrentTemplateId: (currentTemplateId) => set({ currentTemplateId }),
@@ -223,13 +222,19 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
 
   updateSetting: (key, value) => {
     const newSettings = { ...get().settings, [key]: value };
-    localStorage.setItem('resume-settings', JSON.stringify(newSettings));
+    storage.set(STORAGE_KEYS.SETTINGS, newSettings);
+    if (key === 'themeMode') {
+      storage.set(STORAGE_KEYS.THEME_MODE, value);
+    }
     set({ settings: newSettings });
   },
 
   updateSettings: (partialSettings) => {
     const newSettings = { ...get().settings, ...partialSettings };
-    localStorage.setItem('resume-settings', JSON.stringify(newSettings));
+    storage.set(STORAGE_KEYS.SETTINGS, newSettings);
+    if (partialSettings.themeMode) {
+      storage.set(STORAGE_KEYS.THEME_MODE, partialSettings.themeMode);
+    }
     set({ settings: newSettings });
   }
 }));
