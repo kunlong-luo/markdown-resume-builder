@@ -178,7 +178,7 @@ export function MonthRangePicker({
       </div>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-80 sm:w-[410px] bg-white border border-slate-200/90 shadow-[0_20px_48px_rgba(30,41,59,0.14)] rounded-2xl p-4.5 z-50 flex flex-col gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute right-0 top-full mt-2 w-80 sm:w-[410px] max-w-[calc(100vw-1.5rem)] max-h-[85vh] overflow-y-auto bg-white border border-slate-200/90 shadow-[0_20px_48px_rgba(30,41,59,0.14)] rounded-2xl p-3.5 sm:p-4.5 z-50 flex flex-col gap-3.5 sm:gap-4 animate-in fade-in slide-in-from-top-2 duration-200 scrollbar-thin">
           
           {/* Header */}
           <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">

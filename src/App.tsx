@@ -55,6 +55,16 @@ export default function App() {
     return 50;
   });
 
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 768 : false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const [isDragging, setIsDragging] = useState(false);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -62,19 +72,33 @@ export default function App() {
     setIsDragging(true);
   }, []);
 
+  const handleTouchStart = useCallback(() => {
+    setIsDragging(true);
+  }, []);
+
   useEffect(() => {
     if (!isDragging) return;
 
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleMove = (clientX: number) => {
       if (!containerRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
-      const newRatio = ((e.clientX - rect.left) / rect.width) * 100;
+      const newRatio = ((clientX - rect.left) / rect.width) * 100;
       // Clamp between 28% and 72%
       const clamped = Math.min(Math.max(newRatio, 28), 72);
       setSplitRatio(clamped);
     };
 
-    const handleMouseUp = () => {
+    const handleMouseMove = (e: MouseEvent) => {
+      handleMove(e.clientX);
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches[0]) {
+        handleMove(e.touches[0].clientX);
+      }
+    };
+
+    const handleEnd = () => {
       setIsDragging(false);
       try {
         localStorage.setItem('resume-split-ratio', String(splitRatio));
@@ -82,10 +106,14 @@ export default function App() {
     };
 
     window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('mouseup', handleEnd);
+    window.addEventListener('touchmove', handleTouchMove);
+    window.addEventListener('touchend', handleEnd);
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('mouseup', handleEnd);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleEnd);
     };
   }, [isDragging, splitRatio]);
 
@@ -149,7 +177,7 @@ export default function App() {
       <AestheticBackdrop />
       
       <div className="flex flex-col h-full w-full z-10 relative">
-        <div>
+        <div className="relative z-30">
           <Header 
             handleImportMarkdown={handleImportMarkdown}
             handleExportMarkdown={handleExportMarkdown}
@@ -166,7 +194,7 @@ export default function App() {
             <section 
               id="editor-pane" 
               style={{
-                width: settings.layoutMode === 'split' ? (window.innerWidth >= 768 ? `${splitRatio}%` : '100%') : '100%'
+                width: settings.layoutMode === 'split' ? (!isMobile ? `${splitRatio}%` : '100%') : '100%'
               }}
               className={`z-10 relative border-r border-slate-200/90 transition-none ${
                 settings.layoutMode === 'editor' 
@@ -182,6 +210,7 @@ export default function App() {
           {settings.layoutMode === 'split' && (
             <div 
               onMouseDown={handleMouseDown}
+              onTouchStart={handleTouchStart}
               className="hidden md:flex items-center justify-center w-3 -mx-1.5 z-30 cursor-col-resize group hover:w-3.5 transition-all select-none"
               title="拖拽调节编辑器与预览区宽度（双击复位 50%）"
               onDoubleClick={() => setSplitRatio(50)}
@@ -193,7 +222,7 @@ export default function App() {
           {(settings.layoutMode === 'split' || settings.layoutMode === 'preview') && (
             <section 
               style={{
-                width: settings.layoutMode === 'split' ? (window.innerWidth >= 768 ? `${100 - splitRatio}%` : '100%') : '100%'
+                width: settings.layoutMode === 'split' ? (!isMobile ? `${100 - splitRatio}%` : '100%') : '100%'
               }}
               className={`relative transition-none ${
                 settings.layoutMode === 'preview' 

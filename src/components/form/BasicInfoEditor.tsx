@@ -227,8 +227,8 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
       </div>
       
       {expanded && (
-        <div className="p-5">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="p-3.5 sm:p-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-5">
             <div className="space-y-2">
               <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{t.nameLabel}</label>
               <div className="relative">

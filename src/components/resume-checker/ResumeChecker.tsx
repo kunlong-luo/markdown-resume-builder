@@ -282,13 +282,21 @@ export function ResumeChecker() {
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
-          initial={{ opacity: 0, x: 300 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: 300 }}
-          transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-          className="absolute top-0 right-0 h-full w-[355px] bg-white border-l border-slate-200/80 shadow-2xl z-40 flex flex-col overflow-hidden"
-        >
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-[2px] z-40 sm:hidden cursor-pointer"
+          />
+          <motion.div
+            initial={{ opacity: 0, x: '100%' }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+            className="fixed sm:absolute top-0 right-0 h-full w-full sm:w-[355px] max-w-full bg-white sm:border-l border-slate-200/80 shadow-2xl z-50 sm:z-40 flex flex-col overflow-hidden"
+          >
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 bg-slate-50 border-b border-slate-200/80">
             <div className="flex items-center gap-2">
@@ -455,6 +463,7 @@ export function ResumeChecker() {
               : '💡 诊断与优化均在本地运行，不泄露任何隐私'}
           </div>
         </motion.div>
+        </>
       )}
     </AnimatePresence>
   );

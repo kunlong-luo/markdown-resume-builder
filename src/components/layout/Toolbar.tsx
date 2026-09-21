@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Sparkles, LayoutGrid, Sliders, Check, Settings, Maximize2, Columns, Eye, Globe, ChevronDown, Palette } from 'lucide-react';
 import { ResumeSettings, ThemeColor, FontSize, PaperMargin, FontFamily, TemplateLayout, H2Style } from '../../types';
 import { TEMPLATES } from '../../data';
@@ -293,6 +294,42 @@ export function Toolbar() {
 
   const exportTitle = getExportTitle();
   const [isAestheticsOpen, setIsAestheticsOpen] = useState(false);
+  const aestheticsTriggerRef = useRef<HTMLButtonElement>(null);
+  const [panelCoords, setPanelCoords] = useState<{ top: number; right: number } | null>(null);
+
+  const updatePanelPosition = () => {
+    if (!aestheticsTriggerRef.current) return;
+    const rect = aestheticsTriggerRef.current.getBoundingClientRect();
+    const top = rect.bottom + 8;
+    const right = Math.max(10, window.innerWidth - rect.right);
+    setPanelCoords({ top, right });
+  };
+
+  useEffect(() => {
+    if (!isAestheticsOpen) return;
+    updatePanelPosition();
+
+    const handleResizeOrScroll = () => {
+      updatePanelPosition();
+    };
+
+    window.addEventListener('resize', handleResizeOrScroll);
+    window.addEventListener('scroll', handleResizeOrScroll, true);
+    return () => {
+      window.removeEventListener('resize', handleResizeOrScroll);
+      window.removeEventListener('scroll', handleResizeOrScroll, true);
+    };
+  }, [isAestheticsOpen]);
+
+  const handleToggleAesthetics = () => {
+    if (!isAestheticsOpen) {
+      updatePanelPosition();
+      setIsAestheticsOpen(true);
+    } else {
+      setIsAestheticsOpen(false);
+    }
+  };
+
   const colors: { name: ThemeColor; bg: string; ring: string }[] = [
     { name: 'blue', bg: 'bg-blue-600', ring: 'ring-blue-600/30' },
     { name: 'indigo', bg: 'bg-indigo-600', ring: 'ring-indigo-600/30' },
@@ -394,8 +431,8 @@ export function Toolbar() {
   ];
 
   return (
-    <div className="flex items-center justify-between px-6 py-2 bg-white/80 backdrop-blur-md border-b border-slate-200/80 z-30 gap-3 relative shadow-[0_1px_2px_rgba(15,23,42,0.02)] w-full">
-      <div className="flex items-center gap-2.5 text-xs overflow-x-auto scrollbar-none flex-nowrap min-w-0 shrink">
+    <div className="flex items-center justify-between px-2.5 sm:px-6 py-1.5 sm:py-2 bg-white/80 backdrop-blur-md border-b border-slate-200/80 z-30 gap-2 sm:gap-3 relative shadow-[0_1px_2px_rgba(15,23,42,0.02)] w-full">
+      <div className="flex items-center gap-1.5 sm:gap-2.5 text-xs overflow-x-auto scrollbar-none flex-nowrap min-w-0 shrink py-0.5">
         {/* Language Selection */}
         <div className="flex items-center gap-1.5 pr-2.5 border-r border-slate-200/90 shrink-0">
           <Globe className="w-3.5 h-3.5 text-indigo-500 shrink-0 pointer-events-none" />
@@ -485,7 +522,8 @@ export function Toolbar() {
 
         {/* Aesthetics Panel Toggle Button */}
         <button
-          onClick={() => setIsAestheticsOpen(!isAestheticsOpen)}
+          ref={aestheticsTriggerRef}
+          onClick={handleToggleAesthetics}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all cursor-pointer shrink-0 active:translate-y-px ${
             isAestheticsOpen
               ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20'
@@ -529,42 +567,50 @@ export function Toolbar() {
           </button>
         </div>
 
-        {/* Aesthetics Popover Panel */}
-        {isAestheticsOpen && (
+        {/* Aesthetics Popover Panel via Portal */}
+        {isAestheticsOpen && panelCoords && typeof document !== 'undefined' && createPortal(
           <>
-            {/* Click outside backdrop */}
+            {/* High-priority click outside backdrop */}
             <div 
-              className="fixed inset-0 z-40 bg-transparent" 
+              className="fixed inset-0 z-[120] bg-slate-900/10 backdrop-blur-[0.5px] transition-opacity cursor-default" 
               onClick={() => setIsAestheticsOpen(false)} 
             />
             
             {/* Panel Card */}
-            <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-[0_20px_48px_rgba(15,23,42,0.12),0_4px_12px_rgba(15,23,42,0.05)] rounded-2xl p-5 z-50 flex flex-col gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+            <div 
+              style={{
+                position: 'fixed',
+                top: `${panelCoords.top}px`,
+                right: `${panelCoords.right}px`,
+                maxHeight: `calc(100vh - ${panelCoords.top + 16}px)`,
+              }}
+              className="w-84 sm:w-96 max-w-[calc(100vw-1.25rem)] bg-white/98 backdrop-blur-xl border border-slate-200/90 shadow-[0_20px_48px_rgba(15,23,42,0.18),0_4px_16px_rgba(15,23,42,0.06)] rounded-2xl p-4 sm:p-5 z-[130] flex flex-col gap-4 animate-in fade-in slide-in-from-top-2 duration-150 scrollbar-thin overflow-y-auto"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5 shrink-0">
                 <div className="flex items-center gap-1.5 font-extrabold text-slate-800">
                   <Palette className="w-4 h-4 text-indigo-500" />
                   <span>{t.aestheticsLabel}</span>
                 </div>
                 <button 
                   onClick={() => setIsAestheticsOpen(false)}
-                  className="text-slate-500 hover:text-slate-700 text-xs font-bold bg-white border border-slate-200 hover:bg-slate-50 px-2.5 py-1 rounded-md transition-all shadow-[0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)] active:translate-y-px"
+                  className="text-slate-500 hover:text-slate-700 text-xs font-bold bg-white border border-slate-200 hover:bg-slate-50 px-2.5 py-1 rounded-md transition-all shadow-[0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)] active:translate-y-px cursor-pointer"
                 >
                   {t.doneBtn}
                 </button>
               </div>
 
-              {/* Grid content */}
-              <div className="flex flex-col gap-4 max-h-[70vh] overflow-y-auto pr-1">
-                
-                {/* Visual Accent & Colors */}
-                <div className="space-y-2">
+              {/* Single smooth scroll area with distinct structural hierarchy */}
+              <div className="space-y-4">
+                {/* 1. Visual Accent & Colors */}
+                <div className="space-y-1.5">
                   <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">{t.visualLabel}</label>
-                  <div className="flex flex-wrap items-center gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                  <div className="flex flex-wrap items-center gap-2 bg-slate-50/80 p-2.5 rounded-xl border border-slate-100">
                     {colors.map(color => (
                       <button
                         key={color.name}
                         onClick={() => updateSetting('themeColor', color.name)}
-                        className={`w-5 h-5 rounded-full ${color.bg} relative transition-all duration-150 hover:scale-110 focus:outline-none ${
+                        className={`w-5 h-5 rounded-full ${color.bg} relative transition-all duration-150 hover:scale-110 focus:outline-none cursor-pointer ${
                           settings.themeColor === color.name ? `ring-2 ring-offset-2 ${color.ring} scale-110` : 'opacity-85 hover:opacity-100'
                         }`}
                         title={`${color.name.toUpperCase()} Accent`}
@@ -584,7 +630,7 @@ export function Toolbar() {
                             updateSetting('customColor', '#4f46e5');
                           }
                         }}
-                        className={`w-5 h-5 rounded-full relative transition-all duration-150 hover:scale-110 focus:outline-none flex items-center justify-center border border-slate-300 ${
+                        className={`w-5 h-5 rounded-full relative transition-all duration-150 hover:scale-110 focus:outline-none flex items-center justify-center border border-slate-300 cursor-pointer ${
                           settings.themeColor === 'custom' ? 'ring-2 ring-indigo-600/40 ring-offset-2 scale-110' : 'opacity-85 hover:opacity-100'
                         }`}
                         style={{ background: settings.themeColor === 'custom' ? (settings.customColor || '#4f46e5') : 'conic-gradient(from 0deg, red, yellow, green, cyan, blue, magenta, red)' }}
@@ -607,7 +653,7 @@ export function Toolbar() {
                   </div>
                 </div>
 
-                {/* Fonts and Size Selection */}
+                {/* 2. Fonts and Font Size */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">{t.fontSelection}</label>
@@ -616,13 +662,13 @@ export function Toolbar() {
                       onChange={(val) => updateSetting('fontFamily', val as FontFamily)}
                       options={fontFamilyOptions}
                       size="sm"
-                      triggerClassName="w-full bg-white border-slate-200/75 text-slate-700 rounded-lg px-2.5 py-1 text-xs"
+                      triggerClassName="w-full bg-white border-slate-200/90 text-slate-700 rounded-lg px-2.5 py-1 text-xs"
                     />
                   </div>
 
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">{t.fontSizeLabel}</label>
-                    <div className="bg-slate-100 p-0.5 rounded-lg flex items-center h-[28px] border border-slate-200/50 shadow-[inset_0_1px_2px_rgba(0,0,0,0.03)]">
+                    <div className="bg-slate-100 p-0.5 rounded-lg flex items-center h-[28px] border border-slate-200/60 shadow-[inset_0_1px_2px_rgba(0,0,0,0.03)]">
                       {(['compact', 'standard', 'relaxed'] as FontSize[]).map(sz => (
                         <button
                           key={sz}
@@ -638,11 +684,11 @@ export function Toolbar() {
                   </div>
                 </div>
 
-                {/* Margins & Top Accent */}
+                {/* 3. Margins & Title Style */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">{t.marginLabel}</label>
-                    <div className="bg-slate-100 p-0.5 rounded-lg flex items-center h-[28px] border border-slate-200/50 shadow-[inset_0_1px_2px_rgba(0,0,0,0.03)]">
+                    <div className="bg-slate-100 p-0.5 rounded-lg flex items-center h-[28px] border border-slate-200/60 shadow-[inset_0_1px_2px_rgba(0,0,0,0.03)]">
                       {(['compact', 'standard', 'relaxed'] as PaperMargin[]).map(m => (
                         <button
                           key={m}
@@ -657,37 +703,49 @@ export function Toolbar() {
                     </div>
                   </div>
 
-                  <div className="space-y-1.5 col-span-2">
-                    <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">{t.layoutAids}</label>
-                    <div className="grid grid-cols-3 gap-2">
-                      <button
-                        onClick={() => updateSetting('topAccentLine', !settings.topAccentLine)}
-                        className={`flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer h-[28px] active:translate-y-px truncate ${
-                          settings.topAccentLine ? 'bg-blue-50 text-blue-700 border-blue-200/60 shadow-[0_1px_2px_rgba(59,130,246,0.05),inset_0_1.5px_2px_rgba(255,255,255,0.95)]' : 'bg-white text-slate-500 border-slate-200/80 shadow-[0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)] hover:bg-slate-50 hover:border-slate-350'
-                        }`}
-                      >
-                        <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${settings.topAccentLine ? 'bg-blue-600' : 'bg-slate-300'}`} />
-                        <span className="truncate">{t.topAccentBtn}</span>
-                      </button>
-                      <button
-                        onClick={() => updateSetting('showPageBreakLine', !settings.showPageBreakLine)}
-                        className={`flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer h-[28px] active:translate-y-px truncate ${
-                          settings.showPageBreakLine ? 'bg-rose-50 text-rose-700 border-rose-200/60 shadow-[0_1px_2px_rgba(244,63,94,0.05),inset_0_1.5px_2px_rgba(255,255,255,0.95)]' : 'bg-white text-slate-500 border-slate-200/80 shadow-[0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)] hover:bg-slate-50 hover:border-slate-350'
-                        }`}
-                      >
-                        <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${settings.showPageBreakLine ? 'bg-rose-500 animate-pulse' : 'bg-slate-300'}`} />
-                        <span className="truncate">{t.pageBreakBtn}</span>
-                      </button>
-                      <button
-                        onClick={() => updateSetting('show3DBackdrop', !settings.show3DBackdrop)}
-                        className={`flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer h-[28px] active:translate-y-px truncate ${
-                          settings.show3DBackdrop ? 'bg-indigo-50 text-indigo-700 border-indigo-200/60 shadow-[0_1px_2px_rgba(99,102,241,0.05),inset_0_1.5px_2px_rgba(255,255,255,0.95)]' : 'bg-white text-slate-500 border-slate-200/80 shadow-[0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)] hover:bg-slate-50 hover:border-slate-350'
-                        }`}
-                      >
-                        <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${settings.show3DBackdrop ? 'bg-indigo-500 animate-pulse' : 'bg-slate-300'}`} />
-                        <span className="truncate">{t.backdropBtn}</span>
-                      </button>
-                    </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">{isEn ? 'Title Style' : '标题样式'}</label>
+                    <CustomSelect
+                      value={settings.h2Style}
+                      onChange={(val) => updateSetting('h2Style', val as H2Style)}
+                      options={titleStyleOptions}
+                      size="sm"
+                      triggerClassName="w-full bg-white border-slate-200/90 text-slate-700 rounded-lg px-2.5 py-1 text-xs"
+                    />
+                  </div>
+                </div>
+
+                {/* 4. Layout Aids */}
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">{t.layoutAids}</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      onClick={() => updateSetting('topAccentLine', !settings.topAccentLine)}
+                      className={`flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer h-[28px] active:translate-y-px truncate ${
+                        settings.topAccentLine ? 'bg-blue-50 text-blue-700 border-blue-200/60 shadow-[0_1px_2px_rgba(59,130,246,0.05),inset_0_1.5px_2px_rgba(255,255,255,0.95)]' : 'bg-white text-slate-500 border-slate-200/80 shadow-[0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)] hover:bg-slate-50 hover:border-slate-350'
+                      }`}
+                    >
+                      <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${settings.topAccentLine ? 'bg-blue-600' : 'bg-slate-300'}`} />
+                      <span className="truncate">{t.topAccentBtn}</span>
+                    </button>
+                    <button
+                      onClick={() => updateSetting('showPageBreakLine', !settings.showPageBreakLine)}
+                      className={`flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer h-[28px] active:translate-y-px truncate ${
+                        settings.showPageBreakLine ? 'bg-rose-50 text-rose-700 border-rose-200/60 shadow-[0_1px_2px_rgba(244,63,94,0.05),inset_0_1.5px_2px_rgba(255,255,255,0.95)]' : 'bg-white text-slate-500 border-slate-200/80 shadow-[0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)] hover:bg-slate-50 hover:border-slate-350'
+                      }`}
+                    >
+                      <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${settings.showPageBreakLine ? 'bg-rose-500 animate-pulse' : 'bg-slate-300'}`} />
+                      <span className="truncate">{t.pageBreakBtn}</span>
+                    </button>
+                    <button
+                      onClick={() => updateSetting('show3DBackdrop', !settings.show3DBackdrop)}
+                      className={`flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer h-[28px] active:translate-y-px truncate ${
+                        settings.show3DBackdrop ? 'bg-indigo-50 text-indigo-700 border-indigo-200/60 shadow-[0_1px_2px_rgba(99,102,241,0.05),inset_0_1.5px_2px_rgba(255,255,255,0.95)]' : 'bg-white text-slate-500 border-slate-200/80 shadow-[0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)] hover:bg-slate-50 hover:border-slate-350'
+                      }`}
+                    >
+                      <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${settings.show3DBackdrop ? 'bg-indigo-500 animate-pulse' : 'bg-slate-300'}`} />
+                      <span className="truncate">{t.backdropBtn}</span>
+                    </button>
                   </div>
                 </div>
 
@@ -703,8 +761,8 @@ export function Toolbar() {
                   />
                 </div>
 
-                {/* Fine Spacing Adjustments */}
-                <div className="space-y-3 bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                {/* 5. Fine Spacing Adjustments */}
+                <div className="space-y-3 bg-slate-50/80 p-3.5 rounded-xl border border-slate-100">
                   <div className="flex items-center justify-between">
                     <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">{t.spacingLabel}</label>
                     <button
@@ -761,10 +819,10 @@ export function Toolbar() {
                     />
                   </div>
                 </div>
-
               </div>
             </div>
-          </>
+          </>,
+          document.body
         )}
       </div>
     </div>

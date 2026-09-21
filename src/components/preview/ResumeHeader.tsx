@@ -50,14 +50,27 @@ export function ResumeHeader({ headerInfo, theme }: ResumeHeaderProps) {
           )}
         </div>
         
-        {/* Contacts */}
+        {/* Contacts - Vertically Aligned */}
         {headerInfo.contacts.length > 0 && (
-          <div className="flex flex-col sm:items-end gap-1.5 text-[11.5px] text-gray-600 font-medium">
+          <div className="flex flex-col items-start gap-1.5 text-[11.5px] text-gray-600 font-medium sm:ml-auto sm:self-start shrink-0 min-w-0">
             {headerInfo.contacts.map((contact, idx) => {
               let icon = null;
               const contactLower = contact.toLowerCase();
               const isEmail = contact.includes('@');
-              const isGithub = contactLower.includes('github');
+
+              // Check if contact has markdown link syntax [text](url)
+              const mdLinkMatch = contact.match(/\[([^\]]*)\]\(([^)]+)\)/);
+              let rawUrl = '';
+              if (mdLinkMatch) {
+                rawUrl = mdLinkMatch[2].trim();
+              } else {
+                const withoutPrefix = contact.replace(/^(?:GitHub|Gitee|Blog|博客|主页|Website|个人主页|代码仓库)[:：\s]*/i, '').trim();
+                rawUrl = withoutPrefix.replace(/^<|>$/g, '').trim();
+              }
+
+              // Check if URL or contact contains github.com
+              const hasGithubCom = contactLower.includes('github.com') || rawUrl.toLowerCase().includes('github.com');
+              const isGithub = contactLower.includes('github') || hasGithubCom;
               const isLinkedin = contactLower.includes('linkedin') || contactLower.includes('领英');
               const isWechat = contactLower.includes('wechat') || contactLower.includes('微信') || contactLower.includes('wx');
               const digitsOnly = contact.replace(/[^\d]/g, '');
@@ -68,7 +81,19 @@ export function ResumeHeader({ headerInfo, theme }: ResumeHeaderProps) {
                 /^\+?[\d\s\-\(\)]{7,20}$/.test(contact.trim()) ||
                 (digitsOnly.length >= 7 && digitsOnly.length <= 15)
               );
-              const isUrl = !isEmail && !isPhone && (contactLower.includes('http') || contactLower.includes('github.com') || contactLower.includes('gitee.com') || contactLower.includes('.com') || contactLower.includes('.org') || contactLower.includes('.net') || contactLower.includes('.io'));
+              const isUrl = !isEmail && !isPhone && (
+                Boolean(mdLinkMatch) ||
+                hasGithubCom ||
+                contactLower.includes('http') ||
+                contactLower.includes('gitee.com') ||
+                contactLower.includes('.com') ||
+                contactLower.includes('.org') ||
+                contactLower.includes('.net') ||
+                contactLower.includes('.io') ||
+                contactLower.includes('.cn') ||
+                contactLower.includes('.me') ||
+                contactLower.includes('.dev')
+              );
               
               if (isEmail) {
                 icon = <Mail className={`w-3.5 h-3.5 ${theme.iconColor}`} />;
@@ -87,30 +112,72 @@ export function ResumeHeader({ headerInfo, theme }: ResumeHeaderProps) {
               }
               
               let href = '';
+              let displayText = contact;
+
               if (isEmail) {
                 const cleanEmail = contact.replace(/^(?:邮箱|email|mail)[:：\s]*/i, '').trim();
                 href = `mailto:${cleanEmail}`;
+                displayText = cleanEmail || contact;
               } else if (isPhone) {
-                href = `tel:${contact.trim().replace(/[^\d+]/g, '')}`;
+                const cleanPhone = contact.replace(/^(?:电话|手机|手机号|手机号码|联系方式|联系电话|tel|phone|mobile)[:：\s]*/i, '').trim();
+                href = `tel:${cleanPhone.replace(/[^\d+]/g, '')}`;
+                displayText = cleanPhone || contact;
+              } else if (isWechat) {
+                const cleanWechat = contact.replace(/^(?:微信|wechat|wx)[:：\s]*/i, '').trim();
+                displayText = cleanWechat || contact;
+              } else if (isLinkedin) {
+                const cleanLinkedin = contact.replace(/^(?:领英|linkedin)[:：\s]*/i, '').trim();
+                displayText = cleanLinkedin || contact;
+                if (cleanLinkedin.includes('linkedin.com') || contactLower.includes('http')) {
+                  href = cleanLinkedin.startsWith('http') ? cleanLinkedin : `https://${cleanLinkedin}`;
+                }
+              } else if (hasGithubCom) {
+                // Extract full URL for github link
+                const ghUrlMatch = rawUrl.match(/(?:https?:\/\/)?(?:www\.)?github\.com(?:\/[^\s\)\],，。；;'"<>]*)?/i)
+                  || contact.match(/(?:https?:\/\/)?(?:www\.)?github\.com(?:\/[^\s\)\],，。；;'"<>]*)?/i);
+
+                const matchedUrl = ghUrlMatch ? ghUrlMatch[0] : rawUrl;
+                href = matchedUrl.startsWith('http://') || matchedUrl.startsWith('https://')
+                  ? matchedUrl
+                  : `https://${matchedUrl}`;
+
+                // Extract username / repo part from URL, hiding 'github.com/' domain
+                const pathMatch = matchedUrl.match(/github\.com\/?([^\s?#]*)/i);
+                if (pathMatch && pathMatch[1]) {
+                  const segments = pathMatch[1].split('/').map(s => s.trim()).filter(Boolean);
+                  if (segments.length >= 2) {
+                    displayText = `${segments[0]}/${segments[1].replace(/\.git$/i, '')}`;
+                  } else if (segments.length === 1) {
+                    displayText = segments[0].replace(/\.git$/i, '');
+                  }
+                }
+                // If unable to extract segments (e.g. just github.com), fallback to contact without prefix
+                if (!displayText || displayText === contact) {
+                  const cleaned = contact.replace(/^(?:GitHub)[:：\s]*/i, '').trim();
+                  displayText = cleaned || contact;
+                }
               } else if (isUrl) {
-                const urlClean = contact.replace(/^(?:GitHub|Gitee|Blog|博客|主页)[:：\s]*/i, '').trim();
+                const urlClean = rawUrl || contact.replace(/^(?:GitHub|Gitee|Blog|博客|主页)[:：\s]*/i, '').trim();
                 href = urlClean.startsWith('http') ? urlClean : `https://${urlClean}`;
+                displayText = urlClean;
               }
 
               return (
-                <div key={idx} className="flex items-center gap-1.5 hover:text-gray-950 transition-colors">
-                  {icon}
+                <div key={idx} className="flex items-center gap-2 hover:text-gray-950 transition-colors w-full sm:w-auto">
+                  <span className="w-4 h-4 flex items-center justify-center shrink-0">
+                    {icon}
+                  </span>
                   {href ? (
                     <a 
                       href={href} 
                       target={isEmail || isPhone ? undefined : "_blank"} 
                       rel={isEmail || isPhone ? undefined : "noopener noreferrer"}
-                      className="hover:underline underline-offset-2"
+                      className="hover:underline underline-offset-2 break-all"
                     >
-                      {contact}
+                      {displayText}
                     </a>
                   ) : (
-                    <span>{contact}</span>
+                    <span className="break-all">{displayText}</span>
                   )}
                 </div>
               );

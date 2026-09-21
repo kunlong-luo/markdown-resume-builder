@@ -2,7 +2,7 @@ import React from 'react';
 import { getH2ClassName } from '../../lib/preview-utils';
 
 // Static constants lifted out of render cycle to prevent repeated compilation and memory allocation overhead
-const DATE_REGEX = /(?:(?:19|20)\d{2}[\.\-\/年\s]\d{1,2}\s*月?|(?:19|20)\d{2})\s*(?:[\-—–―~～至到]|--+|\s+)\s*(?:(?:19|20)\d{2}[\.\-\/年\s]\d{1,2}\s*月?|(?:19|20)\d{2}|至今|现在|present|Present)/gi;
+const DATE_REGEX = /(?:(?:19|20)\d{2}[\.\-\/年\s]\d{1,2}\s*月?|(?:19|20)\d{2})\s*(?:[\-—–―~～至到]|--+|\s+)\s*(?:(?:19|20)\d{2}[\.\-\/年\s]\d{1,2}\s*月?|(?:19|20)\d{2}|至今|现在|目前|present|Present|now|current|毕业)/gi;
 const DIVIDER_REGEX = /[　]|[｜|·•]|\s{2,}/;
 const SPLIT_REGEX = /[　]|\s*[|｜·•]\s*|\s{2,}/g;
 
@@ -174,7 +174,34 @@ export function createMarkdownComponents({
     strong: ({ node, ...props }: any) => <strong className="font-bold text-gray-900" {...props} />,
     em: ({ node, ...props }: any) => <em className="italic text-gray-500 font-normal" {...props} />,
     hr: ({ node, ...props }: any) => <hr className={sizeClasses.hr} {...props} />,
-    a: ({ node, ...props }: any) => <a className={`${theme.accentText} font-medium transition-colors break-words underline underline-offset-2 decoration-gray-200 hover:decoration-current`} {...props} />,
+    a: ({ node, children, href, ...props }: any) => {
+      let displayChildren = children;
+      if (href && typeof href === 'string' && href.toLowerCase().includes('github.com')) {
+        const textContent = typeof children === 'string' ? children : '';
+        if (textContent && textContent.toLowerCase().includes('github.com')) {
+          const pathMatch = textContent.match(/github\.com\/?([^\s?#]*)/i);
+          if (pathMatch && pathMatch[1]) {
+            const segments = pathMatch[1].split('/').map(s => s.trim()).filter(Boolean);
+            if (segments.length >= 2) {
+              displayChildren = `${segments[0]}/${segments[1].replace(/\.git$/i, '')}`;
+            } else if (segments.length === 1) {
+              displayChildren = segments[0].replace(/\.git$/i, '');
+            }
+          }
+        }
+      }
+      return (
+        <a 
+          href={href}
+          target={href && (href.startsWith('mailto:') || href.startsWith('tel:')) ? undefined : "_blank"}
+          rel={href && (href.startsWith('mailto:') || href.startsWith('tel:')) ? undefined : "noopener noreferrer"}
+          className={`${theme.accentText} font-medium transition-colors break-words underline underline-offset-2 decoration-gray-200 hover:decoration-current`} 
+          {...props}
+        >
+          {displayChildren}
+        </a>
+      );
+    },
     blockquote: ({ node, ...props }: any) => <blockquote className={`border-l-4 ${theme.blockquoteAccent} pl-4 py-1 italic text-gray-600 my-4 rounded-r-md break-inside-avoid`} {...props} />,
     table: ({ node, ...props }: any) => (
       <div className={sizeClasses.table}>

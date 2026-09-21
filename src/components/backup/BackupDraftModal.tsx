@@ -250,7 +250,7 @@ export function BackupDraftModal() {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -264,22 +264,22 @@ export function BackupDraftModal() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 12 }}
             transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-            className="relative bg-white w-full max-w-4xl h-[640px] rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-10 flex flex-col"
+            className="relative bg-white w-full max-w-4xl h-[640px] max-h-[92vh] rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-10 flex flex-col"
           >
             {/* Top Gradient Accent Bar */}
             <div className="h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
 
             {/* Header Area */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100/80 bg-white">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-indigo-50/80 text-indigo-600 rounded-xl border border-indigo-100/50">
-                  <Database className="w-5 h-5" />
+            <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-5 border-b border-slate-100/80 bg-white">
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                <div className="p-1.5 sm:p-2 bg-indigo-50/80 text-indigo-600 rounded-xl border border-indigo-100/50 shrink-0">
+                  <Database className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-900 text-sm tracking-tight flex items-center gap-2">
+                  <h3 className="font-bold text-slate-900 text-xs sm:text-sm tracking-tight flex items-center gap-2">
                     {settings.lang === 'en' ? 'Versions & Backup' : '版本备份'}
                   </h3>
-                  <p className="text-[11px] text-slate-500 mt-0.5">
+                  <p className="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 line-clamp-1 sm:line-clamp-none">
                     {settings.lang === 'en' 
                       ? 'Manage target-specific resume variations, local automatic auto-saves, and complete JSON configurations.'
                       : '管理多岗位简历、本地历史草稿及 JSON 配置备份。'}
@@ -288,18 +288,18 @@ export function BackupDraftModal() {
               </div>
               <button
                 onClick={onClose}
-                className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600 transition-all cursor-pointer"
+                className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600 transition-all cursor-pointer shrink-0"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* Tab Switched Navigation Bar */}
-            <div className="flex items-center justify-between px-6 py-3 bg-slate-50 border-b border-slate-100/80">
+            <div className="flex items-center justify-between px-3 sm:px-6 py-2 sm:py-3 bg-slate-50 border-b border-slate-100/80 overflow-x-auto scrollbar-none">
               <div className="flex p-1 bg-slate-200/50 rounded-xl gap-1 shrink-0">
                 <button
                   onClick={() => setActiveTab('matrix')}
-                  className={`flex items-center gap-1.5 py-1.5 px-4 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                  className={`flex items-center gap-1.5 py-1 sm:py-1.5 px-2.5 sm:px-4 text-xs font-bold rounded-lg transition-all cursor-pointer shrink-0 whitespace-nowrap ${
                     activeTab === 'matrix'
                       ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-slate-100'
                       : 'text-slate-500 hover:text-slate-800 hover:bg-white/40'
@@ -312,7 +312,7 @@ export function BackupDraftModal() {
                 </button>
                 <button
                   onClick={() => setActiveTab('drafts')}
-                  className={`flex items-center gap-1.5 py-1.5 px-4 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                  className={`flex items-center gap-1.5 py-1 sm:py-1.5 px-2.5 sm:px-4 text-xs font-bold rounded-lg transition-all cursor-pointer shrink-0 whitespace-nowrap ${
                     activeTab === 'drafts'
                       ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-slate-100'
                       : 'text-slate-500 hover:text-slate-800 hover:bg-white/40'

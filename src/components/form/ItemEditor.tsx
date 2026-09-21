@@ -144,8 +144,8 @@ export function ItemEditor({
   const cat = dict.categories[catKey];
 
   return (
-    <div className="p-4 border border-slate-200/60 rounded-xl bg-gradient-to-br from-white to-slate-50/60 relative space-y-3 transition-all group/item shadow-[0_2px_6px_rgba(15,23,42,0.01),inset_0_1.5px_2px_rgba(255,255,255,0.95)] hover:border-slate-300 hover:shadow-[0_4px_12px_rgba(15,23,42,0.03),inset_0_1.5px_2px_rgba(255,255,255,0.95)]">
-      <div className="absolute right-3 top-3 flex items-center gap-1 opacity-40 group-hover/item:opacity-100 transition-opacity">
+    <div className="p-3 sm:p-4 border border-slate-200/60 rounded-xl bg-gradient-to-br from-white to-slate-50/60 relative space-y-2.5 sm:space-y-3 transition-all group/item shadow-[0_2px_6px_rgba(15,23,42,0.01),inset_0_1.5px_2px_rgba(255,255,255,0.95)] hover:border-slate-300 hover:shadow-[0_4px_12px_rgba(15,23,42,0.03),inset_0_1.5px_2px_rgba(255,255,255,0.95)]">
+      <div className="flex items-center justify-end gap-1 sm:absolute sm:right-3 sm:top-3 sm:opacity-40 sm:group-hover/item:opacity-100 transition-opacity">
         <button type="button" onClick={onInsertStarTemplate} className="p-1 hover:bg-amber-50 text-amber-600 rounded transition-colors cursor-pointer" title={cat.starTitle}>
           <Sparkles className="w-3.5 h-3.5" />
         </button>
@@ -160,7 +160,7 @@ export function ItemEditor({
         </button>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-3 pr-24">
+      <div className="flex flex-col md:flex-row gap-2.5 sm:gap-3 sm:pr-24">
         <div className="flex-1 min-w-0">
           <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{cat.orgLabel}</label>
           <input type="text" value={item.org || ''} onChange={(e) => onFieldChange('org', e.target.value)} className="w-full px-2.5 py-1.5 text-xs font-semibold text-slate-800 tactile-input" placeholder={cat.orgPlaceholder} />

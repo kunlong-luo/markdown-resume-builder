@@ -292,7 +292,11 @@ export function cleanMarkdown(markdown: string): string {
   // e.g., "Title - Bullet content" -> "Title\n- Bullet content"
   // Preceded by space, Chinese character, or asterisks. Followed by a Chinese character or a word/letter (excluding numeric date ranges).
   // Note: We only split on dash-like markers (-, –, —, －) here to prevent breaking inline lists separated by dots (·, •, ●, etc.) or contact details.
-  processed = processed.replace(/(?<!\n|^)(?<=\s|[\u4e00-\u9fa5]|\*\*\*|\*\*|\*)\s*[-–—－]\s*(?=[\u4e00-\u9fa5]|[a-zA-Z]{2,})/g, '\n- ');
+  // CRITICAL FIX: Must NOT split if preceded by a date or followed by ongoing date terms (至今, 现在, 目前, present, etc.)
+  processed = processed.replace(
+    /(?<!\n|^)(?<!\b(?:19|20)\d{2}(?:[.\-/年]\d{1,2}(?:[月.\-/]\d{1,2})?)?\s*)(?<=\s|[\u4e00-\u9fa5]|\*\*\*|\*\*|\*)\s*[-–—－]\s*(?!\s*(?:至今|现在|目前|present|Present|now|current|毕业|\b(?:19|20)\d{2}))(?=[\u4e00-\u9fa5]|[a-zA-Z]{2,})/g,
+    '\n- '
+  );
 
   // Ensure list items immediately following normal text lines are separated by a blank line 
   // to prevent them from merging into a single line in Markdown rendering.
