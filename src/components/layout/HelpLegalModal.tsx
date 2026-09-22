@@ -56,7 +56,7 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
               <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <span>{isEn ? 'Help & Compliance Center' : '帮助文档与法规声明'}</span>
                 <span className="px-2 py-0.5 text-[10px] font-extrabold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/60 rounded-full">
-                  v1.5 PRO
+                  v1.6 PRO
                 </span>
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -162,6 +162,18 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
                     {isEn
                       ? 'Paste target Job Descriptions to analyze match percentage and diagnose ATS parsing issues.'
                       : '点击「智能诊断」粘贴目标岗位 JD，算法将自动对比匹配度、扫描联系方式及排版规范缺陷。'}
+                  </p>
+                </div>
+
+                <div className="p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 rounded-xl space-y-1.5">
+                  <div className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+                    <span>{isEn ? 'Smart Raw Text Paste' : '智能纯文本一键导入'}</span>
+                  </div>
+                  <p className="text-slate-500 dark:text-slate-400">
+                    {isEn
+                      ? 'Click "Smart Paste" in top bar to paste messy text from Word/PDF/job boards directly into structured Markdown.'
+                      : '点击顶部「智能粘贴」，可直接粘贴来自 Word/网页/旧简历的杂乱纯文本，本地算法自动提取并规整为 Markdown。'}
                   </p>
                 </div>
 
