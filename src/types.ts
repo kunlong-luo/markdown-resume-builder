@@ -26,6 +26,7 @@ export interface ResumeSettings {
   lang?: Language;
   isPrivacyMasked?: boolean;
   show3DBackdrop?: boolean;
+  isCompactTools?: boolean;
 }
 
 export interface ResumeDraft {
@@ -35,4 +36,16 @@ export interface ResumeDraft {
   settings: ResumeSettings;
   timestamp: string;
   isAutoSave?: boolean;
+}
+
+export interface ResumeProfile {
+  id: string;
+  name: string;
+  targetRole?: string;
+  markdown: string;
+  settings: ResumeSettings;
+  customFileName?: string;
+  updatedAt: string;
+  createdAt: string;
+  isDefault?: boolean;
 }

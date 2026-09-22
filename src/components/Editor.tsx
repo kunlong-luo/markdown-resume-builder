@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { 
   Edit3, Copy, RotateCcw, Check, Bold, Italic, Link, List, ListOrdered, Table, Minus, Heading1, Heading2, Code, Info, Scissors, Undo, Redo,
-  Sparkles, Type, Layers, Award, Phone, GraduationCap, ChevronDown, Briefcase, Sliders, ChevronsUp, ChevronsDown
+  Sparkles, Type, Layers, Award, Phone, GraduationCap, ChevronDown, Briefcase, Sliders, ChevronsUp, ChevronsDown, Wand2
 } from 'lucide-react';
 import { FormEditor } from './form/FormEditor';
 import { SectionSorter } from './layout/SectionSorter';
@@ -10,7 +10,7 @@ import { useResumeStore } from '../store/useResumeStore';
 import { useConfirm } from '../context/ConfirmContext';
 import { DEFAULT_MARKDOWN } from '../data';
 
-import { formatChineseEnglishSpacing } from '../lib/format-utils';
+import { autoFormatAndCleanResume } from '../lib/resume-auto-fixer';
 
 function highlightInline(text: string): string {
   let parsed = text;
@@ -210,14 +210,35 @@ export function Editor() {
   };
 
   const [spaced, setSpaced] = useState(false);
+  const [cleanFeedback, setCleanFeedback] = useState<string | null>(null);
   const [isSnippetsDropdownOpen, setIsSnippetsDropdownOpen] = useState(false);
 
-  const handleAutoSpacing = () => {
-    const formatted = formatChineseEnglishSpacing(value);
-    onChange(formatted, false);
+  // Auto detect format issues and 1-click clean
+  const autoCleanResult = useMemo(() => {
+    return autoFormatAndCleanResume(value);
+  }, [value]);
+
+  const handleAutoClean = () => {
+    if (!autoCleanResult.hasChanges) {
+      setCleanFeedback(settings.lang === 'en' ? 'Already Perfect!' : '排版格式已是最佳状态');
+      setTimeout(() => setCleanFeedback(null), 2000);
+      return;
+    }
+
+    onChange(autoCleanResult.cleanedMarkdown, true);
     setSpaced(true);
-    setTimeout(() => setSpaced(false), 1500);
+    setCleanFeedback(
+      settings.lang === 'en' 
+        ? `Cleaned ${autoCleanResult.fixesCount} items!` 
+        : `已一键规范化 ${autoCleanResult.fixesCount} 处格式！`
+    );
+    setTimeout(() => {
+      setSpaced(false);
+      setCleanFeedback(null);
+    }, 2500);
   };
+
+  const handleAutoSpacing = handleAutoClean;
 
   const insertStarTemplate = () => {
     const starTemplate = `\n### **项目经历标题 (符合 STAR 原则描述)**\n- **[Situation 业务背景]**：面对...（描述背景，例如：原有支付网关在并发1W时延迟高、高频卡顿，导致核心下单率降低了15%）\n- **[Task 核心任务]**：作为重构技术负责人，我的目标是主导核心链路重构，将端到端支付耗时降低50%并支撑双十一大促\n- **[Action 关键行动]**：为了达成这一目标，我主导并实施了以下关键方案：\n  1. **架构重构**：使用 React Concurrent Features 与 Suspense 异步组件，大幅减少首屏体积 30% 并实现页面瞬时渲染\n  2. **高并发处理**：引入 Redis 集群缓存高频商品，并利用 Kafka 消息队列进行削峰填谷，彻底平抑了流量浪涌\n  3. **SQL性能优化**：针对全表扫描的查询建立联合索引，优化复杂多表 Join，实现慢查询占比降低 85%\n- **[Result 实际产出]**：项目上线后，首屏耗时由 2.5s 骤降至 0.7s，下单成功率由 83% 提升至 99.8%，有效承载双十一大促且无线上故障\n`;
@@ -243,36 +264,45 @@ export function Editor() {
         <div className="flex bg-slate-100 dark:bg-slate-800/90 p-0.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-inner shrink-0">
           <button
             onClick={() => setActiveMode('form')}
-            className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1 text-xs font-bold rounded-lg transition-all duration-150 cursor-pointer whitespace-nowrap shrink-0 ${
+            className={`group flex items-center px-2.5 sm:px-3.5 py-1 text-xs font-bold rounded-lg transition-all duration-150 cursor-pointer whitespace-nowrap shrink-0 ${
               activeMode === 'form'
                 ? 'bg-white dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 shadow-xs border border-slate-200/60 dark:border-slate-600 font-extrabold'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-700/50'
             }`}
+            title={settings.lang === 'en' ? 'Form Mode' : '表单编辑模式'}
           >
             <Layers className="w-3.5 h-3.5 shrink-0" />
-            <span className="whitespace-nowrap">{settings.lang === 'en' ? 'Form' : '表单编辑'}</span>
+            <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1.5" : "ml-1.5"}>
+              {settings.lang === 'en' ? 'Form' : '表单编辑'}
+            </span>
           </button>
           <button
             onClick={() => setActiveMode('markdown')}
-            className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1 text-xs font-bold rounded-lg transition-all duration-150 cursor-pointer whitespace-nowrap shrink-0 ${
+            className={`group flex items-center px-2.5 sm:px-3.5 py-1 text-xs font-bold rounded-lg transition-all duration-150 cursor-pointer whitespace-nowrap shrink-0 ${
               activeMode === 'markdown'
                 ? 'bg-white dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 shadow-xs border border-slate-200/60 dark:border-slate-600 font-extrabold'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-700/50'
             }`}
+            title={settings.lang === 'en' ? 'Markdown Source Mode' : '源码编辑模式'}
           >
             <Edit3 className="w-3.5 h-3.5 shrink-0" />
-            <span className="whitespace-nowrap">{settings.lang === 'en' ? 'Markdown' : '源码编辑'}</span>
+            <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1.5" : "ml-1.5"}>
+              {settings.lang === 'en' ? 'Markdown' : '源码编辑'}
+            </span>
           </button>
           <button
             onClick={() => setActiveMode('layout')}
-            className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1 text-xs font-bold rounded-lg transition-all duration-150 cursor-pointer whitespace-nowrap shrink-0 ${
+            className={`group flex items-center px-2.5 sm:px-3.5 py-1 text-xs font-bold rounded-lg transition-all duration-150 cursor-pointer whitespace-nowrap shrink-0 ${
               activeMode === 'layout'
                 ? 'bg-white dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 shadow-xs border border-slate-200/60 dark:border-slate-600 font-extrabold'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-700/50'
             }`}
+            title={settings.lang === 'en' ? 'Section Order Mode' : '板块排序模式'}
           >
             <Sliders className="w-3.5 h-3.5 shrink-0" />
-            <span className="whitespace-nowrap">{settings.lang === 'en' ? 'Order' : '板块排序'}</span>
+            <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1.5" : "ml-1.5"}>
+              {settings.lang === 'en' ? 'Order' : '板块排序'}
+            </span>
           </button>
         </div>
 
@@ -302,7 +332,7 @@ export function Editor() {
                     detail: { expand: !formExpandedState.isAllExpanded }
                   }));
                 }}
-                className={`flex items-center gap-1.5 px-2 sm:px-2.5 py-1 text-xs font-bold rounded-lg border transition-all active:scale-95 cursor-pointer shadow-2xs whitespace-nowrap shrink-0 ${
+                className={`group flex items-center px-2 sm:px-2.5 py-1 text-xs font-bold rounded-lg border transition-all active:scale-95 cursor-pointer shadow-2xs whitespace-nowrap shrink-0 ${
                   formExpandedState.isAllExpanded 
                     ? 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200' 
                     : 'bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300'
@@ -315,33 +345,73 @@ export function Editor() {
                 {formExpandedState.isAllExpanded ? (
                   <>
                     <ChevronsUp className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
-                    <span className="whitespace-nowrap">{settings.lang === 'en' ? 'Collapse All' : '全部折叠'}</span>
+                    <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1.5" : "ml-1.5"}>
+                      {settings.lang === 'en' ? 'Collapse All' : '全部折叠'}
+                    </span>
                   </>
                 ) : (
                   <>
                     <ChevronsDown className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400 shrink-0" />
-                    <span className="whitespace-nowrap">{settings.lang === 'en' ? 'Expand All' : '全部展开'}</span>
+                    <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1.5" : "ml-1.5"}>
+                      {settings.lang === 'en' ? 'Expand All' : '全部展开'}
+                    </span>
                   </>
                 )}
               </button>
               <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-0.5 sm:mx-1 shrink-0"></div>
             </>
           )}
+          {/* 1-Click Auto Clean & Format (Smart Detection) */}
+          <button 
+            onClick={handleAutoClean}
+            className={`group flex items-center px-2 sm:px-2.5 py-1 text-xs font-bold rounded-lg border transition-all active:scale-95 cursor-pointer whitespace-nowrap shrink-0 shadow-2xs ${
+              cleanFeedback
+                ? 'bg-emerald-500 text-white border-emerald-500 shadow-emerald-500/20'
+                : autoCleanResult.hasChanges
+                  ? 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/80 shadow-indigo-500/10'
+                  : 'bg-slate-50 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 border-slate-200/80 dark:border-slate-700/80 hover:text-slate-700 dark:hover:text-slate-200'
+            }`}
+            title={
+              settings.lang === 'en' 
+                ? '1-Click Auto Clean & Beautify: standardizes CJK/English spacing, trims trailing spaces, compresses blank lines (Ctrl+Shift+F)' 
+                : '一键排版规整：自动纠正中英/数字空格、压缩多余空行、去除行尾冗余空格 (Ctrl+Shift+F)'
+            }
+          >
+            {cleanFeedback ? (
+              <Check className="w-3.5 h-3.5 shrink-0" />
+            ) : (
+              <Wand2 className={`w-3.5 h-3.5 shrink-0 ${autoCleanResult.hasChanges ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}`} />
+            )}
+            <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1.5" : "ml-1.5"}>
+              {cleanFeedback 
+                ? cleanFeedback 
+                : autoCleanResult.hasChanges 
+                  ? (settings.lang === 'en' ? `Clean (${autoCleanResult.fixesCount})` : `一键规整 (${autoCleanResult.fixesCount})`)
+                  : (settings.lang === 'en' ? 'Format Clean' : '排版规整')}
+            </span>
+          </button>
+          <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-0.5 sm:mx-1 shrink-0"></div>
+
           <button 
             onClick={handleCopy}
-            className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded-lg transition-colors cursor-pointer whitespace-nowrap shrink-0"
+            className="group flex items-center px-2 sm:px-2.5 py-1 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded-lg transition-colors cursor-pointer whitespace-nowrap shrink-0"
+            title={settings.lang === 'en' ? 'Copy Markdown Content' : '复制 Markdown 源码'}
           >
             {copied ? <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> : <Copy className="w-3.5 h-3.5 shrink-0" />}
-            <span className="whitespace-nowrap">{copied ? (settings.lang === 'en' ? 'Copied!' : '已复制！') : (settings.lang === 'en' ? 'Copy All' : '复制全文')}</span>
+            <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1.5" : "ml-1.5"}>
+              {copied ? (settings.lang === 'en' ? 'Copied!' : '已复制！') : (settings.lang === 'en' ? 'Copy All' : '复制全文')}
+            </span>
           </button>
           <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-0.5 sm:mx-1 shrink-0"></div>
           <button 
             onClick={onReset}
-            className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors cursor-pointer whitespace-nowrap shrink-0"
+            className="group flex items-center px-2 sm:px-2.5 py-1 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors cursor-pointer whitespace-nowrap shrink-0"
             title={settings.lang === 'en' ? 'Reset to Default Template' : '重置为默认模板'}
           >
             <RotateCcw className="w-3.5 h-3.5 shrink-0" />
-            <span className="whitespace-nowrap">{settings.lang === 'en' ? 'Reset' : '重置'}</span>
+            <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1.5" : "ml-1.5"}>
+              {settings.lang === 'en' ? 'Reset' : '重置'}
+            </span>
           </button>
         </div>
       </div>
@@ -436,12 +506,14 @@ export function Editor() {
             <div className="relative">
               <button
                 onClick={() => setIsSnippetsDropdownOpen(!isSnippetsDropdownOpen)}
-                className="flex items-center gap-1 px-2.5 py-1 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-indigo-950/60 dark:to-blue-950/60 hover:from-blue-100 hover:to-indigo-100 dark:hover:from-indigo-900/70 dark:hover:to-blue-900/70 text-blue-700 dark:text-blue-300 hover:text-indigo-800 dark:hover:text-white rounded border border-blue-200/50 dark:border-indigo-800 text-[11px] font-semibold transition-all shadow-sm cursor-pointer ml-1 active:scale-95"
-                title={settings.lang === 'en' ? 'Insert common resume templates at cursor' : '一键在光标处插入常用简历排版模块'}
+                className="group flex items-center px-2.5 py-1 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-indigo-950/60 dark:to-blue-950/60 hover:from-blue-100 hover:to-indigo-100 dark:hover:from-indigo-900/70 dark:hover:to-blue-900/70 text-blue-700 dark:text-blue-300 hover:text-indigo-800 dark:hover:text-white rounded border border-blue-200/50 dark:border-indigo-800 text-[11px] font-semibold transition-all shadow-sm cursor-pointer ml-1 active:scale-95"
+                title={settings.lang === 'en' ? 'Insert Snippets' : '插入常用模块'}
               >
                 <Layers className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
-                <span>{settings.lang === 'en' ? 'Insert Snippets' : '插入常用模块'}</span>
-                <ChevronDown className={`w-3 h-3 text-blue-500 dark:text-blue-400 transition-transform ${isSnippetsDropdownOpen ? 'rotate-180' : ''}`} />
+                <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1" : "ml-1"}>
+                  {settings.lang === 'en' ? 'Insert Snippets' : '插入常用模块'}
+                </span>
+                <ChevronDown className={`w-3 h-3 text-blue-500 dark:text-blue-400 transition-transform shrink-0 ${isSnippetsDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
 
               {isSnippetsDropdownOpen && (
@@ -536,18 +608,26 @@ export function Editor() {
               )}
             </div>
 
-            {/* Auto Spacing button */}
+            {/* Auto Spacing & Clean button */}
             <button
-              onClick={handleAutoSpacing}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded border text-[11px] font-semibold transition-all shadow-sm cursor-pointer ml-1 active:scale-95 ${
-                spaced 
-                  ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' 
-                  : 'bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 hover:text-indigo-800 dark:hover:text-white border-indigo-200/50 dark:border-indigo-800'
+              onClick={handleAutoClean}
+              className={`group flex items-center px-2.5 py-1 rounded border text-[11px] font-semibold transition-all shadow-sm cursor-pointer ml-1 active:scale-95 ${
+                cleanFeedback
+                  ? 'bg-emerald-500 text-white border-emerald-500'
+                  : autoCleanResult.hasChanges
+                    ? 'bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800'
+                    : 'bg-slate-50 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 border-slate-200/60 dark:border-slate-700/60'
               }`}
-              title={settings.lang === 'en' ? 'Magic Formatter (Ctrl+Shift+F) - One-click to insert standard spaces between Chinese, English and numbers' : '魔法排版 (Ctrl+Shift+F) - 一键在中文与英文、数字之间添加标准空格'}
+              title={settings.lang === 'en' ? 'Magic Formatter: Auto Clean & Format (Ctrl+Shift+F)' : '魔法排版：中英空格与格式一键规整 (Ctrl+Shift+F)'}
             >
-              <Type className="w-3 h-3 shrink-0" />
-              <span>{spaced ? (settings.lang === 'en' ? 'Optimized!' : '已优化！') : (settings.lang === 'en' ? 'Magic Formatter' : '魔法排版')}</span>
+              <Wand2 className="w-3 h-3 shrink-0" />
+              <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1" : "ml-1"}>
+                {cleanFeedback 
+                  ? cleanFeedback 
+                  : autoCleanResult.hasChanges 
+                    ? (settings.lang === 'en' ? `Clean (${autoCleanResult.fixesCount})` : `规整 (${autoCleanResult.fixesCount})`) 
+                    : (settings.lang === 'en' ? 'Formatted' : '格式正常')}
+              </span>
             </button>
           </div>
 
@@ -607,18 +687,22 @@ export function Editor() {
       {/* Status Bar */}
       <div className="flex items-center justify-between px-3 sm:px-5 py-1.5 sm:py-2 bg-gray-50 dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800 text-[10px] sm:text-[11px] text-gray-500 dark:text-slate-400 font-medium z-10 overflow-x-auto scrollbar-none whitespace-nowrap gap-2">
         <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-          <span>{settings.lang === 'en' ? 'Words' : '总字数'}: <strong className="text-gray-700 dark:text-slate-200">{wordCount}</strong></span>
-          <span>{settings.lang === 'en' ? 'Chars' : '字符数'}: <strong className="text-gray-700 dark:text-slate-200">{charCount}</strong></span>
-          <span className="hidden xs:inline">{settings.lang === 'en' ? 'Lines' : '行数'}: <strong className="text-gray-700 dark:text-slate-200">{lineCount}</strong></span>
+          <span>{!settings.isCompactTools && (settings.lang === 'en' ? 'Words: ' : '总字数: ')}<strong className="text-gray-700 dark:text-slate-200">{wordCount}</strong>{settings.isCompactTools ? 'w' : ''}</span>
+          <span>{!settings.isCompactTools && (settings.lang === 'en' ? 'Chars: ' : '字符数: ')}<strong className="text-gray-700 dark:text-slate-200">{charCount}</strong>{settings.isCompactTools ? 'c' : ''}</span>
+          <span className="hidden xs:inline">{!settings.isCompactTools && (settings.lang === 'en' ? 'Lines: ' : '行数: ')}<strong className="text-gray-700 dark:text-slate-200">{lineCount}</strong>{settings.isCompactTools ? 'L' : ''}</span>
         </div>
         <div className="flex items-center gap-2 sm:gap-3 text-blue-600 dark:text-blue-400 shrink-0">
-          <div className="hidden md:flex items-center gap-1 text-gray-400 dark:text-slate-500 cursor-help" title={settings.lang === 'en' ? "Click the scissors icon in toolbar to insert <!-- pagebreak --> where you want to force page partition" : "在需要强制分页的地方点击剪刀按钮插入 <!-- pagebreak -->"}>
-            <Info className="w-3 h-3" />
-            <span>{settings.lang === 'en' ? 'Supports <!-- pagebreak --> force paging' : '支持 <!-- pagebreak --> 强制分页'}</span>
-          </div>
-          <div className="w-px h-3 bg-gray-200 dark:bg-slate-700 hidden md:block"></div>
+          {!settings.isCompactTools && (
+            <>
+              <div className="hidden md:flex items-center gap-1 text-gray-400 dark:text-slate-500 cursor-help" title={settings.lang === 'en' ? "Click the scissors icon in toolbar to insert <!-- pagebreak --> where you want to force page partition" : "在需要强制分页的地方点击剪刀按钮插入 <!-- pagebreak -->"}>
+                <Info className="w-3 h-3" />
+                <span>{settings.lang === 'en' ? 'Supports <!-- pagebreak --> force paging' : '支持 <!-- pagebreak --> 强制分页'}</span>
+              </div>
+              <div className="w-px h-3 bg-gray-200 dark:bg-slate-700 hidden md:block"></div>
+            </>
+          )}
           <div className="flex items-center gap-1.5">
-            <span>{settings.lang === 'en' ? 'Est. Pages' : '预估页数'}: <strong className="font-bold">{estPages}</strong></span>
+            <span>{!settings.isCompactTools && (settings.lang === 'en' ? 'Est. Pages: ' : '预估页数: ')}<strong className="font-bold">{estPages}</strong>{settings.isCompactTools ? 'P' : ''}</span>
           </div>
         </div>
       </div>

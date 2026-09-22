@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Database, History, FileJson, AlertCircle, Folder } from 'lucide-react';
+import { X, Database, History, FileJson, AlertCircle, Folder, Layers } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ResumeSettings, ResumeDraft } from '../../types';
+import { ProfilesTab } from './ProfilesTab';
 import { DraftsTab } from './DraftsTab';
 import { BackupTab } from './BackupTab';
 import { MatrixTab } from './MatrixTab';
@@ -29,7 +30,7 @@ export function BackupDraftModal() {
   };
 
   const { confirm } = useConfirm();
-  const [activeTab, setActiveTab] = useState<'drafts' | 'backup' | 'matrix'>('matrix');
+  const [activeTab, setActiveTab] = useState<'profiles' | 'matrix' | 'drafts' | 'backup'>('profiles');
   const [drafts, setDrafts] = useState<ResumeDraft[]>([]);
   const [newDraftTitle, setNewDraftTitle] = useState('');
   const [editingDraftId, setEditingDraftId] = useState<string | null>(null);
@@ -293,6 +294,19 @@ export function BackupDraftModal() {
             <div className="flex items-center justify-between px-3 sm:px-6 py-2 sm:py-3 bg-slate-50 dark:bg-slate-850 border-b border-slate-100/80 dark:border-slate-800 overflow-x-auto scrollbar-none">
               <div className="flex p-1 bg-slate-200/60 dark:bg-slate-800 rounded-xl gap-1 shrink-0">
                 <button
+                  onClick={() => setActiveTab('profiles')}
+                  className={`flex items-center gap-1.5 py-1 sm:py-1.5 px-2.5 sm:px-4 text-xs font-bold rounded-lg transition-all cursor-pointer shrink-0 whitespace-nowrap ${
+                    activeTab === 'profiles'
+                      ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm ring-1 ring-slate-100 dark:ring-slate-600'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-white/40 dark:hover:bg-slate-750'
+                  }`}
+                >
+                  <Layers className="w-3.5 h-3.5" />
+                  <span>
+                    {settings.lang === 'en' ? 'Resume Profiles' : '档案库 (Profiles)'}
+                  </span>
+                </button>
+                <button
                   onClick={() => setActiveTab('matrix')}
                   className={`flex items-center gap-1.5 py-1 sm:py-1.5 px-2.5 sm:px-4 text-xs font-bold rounded-lg transition-all cursor-pointer shrink-0 whitespace-nowrap ${
                     activeTab === 'matrix'
@@ -336,7 +350,7 @@ export function BackupDraftModal() {
               {/* Small Tip Tag */}
               <div className="hidden sm:flex items-center gap-1 text-[10px] text-slate-400 dark:text-slate-500 font-medium">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span>{settings.lang === 'en' ? 'Local Storage Engine Active' : '本地存储已就绪'}</span>
+                <span>{settings.lang === 'en' ? 'Multi-Profile Architecture Active' : '多档案存储引擎就绪'}</span>
               </div>
             </div>
 
@@ -359,8 +373,13 @@ export function BackupDraftModal() {
             </AnimatePresence>
 
             {/* Modal Body Container */}
-            <div className="flex-1 overflow-y-auto p-6 bg-white dark:bg-slate-900 scrollbar-thin">
-              {activeTab === 'matrix' ? (
+            <div className="flex-1 overflow-y-auto p-0 sm:p-6 bg-white dark:bg-slate-900 scrollbar-thin">
+              {activeTab === 'profiles' ? (
+                <ProfilesTab
+                  lang={settings.lang}
+                  showToast={showToast}
+                />
+              ) : activeTab === 'matrix' ? (
                 <MatrixTab 
                   currentMarkdown={markdown}
                   currentSettings={settings}

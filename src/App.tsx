@@ -4,6 +4,7 @@ import { Preview } from './components/preview/Preview';
 import { ResumeChecker } from './components/resume-checker/ResumeChecker';
 import { IframeWarningModal } from './components/IframeWarningModal';
 import { BackupDraftModal } from './components/backup/BackupDraftModal';
+import { HelpLegalModal } from './components/layout/HelpLegalModal';
 import { Header } from './components/layout/Header';
 import { Toolbar } from './components/layout/Toolbar';
 import { useResumeStore } from './store/useResumeStore';
@@ -37,7 +38,9 @@ export default function App() {
     setLastSaved,
     setMarkdown,
     setSettings,
-    handleMarkdownChange
+    handleMarkdownChange,
+    isHelpLegalOpen,
+    setIsHelpLegalOpen
   } = useResumeStore();
 
   const contentRef = useRef<HTMLDivElement>(null);
@@ -119,6 +122,8 @@ export default function App() {
 
   const {
     handleExportPDF,
+    handleExportDirectPDF,
+    handleExportVectorPrint,
     handleExportMarkdown,
     handleImportMarkdown
   } = useResumeActions({
@@ -206,11 +211,13 @@ export default function App() {
       <AestheticBackdrop />
       
       <div className="flex flex-col h-full w-full z-10 relative">
-        <div className="relative z-30">
+        <div className="relative z-50">
           <Header 
             handleImportMarkdown={handleImportMarkdown}
             handleExportMarkdown={handleExportMarkdown}
             handleExportPDF={handleExportPDF}
+            handleExportDirectPDF={handleExportDirectPDF}
+            handleExportVectorPrint={handleExportVectorPrint}
           />
           <Toolbar />
         </div>
@@ -270,6 +277,7 @@ export default function App() {
 
         <IframeWarningModal />
         <BackupDraftModal />
+        <HelpLegalModal isOpen={isHelpLegalOpen} onClose={() => setIsHelpLegalOpen(false)} />
       </div>
     </div>
   );

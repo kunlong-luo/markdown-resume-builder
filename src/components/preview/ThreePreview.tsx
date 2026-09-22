@@ -3,6 +3,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Html, OrbitControls, Sparkles, Float } from '@react-three/drei';
 import * as THREE from 'three';
 import { RotateCw, RefreshCw, Compass, Sun, Moon, Sparkle, Eye, HelpCircle, Box, Maximize2, ZoomIn } from 'lucide-react';
+import { useResumeStore } from '../../store/useResumeStore';
 
 interface ThreePreviewProps {
   children: React.ReactNode;
@@ -219,6 +220,7 @@ class CanvasErrorBoundary extends React.Component<{ children: React.ReactNode; f
 }
 
 export function ThreePreview({ children, lang }: ThreePreviewProps) {
+  const isCompact = useResumeStore((state) => !!state.settings.isCompactTools);
   const [autoRotate, setAutoRotate] = useState<boolean>(false);
   const [mouseParallax, setMouseParallax] = useState<boolean>(true);
   const [lightingStyle, setLightingStyle] = useState<'studio' | 'sunset' | 'dark'>('studio');
@@ -288,78 +290,93 @@ export function ThreePreview({ children, lang }: ThreePreviewProps) {
   return (
     <div className="relative w-full h-full flex flex-col bg-slate-950 overflow-hidden select-none">
       {/* 3D Toolbar Container - Polished segmented styling inspired by premium CAD & Figma tools */}
-      <div className="absolute top-4 left-4 right-4 z-40 flex flex-col xl:flex-row xl:items-center justify-between gap-3 bg-slate-900/85 backdrop-blur-md border border-slate-800 rounded-xl px-4 py-3 shadow-2xl select-none transition-all">
+      <div className={`absolute top-4 left-4 right-4 z-40 flex flex-col xl:flex-row xl:items-center justify-between gap-2.5 sm:gap-3 bg-slate-900/85 backdrop-blur-md border border-slate-800 rounded-xl ${isCompact ? 'px-3 py-2' : 'px-4 py-3'} shadow-2xl select-none transition-all`}>
         <div className="flex items-center gap-2">
-          <div className="w-2.5 h-2.5 bg-blue-500 rounded-full animate-pulse shadow-[0_0_10px_#3b82f6]" />
-          <span className="text-xs font-black text-slate-100 tracking-wider uppercase">{t.title}</span>
+          <div className="w-2.5 h-2.5 bg-blue-500 rounded-full animate-pulse shadow-[0_0_10px_#3b82f6] shrink-0" />
+          <span className={`text-xs font-black text-slate-100 tracking-wider uppercase ${isCompact ? 'hidden sm:inline-block' : ''}`}>{t.title}</span>
         </div>
 
-        <div className="flex items-center flex-wrap gap-2.5">
+        <div className="flex items-center flex-wrap gap-2 sm:gap-2.5">
           {/* Segmented Camera Presets Controller */}
           <div className="flex items-center bg-slate-950/80 p-0.5 rounded-lg border border-slate-800">
             <button
               onClick={() => handlePresetSelect('front')}
-              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md text-[10px] font-bold transition-all cursor-pointer ${
+              className={`group flex items-center gap-1 ${isCompact ? 'px-2 py-1' : 'px-2.5 py-1.5'} rounded-md text-[10px] font-bold transition-all cursor-pointer ${
                 activePreset === 'front'
                   ? 'bg-slate-800 text-blue-400 shadow-[0_1px_4px_rgba(0,0,0,0.4)]'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
+              title={t.presetFront}
             >
-              <Eye className="w-3.5 h-3.5" />
-              <span>{t.presetFront}</span>
+              <Eye className="w-3.5 h-3.5 shrink-0" />
+              <span className={isCompact ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1" : "ml-1"}>
+                {t.presetFront}
+              </span>
             </button>
             <button
               onClick={() => handlePresetSelect('angle')}
-              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md text-[10px] font-bold transition-all cursor-pointer ${
+              className={`group flex items-center gap-1 ${isCompact ? 'px-2 py-1' : 'px-2.5 py-1.5'} rounded-md text-[10px] font-bold transition-all cursor-pointer ${
                 activePreset === 'angle'
                   ? 'bg-slate-800 text-blue-400 shadow-[0_1px_4px_rgba(0,0,0,0.4)]'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
+              title={t.presetAngle}
             >
-              <Box className="w-3.5 h-3.5" />
-              <span>{t.presetAngle}</span>
+              <Box className="w-3.5 h-3.5 shrink-0" />
+              <span className={isCompact ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1" : "ml-1"}>
+                {t.presetAngle}
+              </span>
             </button>
             <button
               onClick={() => handlePresetSelect('detail')}
-              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md text-[10px] font-bold transition-all cursor-pointer ${
+              className={`group flex items-center gap-1 ${isCompact ? 'px-2 py-1' : 'px-2.5 py-1.5'} rounded-md text-[10px] font-bold transition-all cursor-pointer ${
                 activePreset === 'detail'
                   ? 'bg-slate-800 text-blue-400 shadow-[0_1px_4px_rgba(0,0,0,0.4)]'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
+              title={t.presetDetail}
             >
-              <ZoomIn className="w-3.5 h-3.5" />
-              <span>{t.presetDetail}</span>
+              <ZoomIn className="w-3.5 h-3.5 shrink-0" />
+              <span className={isCompact ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1" : "ml-1"}>
+                {t.presetDetail}
+              </span>
             </button>
           </div>
 
           <div className="h-4 w-[1px] bg-slate-850 hidden sm:block" />
 
           {/* Interactive Modes */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             {/* Parallax Follow toggle */}
             <button
               onClick={handleToggleParallax}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-extrabold border transition-all cursor-pointer ${
+              className={`group flex items-center gap-1.5 ${isCompact ? 'px-2 py-1' : 'px-3 py-1.5'} rounded-lg text-[10px] font-extrabold border transition-all cursor-pointer ${
                 mouseParallax
                   ? 'bg-blue-600/90 border-blue-500 text-white shadow-[0_2px_8px_rgba(37,99,235,0.4)]'
                   : 'bg-slate-800 border-slate-700/60 text-slate-300 hover:text-white hover:bg-slate-700/50'
               }`}
+              title={t.parallax}
             >
-              <Compass className="w-3.5 h-3.5" />
-              <span>{t.parallax}</span>
+              <Compass className="w-3.5 h-3.5 shrink-0" />
+              <span className={isCompact ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1" : ""}>
+                {t.parallax}
+              </span>
             </button>
 
             {/* Auto Rotate toggle */}
             <button
               onClick={handleToggleAutoRotate}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-extrabold border transition-all cursor-pointer ${
+              className={`group flex items-center gap-1.5 ${isCompact ? 'px-2 py-1' : 'px-3 py-1.5'} rounded-lg text-[10px] font-extrabold border transition-all cursor-pointer ${
                 autoRotate
                   ? 'bg-blue-600/90 border-blue-500 text-white shadow-[0_2px_8px_rgba(37,99,235,0.4)]'
                   : 'bg-slate-800 border-slate-700/60 text-slate-300 hover:text-white hover:bg-slate-700/50'
               }`}
+              title={t.rotate}
             >
-              <RotateCw className="w-3.5 h-3.5" />
-              <span>{t.rotate}</span>
+              <RotateCw className="w-3.5 h-3.5 shrink-0" />
+              <span className={isCompact ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1" : ""}>
+                {t.rotate}
+              </span>
             </button>
           </div>
 
@@ -369,39 +386,39 @@ export function ThreePreview({ children, lang }: ThreePreviewProps) {
           <div className="flex items-center bg-slate-950 p-0.5 rounded-lg border border-slate-800">
             <button
               onClick={() => setLightingStyle('studio')}
-              className={`px-2.5 py-1.5 rounded-md text-[10px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
+              className={`group ${isCompact ? 'px-2 py-1' : 'px-2.5 py-1.5'} rounded-md text-[10px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
                 lightingStyle === 'studio'
                   ? 'bg-slate-800 text-blue-400 shadow-sm'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
               title={t.styleStudio}
             >
-              <Sun className="w-3.5 h-3.5" />
-              <span className="hidden xs:inline text-[9px]">{isEn ? 'Studio' : '极客'}</span>
+              <Sun className="w-3.5 h-3.5 shrink-0" />
+              <span className={isCompact ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1 text-[9px]" : "hidden xs:inline text-[9px]"}>{isEn ? 'Studio' : '极客'}</span>
             </button>
             <button
               onClick={() => setLightingStyle('sunset')}
-              className={`px-2.5 py-1.5 rounded-md text-[10px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
+              className={`group ${isCompact ? 'px-2 py-1' : 'px-2.5 py-1.5'} rounded-md text-[10px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
                 lightingStyle === 'sunset'
                   ? 'bg-slate-800 text-amber-400 shadow-sm'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
               title={t.styleSunset}
             >
-              <Sparkle className="w-3.5 h-3.5" />
-              <span className="hidden xs:inline text-[9px]">{isEn ? 'Sunset' : '落日'}</span>
+              <Sparkle className="w-3.5 h-3.5 shrink-0" />
+              <span className={isCompact ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1 text-[9px]" : "hidden xs:inline text-[9px]"}>{isEn ? 'Sunset' : '落日'}</span>
             </button>
             <button
               onClick={() => setLightingStyle('dark')}
-              className={`px-2.5 py-1.5 rounded-md text-[10px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
+              className={`group ${isCompact ? 'px-2 py-1' : 'px-2.5 py-1.5'} rounded-md text-[10px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
                 lightingStyle === 'dark'
                   ? 'bg-slate-800 text-indigo-400 shadow-sm'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
               title={t.styleDark}
             >
-              <Moon className="w-3.5 h-3.5" />
-              <span className="hidden xs:inline text-[9px]">{isEn ? 'Twilight' : '暮光'}</span>
+              <Moon className="w-3.5 h-3.5 shrink-0" />
+              <span className={isCompact ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1 text-[9px]" : "hidden xs:inline text-[9px]"}>{isEn ? 'Twilight' : '暮光'}</span>
             </button>
           </div>
         </div>

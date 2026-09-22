@@ -396,38 +396,42 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
   return (
     <div className="relative w-full h-full flex flex-col overflow-hidden">
       {/* Zoom and Preview Toolbar */}
-      <div className="flex flex-row items-center justify-between px-3 sm:px-4 py-1.5 sm:py-2 bg-slate-50/95 dark:bg-slate-900/95 border-b border-slate-200/60 dark:border-slate-800/80 backdrop-blur-sm z-30 select-none print:hidden shrink-0 gap-2">
+      <div className={`flex flex-row items-center justify-between px-3 sm:px-4 ${settings.isCompactTools ? 'py-1 sm:py-1.5' : 'py-1.5 sm:py-2'} bg-slate-50/95 dark:bg-slate-900/95 border-b border-slate-200/60 dark:border-slate-800/80 backdrop-blur-sm z-30 select-none print:hidden shrink-0 gap-2 transition-all`}>
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{t.previewHeader}</span>
+          <span className={`text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider ${settings.isCompactTools ? 'hidden sm:inline-block' : ''}`}>{t.previewHeader}</span>
         </div>
         
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-2.5">
           {/* Grid Toggle Button */}
           <button
             onClick={toggleGrid}
-            className={`flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold rounded-lg border transition-all cursor-pointer ${
+            className={`group flex items-center gap-1.5 ${settings.isCompactTools ? 'px-2 py-1' : 'px-2.5 py-1'} text-[10px] font-bold rounded-lg border transition-all cursor-pointer shrink-0 ${
               showGrid
                 ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border-indigo-200/50 dark:border-indigo-800/50 shadow-sm'
                 : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200/60 dark:border-slate-700/60 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-750'
             }`}
             title={settings.lang === 'en' ? 'Toggle alignment grid lines' : '显示/隐藏高精度排版网格辅助线'}
           >
-            <Grid className="w-3.5 h-3.5" />
-            <span>{settings.lang === 'en' ? 'Grid' : '网格线'}</span>
+            <Grid className="w-3.5 h-3.5 shrink-0" />
+            <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1" : ""}>
+              {settings.lang === 'en' ? 'Grid' : '网格线'}
+            </span>
           </button>
 
           {/* 3D Space Toggle Button */}
           <button
             onClick={toggle3D}
-            className={`flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold rounded-lg border transition-all cursor-pointer ${
+            className={`group flex items-center gap-1.5 ${settings.isCompactTools ? 'px-2 py-1' : 'px-2.5 py-1'} text-[10px] font-bold rounded-lg border transition-all cursor-pointer shrink-0 ${
               show3D
                 ? 'bg-indigo-600 text-white border-indigo-500 shadow-[0_2px_6px_rgba(99,102,241,0.3)]'
                 : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200/60 dark:border-slate-700/60 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-750'
             }`}
             title={settings.lang === 'en' ? 'Toggle 3D Immersive Studio' : '进入 3D 拟真排版空间'}
           >
-            <Compass className="w-3.5 h-3.5" />
-            <span>{settings.lang === 'en' ? '3D View' : '3D 空间'}</span>
+            <Compass className="w-3.5 h-3.5 shrink-0" />
+            <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1" : ""}>
+              {settings.lang === 'en' ? '3D View' : '3D 空间'}
+            </span>
           </button>
 
           <span className="text-[10px] font-mono font-bold text-slate-400 dark:text-slate-500 min-w-[32px] text-right">
@@ -507,7 +511,7 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
         initial={{ opacity: 0, y: 15, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.35, ease: 'easeOut' }}
-        className="absolute bottom-5 left-5 z-40 print:hidden hidden sm:flex items-center gap-2.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800/90 shadow-[0_12px_32px_rgba(15,23,42,0.12),0_2px_6px_rgba(15,23,42,0.04)] dark:shadow-[0_12px_32px_rgba(0,0,0,0.4)] rounded-2xl p-2 transition-all duration-300 hover:shadow-[0_16px_40px_rgba(15,23,42,0.16)] group"
+        className={`absolute bottom-5 left-5 z-40 print:hidden hidden sm:flex items-center gap-2 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800/90 shadow-[0_12px_32px_rgba(15,23,42,0.12),0_2px_6px_rgba(15,23,42,0.04)] dark:shadow-[0_12px_32px_rgba(0,0,0,0.4)] rounded-2xl ${settings.isCompactTools ? 'p-1.5' : 'p-2'} transition-all duration-300 hover:shadow-[0_16px_40px_rgba(15,23,42,0.16)] group`}
       >
         <div className="flex items-center gap-1">
           <button 
@@ -517,13 +521,13 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
               setZoomMode(next);
               storage.set(STORAGE_KEYS.PREVIEW_ZOOM, String(next));
             }}
-            className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+            className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer shrink-0"
             title={t.zoomOut}
           >
-            <ZoomOut className="w-4 h-4" />
+            <ZoomOut className="w-3.5 h-3.5" />
           </button>
           
-          <div className="flex items-center gap-2 px-1 w-24 md:w-32">
+          <div className={`flex items-center gap-2 px-1 ${settings.isCompactTools ? 'w-20 md:w-24' : 'w-24 md:w-32'} transition-all`}>
             <CustomSlider
               min={0.5}
               max={1.5}

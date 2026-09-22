@@ -1,6 +1,7 @@
 import React from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { useResumeStore } from '../store/useResumeStore';
+import { exportDirectPDF } from '../lib/pdf-export';
 
 interface UseResumeActionsProps {
   contentRef: React.RefObject<HTMLDivElement | null>;
@@ -14,6 +15,7 @@ export function useResumeActions({ contentRef }: UseResumeActionsProps) {
     isExportingPDF,
     setIsIframeModalOpen,
     setIsExportingPDF,
+    setPdfExportProgress,
     handleMarkdownChange
   } = useResumeStore();
   
@@ -28,39 +30,77 @@ export function useResumeActions({ contentRef }: UseResumeActionsProps) {
         return parsedName.replace(/[\\\/:*?"<>|]/g, '-');
       }
     }
-    return 'resume';
+    return settings.lang === 'en' ? 'resume' : '简历';
   };
 
   const handlePrint = useReactToPrint({
     contentRef: contentRef,
-    documentTitle: `${getExportTitle()}_简历`,
+    documentTitle: `${getExportTitle()}_${settings.lang === 'en' ? 'resume' : '简历'}`,
     onAfterPrint: () => {
       setIsExportingPDF(false);
+      setPdfExportProgress(null);
     },
     onPrintError: () => {
       setIsExportingPDF(false);
+      setPdfExportProgress(null);
     }
   });
 
-  const handleExportPDF = () => {
+  // Mode A: Direct PDF download (one-click silent download via html2canvas + jsPDF)
+  const handleExportDirectPDF = async () => {
+    if (isExportingPDF) return;
+    setIsExportingPDF(true);
+    setPdfExportProgress(settings.lang === 'en' ? 'Preparing PDF...' : '准备导出 PDF...');
+
+    try {
+      const targetElement = contentRef.current || document.getElementById('resume-print-content');
+      if (!targetElement) {
+        throw new Error('Print content element not found');
+      }
+
+      await exportDirectPDF(targetElement, {
+        filename: `${getExportTitle()}_${settings.lang === 'en' ? 'resume' : '简历'}.pdf`,
+        onProgress: (status) => {
+          setPdfExportProgress(status);
+        }
+      });
+    } catch (err) {
+      console.error('Direct PDF export error:', err);
+      // If direct capture fails for any reason, offer browser vector print fallback
+      handleExportVectorPrint();
+    } finally {
+      setIsExportingPDF(false);
+      setPdfExportProgress(null);
+    }
+  };
+
+  // Mode B: Native browser vector print
+  const handleExportVectorPrint = () => {
     if (isExportingPDF) return;
     const isInIframe = window.self !== window.top;
     if (isInIframe) {
       setIsIframeModalOpen(true);
     } else {
       setIsExportingPDF(true);
-      // Fallback timer: reset isExportingPDF after 6 seconds in case browser printing interactions block or omit callbacks
+      setPdfExportProgress(settings.lang === 'en' ? 'Opening print dialog...' : '调起打印窗口...');
       const timer = setTimeout(() => {
         setIsExportingPDF(false);
+        setPdfExportProgress(null);
       }, 6000);
 
       try {
         handlePrint();
       } catch (err) {
         setIsExportingPDF(false);
+        setPdfExportProgress(null);
         clearTimeout(timer);
       }
     }
+  };
+
+  // Main action: default to Direct PDF Download
+  const handleExportPDF = () => {
+    handleExportDirectPDF();
   };
 
   const handleExportMarkdown = () => {
@@ -93,6 +133,8 @@ export function useResumeActions({ contentRef }: UseResumeActionsProps) {
 
   return {
     handleExportPDF,
+    handleExportDirectPDF,
+    handleExportVectorPrint,
     handleExportMarkdown,
     handleImportMarkdown,
     getExportTitle

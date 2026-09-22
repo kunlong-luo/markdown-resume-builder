@@ -194,7 +194,7 @@ const TRANSLATIONS = {
     splitView: '双栏分屏',
     previewOnly: '仅预览',
     aestheticsLabel: '排版精修',
-    aestheticsTooltip: '细节微调：间距、边距、字体与颜色',
+    aestheticsTooltip: '排版精修',
     doneBtn: '确定',
     fontSelection: '字体选择',
     layoutAids: '排版辅助',
@@ -235,7 +235,7 @@ const TRANSLATIONS = {
     splitView: 'Split View',
     previewOnly: 'Preview Only',
     aestheticsLabel: 'Aesthetics & Layout',
-    aestheticsTooltip: 'Fine-tune fonts, margins, spacings, colors, and line-height',
+    aestheticsTooltip: 'Aesthetics & Layout',
     doneBtn: 'Done',
     fontSelection: 'Font Selection',
     layoutAids: 'Layout Aids',
@@ -431,7 +431,7 @@ export function Toolbar() {
   ];
 
   return (
-    <div className="flex items-center justify-between px-2.5 sm:px-6 py-1.5 sm:py-2 bg-white/80 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/90 z-30 gap-2 sm:gap-3 relative shadow-[0_1px_2px_rgba(15,23,42,0.02)] dark:shadow-[0_2px_8px_rgba(0,0,0,0.3)] w-full transition-colors duration-200">
+    <div className="flex items-center justify-between px-2.5 sm:px-6 py-1.5 sm:py-2 bg-white/80 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/90 relative z-20 gap-2 sm:gap-3 shadow-[0_1px_2px_rgba(15,23,42,0.02)] dark:shadow-[0_2px_8px_rgba(0,0,0,0.3)] w-full transition-colors duration-200">
       <div className="flex items-center gap-1.5 sm:gap-2.5 text-xs overflow-x-auto scrollbar-none flex-nowrap min-w-0 shrink py-0.5">
         {/* Language Selection */}
         <div className="flex items-center gap-1.5 pr-2.5 border-r border-slate-200/90 dark:border-slate-800 shrink-0">
@@ -467,6 +467,7 @@ export function Toolbar() {
             options={presetOptions}
             placeholder={isEn ? 'Custom Style' : '自定义配置'}
             size="xs"
+            compact={settings.isCompactTools}
             triggerClassName="bg-indigo-50/90 dark:bg-indigo-950/60 border-indigo-200/80 dark:border-indigo-800/60 text-indigo-950 dark:text-indigo-300 font-bold text-[11px] h-7 rounded-lg hover:bg-indigo-100/80 dark:hover:bg-indigo-900/60 shadow-2xs"
           />
         </div>
@@ -479,6 +480,7 @@ export function Toolbar() {
             onChange={handleTemplateChange}
             options={templateOptions}
             size="xs"
+            compact={settings.isCompactTools}
             triggerClassName="bg-white dark:bg-slate-800 border-slate-200/90 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-[11px] h-7 rounded-lg hover:border-slate-300 dark:hover:border-slate-600 shadow-2xs"
           />
         </div>
@@ -490,6 +492,7 @@ export function Toolbar() {
             onChange={(val) => updateSetting('templateLayout', val as TemplateLayout)}
             options={layoutOptions}
             size="xs"
+            compact={settings.isCompactTools}
             triggerClassName="bg-white dark:bg-slate-800 border-slate-200/90 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-medium text-[11px] h-7 rounded-lg hover:border-slate-300 dark:hover:border-slate-600 shadow-2xs"
           />
         </div>
@@ -501,6 +504,7 @@ export function Toolbar() {
             onChange={(val) => updateSetting('h2Style', val as H2Style)}
             options={titleStyleOptions}
             size="xs"
+            compact={settings.isCompactTools}
             triggerClassName="bg-white dark:bg-slate-800 border-slate-200/90 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-medium text-[11px] h-7 rounded-lg hover:border-slate-300 dark:hover:border-slate-600 shadow-2xs"
           />
         </div>
@@ -510,13 +514,13 @@ export function Toolbar() {
       <div className="flex items-center gap-2.5 text-xs shrink-0 relative flex-nowrap">
         {/* Custom File Name Input */}
         <div className="hidden sm:flex items-center gap-1.5 shrink-0">
-          <span className="font-bold text-slate-500 dark:text-slate-400 text-[11px]">{t.exportNameLabel}</span>
+          <span className={`font-bold text-slate-500 dark:text-slate-400 text-[11px] ${settings.isCompactTools ? 'hidden md:inline' : ''}`}>{t.exportNameLabel}</span>
           <input
             type="text"
             value={customFileName}
             onChange={(e) => setCustomFileName(e.target.value)}
             placeholder={`${exportTitle}_简历`}
-            className="bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-lg py-1 px-2.5 font-semibold text-[11px] w-28 hover:border-slate-300 dark:hover:border-slate-600 transition-all shadow-2xs focus:shadow-none focus:outline-none focus:ring-1.5 focus:ring-indigo-500"
+            className={`bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-lg py-1 px-2.5 font-semibold text-[11px] hover:border-slate-300 dark:hover:border-slate-600 transition-all shadow-2xs focus:shadow-none focus:outline-none focus:ring-1.5 focus:ring-indigo-500 ${settings.isCompactTools ? 'w-20 focus:w-28' : 'w-28'}`}
           />
         </div>
 
@@ -524,46 +528,57 @@ export function Toolbar() {
         <button
           ref={aestheticsTriggerRef}
           onClick={handleToggleAesthetics}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all cursor-pointer shrink-0 active:translate-y-px ${
+          className={`group flex items-center px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all cursor-pointer shrink-0 active:translate-y-px ${
             isAestheticsOpen
               ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20'
               : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200/90 dark:border-slate-700 shadow-2xs hover:bg-slate-50 dark:hover:bg-slate-750 hover:border-slate-300 dark:hover:border-slate-600'
           }`}
           title={t.aestheticsTooltip}
         >
-          <Sliders className={`w-3.5 h-3.5 transition-transform ${isAestheticsOpen ? 'rotate-90 text-white' : 'text-indigo-500'}`} />
-          <span>{t.aestheticsLabel}</span>
-          <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isAestheticsOpen ? 'rotate-180' : ''}`} />
+          <Sliders className={`w-3.5 h-3.5 shrink-0 transition-transform ${isAestheticsOpen ? 'rotate-90 text-white' : 'text-indigo-500'}`} />
+          <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1.5" : "ml-1.5"}>
+            {t.aestheticsLabel}
+          </span>
+          <ChevronDown className={`w-3 h-3 shrink-0 ml-1 transition-transform duration-200 ${isAestheticsOpen ? 'rotate-180' : ''} ${settings.isCompactTools ? 'hidden group-hover:inline-block' : ''}`} />
         </button>
 
         {/* Layout Mode Toggle Group */}
         <div className="bg-slate-100 dark:bg-slate-800/90 p-0.5 rounded-lg flex items-center text-[11px] shrink-0 border border-slate-200/60 dark:border-slate-700/60 shadow-2xs">
           <button
             onClick={() => updateSetting('layoutMode', 'editor')}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-md font-bold transition-all cursor-pointer ${
+            className={`group flex items-center px-2 py-1 rounded-md font-bold transition-all cursor-pointer ${
               settings.layoutMode === 'editor' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
             }`}
+            title={t.editorOnly}
           >
-            <Maximize2 className="w-3 h-3" />
-            <span className="hidden lg:inline ml-0.5">{t.editorOnly}</span>
+            <Maximize2 className="w-3 h-3 shrink-0" />
+            <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1" : "hidden lg:inline ml-1"}>
+              {t.editorOnly}
+            </span>
           </button>
           <button
             onClick={() => updateSetting('layoutMode', 'split')}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-md font-bold transition-all cursor-pointer ${
+            className={`group flex items-center px-2 py-1 rounded-md font-bold transition-all cursor-pointer ${
               settings.layoutMode === 'split' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
             }`}
+            title={t.splitView}
           >
-            <Columns className="w-3 h-3" />
-            <span className="hidden lg:inline ml-0.5">{t.splitView}</span>
+            <Columns className="w-3 h-3 shrink-0" />
+            <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1" : "hidden lg:inline ml-1"}>
+              {t.splitView}
+            </span>
           </button>
           <button
             onClick={() => updateSetting('layoutMode', 'preview')}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-md font-bold transition-all cursor-pointer ${
+            className={`group flex items-center px-2 py-1 rounded-md font-bold transition-all cursor-pointer ${
               settings.layoutMode === 'preview' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
             }`}
+            title={t.previewOnly}
           >
-            <Eye className="w-3 h-3" />
-            <span className="hidden lg:inline ml-0.5">{t.previewOnly}</span>
+            <Eye className="w-3 h-3 shrink-0" />
+            <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1" : "hidden lg:inline ml-1"}>
+              {t.previewOnly}
+            </span>
           </button>
         </div>
 

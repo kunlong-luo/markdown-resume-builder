@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { DEFAULT_MARKDOWN, TEMPLATES } from '../data';
-import { ResumeSettings } from '../types';
+import { ResumeSettings, ResumeProfile } from '../types';
 import { storage, STORAGE_KEYS } from '../lib/storage';
 
 interface ResumeState {
@@ -15,10 +15,17 @@ interface ResumeState {
   isCheckerOpen: boolean;
   isIframeModalOpen: boolean;
   isBackupHubOpen: boolean;
+  isHelpLegalOpen: boolean;
   isExportingPDF: boolean;
+  pdfExportProgress: string | null;
   atsKeywords: string[];
   jdText: string;
   measuredPageCount: number;
+
+  // Multi-Profile States
+  profiles: ResumeProfile[];
+  activeProfileId: string;
+  isProfileHubOpen: boolean;
 
   // Actions
   setMarkdown: (markdown: string) => void;
@@ -29,10 +36,21 @@ interface ResumeState {
   setIsCheckerOpen: (open: boolean) => void;
   setIsIframeModalOpen: (open: boolean) => void;
   setIsBackupHubOpen: (open: boolean) => void;
+  setIsHelpLegalOpen: (open: boolean) => void;
   setIsExportingPDF: (isExporting: boolean) => void;
+  setPdfExportProgress: (progress: string | null) => void;
   setAtsKeywords: (keywords: string[]) => void;
   setJdText: (text: string) => void;
   setMeasuredPageCount: (count: number) => void;
+  setIsProfileHubOpen: (open: boolean) => void;
+
+  // Profile Management Actions
+  switchProfile: (profileId: string) => void;
+  createProfile: (data: { name: string; targetRole?: string; markdown?: string; settings?: ResumeSettings }) => ResumeProfile;
+  duplicateProfile: (profileId: string) => ResumeProfile;
+  renameProfile: (profileId: string, name: string, targetRole?: string) => void;
+  deleteProfile: (profileId: string) => boolean;
+  importProfiles: (profiles: ResumeProfile[]) => void;
   
   handleMarkdownChange: (newVal: string, immediate?: boolean) => void;
   handleUndo: () => void;
@@ -115,6 +133,7 @@ const getInitialSettings = (): ResumeSettings => {
     lang: 'zh',
     themeMode: (storage.getString(STORAGE_KEYS.THEME_MODE, 'light') as 'light' | 'dark' | 'system'),
     show3DBackdrop: false,
+    isCompactTools: false,
   };
   
   const savedSettings = storage.get<Partial<ResumeSettings> | null>(STORAGE_KEYS.SETTINGS, null);
@@ -124,45 +143,296 @@ const getInitialSettings = (): ResumeSettings => {
   return defaultSettings;
 };
 
-const initialMarkdown = getInitialMarkdown();
+// Helper to initialize Multi-Profile Archive
+const getInitialProfiles = (
+  defaultMd: string,
+  defaultSettings: ResumeSettings
+): { profiles: ResumeProfile[]; activeId: string } => {
+  const savedProfiles = storage.get<ResumeProfile[] | null>(STORAGE_KEYS.PROFILES, null);
+  const savedActiveId = storage.getString(STORAGE_KEYS.ACTIVE_PROFILE_ID, '');
+
+  if (savedProfiles && Array.isArray(savedProfiles) && savedProfiles.length > 0) {
+    const activeId = savedProfiles.some(p => p.id === savedActiveId) ? savedActiveId : savedProfiles[0].id;
+    return { profiles: savedProfiles, activeId };
+  }
+
+  // First time initialization: seed default profiles
+  const now = new Date().toISOString();
+  const defaultProfile: ResumeProfile = {
+    id: 'profile_default',
+    name: '默认简历',
+    targetRole: '通用全能版',
+    markdown: defaultMd,
+    settings: defaultSettings,
+    customFileName: storage.getString(STORAGE_KEYS.CUSTOM_FILE_NAME, ''),
+    updatedAt: now,
+    createdAt: now,
+    isDefault: true
+  };
+
+  const frontendTemplate = TEMPLATES.find(t => t.id === 'frontend')?.content || defaultMd.replace('AI后端开发工程师', '资深前端工程师');
+  const frontendProfile: ResumeProfile = {
+    id: 'profile_frontend',
+    name: '前端与全栈架构版',
+    targetRole: 'Web/全栈',
+    markdown: frontendTemplate,
+    settings: { ...defaultSettings, themeColor: 'indigo' },
+    customFileName: '',
+    updatedAt: now,
+    createdAt: now,
+    isDefault: false
+  };
+
+  const englishTemplate = TEMPLATES.find(t => t.id === 'english')?.content || defaultMd;
+  const englishProfile: ResumeProfile = {
+    id: 'profile_english',
+    name: 'English CV (Global)',
+    targetRole: 'Overseas',
+    markdown: englishTemplate,
+    settings: { ...defaultSettings, lang: 'en', themeColor: 'teal' },
+    customFileName: '',
+    updatedAt: now,
+    createdAt: now,
+    isDefault: false
+  };
+
+  const initialProfiles = [defaultProfile, frontendProfile, englishProfile];
+  storage.set(STORAGE_KEYS.PROFILES, initialProfiles);
+  storage.set(STORAGE_KEYS.ACTIVE_PROFILE_ID, defaultProfile.id);
+
+  return { profiles: initialProfiles, activeId: defaultProfile.id };
+};
+
+const baseMarkdown = getInitialMarkdown();
+const baseSettings = getInitialSettings();
+const { profiles: initialProfiles, activeId: initialActiveId } = getInitialProfiles(baseMarkdown, baseSettings);
+const activeProfile = initialProfiles.find(p => p.id === initialActiveId) || initialProfiles[0];
 
 export const useResumeStore = create<ResumeState>((set, get) => ({
-  // Initial States
-  markdown: initialMarkdown,
-  settings: getInitialSettings(),
-  currentTemplateId: getInitialTemplateId(initialMarkdown),
+  // Initial States derived from Active Profile
+  markdown: activeProfile.markdown,
+  settings: activeProfile.settings,
+  currentTemplateId: getInitialTemplateId(activeProfile.markdown),
   lastSaved: '',
-  history: [initialMarkdown],
+  history: [activeProfile.markdown],
   historyIndex: 0,
-  customFileName: '',
+  customFileName: activeProfile.customFileName || '',
   isCheckerOpen: false,
   isIframeModalOpen: false,
   isBackupHubOpen: false,
+  isHelpLegalOpen: false,
   isExportingPDF: false,
+  pdfExportProgress: null,
   atsKeywords: [],
   jdText: '',
   measuredPageCount: 1,
 
+  // Multi-Profile States
+  profiles: initialProfiles,
+  activeProfileId: activeProfile.id,
+  isProfileHubOpen: false,
+
   // Simple setters
-  setMarkdown: (markdown) => set({ markdown }),
+  setMarkdown: (markdown) => {
+    const { profiles, activeProfileId } = get();
+    const updatedProfiles = profiles.map(p =>
+      p.id === activeProfileId
+        ? { ...p, markdown, updatedAt: new Date().toISOString() }
+        : p
+    );
+    storage.set(STORAGE_KEYS.PROFILES, updatedProfiles);
+    storage.set(STORAGE_KEYS.MARKDOWN, markdown);
+    set({ markdown, profiles: updatedProfiles });
+  },
   setSettings: (settings) => {
+    const { profiles, activeProfileId } = get();
+    const updatedProfiles = profiles.map(p =>
+      p.id === activeProfileId
+        ? { ...p, settings, updatedAt: new Date().toISOString() }
+        : p
+    );
+    storage.set(STORAGE_KEYS.PROFILES, updatedProfiles);
     storage.set(STORAGE_KEYS.SETTINGS, settings);
-    set({ settings });
+    set({ settings, profiles: updatedProfiles });
   },
   setCurrentTemplateId: (currentTemplateId) => set({ currentTemplateId }),
   setLastSaved: (lastSaved) => set({ lastSaved }),
-  setCustomFileName: (customFileName) => set({ customFileName }),
+  setCustomFileName: (customFileName) => {
+    const { profiles, activeProfileId } = get();
+    const updatedProfiles = profiles.map(p =>
+      p.id === activeProfileId
+        ? { ...p, customFileName, updatedAt: new Date().toISOString() }
+        : p
+    );
+    storage.set(STORAGE_KEYS.PROFILES, updatedProfiles);
+    storage.set(STORAGE_KEYS.CUSTOM_FILE_NAME, customFileName);
+    set({ customFileName, profiles: updatedProfiles });
+  },
   setIsCheckerOpen: (isCheckerOpen) => set({ isCheckerOpen }),
   setIsIframeModalOpen: (isIframeModalOpen) => set({ isIframeModalOpen }),
   setIsBackupHubOpen: (isBackupHubOpen) => set({ isBackupHubOpen }),
+  setIsHelpLegalOpen: (isHelpLegalOpen) => set({ isHelpLegalOpen }),
   setIsExportingPDF: (isExportingPDF) => set({ isExportingPDF }),
+  setPdfExportProgress: (pdfExportProgress) => set({ pdfExportProgress }),
   setAtsKeywords: (atsKeywords) => set({ atsKeywords }),
   setJdText: (jdText) => set({ jdText }),
   setMeasuredPageCount: (measuredPageCount) => set({ measuredPageCount }),
+  setIsProfileHubOpen: (isProfileHubOpen) => set({ isProfileHubOpen }),
+
+  // Multi-Profile Operations
+  switchProfile: (profileId: string) => {
+    const { profiles, activeProfileId, markdown, settings, customFileName } = get();
+    if (profileId === activeProfileId) return;
+
+    const target = profiles.find(p => p.id === profileId);
+    if (!target) return;
+
+    // 1. Save current active profile before switching
+    const updatedProfiles = profiles.map(p => {
+      if (p.id === activeProfileId) {
+        return {
+          ...p,
+          markdown,
+          settings,
+          customFileName,
+          updatedAt: new Date().toISOString()
+        };
+      }
+      return p;
+    });
+
+    // 2. Persist target data to localStorage
+    storage.set(STORAGE_KEYS.PROFILES, updatedProfiles);
+    storage.set(STORAGE_KEYS.ACTIVE_PROFILE_ID, target.id);
+    storage.set(STORAGE_KEYS.MARKDOWN, target.markdown);
+    storage.set(STORAGE_KEYS.SETTINGS, target.settings);
+    if (target.customFileName !== undefined) {
+      storage.set(STORAGE_KEYS.CUSTOM_FILE_NAME, target.customFileName);
+    }
+
+    // 3. Switch active state
+    set({
+      profiles: updatedProfiles,
+      activeProfileId: target.id,
+      markdown: target.markdown,
+      settings: target.settings,
+      customFileName: target.customFileName || '',
+      history: [target.markdown],
+      historyIndex: 0,
+      currentTemplateId: getInitialTemplateId(target.markdown),
+      lastSaved: new Date().toLocaleTimeString()
+    });
+  },
+
+  createProfile: ({ name, targetRole, markdown: newMd, settings: newSettings }) => {
+    const { profiles, settings: curSettings, markdown: curMd } = get();
+    const now = new Date().toISOString();
+    const id = `profile_${Date.now()}`;
+    const newProfile: ResumeProfile = {
+      id,
+      name: name.trim() || '新建简历档案',
+      targetRole: targetRole?.trim() || '求职版本',
+      markdown: newMd !== undefined ? newMd : curMd,
+      settings: newSettings || curSettings,
+      customFileName: '',
+      updatedAt: now,
+      createdAt: now,
+      isDefault: false
+    };
+
+    const updatedProfiles = [...profiles, newProfile];
+    storage.set(STORAGE_KEYS.PROFILES, updatedProfiles);
+    set({ profiles: updatedProfiles });
+
+    // Switch to new profile
+    get().switchProfile(id);
+    return newProfile;
+  },
+
+  duplicateProfile: (profileId: string) => {
+    const { profiles, settings } = get();
+    const source = profiles.find(p => p.id === profileId);
+    if (!source) return profiles[0];
+
+    const isEn = settings.lang === 'en';
+    const now = new Date().toISOString();
+    const id = `profile_${Date.now()}`;
+    const newProfile: ResumeProfile = {
+      ...source,
+      id,
+      name: `${source.name} ${isEn ? '(Copy)' : '(副本)'}`,
+      targetRole: source.targetRole || (isEn ? 'Tailored' : '定制版'),
+      updatedAt: now,
+      createdAt: now,
+      isDefault: false
+    };
+
+    const updatedProfiles = [...profiles, newProfile];
+    storage.set(STORAGE_KEYS.PROFILES, updatedProfiles);
+    set({ profiles: updatedProfiles });
+
+    get().switchProfile(id);
+    return newProfile;
+  },
+
+  renameProfile: (profileId: string, name: string, targetRole?: string) => {
+    const { profiles } = get();
+    const updated = profiles.map(p => {
+      if (p.id === profileId) {
+        return {
+          ...p,
+          name: name.trim() || p.name,
+          targetRole: targetRole !== undefined ? targetRole.trim() : p.targetRole,
+          updatedAt: new Date().toISOString()
+        };
+      }
+      return p;
+    });
+    storage.set(STORAGE_KEYS.PROFILES, updated);
+    set({ profiles: updated });
+  },
+
+  deleteProfile: (profileId: string) => {
+    const { profiles, activeProfileId } = get();
+    if (profiles.length <= 1) {
+      return false; // Cannot delete the last remaining profile
+    }
+
+    const updated = profiles.filter(p => p.id !== profileId);
+    storage.set(STORAGE_KEYS.PROFILES, updated);
+
+    if (activeProfileId === profileId) {
+      const nextActive = updated[0];
+      set({ profiles: updated });
+      get().switchProfile(nextActive.id);
+    } else {
+      set({ profiles: updated });
+    }
+    return true;
+  },
+
+  importProfiles: (importedProfiles: ResumeProfile[]) => {
+    if (!Array.isArray(importedProfiles) || importedProfiles.length === 0) return;
+    storage.set(STORAGE_KEYS.PROFILES, importedProfiles);
+    set({ profiles: importedProfiles });
+    get().switchProfile(importedProfiles[0].id);
+  },
 
   // Complex operations
   handleMarkdownChange: (newVal, immediate = false) => {
-    set({ markdown: newVal });
+    const { profiles, activeProfileId } = get();
+    const nowTime = new Date().toLocaleTimeString();
+
+    // Auto-update active profile in profiles array
+    const updatedProfiles = profiles.map(p =>
+      p.id === activeProfileId
+        ? { ...p, markdown: newVal, updatedAt: new Date().toISOString() }
+        : p
+    );
+    storage.set(STORAGE_KEYS.PROFILES, updatedProfiles);
+    storage.set(STORAGE_KEYS.MARKDOWN, newVal);
+
+    set({ markdown: newVal, profiles: updatedProfiles, lastSaved: nowTime });
 
     if (isUndoRedoAction) {
       isUndoRedoAction = false;
@@ -226,7 +496,14 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
     if (key === 'themeMode') {
       storage.set(STORAGE_KEYS.THEME_MODE, value);
     }
-    set({ settings: newSettings });
+    const { profiles, activeProfileId } = get();
+    const updatedProfiles = profiles.map(p =>
+      p.id === activeProfileId
+        ? { ...p, settings: newSettings, updatedAt: new Date().toISOString() }
+        : p
+    );
+    storage.set(STORAGE_KEYS.PROFILES, updatedProfiles);
+    set({ settings: newSettings, profiles: updatedProfiles });
   },
 
   updateSettings: (partialSettings) => {
@@ -235,6 +512,14 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
     if (partialSettings.themeMode) {
       storage.set(STORAGE_KEYS.THEME_MODE, partialSettings.themeMode);
     }
-    set({ settings: newSettings });
+    const { profiles, activeProfileId } = get();
+    const updatedProfiles = profiles.map(p =>
+      p.id === activeProfileId
+        ? { ...p, settings: newSettings, updatedAt: new Date().toISOString() }
+        : p
+    );
+    storage.set(STORAGE_KEYS.PROFILES, updatedProfiles);
+    set({ settings: newSettings, profiles: updatedProfiles });
   }
 }));
+

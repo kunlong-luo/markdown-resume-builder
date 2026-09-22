@@ -1,21 +1,61 @@
 import React from 'react';
-import { X, ExternalLink, HelpCircle, FileDown, AlertCircle, Sparkles, Check } from 'lucide-react';
+import { X, ExternalLink, HelpCircle, FileDown, AlertCircle, Sparkles, Check, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useResumeStore } from '../store/useResumeStore';
+import { exportDirectPDF } from '../lib/pdf-export';
 
 export function IframeWarningModal() {
   const {
     isIframeModalOpen: isOpen,
     setIsIframeModalOpen,
-    settings
+    setIsExportingPDF,
+    setPdfExportProgress,
+    settings,
+    customFileName,
+    markdown
   } = useResumeStore();
 
   const isEn = settings.lang === 'en';
   const onClose = () => setIsIframeModalOpen(false);
 
+  const getExportTitle = () => {
+    if (customFileName.trim()) {
+      return customFileName.trim().replace(/[\\\/:*?"<>|]/g, '-');
+    }
+    const firstLine = markdown.trim().split('\n')[0];
+    if (firstLine && firstLine.startsWith('# ')) {
+      const parsedName = firstLine.replace('# ', '').trim();
+      if (parsedName) {
+        return parsedName.replace(/[\\\/:*?"<>|]/g, '-');
+      }
+    }
+    return isEn ? 'resume' : '简历';
+  };
+
   const onOpenNewTab = () => {
     window.open(window.location.href, '_blank');
     setIsIframeModalOpen(false);
+  };
+
+  const onDirectDownload = async () => {
+    setIsIframeModalOpen(false);
+    setIsExportingPDF(true);
+    setPdfExportProgress(isEn ? 'Preparing PDF...' : '准备导出 PDF...');
+
+    try {
+      const target = document.getElementById('resume-print-content');
+      if (target) {
+        await exportDirectPDF(target, {
+          filename: `${getExportTitle()}_${isEn ? 'resume' : '简历'}.pdf`,
+          onProgress: (status) => setPdfExportProgress(status)
+        });
+      }
+    } catch (e) {
+      console.error('Direct download error from modal:', e);
+    } finally {
+      setIsExportingPDF(false);
+      setPdfExportProgress(null);
+    }
   };
 
   return (
@@ -137,16 +177,24 @@ export function IframeWarningModal() {
             <div className="px-6 py-4 bg-slate-50 dark:bg-slate-850 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-end gap-2">
               <button
                 onClick={onClose}
-                className="w-full sm:w-auto px-4 py-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-lg transition-all cursor-pointer text-center"
+                className="w-full sm:w-auto px-3.5 py-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-lg transition-all cursor-pointer text-center"
               >
-                {isEn ? 'Back to Editor' : '返回编辑'}
+                {isEn ? 'Cancel' : '取消'}
+              </button>
+              <button
+                onClick={onDirectDownload}
+                className="w-full sm:w-auto px-4 py-2 bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-white text-xs font-bold rounded-lg transition-all shadow-md shadow-amber-500/20 flex items-center justify-center gap-1.5 cursor-pointer"
+                title={isEn ? 'Direct Download PDF in current window' : '在当前窗口免跳转直接下载 PDF'}
+              >
+                <Zap className="w-3.5 h-3.5 fill-current" />
+                <span>{isEn ? 'Direct Download (Here)' : '在当前窗口直接下载'}</span>
               </button>
               <button
                 onClick={onOpenNewTab}
-                className="w-full sm:w-auto px-5 py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-xs font-bold rounded-lg transition-all shadow-md shadow-blue-600/15 flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full sm:w-auto px-4 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white text-xs font-bold rounded-lg transition-all shadow-md shadow-indigo-600/15 flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
-                <span>{isEn ? 'Open & Export in New Tab' : '在新标签页中打开并导出'}</span>
+                <span>{isEn ? 'Open New Tab (Vector Print)' : '新标签页打开 (矢量打印)'}</span>
               </button>
             </div>
           </motion.div>

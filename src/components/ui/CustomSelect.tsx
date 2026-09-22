@@ -24,6 +24,7 @@ interface CustomSelectProps {
   dropUp?: boolean;
   maxMenuHeight?: string;
   id?: string;
+  compact?: boolean;
 }
 
 export const CustomSelect: React.FC<CustomSelectProps> = ({
@@ -40,6 +41,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
   dropUp = false,
   maxMenuHeight = 'max-h-64',
   id,
+  compact = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -159,8 +161,12 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
     shadow-[0_1px_2px_rgba(15,23,42,0.03)]
   `;
 
+  // Format display label for trigger (clean up parenthetical suffixes in compact mode)
+  const rawLabel = selectedOption ? selectedOption.label : (placeholder || '请选择');
+  const displayLabel = compact ? rawLabel.split('(')[0].split('（')[0].trim() : rawLabel;
+
   return (
-    <div id={id} className={`relative inline-block text-left ${className}`}>
+    <div id={id} className={`relative inline-block text-left group ${className}`}>
       <button
         ref={triggerRef}
         type="button"
@@ -168,11 +174,13 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
         onClick={handleToggle}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
+        title={selectedOption ? selectedOption.label : placeholder}
         className={`
           ${sizeClasses[size]}
           ${defaultTriggerStyles}
           ${disabled ? 'opacity-50 cursor-not-allowed bg-slate-100 hover:bg-slate-100 border-slate-200' : 'cursor-pointer'}
           ${isOpen ? 'ring-2 ring-indigo-500/25 border-indigo-500 bg-white dark:bg-slate-800' : ''}
+          ${compact ? 'max-w-[70px] sm:max-w-[90px] hover:max-w-[180px] transition-all duration-200 ease-out px-1.5' : ''}
           ${triggerClassName}
         `}
       >
@@ -181,7 +189,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
             <span className="shrink-0 text-slate-400">{selectedOption.icon}</span>
           )}
           <span className="truncate">
-            {selectedOption ? selectedOption.label : (placeholder || '请选择')}
+            {displayLabel}
           </span>
         </span>
         <ChevronDown

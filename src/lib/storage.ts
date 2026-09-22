@@ -10,6 +10,8 @@ export const STORAGE_KEYS = {
   PREVIEW_ZOOM: 'resume_preview_zoom',
   DRAFTS: 'resume-drafts',
   MATRIX: 'resume-matrix',
+  PROFILES: 'resume-profiles',
+  ACTIVE_PROFILE_ID: 'resume-active-profile-id',
   JD_TEXT: 'resume-jd-text',
   CUSTOM_FILE_NAME: 'resume-custom-filename',
   CHECKER_STATE: 'resume-checker-state',
