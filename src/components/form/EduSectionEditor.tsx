@@ -1,5 +1,5 @@
 import React from 'react';
-import { School, Calendar, BookOpen, Plus, Trash2, ChevronDown, ChevronUp, Award, Book, ArrowUp, ArrowDown, GraduationCap } from 'lucide-react';
+import { School, Calendar, BookOpen, Plus, Trash2, ChevronDown, ChevronUp, Award, Book, ArrowUp, ArrowDown, GraduationCap, GripVertical } from 'lucide-react';
 import { FormSection, FormItem } from '../../lib/form-types';
 import { FormTextareaToolbar } from './FormTextareaToolbar';
 import { MonthRangePicker } from './MonthRangePicker';
@@ -20,6 +20,7 @@ interface EduSectionEditorProps {
   onTextChange?: (text: string) => void;
   onTypeChange?: (newType: 'text' | 'items') => void;
   onMoveItem?: (itemIndex: number, direction: 'up' | 'down') => void;
+  onReorderItem?: (fromIndex: number, toIndex: number) => void;
   lang?: string;
 }
 
@@ -111,6 +112,7 @@ export function EduSectionEditor({
   onTextChange,
   onTypeChange,
   onMoveItem,
+  onReorderItem,
   lang = 'zh'
 }: EduSectionEditorProps) {
   const [customDegrees, setCustomDegrees] = React.useState<Record<string, boolean>>({});
@@ -231,41 +233,76 @@ export function EduSectionEditor({
             </div>
           ) : (
             <>
-              {section.items.map((item, itemIndex) => (
-                <div key={item.id} className="relative p-5 border border-slate-200/60 dark:border-slate-800 rounded-xl bg-gradient-to-br from-white to-slate-50/60 dark:from-slate-850 dark:to-slate-900/90 transition-all group shadow-[0_2px_6px_rgba(15,23,42,0.01),inset_0_1.5px_2px_rgba(255,255,255,0.95)] dark:shadow-none hover:border-purple-300 dark:hover:border-purple-800 hover:shadow-[0_4px_12px_rgba(15,23,42,0.03),inset_0_1.5px_2px_rgba(255,255,255,0.95)]">
-                  
-                  {/* Action Buttons */}
-                  <div className="absolute right-3 top-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all z-10">
-                    {onMoveItem && (
-                      <>
-                        <button 
-                          type="button" 
-                          onClick={() => onMoveItem(itemIndex, 'up')} 
-                          disabled={itemIndex === 0} 
-                          className={`p-1 rounded transition-colors ${itemIndex === 0 ? 'text-slate-200 dark:text-slate-700 cursor-not-allowed' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-100 cursor-pointer'}`} 
-                          title={lang === 'en' ? 'Move Item Up' : '上移此项'}
+              {section.items.map((item, itemIndex) => {
+                const handleDragStart = (e: React.DragEvent) => {
+                  e.dataTransfer.setData('text/plain', String(itemIndex));
+                  e.dataTransfer.effectAllowed = 'move';
+                };
+
+                const handleDragOver = (e: React.DragEvent) => {
+                  e.preventDefault();
+                  e.dataTransfer.dropEffect = 'move';
+                };
+
+                const handleDrop = (e: React.DragEvent) => {
+                  e.preventDefault();
+                  const sourceIndexStr = e.dataTransfer.getData('text/plain');
+                  if (!sourceIndexStr) return;
+                  const sourceIndex = parseInt(sourceIndexStr, 10);
+                  if (!isNaN(sourceIndex) && sourceIndex !== itemIndex && onReorderItem) {
+                    onReorderItem(sourceIndex, itemIndex);
+                  }
+                };
+
+                return (
+                  <div 
+                    key={item.id} 
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop}
+                    className="relative p-5 border border-slate-200/60 dark:border-slate-800 rounded-xl bg-gradient-to-br from-white to-slate-50/60 dark:from-slate-850 dark:to-slate-900/90 transition-all group shadow-[0_2px_6px_rgba(15,23,42,0.01),inset_0_1.5px_2px_rgba(255,255,255,0.95)] dark:shadow-none hover:border-purple-300 dark:hover:border-purple-800 hover:shadow-[0_4px_12px_rgba(15,23,42,0.03),inset_0_1.5px_2px_rgba(255,255,255,0.95)]"
+                  >
+                    {/* Action Buttons */}
+                    <div className="absolute right-3 top-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all z-10">
+                      {onReorderItem && (
+                        <div
+                          draggable
+                          onDragStart={handleDragStart}
+                          className="p-1 text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/50 rounded cursor-grab active:cursor-grabbing transition-colors"
+                          title={lang === 'en' ? 'Drag to reorder' : '按住拖拽排序'}
                         >
-                          <ArrowUp className="w-3.5 h-3.5" />
-                        </button>
-                        <button 
-                          type="button" 
-                          onClick={() => onMoveItem(itemIndex, 'down')} 
-                          disabled={itemIndex === section.items.length - 1} 
-                          className={`p-1 rounded transition-colors ${itemIndex === section.items.length - 1 ? 'text-slate-200 dark:text-slate-700 cursor-not-allowed' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-100 cursor-pointer'}`} 
-                          title={lang === 'en' ? 'Move Item Down' : '下移此项'}
-                        >
-                          <ArrowDown className="w-3.5 h-3.5" />
-                        </button>
-                      </>
-                    )}
-                    <button 
-                      onClick={() => onDeleteItem(item.id, item.org)}
-                      className="p-1 hover:bg-red-50 dark:hover:bg-rose-950/50 text-red-500 dark:text-rose-400 hover:text-red-700 dark:hover:text-rose-300 rounded transition-colors cursor-pointer"
-                      title={lang === 'en' ? 'Delete Item' : '删除此项'}
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                          <GripVertical className="w-3.5 h-3.5" />
+                        </div>
+                      )}
+                      {onMoveItem && (
+                        <>
+                          <button 
+                            type="button" 
+                            onClick={() => onMoveItem(itemIndex, 'up')} 
+                            disabled={itemIndex === 0} 
+                            className={`p-1 rounded transition-colors ${itemIndex === 0 ? 'text-slate-200 dark:text-slate-700 cursor-not-allowed' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-100 cursor-pointer'}`} 
+                            title={lang === 'en' ? 'Move Item Up' : '上移此项'}
+                          >
+                            <ArrowUp className="w-3.5 h-3.5" />
+                          </button>
+                          <button 
+                            type="button" 
+                            onClick={() => onMoveItem(itemIndex, 'down')} 
+                            disabled={itemIndex === section.items.length - 1} 
+                            className={`p-1 rounded transition-colors ${itemIndex === section.items.length - 1 ? 'text-slate-200 dark:text-slate-700 cursor-not-allowed' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-100 cursor-pointer'}`} 
+                            title={lang === 'en' ? 'Move Item Down' : '下移此项'}
+                          >
+                            <ArrowDown className="w-3.5 h-3.5" />
+                          </button>
+                        </>
+                      )}
+                      <button 
+                        onClick={() => onDeleteItem(item.id, item.org)}
+                        className="p-1 hover:bg-red-50 dark:hover:bg-rose-950/50 text-red-500 dark:text-rose-400 hover:text-red-700 dark:hover:text-rose-300 rounded transition-colors cursor-pointer"
+                        title={lang === 'en' ? 'Delete Item' : '删除此项'}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
 
                   {/* Primary Fields Row */}
                   <div className="flex flex-col md:flex-row gap-4">
@@ -418,7 +455,8 @@ export function EduSectionEditor({
                     </div>
                   </div>
                 </div>
-              ))}
+              );
+            })}
 
               <div className="flex items-center gap-3">
                 <button

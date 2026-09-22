@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Sparkles, LayoutGrid, Sliders, Check, Settings, Maximize2, Columns, Eye, Globe, ChevronDown, Palette } from 'lucide-react';
+import { Sparkles, LayoutGrid, Sliders, Check, Settings, Maximize2, Columns, Eye, Globe, ChevronDown, Palette, Zap } from 'lucide-react';
 import { ResumeSettings, ThemeColor, FontSize, PaperMargin, FontFamily, TemplateLayout, H2Style } from '../../types';
 import { TEMPLATES } from '../../data';
 import { useResumeStore } from '../../store/useResumeStore';
 import { useConfirm } from '../../context/ConfirmContext';
+import { smartAutoFit } from '../../lib/preview-utils';
 import { CustomSelect, SelectOption } from '../ui/CustomSelect';
 import { CustomSlider } from '../ui/CustomSlider';
 import { CustomColorPicker } from '../ui/CustomColorPicker';
@@ -193,6 +194,8 @@ const TRANSLATIONS = {
     editorOnly: '仅编辑',
     splitView: '双栏分屏',
     previewOnly: '仅预览',
+    autoFitBtn: '一键压缩贴合',
+    autoFitSuccess: '已自动优化间距',
     aestheticsLabel: '排版精修',
     aestheticsTooltip: '排版精修',
     doneBtn: '确定',
@@ -234,6 +237,8 @@ const TRANSLATIONS = {
     editorOnly: 'Editor Only',
     splitView: 'Split View',
     previewOnly: 'Preview Only',
+    autoFitBtn: '1-Click Auto Fit',
+    autoFitSuccess: 'Auto-fitted!',
     aestheticsLabel: 'Aesthetics & Layout',
     aestheticsTooltip: 'Aesthetics & Layout',
     doneBtn: 'Done',
@@ -523,6 +528,20 @@ export function Toolbar() {
             className={`bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-lg py-1 px-2.5 font-semibold text-[11px] hover:border-slate-300 dark:hover:border-slate-600 transition-all shadow-2xs focus:shadow-none focus:outline-none focus:ring-1.5 focus:ring-indigo-500 ${settings.isCompactTools ? 'w-20 focus:w-28' : 'w-28'}`}
           />
         </div>
+
+        {/* 1-Click Auto Fit Button */}
+        <button
+          onClick={() => {
+            smartAutoFit(settings, (key, val) => updateSetting(key, val));
+          }}
+          className="group flex items-center px-2.5 py-1.5 rounded-lg text-[11px] font-bold border border-amber-200 dark:border-amber-900/60 bg-amber-50/70 hover:bg-amber-100 dark:bg-amber-950/40 dark:hover:bg-amber-900/60 text-amber-700 dark:text-amber-300 shadow-2xs transition-all cursor-pointer shrink-0 active:translate-y-px"
+          title={settings.lang === 'en' ? 'One-Click Auto-Fit Margins & Spacing to 1 Page' : '一键智能紧凑排版，自动微调页边距与行间距'}
+        >
+          <Zap className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+          <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1.5" : "ml-1.5"}>
+            {t.autoFitBtn}
+          </span>
+        </button>
 
         {/* Aesthetics Panel Toggle Button */}
         <button

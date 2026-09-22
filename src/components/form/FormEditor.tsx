@@ -333,6 +333,21 @@ export function FormEditor({ value, onChange, settings }: FormEditorProps) {
     handleModelChange({ ...localModel, sections: updatedSections });
   };
 
+  const reorderItems = (sectionId: string, fromIndex: number, toIndex: number) => {
+    if (fromIndex === toIndex) return;
+    const updatedSections = localModel.sections.map(sec => {
+      if (sec.id === sectionId) {
+        if (fromIndex < 0 || fromIndex >= sec.items.length || toIndex < 0 || toIndex >= sec.items.length) return sec;
+        const updatedItems = [...sec.items];
+        const [moved] = updatedItems.splice(fromIndex, 1);
+        updatedItems.splice(toIndex, 0, moved);
+        return { ...sec, items: updatedItems };
+      }
+      return sec;
+    });
+    handleModelChange({ ...localModel, sections: updatedSections });
+  };
+
   const deleteItem = async (sectionId: string, itemId: string, itemOrg: string) => {
     const confirmed = await confirm({
       title: t.deleteItemTitle,
@@ -468,6 +483,7 @@ export function FormEditor({ value, onChange, settings }: FormEditorProps) {
                 onTextChange={(text) => handleSectionTextChange(sec.id, text)}
                 onTypeChange={(newType) => handleSectionTypeChange(sec.id, newType)}
                 onMoveItem={(itemIndex, direction) => moveItem(sec.id, itemIndex, direction)}
+                onReorderItem={(fromIdx, toIdx) => reorderItems(sec.id, fromIdx, toIdx)}
                 lang={settings?.lang}
               />
             );
@@ -488,6 +504,7 @@ export function FormEditor({ value, onChange, settings }: FormEditorProps) {
               onApplySpacing={() => applyChineseEnglishSpacingToSection(sec.id)}
               onAddItem={() => addItem(sec.id, sec.title)}
               onMoveItem={(itemIndex, direction) => moveItem(sec.id, itemIndex, direction)}
+              onReorderItem={(fromIdx, toIdx) => reorderItems(sec.id, fromIdx, toIdx)}
               onDeleteItem={(itemId, itemOrg) => deleteItem(sec.id, itemId, itemOrg)}
               onItemFieldChange={(itemId, field, value) => handleItemFieldChange(sec.id, itemId, field, value)}
               onItemContentChange={(itemId, content) => handleItemContentChange(sec.id, itemId, content)}

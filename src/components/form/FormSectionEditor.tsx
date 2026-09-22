@@ -31,6 +31,7 @@ interface FormSectionEditorProps {
   onApplySpacing: () => void;
   onAddItem: () => void;
   onMoveItem: (itemIndex: number, direction: 'up' | 'down') => void;
+  onReorderItem?: (fromIndex: number, toIndex: number) => void;
   onDeleteItem: (itemId: string, itemOrg: string) => void;
   onItemFieldChange: (itemId: string, field: 'org' | 'role' | 'time' | 'gpa' | 'courses' | 'honors', value: string) => void;
   onItemContentChange: (itemId: string, content: string) => void;
@@ -65,7 +66,7 @@ const isTextOnlySection = (title: string): boolean => {
 };
 
 export function FormSectionEditor({
-  sec, secIndex, totalSectionsCount, isExpanded, onToggle, onTitleChange, onTextChange, onMove, onDelete, onApplySpacing, onAddItem, onMoveItem, onDeleteItem, onItemFieldChange, onItemContentChange, onInsertStarTemplate,
+  sec, secIndex, totalSectionsCount, isExpanded, onToggle, onTitleChange, onTextChange, onMove, onDelete, onApplySpacing, onAddItem, onMoveItem, onReorderItem, onDeleteItem, onItemFieldChange, onItemContentChange, onInsertStarTemplate,
   onTypeChange,
   lang = 'zh'
 }: FormSectionEditorProps) {
@@ -115,6 +116,7 @@ export function FormSectionEditor({
                       onFieldChange={(field, val) => onItemFieldChange(item.id, field, val)}
                       onContentChange={(val) => onItemContentChange(item.id, val)}
                       onMove={(dir) => onMoveItem(itemIndex, dir)}
+                      onReorderItem={onReorderItem}
                       onDelete={() => onDeleteItem(item.id, item.org)}
                       onInsertStarTemplate={() => onInsertStarTemplate(item.id, item.content)}
                       lang={lang}

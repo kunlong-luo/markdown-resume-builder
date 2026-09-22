@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, ArrowUp, ArrowDown, Trash2 } from 'lucide-react';
+import { Sparkles, ArrowUp, ArrowDown, Trash2, GripVertical } from 'lucide-react';
 import { FormItem } from '../../lib/form-types';
 import { FormTextareaToolbar } from './FormTextareaToolbar';
 import { MonthRangePicker } from './MonthRangePicker';
@@ -12,6 +12,7 @@ interface ItemEditorProps {
   onFieldChange: (field: any, value: string) => void;
   onContentChange: (content: string) => void;
   onMove: (direction: 'up' | 'down') => void;
+  onReorderItem?: (fromIndex: number, toIndex: number) => void;
   onDelete: () => void;
   onInsertStarTemplate: () => void;
   lang?: string;
@@ -134,7 +135,7 @@ const TRANSLATIONS = {
 
 export function ItemEditor({
   item, index, totalItems, category,
-  onFieldChange, onContentChange, onMove, onDelete, onInsertStarTemplate,
+  onFieldChange, onContentChange, onMove, onReorderItem, onDelete, onInsertStarTemplate,
   lang = 'zh'
 }: ItemEditorProps) {
   const dict = lang === 'en' ? TRANSLATIONS.en : TRANSLATIONS.zh;
@@ -143,9 +144,43 @@ export function ItemEditor({
   const catKey = (category in dict.categories) ? (category as 'edu' | 'project' | 'work') : 'default';
   const cat = dict.categories[catKey];
 
+  const handleDragStart = (e: React.DragEvent) => {
+    e.dataTransfer.setData('text/plain', String(index));
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const sourceIndexStr = e.dataTransfer.getData('text/plain');
+    if (!sourceIndexStr) return;
+    const sourceIndex = parseInt(sourceIndexStr, 10);
+    if (!isNaN(sourceIndex) && sourceIndex !== index && onReorderItem) {
+      onReorderItem(sourceIndex, index);
+    }
+  };
+
   return (
-    <div className="p-3 sm:p-4 border border-slate-200/60 dark:border-slate-800 rounded-xl bg-gradient-to-br from-white to-slate-50/60 dark:from-slate-850 dark:to-slate-900/90 relative space-y-2.5 sm:space-y-3 transition-all group/item shadow-[0_2px_6px_rgba(15,23,42,0.01),inset_0_1.5px_2px_rgba(255,255,255,0.95)] dark:shadow-none hover:border-slate-300 dark:hover:border-slate-700">
+    <div 
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+      className="p-3 sm:p-4 border border-slate-200/60 dark:border-slate-800 rounded-xl bg-gradient-to-br from-white to-slate-50/60 dark:from-slate-850 dark:to-slate-900/90 relative space-y-2.5 sm:space-y-3 transition-all group/item shadow-[0_2px_6px_rgba(15,23,42,0.01),inset_0_1.5px_2px_rgba(255,255,255,0.95)] dark:shadow-none hover:border-slate-300 dark:hover:border-slate-700"
+    >
       <div className="flex items-center justify-end gap-1 sm:absolute sm:right-3 sm:top-3 sm:opacity-40 sm:group-hover/item:opacity-100 transition-opacity">
+        {onReorderItem && (
+          <div
+            draggable
+            onDragStart={handleDragStart}
+            className="p-1 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded cursor-grab active:cursor-grabbing transition-colors"
+            title={lang === 'en' ? 'Drag to reorder' : '按住拖拽排序'}
+          >
+            <GripVertical className="w-3.5 h-3.5" />
+          </div>
+        )}
         <button type="button" onClick={onInsertStarTemplate} className="p-1 hover:bg-amber-50 dark:hover:bg-amber-950/50 text-amber-600 dark:text-amber-400 rounded transition-colors cursor-pointer" title={cat.starTitle}>
           <Sparkles className="w-3.5 h-3.5" />
         </button>

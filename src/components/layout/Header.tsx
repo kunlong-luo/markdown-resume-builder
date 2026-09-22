@@ -16,12 +16,14 @@ import {
   Printer,
   Zap,
   ChevronDown,
-  Check
+  Check,
+  ClipboardPaste
 } from 'lucide-react';
 import { useResumeStore } from '../../store/useResumeStore';
 import { getWordCount } from '../../lib/word-count';
 import { ThemeMode } from '../../types';
 import { ProfileDropdown } from '../profile/ProfileDropdown';
+import { RawTextImportModal } from '../modals/RawTextImportModal';
 
 interface HeaderProps {
   handleImportMarkdown: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -47,6 +49,7 @@ export function Header({
     setIsCheckerOpen,
     setIsBackupHubOpen,
     setIsHelpLegalOpen,
+    handleMarkdownChange,
     settings,
     updateSetting
   } = useResumeStore();
@@ -57,6 +60,7 @@ export function Header({
   const themeMode: ThemeMode = settings.themeMode || 'light';
   const wordCount = useMemo(() => getWordCount(markdown), [markdown]);
 
+  const [isRawTextModalOpen, setIsRawTextModalOpen] = useState(false);
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
   const [exportMode, setExportMode] = useState<'direct' | 'print'>(() => {
     try {
@@ -249,6 +253,16 @@ export function Header({
         <div className="w-px h-5 bg-slate-200/80 dark:bg-slate-800 shrink-0" />
 
         <div className="flex items-center border border-slate-200/90 dark:border-slate-700 rounded-lg overflow-hidden bg-white dark:bg-slate-800 shadow-2xs shrink-0">
+          <button
+            onClick={() => setIsRawTextModalOpen(true)}
+            className="group flex items-center px-2 sm:px-2.5 py-1.5 hover:bg-indigo-50/60 dark:hover:bg-indigo-950/60 text-slate-700 dark:text-slate-200 text-xs font-semibold cursor-pointer border-r border-slate-200/90 dark:border-slate-700 transition-all select-none whitespace-nowrap"
+            title={isEn ? 'Smart Raw Text Paste & Convert' : '智能纯文本粘贴导入 (Word/网页无格式简历)'}
+          >
+            <ClipboardPaste className="w-3 h-3 text-indigo-500 shrink-0" />
+            <span className={isCompact ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1.5" : "ml-1.5"}>
+              {isEn ? 'Smart Paste' : '智能粘贴'}
+            </span>
+          </button>
           <label 
             className="group flex items-center px-2 sm:px-2.5 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-200 text-xs font-semibold cursor-pointer border-r border-slate-200/90 dark:border-slate-700 transition-all select-none whitespace-nowrap"
             title={isEn ? 'Import Markdown (.md)' : '导入 Markdown (.md)'}
@@ -397,6 +411,16 @@ export function Header({
           )}
         </div>
       </div>
+
+      {/* Smart Raw Text Import Modal */}
+      <RawTextImportModal
+        isOpen={isRawTextModalOpen}
+        onClose={() => setIsRawTextModalOpen(false)}
+        onImport={(newMd) => {
+          handleMarkdownChange(newMd, true);
+        }}
+        lang={lang}
+      />
     </header>
   );
 }
