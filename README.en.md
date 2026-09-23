@@ -1,101 +1,80 @@
-# 📑 ResuCraft (Markdown Resume Builder Pro)
+# 🚀 ResuCraft Pro - Markdown Resume Builder (v2.0.0)
 
 English | [简体中文](./README.md)
 
-[![Version](https://img.shields.io/badge/version-v1.8.0--PRO-blue?style=flat-square&logo=github)](https://github.com/kunlong-luo/markdown-resume-builder)
-[![React](https://img.shields.io/badge/built%20with-React%2019-blueviolet?style=flat-square)](https://react.dev/)
-[![Vite](https://img.shields.io/badge/bundler-Vite-646CFF?style=flat-square&logo=vite)](https://vite.dev/)
+[![Version](https://img.shields.io/badge/version-v2.0.0--PRO-blue?style=flat-square&logo=github)](https://github.com/kunlong-luo/markdown-resume-builder)
+[![React](https://img.shields.io/badge/built%20with-React%2019-blueviolet?style=flat-square&logo=react)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/bundler-Vite%208-646CFF?style=flat-square&logo=vite)](https://vite.dev/)
 [![TailwindCSS](https://img.shields.io/badge/styling-Tailwind%20v4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
 
-> **ResuCraft (Markdown Resume Builder Pro)** is an elegant, bi-directional synchronous, pixel-perfect A4 online resume editor designed specifically for job seekers. Combining the efficiency of Markdown with the simplicity of visual structured forms, it supports full Chinese and English localization. It features smart diagnostic checks, automatic bilingual spacing optimization, professional accent palettes, and a multi-version draft hub. Say goodbye to Word alignment nightmares and craft job-winning professional resumes in seconds.
+> **ResuCraft** is an elegant, bi-directional synchronous, pixel-perfect A4 online resume editor designed specifically for job seekers.
+> 
+> 💡 **Tagline**: *"Craft your perfect one-page resume with Markdown."*
+> 
+> Combining the writing speed of Markdown with the simplicity of visual structured forms, it features 1-Click Auto-Fit, ATS audit matching, bilingual spacing rules, professional color palettes, multi-draft matrices, and password-protected H5 sharing. Say goodbye to Word alignment nightmares and craft job-winning resumes in seconds.
 
 ---
 
 ## 🌟 Core Highlights
 
-### 1. 🔄 Visual Form & Markdown Bi-Directional Sync Engine (Drag & Drop Supported)
-*   **The Pain Point**: Traditional Markdown editors require users to have strict syntax knowledge. Micro-adjustments (like swapping the sequence of projects) often result in broken parentheses, missing list marks, or messed-up typography.
-*   **The Solution**: Built with a state-of-the-art **Bi-Directional Sync Engine**. You can easily draft in the raw "Markdown Code Editor" or switch to the structured "Visual Form Editor". Re-ordering items is as easy as **dragging items via native Grip handles**, adding/removing educational entries, or editing text in the forms with instant Markdown source code re-rendering.
+### 1. 🔄 Visual Form & Markdown Bi-Directional Sync Engine
+*   **Bi-Directional Sync**: Seamlessly switch between the "Visual Form Editor" and "Markdown Source Code".
+*   **Drag & Drop Reordering**: Reorder work or project experiences using native Grip handles with real-time preview re-rendering.
 
-### 2. ⚡ 1-Click Auto Fit & Perfect A4 Height Guard
-*   **The Pain Point**: The biggest mistake in a resume is "1.1 pages" or "1.2 pages". Overflowing lines not only look unprofessional but also get cut off during printing or PDF submission.
-*   **The Solution**:
-    *   **1-Click Auto Fit**: A dedicated lightning action in the top toolbar that automatically adjusts margins, line heights, font sizing, and section gaps in one click to neatly fit your entire content into a single page.
-    *   **A4 Height Boundary Line (Page Boundary Line)**: Provides an elegant smart boundary indicator in the right-side preview pane to perfectly simulate the physical A4 size. It calculates and displays "Current page count: X.X pages" in real time.
-    *   **Page Break indicator**: Activate foldable page-break guides to help you allocate spacing, font sizes, or lines correctly, ensuring no single-line overflows or ugly margins when exporting your PDF.
+### 2. ⚡ 1-Click Auto Fit & A4 Page Boundary Control
+*   **Eliminate Page Spills**: Click the Auto Fit button to dynamically fine-tune margins, font line-height, and paragraph spacing, instantly fitting content into 1 page.
+*   **Page Boundary Indicators**: Features A4 page height guides and fold lines for precision layout management.
 
 ### 3. ✨ Smart Raw Text Importer
-*   **The Pain Point**: Pasting unformatted, messy text copied from job portals (LinkedIn, Indeed, BOSS) or old Word/PDF resumes into Markdown is tedious and time-consuming.
-*   **The Solution**: Integrated **Smart Paste & Convert** modal in the top header. Read directly from clipboard to parse contact details, roles, companies, education, and bulleted project achievements into clean, standardized Markdown completely offline with zero server data leakage.
+*   **One-Click Parsing**: Paste unformatted raw text from job portals or old documents. Local algorithms automatically extract contact info, work history, and skills into clean Markdown.
 
-### 4. 🌐 Native Bilingual Support (English & Chinese)
-*   **The Feature**: Native support for **English (en)** and **Chinese (zh)** language toggles. Switching languages instantly translates the entire UI, action buttons, preloaded default templates, quick input placeholders, and diagnostic check alerts. This is ideal for global candidates and international student applicants.
+### 4. 🎯 ATS Job Matching & Smart Audit System
+*   **JD Keyword Matching**: Paste target Job Descriptions to analyze match percentage and highlight missing keywords.
+*   **Formatting Audit**: Scans for missing contact details, overlapping timeline dates, and inconsistent technology capitalization (e.g., auto-suggesting `React` over `react`).
 
-### 5. 🔍 Smart Diagnostic Audit & Quality Checker
-*   **The Feature**: A lightweight, real-time background resume scanner that audits grammar, structure, and spacing:
-    *   **Basic Info Audit**: Automatically detects missing contact information, phone numbers, emails, or job targets.
-    *   **Timeline Overlap Alert**: Flags logical timeline overlap conflicts in work, project, or academic records.
-    *   **Technical Casing Correction**: Identifies technical terms and reminds you to keep industry-standard naming casings (e.g., suggesting to fix `react` to `React`, `typescript` to `TypeScript`, `node.js` to `Node.js`).
-    *   **Competitiveness Score**: Dynamically calculates a visual score based on content completeness and typography compliance, giving you immediate feedback.
+### 5. ✍️ Bilingual Spacing Helper
+*   **Aesthetic Typography**: Automatically inserts aesthetic spaces between Chinese characters, English words, and numbers to optimize document readability.
 
-### 6. ✍️ Intelligent Spacing Formatter (Bilingual Spacing Helper)
-*   **The Pain Point**: Missing spacing between Chinese characters, English words, and numbers makes text squished and hard to read, which looks highly unprofessional.
-*   **The Solution**: Based on typography design guidelines, we provide a **one-click spacing formatter**. Clicking the `Spacing` optimization button instantly corrects layout spacing details (e.g., converting `Experienced with ReactandNode.jsdev` to clean structured spacing), making your texts read like polished, top-tier engineering documents.
+### 6. 🎨 Industry Color Palettes & Layout Customization
+*   **Custom Styling**: Select from Indigo, Slate, Emerald, and Amber color palettes; customize single/two-column layouts, base font size (13/14/15px), line height, and header line accents.
 
-### 7. 🎨 Handcrafted Professional Accent Palettes & Layout Customization
-*   **The Feature**:
-    *   **Professional Colors**: One-click color themes like **Indigo (Tech & Geek)**, **Slate (System & Academic)**, **Emerald (Finance & Consulting)**, and **Amber (Design & Product)**. Accent colors automatically propagate to headings, borders, bullet points, and highlight tags.
-    *   **Micro-Layout Adjustments**: Real-time slider controls for font sizes, line heights, margins (Compact, Moderate, Loose), and optional decorative top accent lines.
+### 7. 💾 Multi-Profile Matrix & Diff Comparison
+*   **Version Control**: Clone and maintain tailored resume branches for different roles (e.g., `Frontend Lead`, `Full-Stack Developer`).
+*   **Diff Analysis**: View side-by-side diff highlights comparing text changes and keywords between two versions.
 
-### 8. 💾 Multi-Version Resume Matrix & One-Click Diff Analysis
-*   **The Feature**: Keep track of multiple resumes tailored for different jobs or roles. Instantly snapshot your current work to spin off a new targeted draft folder (e.g., `Frontend Dev Version`, `Product Manager Version`). Compare any two versions side-by-side using the **One-Click Diff Comparative Analyzer**, which highlights differences in text blocks, keywords, and accents.
+### 8. 🔒 Encrypted H5 Link Sharing & Password Lock
+*   **Secure Sharing**: Generate compressed, encrypted H5 share links protected by access passwords, alongside high-res QR codes for HR preview.
 
-### 9. 🔒 Secure H5 Share Links & Independent Access Passwords
-*   **The Feature**: Publish a compressed, encrypted, responsive online H5 portfolio link for any version of your resume. Secure your page with an optional **Access Password challenge** to protect sensitive contact data from crawlers or unwanted eyes. Includes a generated HR high-definition QR Code for instant mobile-friendly reading or zero-config desktop printing.
+### 9. 📐 Section Sorter
+*   **Module Reordering**: Automatically detects Markdown section headers (`H2`) and allows moving entire sections up or down with one click.
 
-### 10. 📐 Draggable/Interactive Section Sorter
-*   **The Feature**: Switch to the "Section Order" view to automatically list major Markdown H2 titles (such as Work Experience, Education, Projects). Reorganize your reading layout order instantly with the up/down controllers without touching raw Markdown blocks, instantly synchronizing with Form values, Source codes, and PDF previews.
+### 10. 🌙 Dark Mode with Canvas Isolation
+*   **Eye Comfort**: Full tactile Dark Mode theme with styling isolation so resume previews always maintain pristine white paper with crisp dark text.
 
-### 11. 🕸️ 12px High-Precision Design Alignment Grid
-*   **The Feature**: Need pixel-perfect alignments? Turn on the "Grid Lines" overlay to map a 12px background design grid across the resume stage. Align margins, text lines, and dividers perfectly to get a professional, high-end editorial graphic designer feeling.
+### 11. 🌐 Full Bilingual Localization
+*   **Instant Switch**: Toggle between English (`en`) and Chinese (`zh`) with full UI, template, and diagnostic translation.
 
-### 12. 🔍 Interactive Zoom & Screen Adaptation (Zoom & Fit Window)
-*   **The Feature**: Interactive zoom slider supporting `50% - 150%` scales, alongside a one-click "Fit to Window" function. Zoom out to supervise macro-level layout pages or zoom in to inspect microscopic line and padding details on any display.
-
-### 13. 🌙 Unified Tactile Dark Mode & A4 Paper Isolation
-*   **The Feature**: Upgraded dark mode experience for all tactile components (`tactile-card`, `tactile-btn`, `tactile-input`, and modal editors). Includes strict canvas isolation rules ensuring that live resume preview sheets and exported PDFs strictly maintain crisp dark text on white background without dark-mode text inversion issues.
-
-### 14. 🔤 Custom Styled Typography System
-*   **The Feature**: Tailored, elegant UI typography across the editor interface, elevating overall visual quality while strictly preserving resume preview & PDF export font settings for pixel-perfect document rendering.
-
-### 15. ✨ High-Return, Low-Burden Tactile Motion System
-*   **The Feature**: Comprehensive micro-interaction refinement. Quick Nav bar, view mode toggle, and language selector feature `layoutId` sliding capsules that glide along user focus and clicks. Form section accordions expand with smooth height transitions, and popovers feature subtle spring scales (`Spring Scale`) for a premium desktop-grade feel.
-
-### 16. 🌊 Zero-Lag View Transitions Theme Ripple
-*   **The Feature**: Native View Transitions API implementation for dark/light mode switching. Integrated `.view-transition-active` snapshot freeze to eliminate CSS transition thrashing and double-flickers, driving a 420ms circular ripple wave emanating smoothly from the user's click coordinates.
-
-### 17. 🧹 Zero-Friction Clean UI & Implicit Interactions
-*   **The Feature**: Comprehensive cleanup of redundant text prompts, status telemetry indicators, and duplicate action buttons across the entire editor:
-    *   **Streamlined Resume Profiles**: Consolidated into clean "Resume Profiles", removing redundant banner copy and duplicate import/export buttons, integrating a lightweight "Create Blank Profile" card directly in the grid.
-    *   **Implicit Card Switching**: Eliminated all explicit "Click to Switch" text clutter. Users click anywhere on a card to switch profiles seamlessly or restore draft snapshots instantly.
-    *   **Refined Quick Actions**: Top dropdown menu and control bar buttons streamlined to concise "Copy" and "New" actions, providing a distraction-free editing workspace.
+### 12. ⚡ PWA & 100% Local Privacy Protection
+*   **Privacy First**: Installable as a desktop or mobile PWA. All data is persisted locally in IndexedDB / LocalStorage without telemetry or central server tracking.
 
 ---
 
 ## 🛠️ Tech Stack & Architecture
 
-*   **Core Framework**: [React 18](https://react.dev/) + [Vite](https://vite.dev/) + [TypeScript](https://www.typescriptlang.org/)
+*   **Frontend Framework**: [React 19](https://react.dev/) + [Vite 8](https://vite.dev/) + [TypeScript 7](https://www.typescriptlang.org/)
 *   **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
-*   **Animation**: [Framer Motion / motion](https://github.com/framer/motion)
-*   **Markdown Parsing**: `react-markdown` + `remark-gfm` + Custom rewritten React renderer components
+*   **State Management**: [Zustand 5](https://github.com/pmndrs/zustand)
+*   **Motion**: [Framer Motion / Motion 12](https://github.com/framer/motion)
+*   **Markdown**: `react-markdown` + `remark-gfm`
+*   **Export Engine**: `jspdf` + `html2canvas-pro` + Native Vector Print Driver
 *   **Icons**: [Lucide React](https://lucide.dev/)
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Quick Start
 
-### 1. Clone the Repository
+### 1. Clone Repository
 ```bash
 git clone https://github.com/kunlong-luo/markdown-resume-builder.git
 cd markdown-resume-builder
@@ -106,44 +85,32 @@ cd markdown-resume-builder
 pnpm install
 ```
 
-### 3. Start the Dev Server
+### 3. Run Development Server
 ```bash
 pnpm dev
 ```
-Open your browser and navigate to [http://localhost:3000](http://localhost:3000) to start crafting!
+Open your browser at [http://localhost:3000](http://localhost:3000)!
+
+### 4. Run Unit Tests
+```bash
+pnpm test
+```
 
 ---
 
-## 📈 High-Quality PDF Export Guide
+## 📈 High-Quality PDF Export Tips
 
-To ensure you get a pixel-perfect, crisp, HD PDF with zero cut-offs:
-1. While writing, turn on **"A4 Height Boundary"** and **"Page Break Indicator"** in the toolbar.
-2. Adjust font size, margin, or spacing so that your content matches the full page (or exact multiple pages) with no trailing single-line overflow.
-3. Click **"Export PDF"** on the top right. This automatically triggers and prepares your browser's printing layout.
-4. **【CRITICAL Print Dialog Settings】**:
-   *   **Destination**: Select `Save as PDF` (or Save to PDF)
-   *   **Paper size**: MUST choose `A4`
-   *   **Margins**: MUST choose `None` or `Default`
-   *   **Options**: MUST check `Background graphics` (otherwise accent colors and border tags will not display)
-   *   **Headers and Footers**: Uncheck (so that URL text and system date elements are removed)
-
----
-
-## 🤝 Contributing
-
-We welcome your contributions! Feel free to submit an Issue for feedback or submit a Pull Request:
-1. Fork the Project.
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`).
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`).
-4. Push to the Branch (`git push origin feature/AmazingFeature`).
-5. Open a Pull Request.
+1. Enable **A4 Page Line** in the toolbar while editing.
+2. If content spills slightly into page 2, click **1-Click Auto Fit**.
+3. Click **Export PDF** and configure print settings:
+   * **Destination**: `Save as PDF`
+   * **Paper Size**: `A4`
+   * **Margins**: `None`
+   * **Options**: Check `Background graphics`
+   * **Headers and Footers**: Uncheck
 
 ---
 
 ## 📄 License
 
-This project is licensed under the [MIT License](LICENSE). You are completely free to use, modify, and distribute it for personal, commercial, or corporate purposes.
-
----
-
-⭐ **If you find this project helpful, please give us a Star on GitHub! Your support is our greatest motivation!**
+Distributed under the [MIT License](LICENSE). Free for personal and commercial use.

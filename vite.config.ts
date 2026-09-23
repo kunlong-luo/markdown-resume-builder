@@ -82,6 +82,33 @@ export default defineConfig(() => {
         },
       }),
     ],
+    build: {
+      target: 'esnext',
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (id.includes('html2canvas') || id.includes('jspdf') || id.includes('html2pdf')) {
+                return 'pdf-vendor';
+              }
+              if (id.includes('react-markdown') || id.includes('remark-gfm') || id.includes('unified') || id.includes('mdast')) {
+                return 'markdown-vendor';
+              }
+              if (id.includes('lucide-react')) {
+                return 'icons-vendor';
+              }
+              if (id.includes('motion') || id.includes('framer-motion')) {
+                return 'motion-vendor';
+              }
+              if (id.includes('react') || id.includes('react-dom')) {
+                return 'react-core';
+              }
+              return 'vendor';
+            }
+          },
+        },
+      },
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),

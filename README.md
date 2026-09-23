@@ -1,95 +1,74 @@
-# 📑 ResuCraft (Markdown Resume Builder Pro)
+# 🚀 ResuCraft · 简匠简历 Pro (v2.0.0)
 
 [English](./README.en.md) | 简体中文
 
-[![Version](https://img.shields.io/badge/version-v1.8.0--PRO-blue?style=flat-square&logo=github)](https://github.com/kunlong-luo/markdown-resume-builder)
-[![React](https://img.shields.io/badge/built%20with-React%2019-blueviolet?style=flat-square)](https://react.dev/)
-[![Vite](https://img.shields.io/badge/bundler-Vite-646CFF?style=flat-square&logo=vite)](https://vite.dev/)
+[![Version](https://img.shields.io/badge/version-v2.0.0--PRO-blue?style=flat-square&logo=github)](https://github.com/kunlong-luo/markdown-resume-builder)
+[![React](https://img.shields.io/badge/built%20with-React%2019-blueviolet?style=flat-square&logo=react)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/bundler-Vite%208-646CFF?style=flat-square&logo=vite)](https://vite.dev/)
 [![TailwindCSS](https://img.shields.io/badge/styling-Tailwind%20v4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
 
-> **ResuCraft (Markdown Resume Builder Pro)** 是一款专为求职者设计的高颜值、双向同步、完美 A4 控页的在线简历编辑器。它融合了 Markdown 的书写效率与可视化表单的易用性，支持中英双语，提供强大的智能自检、自动中英空格排版、专业主题色盘、多版本草稿等企业级功能，助你告别 Word 排版地狱，秒出行业顶级气质的专业简历。
+> **ResuCraft (简匠简历)** 是一款专为求职者打造的高颜值、双向同步、完美 A4 控页的在线 Markdown 简历编辑器。
+> 
+> 💡 **核心口号**：*“用 Markdown 匠造完美的一页纸简历 | Craft your perfect one-page resume with Markdown.”*
+> 
+> 它融合了 Markdown 的极客书写效率与可视化表单的易用性，支持中英双语，提供强大的 ATS 智能诊断、一键压缩贴合（1-Click Auto Fit）、自动中英空格微调、行业专属色盘、多档案草稿矩阵与 H5 密保分享，助你告别排版地狱，秒出大厂级气质的高清简历。
 
 ---
 
 ## 🌟 核心杀手级特性
 
-### 1. 🔄 可视化表单 & Markdown 双向同步引擎（支持拖拽排序）
-*   **痛点**：传统 Markdown 编辑器需要求职者熟练掌握语法，且在微调多项经历（如调换项目顺序）时极其容易写错括号或遗漏标点导致排版崩溃。
-*   **方案**：内置业界先进的**双向数据同步引擎**。你既可以在「Markdown 编辑模式」中自由飞洒，也可以一键切换至「可视化表单模式」进行结构化编辑。在表单中**支持鼠标拖拽条目（Grip Handle）秒级重排**、增删经历或修改内容，Markdown 源码都会实时重绘；反之，在源码中修改任何字符，表单内容也会瞬时解析更新。
+### 1. 🔄 可视化表单 & Markdown 双向同步引擎
+*   **双向联动**：支持在「可视化表单」与「Markdown 源码」之间无缝切换。
+*   **拖拽重排**：表单内置抓手（Grip Handle），支持鼠标拖拽条目秒级调整经历顺序，Markdown 源码与预览图同步实时重绘。
 
-### 2. ⚡ 顶栏「一键压缩贴合」（1-Click Auto Fit）与 A4 完美控页
-*   **痛点**：简历最忌讳“1.1页”或“1.2页”——溢出的几行白字不仅难看，更会在打印或导出时被无情裁剪。
-*   **方案**：
-    *   **一键压缩贴合 (1-Click Auto Fit)**：顶部工具栏专属闪电按钮，点击即可全自动级联微调页边距、字体行高、字号及段落间距，瞬间将溢出内容完美自适应收纳于 1 页之内。
-    *   **A4 页面高度辅助线 (Page Boundary Line)**：在右侧预览区提供智能裁剪边界提示，精准模拟标准 A4 打印尺寸，并实时计算“当前内容占 X.X 页”。
-    *   **折页指示线**：可开启折页辅助线，帮你合理规划内容分布，保障生成的 PDF 绝不出现单行空白溢出。
+### 2. ⚡ 顶栏「一键压缩贴合」（1-Click Auto Fit）与 A4 控页
+*   **消除溢出**：拒绝“1.1 页”断层尴尬。闪电按钮自动级联微调页边距、字体行高与段落间距，瞬间将溢出内容平滑收纳至 1 页之内。
+*   **辅助刻度**：提供 A4 页面物理裁剪边界提示与折页指示线，直观掌控纸张空间。
 
-### 3. ✨ 智能杂乱纯文本一键导入（Smart Raw Text Importer）
-*   **痛点**：从各大招聘网站（BOSS直聘/猎聘/51job）、旧 Word 简历或 PDF 复制出来的文本通常格式杂乱无章，手动清洗整理成 Markdown 极为繁琐。
-*   **方案**：顶部导航栏集成**智能粘贴导入**功能，点击即可一键读取剪贴板。内置纯本地启发式解析算法，自动识别提取姓名、联系方式、职业职位、工作经历、教育背景与核心技能，并结构化规整为符合规范的 Markdown 简历，隐私安全零泄露。
+### 3. ✨ 杂乱纯文本智能导入（Smart Raw Text Importer）
+*   **一键解析**：直接粘贴来自招聘网站（BOSS/猎聘）、旧 Word 或 PDF 的杂乱纯文本，本地算法自动识别姓名、联系方式、工作经历与技能并清洗规整为标准 Markdown。
 
-### 4. 🌐 全局中英双语国际化 (Bilingual)
-*   **特性**：应用原生支持 **中文 (zh)** 与 **英文 (en)** 一键切换。切换语言后，不仅界面所有按钮和操作指南会全部汉化/英化，包括内置的简历模板、快捷输入框占位符、以及智能自检的诊断提示也会同步切换，极大地方便了外企求职与海外留学生群体。
+### 4. 🎯 ATS 岗位匹配与智能诊断系统
+*   **JD 契合度匹配**：粘贴目标岗位 Job Description，算法智能对比匹配度关键词，突出显示核心技能短板。
+*   **排版与合规自检**：实时扫描联系方式遗漏、多段经历时间重叠冲突及技术词汇规范大小写（如将 `react` 改为 `React`）。
 
-### 5. 🔍 智能自检 & 简历文案自研诊断系统
-*   **特性**：内置轻量级、高精度简历诊断工具，针对简历排版与内容进行静默实时扫描：
-    *   **基础信息自检**：自动识别邮箱、电话、求职意向等关键联系方式是否缺失。
-    *   **时间重叠预警**：精准识别多段教育经历、工作经历或项目经历在时间线上的重合冲突，避免逻辑漏洞。
-    *   **技术词汇大小写纠正**：智能识别简历中的 IT 技术名词，提醒保持规范的大小写排版（如：自动提示将 `react` 改为 `React`，`typescript` 改为 `TypeScript`）。
-    *   **评分自测**：根据内容完整度、排版规整度等维度进行实时打分，直观评估简历竞争力。
+### 5. ✍️ 一键中英排版空格优化 (Bilingual Spacing)
+*   **排版美学**：依据中文排版规范，一键自动在中文与英文、数字之间插入美学空格（如 `熟练使用React开发` ➔ `熟练使用 React 开发`），大幅增加文本呼吸感。
 
-### 6. ✍️ 一键中英排版空格优化 (Typesetting Spacing Helper)
-*   **痛点**：中文和英文、数字之间如果不加空格，挤在一起会显得极不专业，且手动修改极度耗时。
-*   **方案**：基于排版美学指南，提供**一键中英文数字空格优化功能**。不论是在大纲栏还是在具体的段落文本编辑器中，点击 `中英排版` 按钮，系统将自动纠正排版细节（例如：`熟练使用React和TypeScript开发了3个项目` ➔ `熟练使用 React 和 TypeScript 开发了 3 个 项目`），让简历文本瞬间具备大厂官方文档般的极致呼吸感。
+### 6. 🎨 行业专属主题色盘与模版定制
+*   **多维排版**：内置科技靛蓝、金融墨绿、极客深黑等行业色盘；支持单双栏布局切换、基础字号（13/14/15px）、行高段距及多种二级标题下划线风格定制。
 
-### 7. 🎨 精选行业专属主题色盘 & 细节精修
-*   **特性**：
-    *   **专业色盘**：精选 **科技靛蓝 (Indigo)**、**极客深黑 (Slate)**、**金融墨绿 (Emerald)**、**设计暖啡 (Amber)** 等多套专属色盘，一键渲染主标题、边框、项目符号，迎合不同岗位属性。
-    *   **细节微调**：支持对字体大小、行高、页面页边距（紧凑/适中/宽松）以及顶部是否有彩色装饰条等进行像素级无代码调节。
+### 7. 💾 多档案草稿矩阵 (Profile Matrix) 与差异对比
+*   **一职一简历**：快速克隆创建特定岗位版本（如 `前端开发版`、`全栈工程师版`）。
+*   **Diff 差异对比**：提供左右侧两版本模块级差异对比面板，清晰高亮文本修改与关键字调整。
 
-### 8. 💾 多版本一职一简历矩阵 (Resume Matrix) & 一键对比
-*   **特性**：内置多岗位/一职一简历版本矩阵。你可以随时基于当前简历，一键建立特定岗位版的分支文件夹（如 `前端开发版`、`全栈工程师版`），甚至提供**极速双版本模块级差异对比 (Diff Analysis)**。在对比面板中，左右两侧清晰高亮呈现两个版本大板块的文本、重点强调和关键字微调差异。
+### 8. 🔒 专属 H5 外链分享与独立访问密码锁
+*   **加密分享**：一键生成加密压缩的 H5 分享链接，可设置访问密码保护隐私；提供 HR 扫码预览专用高清二维码。
 
-### 9. 🔒 专属 H5 外链分享与独立访问密码安全锁
-*   **特性**：一键为特定版本的简历生成经压缩加密的专属在线 H5 分享外链。支持**独立访问密码保护**，输入正确密码才可解锁查看。同时提供“HR 扫码预览”专用高清二维码，方便手机端即时无损预览，或在 PC 端免登录一键直接打印/另存为完美 A4 高清 PDF。
+### 9. 📐 板块位置极速排序 (Section Sorter)
+*   **模块重排**：自动识别 Markdown 中的二级标题板块，支持拖拽或一键上下平移整个章节，无须手动繁琐剪切粘贴。
 
-### 10. 📐 简历板块位置一键极速排序 (Section Sorter)
-*   **特性**：提供专门的「板块排序」工具面板，自动识别 Markdown 中的二级标题（如工作经历、教育背景、专业技能）。支持通过鼠标一键上下移动板块，垂直阅读排版顺序即时生效，瞬间重绘 Markdown 源码、可视化表单与 PDF 预览，极大地省去繁琐的手动剪切粘贴过程。
+### 10. 🌙 深色模式与 A4 纸张隔离
+*   **视觉舒适**：全站配备低疲劳深色模式，同时建立简历画布与导出 PDF 的样式强隔离机制，确保深色模式下预览纸张始终保持清晰白底黑字。
 
-### 11. 🕸️ 12px 高精度排版网格辅助线 (Grid Lines)
-*   **特性**：追求极致美感的求职者可一键开启「12px 黄金排版网格线」，预览区将布满半透明的对齐辅助微型网格。让你在微调字体大小、行高和间距时，能像专业平面设计师一样，精准掌控像素级的对齐和呼吸感。
+### 11. 🌐 全局中英双语国际化 (Bilingual Localization)
+*   **极速切换**：一键无缝切换中文（zh）与英文（en），不仅界面文案，内置简历模版与诊断提示亦全面中英适配。
 
-### 12. 🔍 交互式缩放与窗口自适应 (Interactive Zoom & Fit)
-*   **特性**：提供 `50% - 150%` 自由缩放预览滑块，并支持「Fit 自适应屏幕」功能。让你在各种宽度的显示器上都能以最舒服的视角掌控全局排版。
-
-### 13. 🌙 统一触感深色模式 & A4 纸张隔离 (Dark Mode & Canvas Isolation)
-*   **特性**：全面升级全站触感 UI（包括触感卡片、按钮、选择器及表单弹窗）在深色模式下的暗调质感与高阶对比度。同时建立简历画布与导出 PDF 的样式强隔离机制，确保深色模式下预览纸张始终保持清晰白底黑字，绝无文字反色失真问题。
-
-### 14. 🔤 精致风格化字体系统 (Custom Styled Typography)
-*   **特性**：精选适配项目气质的风格化全局界面字体，大幅提升编辑器整体品质感；同时完整保留简历预览及导出 PDF 的专业排版字体配置，实现编辑器外观与导出文档的完美兼顾。
-
-### 15. ✨ 高回报低负荷 Framer Motion 微交互系统 (Tactile Motion System)
-*   **特性**：全站精细化重构微交互逻辑。快捷导航栏、视图切换器与语言切换器引入 `layoutId` 物理滑轨胶囊，高亮块沿视线与点击轨迹平滑滑移；表单折叠卡片支持渐进式风琴高度展开/收起；下拉菜单与色盘增加物理弹簧轻缩放（`Spring Scale`），赋予软件极高品质感与极致触感。
-
-### 16. 🌊 零闪烁无缝 View Transition 主题波浪切换 (Zero-Lag Theme Ripple)
-*   **特性**：采用浏览器底层原生 View Transitions API 重构深浅色主题切换。注入 `.view-transition-active` 瞬时快照冻结机制，解决 CSS color 渐变冲撞导致的“二次闪烁”与层级撕裂，实现以点击中心向外扩散的 420ms 无缝全屏水波涟漪过渡。
-
-### 17. 🧹 极致隐式交互与极简 UI 重构 (Zero-Friction Clean UI)
-*   **特性**：全面清理全站冗余提示词、系统状态指示器及显式重复按钮：
-    *   **简历档案库重构**：统一升级为极简「简历档案库」，完全移除大 Banner 冗余说明及重复的导入/导出按钮，直接在卡片网格尾部集成轻量级“创建空白简历档案”快捷入口。
-    *   **隐式卡片无缝切换**：剔除所有“点击卡片即可切换”文字干扰，支持全卡片直觉点击切换；草稿箱卡片支持直接点击快照即刻恢复。
-    *   **高频快捷操作精炼**：顶部下拉菜单与控制栏按钮文案精简为「复制」与「新建」，提供最干净、高效的写作空间。
+### 12. ⚡ PWA 离线运行与本地存储
+*   **隐私安全**：支持安装至桌面与移动端，所有数据纯前端存储于本地 IndexedDB / LocalStorage，不设中央数据收集服务器，100% 保护个人隐私。
 
 ---
 
 ## 🛠️ 技术栈与架构
 
-*   **核心框架**: [React 18](https://react.dev/) + [Vite](https://vite.dev/) + [TypeScript](https://www.typescriptlang.org/)
-*   **样式框架**: [Tailwind CSS v4](https://tailwindcss.com/)
-*   **动画过渡**: [Framer Motion / motion](https://github.com/framer/motion)
-*   **Markdown 解析**: `react-markdown` + `remark-gfm` + 自定义组件重写
-*   **图标库**: [Lucide React](https://lucide.dev/) (高颜图标)
+*   **前端框架**: [React 19](https://react.dev/) + [Vite 8](https://vite.dev/) + [TypeScript 7](https://www.typescriptlang.org/)
+*   **样式系统**: [Tailwind CSS v4](https://tailwindcss.com/)
+*   **状态管理**: [Zustand 5](https://github.com/pmndrs/zustand)
+*   **动效引擎**: [Framer Motion / Motion 12](https://github.com/framer/motion)
+*   **Markdown 解析**: `react-markdown` + `remark-gfm`
+*   **PDF 导出引擎**: `jspdf` + `html2canvas-pro` + 原生矢量 Print 驱动
+*   **图标库**: [Lucide React](https://lucide.dev/)
 
 ---
 
@@ -112,38 +91,27 @@ pnpm dev
 ```
 打开浏览器访问 [http://localhost:3000](http://localhost:3000) 即可开始使用！
 
+### 4. 运行单元测试
+```bash
+pnpm test
+```
+
 ---
 
-## 📈 高清 PDF 完美导出指南
+## 📈 高清 PDF 导出建议
 
-为了保证在最终导出的简历中获得一像素不差的完美高清 PDF，请按照以下步骤操作：
-1. 撰写过程中，在控制台开启 **“A4 高度辅助线”** 和 **“折页指示线”**。
-2. 确保简历内容高度刚好填满 1 页（或整页倍数），没有多余的空白溢出。
-3. 点击页面右上角的 **“导出 PDF”**，系统将自动触发并优化浏览器的打印渲染。
-4. **【打印面板关键设置】**：
+ResuCraft 提供矢量直接打印与高清 Canvas 渲染双模式导出：
+1. 撰写过程中可开启 **“A4 辅助线”** 确认页面边界。
+2. 内容若有少许超页，点击顶部工具栏 **“一键压缩贴合”** 按钮即可自动收纳至 1 页。
+3. 点击 **“导出 PDF”**，在系统打印窗口中：
    *   **目标打印机**：选择 `另存为 PDF` (Save as PDF)
-   *   **纸张大小**：必须选择 `A4`
-   *   **边距**：必须选择 `无` (None) 或是 `默认` (Default)
-   *   **选项**：勾选 `背景图形` (Background graphics)（若不勾选，主题色彩和标签条将无法正常显示）
-   *   **页眉和页脚**：取消勾选（否则会打印出网址和日期）
-
----
-
-## 🤝 参与贡献
-
-非常期待您的加入！无论是以提交反馈的形式（Issue），还是直接改进代码（Pull Request），我们都衷心感谢：
-1. Fork 本仓库。
-2. 创建您的分支 (`git checkout -b feature/AmazingFeature`)。
-3. 提交您的修改 (`git commit -m 'Add some AmazingFeature'`)。
-4. 推送到分支 (`git push origin feature/AmazingFeature`)。
-5. 开启一个 Pull Request。
+   *   **纸张大小**：选择 `A4`
+   *   **边距**：选择 `无` (None)
+   *   **选项**：勾选 `背景图形` (Background graphics)
+   *   **页眉和页脚**：取消勾选
 
 ---
 
 ## 📄 开源许可证
 
 本项目采用 [MIT License](LICENSE) 开源许可证。您可以自由地在个人、企业或商业项目中修改和使用。
-
----
-
-⭐ **如果您觉得这个项目对您有所帮助，欢迎在 GitHub 上点个 Star！这是支持我们持续改进的最佳动力！**

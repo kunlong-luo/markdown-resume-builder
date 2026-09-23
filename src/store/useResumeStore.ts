@@ -157,6 +157,14 @@ const sanitizeSettings = (raw: Partial<ResumeSettings> | null, defaultSettings: 
   return merged;
 };
 
+const getBrowserLanguage = (): 'zh' | 'en' => {
+  if (typeof navigator !== 'undefined') {
+    const navLang = (navigator.language || (navigator as any).userLanguage || '').toLowerCase();
+    if (navLang.startsWith('zh')) return 'zh';
+  }
+  return 'en';
+};
+
 const getInitialSettings = (): ResumeSettings => {
   const defaultSettings: ResumeSettings = {
     themeColor: 'indigo',
@@ -172,7 +180,7 @@ const getInitialSettings = (): ResumeSettings => {
     letterSpacing: 0.0,
     showPageBreakLine: true,
     templateLayout: 'single',
-    lang: 'zh',
+    lang: getBrowserLanguage(),
     themeMode: (storage.getString(STORAGE_KEYS.THEME_MODE, 'light') || 'light') as 'light' | 'dark' | 'system',
   };
   

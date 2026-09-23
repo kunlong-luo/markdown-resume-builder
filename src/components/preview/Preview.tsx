@@ -1,13 +1,8 @@
-
-import React, { forwardRef, useState, useEffect, useMemo, useRef, useDeferredValue } from 'react';
+import React, { forwardRef, useState, useEffect, useMemo, useDeferredValue } from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { ZoomIn, ZoomOut, Sliders } from 'lucide-react';
-import { motion } from 'motion/react';
 import { ResumeSettings } from '../../types';
 import { useResumeStore } from '../../store/useResumeStore';
-import { storage, STORAGE_KEYS } from '../../lib/storage';
-
 import { 
   THEME_MAP, FONT_FAMILY_CLASSES, parseResumeHeader, cleanMarkdown, 
   parseH2Sections, smartAutoFit, getSizeClasses
@@ -15,8 +10,8 @@ import {
 import { createMarkdownComponents } from './PreviewRenderers';
 import { HeightGuard } from './HeightGuard';
 import { ResumeHeader } from './ResumeHeader';
-import { CustomSlider } from '../ui/CustomSlider';
-import { Tooltip } from '../ui/Tooltip';
+import { ZoomControls } from './ZoomControls';
+import { useA4Measurement } from '../../hooks/useA4Measurement';
 
 interface PreviewProps {
   overrideMarkdown?: string;
@@ -39,107 +34,20 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
   const fontClass = FONT_FAMILY_CLASSES[settings.fontFamily];
 
   const [targetPageLimit, setTargetPageLimit] = useState<1 | 2 | 3>(1);
-  const [metrics, setMetrics] = useState({
-    isOver: false,
-    overflowPercent: 0,
-    overflowPixels: 0,
-  });
-
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const [wrapperWidth, setWrapperWidth] = useState<number>(850);
-  const [unscaledHeight, setUnscaledHeight] = useState<number>(0);
-  const [zoomMode, setZoomMode] = useState<'fit' | number>(() => {
-    const saved = storage.getString(STORAGE_KEYS.PREVIEW_ZOOM);
-    if (saved) {
-      if (saved === 'fit') return 'fit';
-      const parsed = parseFloat(saved);
-      if (!isNaN(parsed)) return parsed;
-    }
-    return 'fit';
-  });
   const [isAutoFitting, setIsAutoFitting] = useState(false);
 
-  useEffect(() => {
-    const element = wrapperRef.current;
-    if (!element) return;
+  // Hook for A4 wrapper measuring, zoom calculation & page limits
+  const elementRef = (ref && 'current' in ref ? ref : { current: null }) as React.RefObject<HTMLDivElement | null>;
+  const {
+    wrapperRef,
+    unscaledHeight,
+    zoomMode,
+    setZoomMode,
+    calculatedZoom,
+    metrics
+  } = useA4Measurement(elementRef, targetPageLimit, setMeasuredPageCount, [markdown, settings]);
 
-    let rafId: number | null = null;
-    const handleResize = () => {
-      if (rafId !== null) cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(() => {
-        if (!element) return;
-        const newWidth = element.clientWidth;
-        setWrapperWidth((prev) => (Math.abs(prev - newWidth) > 1 ? newWidth : prev));
-      });
-    };
-
-    handleResize();
-    const observer = new ResizeObserver(handleResize);
-    observer.observe(element);
-
-    return () => {
-      if (rafId !== null) cancelAnimationFrame(rafId);
-      observer.disconnect();
-    };
-  }, []);
-
-  const calculatedZoom = useMemo(() => {
-    if (zoomMode === 'fit') {
-      const horizontalPadding = wrapperWidth < 640 ? 20 : 64;
-      const targetWidth = Math.max(100, wrapperWidth - horizontalPadding);
-      const scale = targetWidth / 794; // 210mm standard is ~794px at 96dpi
-      return Math.max(0.2, Math.min(1.2, scale));
-    }
-    return zoomMode;
-  }, [zoomMode, wrapperWidth]);
-
-  useEffect(() => {
-    const element = ref && 'current' in ref ? ref.current : null;
-    if (!element) return;
-
-    let rafId: number | null = null;
-    const measure = () => {
-      if (rafId !== null) cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(() => {
-        if (!element) return;
-        const width = element.clientWidth;
-        const height = element.clientHeight;
-        if (!width || !height) return;
-
-        setUnscaledHeight(height);
-
-        // Standard A4 aspect ratio height: 297mm / 210mm = 1.4142857
-        const pHeight = (width / 210) * 297;
-        
-        // Calculate actual rendered page count with a 24px (~6.3mm) buffer
-        // to avoid subpixel rounding errors on min-h-[297mm] falsely reporting 2 pages.
-        const tolerance = 24;
-        const actualPages = Math.max(1, Math.floor((height - tolerance) / pHeight) + 1);
-        setMeasuredPageCount(actualPages);
-
-        const limitHeight = targetPageLimit * pHeight;
-        const isOver = height > limitHeight + tolerance;
-        const overflowPixels = Math.max(0, Math.round(height - limitHeight));
-        const overflowPercent = Math.min(
-          150,
-          Math.max(10, Math.round((height / limitHeight) * 100))
-        );
-
-        setMetrics({ isOver, overflowPercent, overflowPixels });
-      });
-    };
-
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(element);
-    const timer = setTimeout(measure, 300);
-    return () => {
-      if (rafId !== null) cancelAnimationFrame(rafId);
-      observer.disconnect();
-      clearTimeout(timer);
-    };
-  }, [markdown, settings, ref, targetPageLimit, setMeasuredPageCount]);
-
+  // Progressive smart auto-fit loop
   useEffect(() => {
     if (!isAutoFitting || !onChangeSettings) return;
 
@@ -194,7 +102,6 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
     if (metrics.isOver) {
       setIsAutoFitting(true);
     } else {
-      // If not overflowing, run standard helper to optimize general spacing anyway
       smartAutoFit(settings, (key, val) => onChangeSettings(key as any, val));
     }
   };
@@ -213,11 +120,9 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
     relaxed: 'p-[20mm] sm:p-[25mm] print:p-[25mm]',
   }[settings.margin];
 
-  // Memoized Inner Resume Content to prevent duplication between 2D and 3D preview containers
+  // Memoized Inner Resume Content
   const resumeInnerContent = useMemo(() => {
     const bodyContent = headerInfo.hasHeader ? headerInfo.bodyMarkdown : cleaned;
-    
-    // Scissor pagebreak label
     const pageBreakLabel = settings.lang === 'en' ? 'A4 Page {p} Boundary ({size}mm) ✂️' : 'A4 第 {p} 页边界线 ({size}mm) ✂️';
 
     return (
@@ -252,6 +157,22 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
           .custom-h2-badge-border { border-left: 3.5px solid var(--custom-theme-color) !important; }
           .custom-h2-badge-text { color: color-mix(in srgb, var(--custom-theme-color) 80%, black) !important; }
 
+          .resume-content {
+            box-sizing: border-box;
+          }
+          .resume-content h1, .resume-content h2, .resume-content h3, .resume-content h4 {
+            break-after: avoid !important;
+            page-break-after: avoid !important;
+          }
+          .resume-content li, .resume-content p, .resume-content blockquote, .resume-content table, .resume-content .break-inside-avoid {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+          }
+          .print-page-break {
+            page-break-before: always !important;
+            break-before: page !important;
+          }
+
           .resume-content p { margin-bottom: calc(0.5rem * ${settings.blockGap ?? 1.0}) !important; line-height: ${settings.lineHeight ?? 1.6} !important; letter-spacing: ${settings.letterSpacing ?? 0}em !important; }
           .resume-content li { margin-bottom: calc(0.25rem * ${settings.blockGap ?? 1.0}) !important; line-height: ${settings.lineHeight ?? 1.6} !important; letter-spacing: ${settings.letterSpacing ?? 0}em !important; }
           .resume-content h3 { margin-top: calc(1rem * ${settings.blockGap ?? 1.0}) !important; margin-bottom: calc(0.25rem * ${settings.blockGap ?? 1.0}) !important; letter-spacing: ${settings.letterSpacing ?? 0}em !important; }
@@ -269,12 +190,10 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
                 className="absolute left-0 right-0 border-b border-dashed border-rose-300/70 dark:border-rose-700/60 flex items-center justify-between text-[9.5px] select-none h-0" 
                 style={{ top: `${p * 297}mm` }}
               >
-                {/* Left side guide tag */}
                 <div className="bg-white/95 dark:bg-slate-850/95 backdrop-blur-md border border-slate-200/90 dark:border-slate-700 text-slate-600 dark:text-slate-300 px-2.5 py-0.5 rounded-md shadow-xs ml-4 -translate-y-1/2 flex items-center gap-1.5 font-medium tracking-tight">
                   <span className="text-[10px] opacity-70">✂️</span>
                   <span className="text-[9px] font-mono tracking-wider">{settings.lang === 'en' ? 'A4 Page Fold' : 'A4 分页裁切线'}</span>
                 </div>
-                {/* Right side page number badge */}
                 <div className="bg-white/95 dark:bg-slate-850/95 backdrop-blur-md border border-slate-200/90 dark:border-slate-700 text-slate-600 dark:text-slate-300 px-2.5 py-0.5 rounded-md shadow-xs mr-4 -translate-y-1/2 font-mono flex items-center gap-1.5 text-[9px] font-medium tracking-tight">
                   <span className="w-1.5 h-1.5 rounded-full bg-rose-500/80 inline-block" />
                   <span>{pageBreakLabel.replace('{p}', String(p)).replace('{size}', String(p * 297))}</span>
@@ -289,6 +208,7 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
         {headerInfo.hasHeader && <ResumeHeader headerInfo={headerInfo} theme={theme} />}
 
         {(() => {
+          // 1. Two-Column Layout
           if (settings.templateLayout === 'two-column') {
             const sections = parseH2Sections(bodyContent);
             const SIDEBAR_KEYWORDS = ['个人信息', '基本信息', '联系', '技能', '评价', '总结', 'about', 'skill', 'contact', 'summary'];
@@ -322,6 +242,48 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
             );
           }
 
+          // 2. Modern Card Matrix Layout
+          if (settings.templateLayout === 'modern-card') {
+            const sections = parseH2Sections(bodyContent);
+            return (
+              <div className="flex flex-col gap-3.5 mt-3">
+                {sections.map((sec, i) => (
+                  <div 
+                    key={`card-${i}`} 
+                    className="p-3.5 sm:p-4 rounded-xl bg-slate-50/70 border border-slate-200/70 shadow-[0_1px_3px_rgba(0,0,0,0.02)] break-inside-avoid"
+                  >
+                    <Markdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                      {sec.rawTitleLine ? `${sec.rawTitleLine}\n\n${sec.content}` : sec.content}
+                    </Markdown>
+                  </div>
+                ))}
+              </div>
+            );
+          }
+
+          // 3. Academic LaTeX Layout
+          if (settings.templateLayout === 'academic') {
+            const pages = bodyContent.split(/<!--\s*pagebreak\s*-->/gi);
+            return (
+              <div className="academic-resume-container font-serif">
+                {pages.map((page, i) => (
+                  <React.Fragment key={i}>
+                    {i > 0 && (
+                      <>
+                        <div className="print:hidden my-8 border-t-2 border-dashed border-gray-400 relative flex justify-center select-none">
+                          <span className="absolute -top-3 bg-white px-3 text-[10px] font-bold text-gray-500 uppercase tracking-widest">{settings.lang === 'en' ? 'Page Break' : '分页符 / Page Break'}</span>
+                        </div>
+                        <div className="hidden print:block print-page-break" />
+                      </>
+                    )}
+                    <Markdown remarkPlugins={[remarkGfm]} components={markdownComponents}>{page}</Markdown>
+                  </React.Fragment>
+                ))}
+              </div>
+            );
+          }
+
+          // 4. Default Standard Single Column Layout
           const pages = bodyContent.split(/<!--\s*pagebreak\s*-->/gi);
           return pages.map((page, i) => (
             <React.Fragment key={i}>
@@ -341,28 +303,16 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
     );
   }, [headerInfo, cleaned, settings, markdownComponents, theme]);
 
-  const t = settings.lang === 'en' ? {
-    previewHeader: 'Real-time Rendering Preview (A4 Page)',
-    zoomOut: 'Zoom Out',
-    zoomIn: 'Zoom In',
-    zoomSlider: 'Slide to adjust zoom',
-    zoomFit: 'Fit',
-    pageBreakText: 'A4 Page {p} Boundary ({size}mm) ✂️',
-  } : {
-    previewHeader: '实时渲染预览 (A4 页面)',
-    zoomOut: '缩小',
-    zoomIn: '放大',
-    zoomSlider: '滑动调整缩放',
-    zoomFit: '自适应',
-    pageBreakText: 'A4 第 {p} 页边界线 ({size}mm) ✂️',
-  };
+  const isEn = settings.lang === 'en';
 
   return (
     <div className="relative w-full h-full flex flex-col overflow-hidden">
       {/* Zoom and Preview Toolbar */}
       <div className="flex flex-row items-center justify-between px-3 sm:px-4 py-1.5 sm:py-2 bg-slate-50/95 dark:bg-slate-900/95 border-b border-slate-200/60 dark:border-slate-800/80 backdrop-blur-sm z-30 select-none print:hidden shrink-0 gap-2 transition-all">
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{t.previewHeader}</span>
+          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+            {isEn ? 'Real-time Rendering Preview (A4 Page)' : '实时渲染预览 (A4 页面)'}
+          </span>
         </div>
         
         <div className="flex items-center gap-2">
@@ -377,136 +327,52 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
         id="resume-preview-wrapper" 
         className="flex-1 overflow-y-auto p-2 sm:p-6 md:p-8 bg-slate-100/70 dark:bg-[#090d16] w-full flex justify-center items-start relative scrollbar-thin"
       >
+        <div 
+          style={{
+            width: '100%',
+            maxWidth: `${210 * calculatedZoom}mm`,
+            height: unscaledHeight ? `${unscaledHeight * calculatedZoom}px` : 'auto',
+            position: 'relative',
+          }}
+          className="resume-wrapper flex justify-center shrink-0 transition-all duration-200 print:block print:w-full print:max-w-full print:h-auto print:static"
+        >
           <div 
+            ref={ref}
+            id="resume-print-content"
             style={{
+              transformOrigin: 'top center',
               width: '100%',
-              maxWidth: `${210 * calculatedZoom}mm`,
-              height: unscaledHeight ? `${unscaledHeight * calculatedZoom}px` : 'auto',
-              position: 'relative',
+              maxWidth: '210mm',
+              position: 'absolute',
+              top: 0,
+              left: '50%',
+              transform: `translateX(-50%) scale(${calculatedZoom})`,
             }}
-            className="resume-wrapper flex justify-center shrink-0 transition-all duration-200 print:block print:w-full print:max-w-full print:h-auto print:static"
+            className={`bg-white resume-content w-full max-w-[210mm] min-h-[297mm] h-fit mx-auto print:shadow-none print:ring-0 print:m-0 print:w-full relative origin-top transition-all duration-300 print:relative print:left-auto print:top-auto print:transform-none print:max-w-full print:w-full ${fontClass} ${marginClasses} ${
+              metrics.isOver 
+                ? 'shadow-[0_4px_24px_rgba(244,63,94,0.08),0_16px_40px_-6px_rgba(15,23,42,0.12),0_0_0_1.5px_rgba(244,63,94,0.4)] ring-1 ring-rose-400/30' 
+                : 'shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02),0_12px_28px_-4px_rgba(15,23,42,0.06),0_24px_60px_-12px_rgba(15,23,42,0.08),0_0_0_1px_rgba(15,23,42,0.04)] ring-1 ring-black/5'
+            }`}
           >
-            <div 
-              ref={ref}
-              id="resume-print-content"
-              style={{
-                transformOrigin: 'top center',
-                width: '100%',
-                maxWidth: '210mm',
-                position: 'absolute',
-                top: 0,
-                left: '50%',
-                transform: `translateX(-50%) scale(${calculatedZoom})`,
-              }}
-              className={`bg-white resume-content w-full max-w-[210mm] min-h-[297mm] h-fit mx-auto print:shadow-none print:ring-0 print:m-0 print:w-full relative origin-top transition-all duration-300 print:relative print:left-auto print:top-auto print:transform-none print:max-w-full print:w-full ${fontClass} ${marginClasses} ${
-                metrics.isOver 
-                  ? 'shadow-[0_4px_24px_rgba(244,63,94,0.08),0_16px_40px_-6px_rgba(15,23,42,0.12),0_0_0_1.5px_rgba(244,63,94,0.4)] ring-1 ring-rose-400/30' 
-                  : 'shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02),0_12px_28px_-4px_rgba(15,23,42,0.06),0_24px_60px_-12px_rgba(15,23,42,0.08),0_0_0_1px_rgba(15,23,42,0.04)] ring-1 ring-black/5'
-              }`}
-            >
-              {metrics.isOver && (
-                <div className="absolute -top-3.5 right-6 z-40 print:hidden select-none pointer-events-none animate-in fade-in slide-in-from-top-1 duration-200">
-                  <div className="flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-rose-500 to-rose-600 text-white text-[10px] font-bold rounded-full shadow-[0_4px_12px_rgba(244,63,94,0.3)] border border-white/20 tracking-tight">
-                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                    <span>{settings.lang === 'en' ? `Over Limit (${metrics.overflowPercent}%)` : `内容超出边界 (${metrics.overflowPercent}%)`}</span>
-                  </div>
+            {metrics.isOver && (
+              <div className="absolute -top-3.5 right-6 z-40 print:hidden select-none pointer-events-none animate-in fade-in slide-in-from-top-1 duration-200">
+                <div className="flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-rose-500 to-rose-600 text-white text-[10px] font-bold rounded-full shadow-[0_4px_12px_rgba(244,63,94,0.3)] border border-white/20 tracking-tight">
+                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                  <span>{isEn ? `Over Limit (${metrics.overflowPercent}%)` : `内容超出边界 (${metrics.overflowPercent}%)`}</span>
                 </div>
-              )}
-              {resumeInnerContent}
-            </div>
+              </div>
+            )}
+            {resumeInnerContent}
           </div>
         </div>
+      </div>
 
-      {/* Floating Zoom Control Slider Panel (Responsive, premium glassmorphism, hidden on mobile to avoid content overlay) */}
-      <motion.div 
-        initial={{ opacity: 0, y: 15, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.35, ease: 'easeOut' }}
-        className="absolute bottom-5 left-5 z-40 print:hidden hidden sm:flex items-center gap-2 h-10 px-3 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800/90 shadow-[0_12px_32px_rgba(15,23,42,0.12),0_2px_6px_rgba(15,23,42,0.04)] dark:shadow-[0_12px_32px_rgba(0,0,0,0.4)] rounded-2xl transition-all duration-300 hover:shadow-[0_16px_40px_rgba(15,23,42,0.16)] group"
-      >
-        <div className="flex items-center gap-1">
-          <Tooltip content={t.zoomOut} side="top">
-            <button 
-              onClick={() => {
-                const current = calculatedZoom;
-                const next = Math.max(0.5, Math.round((current - 0.05) * 100) / 100);
-                setZoomMode(next);
-                storage.set(STORAGE_KEYS.PREVIEW_ZOOM, String(next));
-              }}
-              className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer shrink-0"
-            >
-              <ZoomOut className="w-3.5 h-3.5" />
-            </button>
-          </Tooltip>
-          
-          <div className="flex items-center gap-2 px-1 w-24 md:w-32 transition-all">
-            <CustomSlider
-              min={0.5}
-              max={1.5}
-              step={0.05}
-              value={calculatedZoom}
-              onChange={(val) => {
-                setZoomMode(val);
-                storage.set(STORAGE_KEYS.PREVIEW_ZOOM, String(val));
-              }}
-              colorTheme="indigo"
-              size="sm"
-            />
-          </div>
-
-          <Tooltip content={t.zoomIn} side="top">
-            <button 
-              onClick={() => {
-                const current = calculatedZoom;
-                const next = Math.min(1.5, Math.round((current + 0.05) * 100) / 100);
-                setZoomMode(next);
-                storage.set(STORAGE_KEYS.PREVIEW_ZOOM, String(next));
-              }}
-              className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
-            >
-              <ZoomIn className="w-4 h-4" />
-            </button>
-          </Tooltip>
-        </div>
-
-        <div className="h-4 w-[1px] bg-slate-200/80 dark:bg-slate-800" />
-
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => {
-              setZoomMode('fit');
-              storage.set(STORAGE_KEYS.PREVIEW_ZOOM, 'fit');
-            }}
-            className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
-              zoomMode === 'fit' 
-                ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800/60 shadow-sm font-sans' 
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent font-sans'
-            }`}
-          >
-            {t.zoomFit}
-          </button>
-          
-          <button
-            onClick={() => {
-              setZoomMode(1.0);
-              storage.set(STORAGE_KEYS.PREVIEW_ZOOM, '1.0');
-            }}
-            className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
-              zoomMode === 1.0 
-                ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800/60 shadow-sm font-sans' 
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent font-sans'
-            }`}
-          >
-            100%
-          </button>
-        </div>
-
-        <div className="h-4 w-[1px] bg-slate-200/80 dark:bg-slate-800" />
-
-        <span className="text-[10px] font-mono font-bold text-slate-600 dark:text-slate-300 min-w-[36px] text-center pr-1 select-none">
-          {Math.round(calculatedZoom * 100)}%
-        </span>
-      </motion.div>
+      <ZoomControls 
+        zoomMode={zoomMode} 
+        calculatedZoom={calculatedZoom} 
+        onZoomChange={setZoomMode} 
+        lang={settings.lang} 
+      />
 
       <HeightGuard 
         metrics={metrics} 
@@ -521,3 +387,4 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
 });
 
 Preview.displayName = 'Preview';
+export default Preview;

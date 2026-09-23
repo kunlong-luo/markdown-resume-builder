@@ -25,9 +25,10 @@ import { useResumeStore } from '../../store/useResumeStore';
 import { getWordCount } from '../../lib/word-count';
 import { ThemeMode } from '../../types';
 import { ProfileDropdown } from '../profile/ProfileDropdown';
-import { RawTextImportModal } from '../modals/RawTextImportModal';
 import { Tooltip } from '../ui';
 import { usePWAInstall } from '../../hooks/usePWAInstall';
+
+const RawTextImportModal = React.lazy(() => import('../modals/RawTextImportModal').then(m => ({ default: m.RawTextImportModal })));
 
 interface HeaderProps {
   handleImportMarkdown: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -137,11 +138,11 @@ export function Header({
       <div className="flex md:hidden items-center justify-between px-3.5 h-12 w-full">
         <div className="flex items-center gap-2 shrink-0">
           <div className="w-7 h-7 bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-600 rounded-lg text-white flex items-center justify-center shadow-xs font-black text-xs tracking-tighter">
-            CV
+            RC
           </div>
           <div className="flex items-baseline gap-1">
             <span className="font-extrabold text-xs text-slate-900 dark:text-white tracking-tight">
-              CraftCV
+              ResuCraft
             </span>
           </div>
           <ProfileDropdown lang={settings.lang} />
@@ -171,14 +172,14 @@ export function Header({
       <div className="hidden md:flex items-center justify-between px-6 py-2 w-full">
         <div className="flex items-center gap-3.5 shrink-0">
           <div className="flex items-center gap-2.5 shrink-0">
-            <div className="w-8 h-8 bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-600 rounded-xl shadow-md shadow-indigo-500/20 text-white flex items-center justify-center font-black text-sm tracking-tighter">
-              CV
+            <div className="w-8 h-8 bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-600 rounded-xl shadow-md shadow-indigo-500/20 text-white flex items-center justify-center font-black text-xs tracking-tighter">
+              RC
             </div>
             <div>
               <h1 className="text-base font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-                <span>CraftCV</span>
+                <span>ResuCraft</span>
                 <span className="px-2 py-0.5 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/80 dark:to-purple-950/80 text-indigo-600 dark:text-indigo-300 text-[10px] rounded-full font-bold border border-indigo-200/80 dark:border-indigo-800 shadow-2xs whitespace-nowrap">
-                  PRO
+                  {isEn ? 'PRO' : '简匠 PRO'}
                 </span>
               </h1>
             </div>
@@ -415,15 +416,19 @@ export function Header({
       )}
 
       {/* Smart Raw Text / File Import Modal */}
-      <RawTextImportModal
-        isOpen={isRawTextModalOpen}
-        onClose={() => setIsRawTextModalOpen(false)}
-        onImport={(newMd) => {
-          handleMarkdownChange(newMd, true);
-        }}
-        onImportFile={handleImportMarkdown}
-        lang={lang}
-      />
+      {isRawTextModalOpen && (
+        <React.Suspense fallback={null}>
+          <RawTextImportModal
+            isOpen={isRawTextModalOpen}
+            onClose={() => setIsRawTextModalOpen(false)}
+            onImport={(newMd) => {
+              handleMarkdownChange(newMd, true);
+            }}
+            onImportFile={handleImportMarkdown}
+            lang={lang}
+          />
+        </React.Suspense>
+      )}
     </header>
   );
 }

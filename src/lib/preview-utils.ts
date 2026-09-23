@@ -368,7 +368,7 @@ export function cleanMarkdown(markdown: string): string {
 export const getH2ClassName = (
   fontSize: 'compact' | 'standard' | 'relaxed',
   theme: any,
-  style: 'accent-line' | 'modern-badge' | 'minimal-clean'
+  style: 'accent-line' | 'modern-badge' | 'minimal-clean' | 'academic-line' | 'bracket-tag' = 'accent-line'
 ) => {
   const sizeMap = {
     compact: {
@@ -388,12 +388,16 @@ export const getH2ClassName = (
     }
   }[fontSize];
 
-  const base = `font-bold text-gray-950 uppercase break-after-avoid ${sizeMap.text}`;
+  const base = `font-bold text-gray-955 uppercase break-after-avoid ${sizeMap.text}`;
 
   if (style === 'accent-line') {
     return `${base} border-b border-gray-200 relative before:content-[''] before:absolute before:left-0 before:bottom-[-1px] ${sizeMap.bottomLine} ${theme.h2Accent}`;
   } else if (style === 'modern-badge') {
     return `${base} ${theme.h2BadgeBg} ${theme.h2BadgeBorder} ${theme.h2BadgeText} ${sizeMap.badgePadding} block w-full`;
+  } else if (style === 'academic-line') {
+    return `${base} border-b-2 border-t border-gray-800/80 py-1 tracking-wider text-center font-serif`;
+  } else if (style === 'bracket-tag') {
+    return `${base} flex items-center gap-1.5 before:content-['['] before:text-gray-400 after:content-[']'] after:text-gray-400 border-b border-dashed border-gray-200`;
   } else {
     // minimal-clean
     return `${base} border-b border-gray-200`;

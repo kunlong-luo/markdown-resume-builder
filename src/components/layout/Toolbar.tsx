@@ -26,6 +26,7 @@ const MASTER_PRESETS = [
       blockGap: 0.9,
       letterSpacing: 0.02,
       h2Style: 'accent-line',
+      templateLayout: 'single',
       margin: 'standard',
       topAccentLine: true
     }
@@ -42,6 +43,7 @@ const MASTER_PRESETS = [
       blockGap: 1.0,
       letterSpacing: 0.0,
       h2Style: 'accent-line',
+      templateLayout: 'single',
       margin: 'standard',
       topAccentLine: true
     }
@@ -57,9 +59,27 @@ const MASTER_PRESETS = [
       lineHeight: 1.45,
       blockGap: 0.7,
       letterSpacing: -0.01,
-      h2Style: 'minimal-clean',
+      h2Style: 'academic-line',
+      templateLayout: 'academic',
       margin: 'standard',
       topAccentLine: false
+    }
+  },
+  {
+    id: 'modern_cards',
+    name: '卡片矩阵',
+    settings: {
+      themeColor: 'teal',
+      customColor: '#0D9488',
+      fontFamily: 'sans',
+      fontSize: 'standard',
+      lineHeight: 1.55,
+      blockGap: 0.85,
+      letterSpacing: 0.0,
+      h2Style: 'modern-badge',
+      templateLayout: 'modern-card',
+      margin: 'standard',
+      topAccentLine: true
     }
   },
   {
@@ -74,6 +94,7 @@ const MASTER_PRESETS = [
       blockGap: 0.85,
       letterSpacing: 0.01,
       h2Style: 'accent-line',
+      templateLayout: 'single',
       margin: 'standard',
       topAccentLine: true
     }
@@ -90,6 +111,7 @@ const MASTER_PRESETS = [
       blockGap: 1.0,
       letterSpacing: 0.01,
       h2Style: 'accent-line',
+      templateLayout: 'single',
       margin: 'standard',
       topAccentLine: true
     }
@@ -105,9 +127,13 @@ const TRANSLATIONS = {
     templatePrefix: '模版：',
     layoutSingle: '单栏标准',
     layoutDouble: '双栏现代',
-    titleStyleLine: '下划线',
-    titleStyleBadge: '胶囊标',
-    titleStyleMinimal: '极简',
+    layoutAcademic: '学术 LaTeX',
+    layoutModernCard: '卡片模块',
+    titleStyleLine: '强调下划线',
+    titleStyleBadge: '胶囊底色标',
+    titleStyleMinimal: '极简素雅',
+    titleStyleAcademic: '学术双横线',
+    titleStyleBracket: '现代方括号',
     visualLabel: '视觉细节',
     customColorTitle: '自定义颜色 (Hex)',
     customColorPlaceholder: '#HEX',
@@ -147,9 +173,13 @@ const TRANSLATIONS = {
     templatePrefix: 'Template: ',
     layoutSingle: 'Single Col',
     layoutDouble: 'Two Cols',
+    layoutAcademic: 'Academic LaTeX',
+    layoutModernCard: 'Modern Cards',
     titleStyleLine: 'Underline',
-    titleStyleBadge: 'Badge',
-    titleStyleMinimal: 'Minimal',
+    titleStyleBadge: 'Badge Accent',
+    titleStyleMinimal: 'Minimal Clean',
+    titleStyleAcademic: 'Academic Line',
+    titleStyleBracket: 'Bracket Tag',
     visualLabel: 'Visual Styling',
     customColorTitle: 'Custom Accent Color (Hex)',
     customColorPlaceholder: '#HEX',
@@ -354,12 +384,16 @@ export function Toolbar() {
   const layoutOptions: SelectOption[] = [
     { value: 'single', label: t.layoutSingle },
     { value: 'two-column', label: t.layoutDouble },
+    { value: 'academic', label: t.layoutAcademic },
+    { value: 'modern-card', label: t.layoutModernCard },
   ];
 
   const titleStyleOptions: SelectOption[] = [
     { value: 'accent-line', label: t.titleStyleLine },
     { value: 'modern-badge', label: t.titleStyleBadge },
     { value: 'minimal-clean', label: t.titleStyleMinimal },
+    { value: 'academic-line', label: t.titleStyleAcademic },
+    { value: 'bracket-tag', label: t.titleStyleBracket },
   ];
 
   const fontFamilyOptions: SelectOption[] = [

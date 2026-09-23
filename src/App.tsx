@@ -1,21 +1,23 @@
-import React, { useRef, useMemo, useEffect, useState, useCallback } from 'react';
+import React, { useRef, useMemo, useEffect, useState, useCallback, Suspense, lazy } from 'react';
 import { Editor } from './components/Editor';
 import { Preview } from './components/preview/Preview';
-import { ResumeChecker } from './components/resume-checker/ResumeChecker';
-import { IframeWarningModal } from './components/IframeWarningModal';
-import { BackupDraftModal } from './components/backup/BackupDraftModal';
-import { HelpLegalModal } from './components/layout/HelpLegalModal';
 import { Header } from './components/layout/Header';
 import { Toolbar } from './components/layout/Toolbar';
 import { useResumeStore } from './store/useResumeStore';
 import { useResumeActions } from './hooks/useResumeActions';
 import { ResumeSettings } from './types';
 import { deserializeShareState } from './lib/share-utils';
-import { SharedResumePage } from './components/share/SharedResumePage';
 import { useToast } from './components/ui/Toast';
 import { smartAutoFit } from './lib/preview-utils';
 import { Edit3, Eye, FileDown } from 'lucide-react';
 import { Tooltip } from './components/ui/Tooltip';
+
+// Performance optimization: Lazy load heavy secondary modals and non-critical tools
+const ResumeChecker = lazy(() => import('./components/resume-checker/ResumeChecker').then(m => ({ default: m.ResumeChecker })));
+const IframeWarningModal = lazy(() => import('./components/IframeWarningModal').then(m => ({ default: m.IframeWarningModal })));
+const BackupDraftModal = lazy(() => import('./components/backup/BackupDraftModal').then(m => ({ default: m.BackupDraftModal })));
+const HelpLegalModal = lazy(() => import('./components/layout/HelpLegalModal').then(m => ({ default: m.HelpLegalModal })));
+const SharedResumePage = lazy(() => import('./components/share/SharedResumePage').then(m => ({ default: m.SharedResumePage })));
 
 export default function App() {
   const [mobileTab, setMobileTab] = useState<'editor' | 'preview'>('editor');
@@ -33,7 +35,11 @@ export default function App() {
   }, []);
 
   if (shareState) {
-    return <SharedResumePage shareState={shareState} />;
+    return (
+      <Suspense fallback={<div className="h-screen w-screen flex items-center justify-center bg-slate-900 text-white font-bold">Loading...</div>}>
+        <SharedResumePage shareState={shareState} />
+      </Suspense>
+    );
   }
 
   const {
@@ -338,7 +344,9 @@ export default function App() {
             />
           </section>
 
-          <ResumeChecker />
+          <Suspense fallback={null}>
+            <ResumeChecker />
+          </Suspense>
         </main>
 
         {/* Mobile Ergonomic Bottom Floating Dock */}
@@ -380,9 +388,11 @@ export default function App() {
           </div>
         )}
 
-        <IframeWarningModal />
-        <BackupDraftModal />
-        <HelpLegalModal isOpen={isHelpLegalOpen} onClose={() => setIsHelpLegalOpen(false)} />
+        <Suspense fallback={null}>
+          <IframeWarningModal />
+          <BackupDraftModal />
+          <HelpLegalModal isOpen={isHelpLegalOpen} onClose={() => setIsHelpLegalOpen(false)} />
+        </Suspense>
       </div>
     </div>
   );
