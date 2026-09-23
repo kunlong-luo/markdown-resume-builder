@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, LayoutGrid, Sliders, Check, Settings, Maximize2, Columns, Eye, Globe, ChevronDown, Palette, Zap } from 'lucide-react';
 import { ResumeSettings, ThemeColor, FontSize, PaperMargin, FontFamily, TemplateLayout, H2Style } from '../../types';
 import { TEMPLATES } from '../../data';
@@ -9,11 +10,12 @@ import { smartAutoFit } from '../../lib/preview-utils';
 import { CustomSelect, SelectOption } from '../ui/CustomSelect';
 import { CustomSlider } from '../ui/CustomSlider';
 import { CustomColorPicker } from '../ui/CustomColorPicker';
+import { Tooltip } from '../ui/Tooltip';
 
 const MASTER_PRESETS = [
   {
     id: 'finance',
-    name: '金融咨询 (Navy Classic)',
+    name: '金融咨询',
     settings: {
       themeColor: 'custom',
       customColor: '#0F2942',
@@ -28,24 +30,8 @@ const MASTER_PRESETS = [
     }
   },
   {
-    id: 'minimalist_finance',
-    name: '极简商科 (Navy Compact)',
-    settings: {
-      themeColor: 'custom',
-      customColor: '#1E3A8A',
-      fontFamily: 'serif',
-      fontSize: 'compact',
-      lineHeight: 1.4,
-      blockGap: 0.6,
-      letterSpacing: 0.01,
-      h2Style: 'minimal-clean',
-      margin: 'compact',
-      topAccentLine: false
-    }
-  },
-  {
     id: 'tech',
-    name: '互联网科技 (Modern Indigo)',
+    name: '互联网科技',
     settings: {
       themeColor: 'indigo',
       customColor: '#4F46E5',
@@ -60,40 +46,8 @@ const MASTER_PRESETS = [
     }
   },
   {
-    id: 'geek_tech',
-    name: '互联网极客 (Monospace Mint)',
-    settings: {
-      themeColor: 'teal',
-      customColor: '#0D9488',
-      fontFamily: 'mono',
-      fontSize: 'standard',
-      lineHeight: 1.5,
-      blockGap: 0.9,
-      letterSpacing: 0.0,
-      h2Style: 'modern-badge',
-      margin: 'standard',
-      topAccentLine: true
-    }
-  },
-  {
-    id: 'academic',
-    name: '学术研发 (Charcoal Clean)',
-    settings: {
-      themeColor: 'slate',
-      customColor: '#334155',
-      fontFamily: 'sans',
-      fontSize: 'compact',
-      lineHeight: 1.5,
-      blockGap: 0.8,
-      letterSpacing: -0.01,
-      h2Style: 'minimal-clean',
-      margin: 'standard',
-      topAccentLine: true
-    }
-  },
-  {
     id: 'latex_academic',
-    name: 'LaTeX 学术 (TeX High Contrast)',
+    name: '学术科研',
     settings: {
       themeColor: 'slate',
       customColor: '#1E293B',
@@ -109,7 +63,7 @@ const MASTER_PRESETS = [
   },
   {
     id: 'cambridge_green',
-    name: '剑桥墨绿 (Cambridge Emerald)',
+    name: '名校典雅',
     settings: {
       themeColor: 'custom',
       customColor: '#14532D',
@@ -124,28 +78,12 @@ const MASTER_PRESETS = [
     }
   },
   {
-    id: 'creative',
-    name: '设计创意 (Warm Caramel)',
-    settings: {
-      themeColor: 'custom',
-      customColor: '#78350F',
-      fontFamily: 'sans',
-      fontSize: 'standard',
-      lineHeight: 1.65,
-      blockGap: 1.1,
-      letterSpacing: 0.02,
-      h2Style: 'accent-line',
-      margin: 'standard',
-      topAccentLine: true
-    }
-  },
-  {
     id: 'executive',
-    name: '高管主管 (Bronze Gold)',
+    name: '综合管理',
     settings: {
       themeColor: 'custom',
       customColor: '#8D6037',
-      fontFamily: 'serif',
+      fontFamily: 'sans',
       fontSize: 'standard',
       lineHeight: 1.6,
       blockGap: 1.0,
@@ -162,19 +100,19 @@ const MASTER_PRESETS = [
 const TRANSLATIONS = {
   zh: {
     presetLabel: '风格预设',
-    layoutLabel: '版式结构',
+    layoutLabel: '版面结构',
     templatePrefix: '模版：',
-    layoutSingle: '经典单栏',
-    layoutDouble: '现代双栏',
-    titleStyleLine: '横线标题',
-    titleStyleBadge: '色块标题',
-    titleStyleMinimal: '极简标题',
+    layoutSingle: '单栏标准',
+    layoutDouble: '双栏现代',
+    titleStyleLine: '下划线',
+    titleStyleBadge: '胶囊标',
+    titleStyleMinimal: '极简',
     visualLabel: '视觉细节',
     customColorTitle: '自定义颜色 (Hex)',
     customColorPlaceholder: '#HEX',
     fontSans: '经典黑体 (无衬线)',
     fontSerif: '优雅宋体 (衬线)',
-    fontMono: '极客等宽 (技术型)',
+    fontMono: '极客等宽 (技术)',
     fontSizeLabel: '字号:',
     fontSizeCompact: '紧凑',
     fontSizeStandard: '标准',
@@ -183,41 +121,40 @@ const TRANSLATIONS = {
     marginCompact: '窄',
     marginStandard: '中',
     marginRelaxed: '宽',
-    topAccentBtn: '顶装饰线',
+    topAccentBtn: '顶部线',
     spacingLabel: '间距微调',
     lineHeightLabel: '行高',
     blockGapLabel: '段距',
     letterSpacingLabel: '字距',
-    pageBreakBtn: 'A4折页线',
+    pageBreakBtn: '折页线',
     resetBtn: '重置',
-    exportNameLabel: '文件名:',
+    exportNameLabel: '命名:',
     editorOnly: '仅编辑',
-    splitView: '双栏分屏',
+    splitView: '分屏',
     previewOnly: '仅预览',
-    autoFitBtn: '一键压缩贴合',
-    autoFitSuccess: '已自动优化间距',
-    aestheticsLabel: '排版精修',
-    aestheticsTooltip: '排版精修',
-    doneBtn: '确定',
+    autoFitBtn: '智能单页',
+    autoFitSuccess: '已完成智能压缩',
+    aestheticsLabel: '排版设置',
+    aestheticsTooltip: '排版样式微调',
+    doneBtn: '完成',
     fontSelection: '字体选择',
     layoutAids: '排版辅助',
-    backdropBtn: '3D星轨背景',
   },
   en: {
-    presetLabel: 'Style Presets',
-    layoutLabel: 'Layout Structure',
+    presetLabel: 'Presets',
+    layoutLabel: 'Layout',
     templatePrefix: 'Template: ',
-    layoutSingle: 'Single Column (Standard)',
-    layoutDouble: 'Modern 2-Column',
-    titleStyleLine: 'Heading: Bottom Line',
-    titleStyleBadge: 'Heading: Solid Badge',
-    titleStyleMinimal: 'Heading: Minimalist',
+    layoutSingle: 'Single Col',
+    layoutDouble: 'Two Cols',
+    titleStyleLine: 'Underline',
+    titleStyleBadge: 'Badge',
+    titleStyleMinimal: 'Minimal',
     visualLabel: 'Visual Styling',
     customColorTitle: 'Custom Accent Color (Hex)',
     customColorPlaceholder: '#HEX',
     fontSans: 'Sans-Serif (Modern)',
     fontSerif: 'Serif (Classic)',
-    fontMono: 'Monospace (Technical)',
+    fontMono: 'Monospace (Tech)',
     fontSizeLabel: 'Font size:',
     fontSizeCompact: 'Compact',
     fontSizeStandard: 'Standard',
@@ -226,25 +163,24 @@ const TRANSLATIONS = {
     marginCompact: 'Narrow',
     marginStandard: 'Standard',
     marginRelaxed: 'Wide',
-    topAccentBtn: 'Top Accent',
+    topAccentBtn: 'Top Line',
     spacingLabel: 'Spacing Adjustments',
     lineHeightLabel: 'Line Height',
-    blockGapLabel: 'Section Spacing',
+    blockGapLabel: 'Section Gap',
     letterSpacingLabel: 'Tracking',
-    pageBreakBtn: 'A4 Crease Lines',
+    pageBreakBtn: 'Fold Line',
     resetBtn: 'Reset',
-    exportNameLabel: 'Export Name:',
+    exportNameLabel: 'File Name:',
     editorOnly: 'Editor Only',
     splitView: 'Split View',
     previewOnly: 'Preview Only',
-    autoFitBtn: '1-Click Auto Fit',
-    autoFitSuccess: 'Auto-fitted!',
-    aestheticsLabel: 'Aesthetics & Layout',
-    aestheticsTooltip: 'Aesthetics & Layout',
+    autoFitBtn: 'Fit 1 Page',
+    autoFitSuccess: 'Auto-fitted to 1 page!',
+    aestheticsLabel: 'Typography',
+    aestheticsTooltip: 'Typography & Layout Styling',
     doneBtn: 'Done',
     fontSelection: 'Font Selection',
     layoutAids: 'Layout Aids',
-    backdropBtn: '3D Backdrop',
   }
 };
 
@@ -392,15 +328,11 @@ export function Toolbar() {
     ...MASTER_PRESETS.map(p => {
       let displayName = p.name;
       if (isEn) {
-        if (p.id === 'finance') displayName = 'Finance/Consulting (Navy)';
-        if (p.id === 'minimalist_finance') displayName = 'Minimalist Finance (Navy Compact)';
-        if (p.id === 'tech') displayName = 'Tech/Startups (Modern Indigo)';
-        if (p.id === 'geek_tech') displayName = 'Geek Tech (Monospace Mint)';
-        if (p.id === 'academic') displayName = 'Academic/R&D (Charcoal)';
-        if (p.id === 'latex_academic') displayName = 'LaTeX Academic (TeX High Contrast)';
-        if (p.id === 'cambridge_green') displayName = 'Cambridge Emerald (Academic Green)';
-        if (p.id === 'creative') displayName = 'Creative/Design (Caramel Warm)';
-        if (p.id === 'executive') displayName = 'Executives (Bronze Gold)';
+        if (p.id === 'finance') displayName = 'Finance & Consulting';
+        if (p.id === 'tech') displayName = 'Tech & Internet';
+        if (p.id === 'latex_academic') displayName = 'Academic & Research';
+        if (p.id === 'cambridge_green') displayName = 'Cambridge Emerald';
+        if (p.id === 'executive') displayName = 'Executive Leadership';
       }
       return { value: p.id, label: displayName };
     })
@@ -441,23 +373,35 @@ export function Toolbar() {
         {/* Language Selection */}
         <div className="flex items-center gap-1.5 pr-2.5 border-r border-slate-200/90 dark:border-slate-800 shrink-0">
           <Globe className="w-3.5 h-3.5 text-indigo-500 shrink-0 pointer-events-none" />
-          <div className="bg-slate-100 dark:bg-slate-800/90 p-0.5 rounded-lg flex items-center border border-slate-200/60 dark:border-slate-700/60 shadow-2xs">
+          <div className="relative bg-slate-100 dark:bg-slate-800/90 p-0.5 rounded-lg flex items-center border border-slate-200/60 dark:border-slate-700/60 shadow-2xs">
             <button
               onClick={() => updateSetting('lang', 'zh')}
-              className={`px-2 py-0.5 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
-                settings.lang !== 'en' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+              className={`relative px-2 py-0.5 text-[10px] font-bold rounded-md transition-colors cursor-pointer z-10 ${
+                settings.lang !== 'en' ? 'text-indigo-600 dark:text-indigo-400 font-extrabold' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
-              title="切换到中文表单编辑"
             >
+              {settings.lang !== 'en' && (
+                <motion.div
+                  layoutId="langToggleCapsule"
+                  className="absolute inset-0 bg-white dark:bg-slate-700 rounded-md shadow-xs z-[-1]"
+                  transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                />
+              )}
               中
             </button>
             <button
               onClick={() => updateSetting('lang', 'en')}
-              className={`px-2 py-0.5 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
-                settings.lang === 'en' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+              className={`relative px-2 py-0.5 text-[10px] font-bold rounded-md transition-colors cursor-pointer z-10 ${
+                settings.lang === 'en' ? 'text-indigo-600 dark:text-indigo-400 font-extrabold' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
-              title="Switch to English Editor Labels"
             >
+              {settings.lang === 'en' && (
+                <motion.div
+                  layoutId="langToggleCapsule"
+                  className="absolute inset-0 bg-white dark:bg-slate-700 rounded-md shadow-xs z-[-1]"
+                  transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                />
+              )}
               EN
             </button>
           </div>
@@ -472,7 +416,6 @@ export function Toolbar() {
             options={presetOptions}
             placeholder={isEn ? 'Custom Style' : '自定义配置'}
             size="xs"
-            compact={settings.isCompactTools}
             triggerClassName="bg-indigo-50/90 dark:bg-indigo-950/60 border-indigo-200/80 dark:border-indigo-800/60 text-indigo-950 dark:text-indigo-300 font-bold text-[11px] h-7 rounded-lg hover:bg-indigo-100/80 dark:hover:bg-indigo-900/60 shadow-2xs"
           />
         </div>
@@ -485,7 +428,6 @@ export function Toolbar() {
             onChange={handleTemplateChange}
             options={templateOptions}
             size="xs"
-            compact={settings.isCompactTools}
             triggerClassName="bg-white dark:bg-slate-800 border-slate-200/90 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-[11px] h-7 rounded-lg hover:border-slate-300 dark:hover:border-slate-600 shadow-2xs"
           />
         </div>
@@ -497,7 +439,6 @@ export function Toolbar() {
             onChange={(val) => updateSetting('templateLayout', val as TemplateLayout)}
             options={layoutOptions}
             size="xs"
-            compact={settings.isCompactTools}
             triggerClassName="bg-white dark:bg-slate-800 border-slate-200/90 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-medium text-[11px] h-7 rounded-lg hover:border-slate-300 dark:hover:border-slate-600 shadow-2xs"
           />
         </div>
@@ -509,7 +450,6 @@ export function Toolbar() {
             onChange={(val) => updateSetting('h2Style', val as H2Style)}
             options={titleStyleOptions}
             size="xs"
-            compact={settings.isCompactTools}
             triggerClassName="bg-white dark:bg-slate-800 border-slate-200/90 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-medium text-[11px] h-7 rounded-lg hover:border-slate-300 dark:hover:border-slate-600 shadow-2xs"
           />
         </div>
@@ -519,173 +459,208 @@ export function Toolbar() {
       <div className="flex items-center gap-2.5 text-xs shrink-0 relative flex-nowrap">
         {/* Custom File Name Input */}
         <div className="hidden sm:flex items-center gap-1.5 shrink-0">
-          <span className={`font-bold text-slate-500 dark:text-slate-400 text-[11px] ${settings.isCompactTools ? 'hidden md:inline' : ''}`}>{t.exportNameLabel}</span>
+          <span className="font-bold text-slate-500 dark:text-slate-400 text-[11px]">{t.exportNameLabel}</span>
           <input
             type="text"
             value={customFileName}
             onChange={(e) => setCustomFileName(e.target.value)}
             placeholder={`${exportTitle}_简历`}
-            className={`bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-lg py-1 px-2.5 font-semibold text-[11px] hover:border-slate-300 dark:hover:border-slate-600 transition-all shadow-2xs focus:shadow-none focus:outline-none focus:ring-1.5 focus:ring-indigo-500 ${settings.isCompactTools ? 'w-20 focus:w-28' : 'w-28'}`}
+            className="bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-lg py-1 px-2.5 font-semibold text-[11px] hover:border-slate-300 dark:hover:border-slate-600 transition-all shadow-2xs focus:shadow-none focus:outline-none focus:ring-1.5 focus:ring-indigo-500 w-28"
           />
         </div>
 
         {/* 1-Click Auto Fit Button */}
-        <button
-          onClick={() => {
-            smartAutoFit(settings, (key, val) => updateSetting(key, val));
-          }}
-          className="group flex items-center px-2.5 py-1.5 rounded-lg text-[11px] font-bold border border-amber-200 dark:border-amber-900/60 bg-amber-50/70 hover:bg-amber-100 dark:bg-amber-950/40 dark:hover:bg-amber-900/60 text-amber-700 dark:text-amber-300 shadow-2xs transition-all cursor-pointer shrink-0 active:translate-y-px"
-          title={settings.lang === 'en' ? 'One-Click Auto-Fit Margins & Spacing to 1 Page' : '一键智能紧凑排版，自动微调页边距与行间距'}
+        <Tooltip
+          content={settings.lang === 'en' ? 'One-Click Auto-Fit Margins & Spacing to 1 Page' : '一键智能紧凑排版，自动微调页边距与行间距'}
         >
-          <Zap className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-          <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1.5" : "ml-1.5"}>
-            {t.autoFitBtn}
-          </span>
-        </button>
+          <button
+            onClick={() => {
+              smartAutoFit(settings, (key, val) => updateSetting(key, val));
+            }}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-bold border border-amber-200 dark:border-amber-900/60 bg-amber-50/70 hover:bg-amber-100 dark:bg-amber-950/40 dark:hover:bg-amber-900/60 text-amber-700 dark:text-amber-300 shadow-2xs transition-all cursor-pointer shrink-0 active:translate-y-px"
+          >
+            <Zap className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+            <span>{t.autoFitBtn}</span>
+          </button>
+        </Tooltip>
 
         {/* Aesthetics Panel Toggle Button */}
-        <button
-          ref={aestheticsTriggerRef}
-          onClick={handleToggleAesthetics}
-          className={`group flex items-center px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all cursor-pointer shrink-0 active:translate-y-px ${
-            isAestheticsOpen
-              ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20'
-              : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200/90 dark:border-slate-700 shadow-2xs hover:bg-slate-50 dark:hover:bg-slate-750 hover:border-slate-300 dark:hover:border-slate-600'
-          }`}
-          title={t.aestheticsTooltip}
+        <Tooltip
+          content={t.aestheticsTooltip}
         >
-          <Sliders className={`w-3.5 h-3.5 shrink-0 transition-transform ${isAestheticsOpen ? 'rotate-90 text-white' : 'text-indigo-500'}`} />
-          <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1.5" : "ml-1.5"}>
-            {t.aestheticsLabel}
-          </span>
-          <ChevronDown className={`w-3 h-3 shrink-0 ml-1 transition-transform duration-200 ${isAestheticsOpen ? 'rotate-180' : ''} ${settings.isCompactTools ? 'hidden group-hover:inline-block' : ''}`} />
-        </button>
+          <button
+            ref={aestheticsTriggerRef}
+            onClick={handleToggleAesthetics}
+            className={`flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all cursor-pointer shrink-0 active:translate-y-px ${
+              isAestheticsOpen
+                ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20'
+                : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200/90 dark:border-slate-700 shadow-2xs hover:bg-slate-50 dark:hover:bg-slate-750 hover:border-slate-300 dark:hover:border-slate-600'
+            }`}
+          >
+            <Sliders className={`w-3.5 h-3.5 shrink-0 transition-transform ${isAestheticsOpen ? 'rotate-90 text-white' : 'text-indigo-500'}`} />
+            <span>{t.aestheticsLabel}</span>
+            <ChevronDown className={`w-3 h-3 shrink-0 ml-0.5 transition-transform duration-200 ${isAestheticsOpen ? 'rotate-180' : ''}`} />
+          </button>
+        </Tooltip>
 
         {/* Layout Mode Toggle Group */}
-        <div className="bg-slate-100 dark:bg-slate-800/90 p-0.5 rounded-lg flex items-center text-[11px] shrink-0 border border-slate-200/60 dark:border-slate-700/60 shadow-2xs">
-          <button
-            onClick={() => updateSetting('layoutMode', 'editor')}
-            className={`group flex items-center px-2 py-1 rounded-md font-bold transition-all cursor-pointer ${
-              settings.layoutMode === 'editor' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-            }`}
-            title={t.editorOnly}
-          >
-            <Maximize2 className="w-3 h-3 shrink-0" />
-            <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1" : "hidden lg:inline ml-1"}>
-              {t.editorOnly}
-            </span>
-          </button>
-          <button
-            onClick={() => updateSetting('layoutMode', 'split')}
-            className={`group flex items-center px-2 py-1 rounded-md font-bold transition-all cursor-pointer ${
-              settings.layoutMode === 'split' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-            }`}
-            title={t.splitView}
-          >
-            <Columns className="w-3 h-3 shrink-0" />
-            <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1" : "hidden lg:inline ml-1"}>
-              {t.splitView}
-            </span>
-          </button>
-          <button
-            onClick={() => updateSetting('layoutMode', 'preview')}
-            className={`group flex items-center px-2 py-1 rounded-md font-bold transition-all cursor-pointer ${
-              settings.layoutMode === 'preview' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-            }`}
-            title={t.previewOnly}
-          >
-            <Eye className="w-3 h-3 shrink-0" />
-            <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1" : "hidden lg:inline ml-1"}>
-              {t.previewOnly}
-            </span>
-          </button>
+        <div className="relative bg-slate-100 dark:bg-slate-800/90 p-0.5 rounded-lg flex items-center text-[11px] shrink-0 border border-slate-200/60 dark:border-slate-700/60 shadow-2xs">
+          <Tooltip content={t.editorOnly}>
+            <button
+              onClick={() => updateSetting('layoutMode', 'editor')}
+              className={`relative flex items-center px-2 py-1 rounded-md font-bold transition-colors cursor-pointer z-10 ${
+                settings.layoutMode === 'editor' ? 'text-indigo-600 dark:text-indigo-400 font-extrabold' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+              }`}
+            >
+              {settings.layoutMode === 'editor' && (
+                <motion.div
+                  layoutId="layoutModeCapsule"
+                  className="absolute inset-0 bg-white dark:bg-slate-700 rounded-md shadow-xs z-[-1]"
+                  transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                />
+              )}
+              <Maximize2 className="w-3 h-3 shrink-0" />
+              <span className="hidden lg:inline ml-1">{t.editorOnly}</span>
+            </button>
+          </Tooltip>
+
+          <Tooltip content={t.splitView}>
+            <button
+              onClick={() => updateSetting('layoutMode', 'split')}
+              className={`relative flex items-center px-2 py-1 rounded-md font-bold transition-colors cursor-pointer z-10 ${
+                settings.layoutMode === 'split' ? 'text-indigo-600 dark:text-indigo-400 font-extrabold' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+              }`}
+            >
+              {settings.layoutMode === 'split' && (
+                <motion.div
+                  layoutId="layoutModeCapsule"
+                  className="absolute inset-0 bg-white dark:bg-slate-700 rounded-md shadow-xs z-[-1]"
+                  transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                />
+              )}
+              <Columns className="w-3 h-3 shrink-0" />
+              <span className="hidden lg:inline ml-1">{t.splitView}</span>
+            </button>
+          </Tooltip>
+
+          <Tooltip content={t.previewOnly}>
+            <button
+              onClick={() => updateSetting('layoutMode', 'preview')}
+              className={`relative flex items-center px-2 py-1 rounded-md font-bold transition-colors cursor-pointer z-10 ${
+                settings.layoutMode === 'preview' ? 'text-indigo-600 dark:text-indigo-400 font-extrabold' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+              }`}
+            >
+              {settings.layoutMode === 'preview' && (
+                <motion.div
+                  layoutId="layoutModeCapsule"
+                  className="absolute inset-0 bg-white dark:bg-slate-700 rounded-md shadow-xs z-[-1]"
+                  transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                />
+              )}
+              <Eye className="w-3 h-3 shrink-0" />
+              <span className="hidden lg:inline ml-1">{t.previewOnly}</span>
+            </button>
+          </Tooltip>
         </div>
 
         {/* Aesthetics Popover Panel via Portal */}
-        {isAestheticsOpen && panelCoords && typeof document !== 'undefined' && createPortal(
-          <>
-            {/* High-priority click outside backdrop */}
-            <div 
-              className="fixed inset-0 z-[120] bg-slate-900/10 dark:bg-black/40 backdrop-blur-[0.5px] transition-opacity cursor-default" 
-              onClick={() => setIsAestheticsOpen(false)} 
-            />
-            
-            {/* Panel Card */}
-            <div 
-              style={{
-                position: 'fixed',
-                top: `${panelCoords.top}px`,
-                right: `${panelCoords.right}px`,
-                maxHeight: `calc(100vh - ${panelCoords.top + 16}px)`,
-              }}
-              className="w-84 sm:w-96 max-w-[calc(100vw-1.25rem)] bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 shadow-[0_20px_48px_rgba(15,23,42,0.18),0_4px_16px_rgba(15,23,42,0.06)] dark:shadow-[0_24px_56px_rgba(0,0,0,0.6)] rounded-2xl p-4 sm:p-5 z-[130] flex flex-col gap-4 animate-in fade-in slide-in-from-top-2 duration-150 scrollbar-thin overflow-y-auto"
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5 shrink-0">
-                <div className="flex items-center gap-1.5 font-extrabold text-slate-800 dark:text-white">
-                  <Palette className="w-4 h-4 text-indigo-500" />
-                  <span>{t.aestheticsLabel}</span>
+        <AnimatePresence>
+          {isAestheticsOpen && panelCoords && typeof document !== 'undefined' && createPortal(
+            <>
+              {/* High-priority click outside backdrop */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="fixed inset-0 z-[120] bg-slate-900/10 dark:bg-black/40 backdrop-blur-[0.5px] cursor-default" 
+                onClick={() => setIsAestheticsOpen(false)} 
+              />
+              
+              {/* Panel Card */}
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.96, y: -8 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.96, y: -8 }}
+                transition={{ type: 'spring', stiffness: 450, damping: 32 }}
+                style={{
+                  position: 'fixed',
+                  top: `${panelCoords.top}px`,
+                  right: `${panelCoords.right}px`,
+                  maxHeight: `calc(100vh - ${panelCoords.top + 16}px)`,
+                }}
+                className="w-84 sm:w-96 max-w-[calc(100vw-1.25rem)] bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 shadow-[0_20px_48px_rgba(15,23,42,0.18),0_4px_16px_rgba(15,23,42,0.06)] dark:shadow-[0_24px_56px_rgba(0,0,0,0.6)] rounded-2xl p-4 sm:p-5 z-[130] flex flex-col gap-4 scrollbar-thin overflow-y-auto"
+              >
+                {/* Header */}
+                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5 shrink-0">
+                  <div className="flex items-center gap-1.5 font-extrabold text-slate-800 dark:text-white">
+                    <Palette className="w-4 h-4 text-indigo-500" />
+                    <span>{t.aestheticsLabel}</span>
+                  </div>
+                  <button 
+                    onClick={() => setIsAestheticsOpen(false)}
+                    className="text-slate-500 dark:text-slate-300 hover:text-slate-700 dark:hover:text-white text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750 px-2.5 py-1 rounded-md transition-all shadow-[0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)] active:translate-y-px cursor-pointer"
+                  >
+                    {t.doneBtn}
+                  </button>
                 </div>
-                <button 
-                  onClick={() => setIsAestheticsOpen(false)}
-                  className="text-slate-500 dark:text-slate-300 hover:text-slate-700 dark:hover:text-white text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750 px-2.5 py-1 rounded-md transition-all shadow-[0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)] active:translate-y-px cursor-pointer"
-                >
-                  {t.doneBtn}
-                </button>
-              </div>
 
-              {/* Single smooth scroll area with distinct structural hierarchy */}
-              <div className="space-y-4">
-                {/* 1. Visual Accent & Colors */}
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">{t.visualLabel}</label>
-                  <div className="flex flex-wrap items-center gap-2 bg-slate-50/80 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-750">
-                    {colors.map(color => (
-                      <button
-                        key={color.name}
-                        onClick={() => updateSetting('themeColor', color.name)}
-                        className={`w-5 h-5 rounded-full ${color.bg} relative transition-all duration-150 hover:scale-110 focus:outline-none cursor-pointer ${
-                          settings.themeColor === color.name ? `ring-2 ring-offset-2 ${color.ring} scale-110` : 'opacity-85 hover:opacity-100'
-                        }`}
-                        title={`${color.name.toUpperCase()} Accent`}
-                      >
-                        {settings.themeColor === color.name && (
-                          <Check className="w-2.5 h-2.5 text-white absolute inset-0 m-auto stroke-[5px]" />
-                        )}
-                      </button>
-                    ))}
+                {/* Single smooth scroll area with distinct structural hierarchy */}
+                <div className="space-y-4">
+                  {/* 1. Visual Accent & Colors */}
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">{t.visualLabel}</label>
+                    <div className="flex flex-wrap items-center gap-2 bg-slate-50/80 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-750">
+                      {colors.map(color => (
+                        <motion.button
+                          key={color.name}
+                          whileHover={{ scale: 1.15 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => updateSetting('themeColor', color.name)}
+                          className={`w-5 h-5 rounded-full ${color.bg} relative transition-shadow focus:outline-none cursor-pointer ${
+                            settings.themeColor === color.name ? `ring-2 ring-offset-2 ${color.ring}` : 'opacity-85 hover:opacity-100'
+                          }`}
+                          title={`${color.name.toUpperCase()} Accent`}
+                        >
+                          {settings.themeColor === color.name && (
+                            <Check className="w-2.5 h-2.5 text-white absolute inset-0 m-auto stroke-[5px]" />
+                          )}
+                        </motion.button>
+                      ))}
 
-                    {/* Custom Color Selector */}
-                    <div className="flex items-center gap-1.5 ml-1 pl-1.5 border-l border-slate-200 dark:border-slate-700">
-                      <button
-                        onClick={() => {
-                          updateSetting('themeColor', 'custom');
-                          if (!settings.customColor) {
-                            updateSetting('customColor', '#4f46e5');
-                          }
-                        }}
-                        className={`w-5 h-5 rounded-full relative transition-all duration-150 hover:scale-110 focus:outline-none flex items-center justify-center border border-slate-300 dark:border-slate-600 cursor-pointer ${
-                          settings.themeColor === 'custom' ? 'ring-2 ring-indigo-600/40 ring-offset-2 scale-110' : 'opacity-85 hover:opacity-100'
-                        }`}
-                        style={{ background: settings.themeColor === 'custom' ? (settings.customColor || '#4f46e5') : 'conic-gradient(from 0deg, red, yellow, green, cyan, blue, magenta, red)' }}
-                        title={t.customColorTitle}
-                      >
+                      {/* Custom Color Selector */}
+                      <div className="flex items-center gap-1.5 ml-1 pl-1.5 border-l border-slate-200 dark:border-slate-700">
+                        <motion.button
+                          whileHover={{ scale: 1.15 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => {
+                            updateSetting('themeColor', 'custom');
+                            if (!settings.customColor) {
+                              updateSetting('customColor', '#4f46e5');
+                            }
+                          }}
+                          className={`w-5 h-5 rounded-full relative transition-shadow focus:outline-none flex items-center justify-center border border-slate-300 dark:border-slate-600 cursor-pointer ${
+                            settings.themeColor === 'custom' ? 'ring-2 ring-indigo-600/40 ring-offset-2' : 'opacity-85 hover:opacity-100'
+                          }`}
+                          style={{ background: settings.themeColor === 'custom' ? (settings.customColor || '#4f46e5') : 'conic-gradient(from 0deg, red, yellow, green, cyan, blue, magenta, red)' }}
+                          title={t.customColorTitle}
+                        >
+                          {settings.themeColor === 'custom' && (
+                            <Check className="w-2.5 h-2.5 text-white absolute inset-0 m-auto stroke-[5px]" />
+                          )}
+                        </motion.button>
                         {settings.themeColor === 'custom' && (
-                          <Check className="w-2.5 h-2.5 text-white absolute inset-0 m-auto stroke-[5px]" />
+                          <div className="flex items-center gap-1 animate-in fade-in slide-in-from-left-2 duration-150">
+                            <CustomColorPicker
+                              value={settings.customColor || '#4f46e5'}
+                              onChange={(color) => updateSetting('customColor', color)}
+                              size="xs"
+                            />
+                          </div>
                         )}
-                      </button>
-                      {settings.themeColor === 'custom' && (
-                        <div className="flex items-center gap-1 animate-in fade-in slide-in-from-left-2 duration-150">
-                          <CustomColorPicker
-                            value={settings.customColor || '#4f46e5'}
-                            onChange={(color) => updateSetting('customColor', color)}
-                            size="xs"
-                          />
-                        </div>
-                      )}
+                      </div>
                     </div>
                   </div>
-                </div>
 
                 {/* 2. Fonts and Font Size */}
                 <div className="grid grid-cols-2 gap-3">
@@ -752,11 +727,11 @@ export function Toolbar() {
                 {/* 4. Layout Aids */}
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">{t.layoutAids}</label>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     <button
                       onClick={() => updateSetting('topAccentLine', !settings.topAccentLine)}
-                      className={`flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer h-[28px] active:translate-y-px truncate ${
-                        settings.topAccentLine ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border-blue-200/60 dark:border-blue-800/60 shadow-[0_1px_2px_rgba(59,130,246,0.05),inset_0_1.5px_2px_rgba(255,255,255,0.95)]' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200/80 dark:border-slate-700 shadow-[0_1px_2px_rgba(15,23,42,0.02)] hover:bg-slate-50 dark:hover:bg-slate-750 hover:border-slate-350'
+                      className={`flex items-center justify-center gap-1.5 py-1 px-2 rounded-lg text-[10px] font-bold border transition-all cursor-pointer h-[28px] active:translate-y-px truncate ${
+                        settings.topAccentLine ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border-blue-200/60 dark:border-blue-800/60 shadow-[0_1px_2px_rgba(59,130,246,0.05),inset_0_1.5px_2px_rgba(255,255,255,0.95)]' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200/80 dark:border-slate-700 shadow-[0_1px_2px_rgba(15,23,42,0.02)] hover:bg-slate-50 dark:hover:bg-slate-750'
                       }`}
                     >
                       <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${settings.topAccentLine ? 'bg-blue-600' : 'bg-slate-300'}`} />
@@ -764,21 +739,12 @@ export function Toolbar() {
                     </button>
                     <button
                       onClick={() => updateSetting('showPageBreakLine', !settings.showPageBreakLine)}
-                      className={`flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer h-[28px] active:translate-y-px truncate ${
-                        settings.showPageBreakLine ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border-rose-200/60 dark:border-rose-800/60 shadow-[0_1px_2px_rgba(244,63,94,0.05),inset_0_1.5px_2px_rgba(255,255,255,0.95)]' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200/80 dark:border-slate-700 shadow-[0_1px_2px_rgba(15,23,42,0.02)] hover:bg-slate-50 dark:hover:bg-slate-750 hover:border-slate-350'
+                      className={`flex items-center justify-center gap-1.5 py-1 px-2 rounded-lg text-[10px] font-bold border transition-all cursor-pointer h-[28px] active:translate-y-px truncate ${
+                        settings.showPageBreakLine ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border-rose-200/60 dark:border-rose-800/60 shadow-[0_1px_2px_rgba(244,63,94,0.05),inset_0_1.5px_2px_rgba(255,255,255,0.95)]' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200/80 dark:border-slate-700 shadow-[0_1px_2px_rgba(15,23,42,0.02)] hover:bg-slate-50 dark:hover:bg-slate-750'
                       }`}
                     >
                       <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${settings.showPageBreakLine ? 'bg-rose-500 animate-pulse' : 'bg-slate-300'}`} />
                       <span className="truncate">{t.pageBreakBtn}</span>
-                    </button>
-                    <button
-                      onClick={() => updateSetting('show3DBackdrop', !settings.show3DBackdrop)}
-                      className={`flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer h-[28px] active:translate-y-px truncate ${
-                        settings.show3DBackdrop ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border-indigo-200/60 dark:border-indigo-800/60 shadow-[0_1px_2px_rgba(99,102,241,0.05),inset_0_1.5px_2px_rgba(255,255,255,0.95)]' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200/80 dark:border-slate-700 shadow-[0_1px_2px_rgba(15,23,42,0.02)] hover:bg-slate-50 dark:hover:bg-slate-750 hover:border-slate-350'
-                      }`}
-                    >
-                      <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${settings.show3DBackdrop ? 'bg-indigo-500 animate-pulse' : 'bg-slate-300'}`} />
-                      <span className="truncate">{t.backdropBtn}</span>
                     </button>
                   </div>
                 </div>
@@ -808,6 +774,46 @@ export function Toolbar() {
                       className="text-[10px] text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-bold transition-all cursor-pointer"
                     >
                       {t.resetBtn}
+                    </button>
+                  </div>
+
+                  {/* Quick Spacing Rhythm Presets */}
+                  <div className="grid grid-cols-3 gap-1.5 bg-white dark:bg-slate-800/80 p-1 rounded-lg border border-slate-200/60 dark:border-slate-700/60">
+                    <button
+                      onClick={() => {
+                        updateSetting('lineHeight', 1.4);
+                        updateSetting('blockGap', 0.6);
+                        updateSetting('letterSpacing', -0.01);
+                      }}
+                      className={`py-1 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
+                        settings.lineHeight <= 1.45 && settings.blockGap <= 0.7 ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800/60 shadow-2xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                      }`}
+                    >
+                      {isEn ? 'Compact' : '紧凑单页'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        updateSetting('lineHeight', 1.6);
+                        updateSetting('blockGap', 1.0);
+                        updateSetting('letterSpacing', 0.0);
+                      }}
+                      className={`py-1 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
+                        settings.lineHeight > 1.45 && settings.lineHeight < 1.75 && settings.blockGap > 0.7 && settings.blockGap < 1.2 ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800/60 shadow-2xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                      }`}
+                    >
+                      {isEn ? 'Normal' : '标准舒适'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        updateSetting('lineHeight', 1.8);
+                        updateSetting('blockGap', 1.3);
+                        updateSetting('letterSpacing', 0.01);
+                      }}
+                      className={`py-1 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
+                        settings.lineHeight >= 1.75 || settings.blockGap >= 1.2 ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800/60 shadow-2xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                      }`}
+                    >
+                      {isEn ? 'Spacious' : '宽松大气'}
                     </button>
                   </div>
 
@@ -854,10 +860,11 @@ export function Toolbar() {
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </>,
           document.body
         )}
+        </AnimatePresence>
       </div>
     </div>
   );

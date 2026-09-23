@@ -183,15 +183,14 @@ export function IframeWarningModal() {
               </button>
               <button
                 onClick={onDirectDownload}
-                className="w-full sm:w-auto px-4 py-2 bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-white text-xs font-bold rounded-lg transition-all shadow-md shadow-amber-500/20 flex items-center justify-center gap-1.5 cursor-pointer"
-                title={isEn ? 'Direct Download PDF in current window' : '在当前窗口免跳转直接下载 PDF'}
+                className="w-full sm:w-auto px-4 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white text-xs font-bold rounded-lg transition-all shadow-md shadow-indigo-600/20 flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <Zap className="w-3.5 h-3.5 fill-current" />
+                <FileDown className="w-3.5 h-3.5" />
                 <span>{isEn ? 'Direct Download (Here)' : '在当前窗口直接下载'}</span>
               </button>
               <button
                 onClick={onOpenNewTab}
-                className="w-full sm:w-auto px-4 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white text-xs font-bold rounded-lg transition-all shadow-md shadow-indigo-600/15 flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full sm:w-auto px-4 py-2 bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 active:scale-[0.98] text-white text-xs font-bold rounded-lg transition-all shadow-md shadow-slate-900/15 flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
                 <span>{isEn ? 'Open New Tab (Vector Print)' : '新标签页打开 (矢量打印)'}</span>

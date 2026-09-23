@@ -273,12 +273,12 @@ export function BackupDraftModal() {
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-900 dark:text-slate-100 text-xs sm:text-sm tracking-tight flex items-center gap-2">
-                    {settings.lang === 'en' ? 'Versions & Backup' : '版本备份'}
+                    {settings.lang === 'en' ? 'Versions & Backup' : '版本中心'}
                   </h3>
                   <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1 sm:line-clamp-none">
                     {settings.lang === 'en' 
-                      ? 'Manage target-specific resume variations, local automatic auto-saves, and complete JSON configurations.'
-                      : '管理多岗位简历、本地历史草稿及 JSON 配置备份。'}
+                      ? 'Manage target-job versions, local drafts, and JSON backups.'
+                      : '管理多岗位简历版本、历史草稿及数据备份。'}
                   </p>
                 </div>
               </div>
@@ -293,58 +293,38 @@ export function BackupDraftModal() {
             {/* Tab Switched Navigation Bar */}
             <div className="flex items-center justify-between px-3 sm:px-6 py-2 sm:py-3 bg-slate-50 dark:bg-slate-850 border-b border-slate-100/80 dark:border-slate-800 overflow-x-auto scrollbar-none">
               <div className="flex p-1 bg-slate-200/60 dark:bg-slate-800 rounded-xl gap-1 shrink-0">
-                <button
-                  onClick={() => setActiveTab('profiles')}
-                  className={`flex items-center gap-1.5 py-1 sm:py-1.5 px-2.5 sm:px-4 text-xs font-bold rounded-lg transition-all cursor-pointer shrink-0 whitespace-nowrap ${
-                    activeTab === 'profiles'
-                      ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm ring-1 ring-slate-100 dark:ring-slate-600'
-                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-white/40 dark:hover:bg-slate-750'
-                  }`}
-                >
-                  <Layers className="w-3.5 h-3.5" />
-                  <span>
-                    {settings.lang === 'en' ? 'Resume Profiles' : '档案库 (Profiles)'}
-                  </span>
-                </button>
-                <button
-                  onClick={() => setActiveTab('matrix')}
-                  className={`flex items-center gap-1.5 py-1 sm:py-1.5 px-2.5 sm:px-4 text-xs font-bold rounded-lg transition-all cursor-pointer shrink-0 whitespace-nowrap ${
-                    activeTab === 'matrix'
-                      ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm ring-1 ring-slate-100 dark:ring-slate-600'
-                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-white/40 dark:hover:bg-slate-750'
-                  }`}
-                >
-                  <Folder className="w-3.5 h-3.5" />
-                  <span>
-                    {settings.lang === 'en' ? 'Resume Matrix' : '版本矩阵'}
-                  </span>
-                </button>
-                <button
-                  onClick={() => setActiveTab('drafts')}
-                  className={`flex items-center gap-1.5 py-1 sm:py-1.5 px-2.5 sm:px-4 text-xs font-bold rounded-lg transition-all cursor-pointer shrink-0 whitespace-nowrap ${
-                    activeTab === 'drafts'
-                      ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm ring-1 ring-slate-100 dark:ring-slate-600'
-                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-white/40 dark:hover:bg-slate-750'
-                  }`}
-                >
-                  <History className="w-3.5 h-3.5" />
-                  <span>
-                    {settings.lang === 'en' ? `Local Drafts (${drafts.length})` : `历史草稿 (${drafts.length})`}
-                  </span>
-                </button>
-                <button
-                  onClick={() => setActiveTab('backup')}
-                  className={`flex items-center gap-1.5 py-1.5 px-4 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                    activeTab === 'backup'
-                      ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm ring-1 ring-slate-100 dark:ring-slate-600'
-                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-white/40 dark:hover:bg-slate-750'
-                  }`}
-                >
-                  <FileJson className="w-3.5 h-3.5" />
-                  <span>
-                    {settings.lang === 'en' ? 'Full Backup (.json)' : 'JSON 备份'}
-                  </span>
-                </button>
+                {(
+                  [
+                    { id: 'profiles', icon: Layers, label: settings.lang === 'en' ? 'Profiles' : '档案库' },
+                    { id: 'matrix', icon: Folder, label: settings.lang === 'en' ? 'Versions' : '岗位版本' },
+                    { id: 'drafts', icon: History, label: settings.lang === 'en' ? `Drafts (${drafts.length})` : `历史草稿 (${drafts.length})` },
+                    { id: 'backup', icon: FileJson, label: settings.lang === 'en' ? 'JSON Backup' : '备份导出' }
+                  ] as const
+                ).map((tab) => {
+                  const Icon = tab.icon;
+                  const isActive = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id as any)}
+                      className={`relative flex items-center gap-1.5 py-1 sm:py-1.5 px-2.5 sm:px-4 text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0 whitespace-nowrap z-10 ${
+                        isActive
+                          ? 'text-indigo-600 dark:text-indigo-300'
+                          : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                      }`}
+                    >
+                      {isActive && (
+                        <motion.div
+                          layoutId="backupTabActiveCapsule"
+                          className="absolute inset-0 bg-white dark:bg-slate-700 rounded-lg shadow-sm ring-1 ring-slate-100 dark:ring-slate-600 z-[-1]"
+                          transition={{ type: 'spring', stiffness: 450, damping: 32 }}
+                        />
+                      )}
+                      <Icon className="w-3.5 h-3.5 shrink-0" />
+                      <span>{tab.label}</span>
+                    </button>
+                  );
+                })}
               </div>
 
               {/* Small Tip Tag */}

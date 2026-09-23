@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   Layers, 
   ChevronDown, 
@@ -14,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useResumeStore } from '../../store/useResumeStore';
 import { TEMPLATES } from '../../data';
+import { Tooltip } from '../ui/Tooltip';
 
 interface ProfileDropdownProps {
   lang?: string;
@@ -116,40 +118,51 @@ export function ProfileDropdown({ lang, isCompact }: ProfileDropdownProps) {
   return (
     <div className="relative inline-block text-left" ref={dropdownRef}>
       {/* Dropdown Trigger Button */}
-      <button
-        type="button"
-        onClick={() => {
-          setIsOpen(!isOpen);
-          setConfirmDeleteId(null);
-        }}
-        className={`group flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 bg-white dark:bg-slate-800 border rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shadow-2xs ${
-          isOpen
-            ? 'border-indigo-500 ring-2 ring-indigo-500/20 text-indigo-700 dark:text-indigo-300'
-            : 'border-slate-200/90 dark:border-slate-700/80 text-slate-700 dark:text-slate-200 hover:border-indigo-300 dark:hover:border-indigo-600'
-        }`}
-        title={isEn ? 'Switch or duplicate resume profiles (1-click)' : '多简历档案库：一键切换或复制版本'}
+      <Tooltip 
+        content={isEn ? 'Switch or duplicate resume profiles' : '多简历档案库：一键切换或复制版本'}
+        disabled={!isCompact}
       >
-        <div className="w-5 h-5 rounded-lg bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-100 dark:border-indigo-850">
-          <Layers className="w-3 h-3" />
-        </div>
+        <button
+          type="button"
+          onClick={() => {
+            setIsOpen(!isOpen);
+            setConfirmDeleteId(null);
+          }}
+          className={`group flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 bg-white dark:bg-slate-800 border rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shadow-2xs ${
+            isOpen
+              ? 'border-indigo-500 ring-2 ring-indigo-500/20 text-indigo-700 dark:text-indigo-300'
+              : 'border-slate-200/90 dark:border-slate-700/80 text-slate-700 dark:text-slate-200 hover:border-indigo-300 dark:hover:border-indigo-600'
+          }`}
+        >
+          <div className="w-5 h-5 rounded-lg bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-100 dark:border-indigo-850">
+            <Layers className="w-3 h-3" />
+          </div>
 
-        <div className="flex items-center gap-1.5 min-w-0 max-w-[130px] sm:max-w-[190px]">
-          <span className="truncate text-slate-800 dark:text-slate-100 font-extrabold text-[11px] sm:text-xs">
-            {activeProfile ? activeProfile.name : (isEn ? 'Profiles' : '档案库')}
-          </span>
-          {activeProfile?.targetRole && !isCompact && (
-            <span className="hidden md:inline-block px-1.5 py-0.2 text-[9px] font-bold bg-slate-100 dark:bg-slate-700/80 text-slate-500 dark:text-slate-300 rounded border border-slate-200/60 dark:border-slate-600/60 truncate max-w-[65px]">
-              {activeProfile.targetRole}
+          <div className="flex items-center gap-1.5 min-w-0 max-w-[130px] sm:max-w-[190px]">
+            <span className="truncate text-slate-800 dark:text-slate-100 font-extrabold text-[11px] sm:text-xs">
+              {activeProfile ? activeProfile.name : (isEn ? 'Profiles' : '档案库')}
             </span>
-          )}
-        </div>
+            {activeProfile?.targetRole && !isCompact && (
+              <span className="hidden md:inline-block px-1.5 py-0.2 text-[9px] font-bold bg-slate-100 dark:bg-slate-700/80 text-slate-500 dark:text-slate-300 rounded border border-slate-200/60 dark:border-slate-600/60 truncate max-w-[65px]">
+                {activeProfile.targetRole}
+              </span>
+            )}
+          </div>
 
-        <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 shrink-0 ${isOpen ? 'rotate-180 text-indigo-600 dark:text-indigo-400' : ''}`} />
-      </button>
+          <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 shrink-0 ${isOpen ? 'rotate-180 text-indigo-600 dark:text-indigo-400' : ''}`} />
+        </button>
+      </Tooltip>
 
       {/* Dropdown Menu - Level fixed with z-[100] and absolute left-0 */}
-      {isOpen && (
-        <div className="absolute left-0 top-full mt-1.5 w-80 sm:w-88 rounded-2xl bg-white dark:bg-slate-850 shadow-2xl border border-slate-200/90 dark:border-slate-750/90 z-[100] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -8, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.96 }}
+            transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+            className="absolute left-0 top-full mt-1.5 w-80 sm:w-88 rounded-2xl bg-white dark:bg-slate-850 shadow-2xl border border-slate-200/90 dark:border-slate-750/90 z-[100] overflow-hidden"
+          >
           {/* Header & 1-Click Actions Bar */}
           <div className="p-3 bg-slate-50/80 dark:bg-slate-800/70 border-b border-slate-100 dark:border-slate-800 space-y-2">
             <div className="flex items-center justify-between">
@@ -170,7 +183,6 @@ export function ProfileDropdown({ lang, isCompact }: ProfileDropdownProps) {
                   setIsBackupHubOpen(true);
                 }}
                 className="text-[11px] font-bold text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center gap-0.5 transition-colors cursor-pointer"
-                title={isEn ? 'Open Profile Hub' : '进入档案全景与备份'}
               >
                 <span>{isEn ? 'Manage' : '全景管理'}</span>
                 <ExternalLink className="w-2.5 h-2.5" />
@@ -183,7 +195,6 @@ export function ProfileDropdown({ lang, isCompact }: ProfileDropdownProps) {
                 type="button"
                 onClick={handleFastDuplicate}
                 className="flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/80 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/80 text-[11px] font-bold transition-all shadow-2xs cursor-pointer active:scale-95"
-                title={isEn ? 'Clone active resume for target job' : '一键复制当前简历，针对目标公司极速定制'}
               >
                 <Copy className="w-3 h-3" />
                 <span>{isEn ? 'Clone Active' : '复制当前简历'}</span>
@@ -193,7 +204,6 @@ export function ProfileDropdown({ lang, isCompact }: ProfileDropdownProps) {
                 type="button"
                 onClick={handleFastBlank}
                 className="flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100/80 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700 text-[11px] font-bold transition-all shadow-2xs cursor-pointer active:scale-95"
-                title={isEn ? 'Create fresh clean resume' : '一键新建空白档案'}
               >
                 <FilePlus className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                 <span>{isEn ? 'New Blank' : '新建空白档案'}</span>
@@ -266,7 +276,6 @@ export function ProfileDropdown({ lang, isCompact }: ProfileDropdownProps) {
                             setEditingId(p.id);
                             setEditName(p.name);
                           }}
-                          title={isEn ? 'Click to switch, double-click to rename' : '点击切换，双击可直接重命名'}
                         >
                           {p.name}
                         </span>
@@ -311,41 +320,46 @@ export function ProfileDropdown({ lang, isCompact }: ProfileDropdownProps) {
                       </div>
                     ) : (
                       <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            duplicateProfile(p.id);
-                          }}
-                          className="p-1 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-white dark:hover:bg-slate-700 rounded transition-colors"
-                          title={isEn ? '1-Click Duplicate' : '一键复制此档案'}
-                        >
-                          <Copy className="w-3 h-3" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setEditingId(p.id);
-                            setEditName(p.name);
-                          }}
-                          className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-white dark:hover:bg-slate-700 rounded transition-colors"
-                          title={isEn ? 'Rename' : '重命名'}
-                        >
-                          <Edit2 className="w-3 h-3" />
-                        </button>
-                        {profiles.length > 1 && (
+                        <Tooltip content={isEn ? 'Duplicate' : '复制档案'} side="top">
                           <button
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
-                              setConfirmDeleteId(p.id);
+                              duplicateProfile(p.id);
                             }}
-                            className="p-1 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-white dark:hover:bg-slate-700 rounded transition-colors"
-                            title={isEn ? 'Delete' : '删除档案'}
+                            className="p-1 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-white dark:hover:bg-slate-700 rounded transition-colors cursor-pointer"
                           >
-                            <Trash2 className="w-3 h-3" />
+                            <Copy className="w-3 h-3" />
                           </button>
+                        </Tooltip>
+
+                        <Tooltip content={isEn ? 'Rename' : '重命名'} side="top">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingId(p.id);
+                              setEditName(p.name);
+                            }}
+                            className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-white dark:hover:bg-slate-700 rounded transition-colors cursor-pointer"
+                          >
+                            <Edit2 className="w-3 h-3" />
+                          </button>
+                        </Tooltip>
+
+                        {profiles.length > 1 && (
+                          <Tooltip content={isEn ? 'Delete' : '删除档案'} side="top">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setConfirmDeleteId(p.id);
+                              }}
+                              className="p-1 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-white dark:hover:bg-slate-700 rounded transition-colors cursor-pointer"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </Tooltip>
                         )}
                       </div>
                     )}
@@ -387,8 +401,9 @@ export function ProfileDropdown({ lang, isCompact }: ProfileDropdownProps) {
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
       )}
+    </AnimatePresence>
     </div>
   );
 }

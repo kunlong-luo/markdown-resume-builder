@@ -132,8 +132,6 @@ const getInitialSettings = (): ResumeSettings => {
     templateLayout: 'single',
     lang: 'zh',
     themeMode: (storage.getString(STORAGE_KEYS.THEME_MODE, 'light') as 'light' | 'dark' | 'system'),
-    show3DBackdrop: false,
-    isCompactTools: false,
   };
   
   const savedSettings = storage.get<Partial<ResumeSettings> | null>(STORAGE_KEYS.SETTINGS, null);

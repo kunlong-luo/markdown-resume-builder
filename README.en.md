@@ -2,7 +2,7 @@
 
 English | [简体中文](./README.md)
 
-[![Version](https://img.shields.io/badge/version-v1.6.0--PRO-blue?style=flat-square&logo=github)](https://github.com/kunlong-luo/markdown-resume-builder)
+[![Version](https://img.shields.io/badge/version-v1.7.0--PRO-blue?style=flat-square&logo=github)](https://github.com/kunlong-luo/markdown-resume-builder)
 [![React](https://img.shields.io/badge/built%20with-React%2019-blueviolet?style=flat-square)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/bundler-Vite-646CFF?style=flat-square&logo=vite)](https://vite.dev/)
 [![TailwindCSS](https://img.shields.io/badge/styling-Tailwind%20v4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
@@ -68,6 +68,12 @@ English | [简体中文](./README.md)
 
 ### 14. 🔤 Custom Styled Typography System
 *   **The Feature**: Tailored, elegant UI typography across the editor interface, elevating overall visual quality while strictly preserving resume preview & PDF export font settings for pixel-perfect document rendering.
+
+### 15. ✨ High-Return, Low-Burden Tactile Motion System
+*   **The Feature**: Comprehensive micro-interaction refinement. Quick Nav bar, view mode toggle, and language selector feature `layoutId` sliding capsules that glide along user focus and clicks. Form section accordions expand with smooth height transitions, and popovers feature subtle spring scales (`Spring Scale`) for a premium desktop-grade feel.
+
+### 16. 🌊 Zero-Lag View Transitions Theme Ripple
+*   **The Feature**: Native View Transitions API implementation for dark/light mode switching. Integrated `.view-transition-active` snapshot freeze to eliminate CSS transition thrashing and double-flickers, driving a 420ms circular ripple wave emanating smoothly from the user's click coordinates.
 
 ---
 

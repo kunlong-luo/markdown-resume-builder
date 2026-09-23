@@ -30,13 +30,13 @@ const WEAK_WORDS_CONFIG: WeakWordConfig[] = [
     pattern: /\b(?:responsible\s+for)\b/gi,
     isRegex: true,
     weakText: 'responsible for',
-    desc: '弱代动词短语，缺乏成就导向。建议以具体的强行动词开头，突出领导力和执行力。',
+    desc: '弱代动词，缺乏成就导向。建议以强动词开头，突出业务或技术担当。',
     replacements: [
-      { word: 'Spearheaded', translation: '领衔主导' },
-      { word: 'Orchestrated', translation: '统筹策划' },
-      { word: 'Led', translation: '领导带领' },
-      { word: 'Executed', translation: '执行落实' },
-      { word: 'Directed', translation: '指导指引' }
+      { word: 'Spearheaded', translation: '主导 / 牵头' },
+      { word: 'Orchestrated', translation: '统筹 / 规划' },
+      { word: 'Led', translation: '带领 / 负责' },
+      { word: 'Executed', translation: '执行 / 落地' },
+      { word: 'Directed', translation: '指导 / 组织' }
     ]
   },
   {
@@ -44,13 +44,13 @@ const WEAK_WORDS_CONFIG: WeakWordConfig[] = [
     pattern: /\b(?:helped)\b/gi,
     isRegex: true,
     weakText: 'helped',
-    desc: '口语化弱词。使用能彰显团队贡献和专业能力的协作性行动词。',
+    desc: '口语化动词。建议使用强调跨团队协作与推进力的动词。',
     replacements: [
-      { word: 'Collaborated with', translation: '携手协作' },
-      { word: 'Facilitated', translation: '推进促进' },
-      { word: 'Supported', translation: '支持协助' },
-      { word: 'Empowered', translation: '赋能助力' },
-      { word: 'Fostered', translation: '培养培育' }
+      { word: 'Collaborated with', translation: '协同 / 协作' },
+      { word: 'Facilitated', translation: '推进 / 促进' },
+      { word: 'Supported', translation: '配合 / 支持' },
+      { word: 'Empowered', translation: '赋能 / 助力' },
+      { word: 'Coordinated', translation: '协调 / 联络' }
     ]
   },
   {
@@ -58,13 +58,13 @@ const WEAK_WORDS_CONFIG: WeakWordConfig[] = [
     pattern: /\b(?:worked\s+on)\b/gi,
     isRegex: true,
     weakText: 'worked on',
-    desc: '描述过于平淡，缺乏专业深度。应使用展现工程能力或设计思维的动词。',
+    desc: '描述过于平淡。应使用展现工程落地或系统设计能力的动词。',
     replacements: [
-      { word: 'Engineered', translation: '研发设计' },
-      { word: 'Architected', translation: '架构设计' },
-      { word: 'Developed', translation: '独立开发' },
-      { word: 'Constructed', translation: '构建建设' },
-      { word: 'Forged', translation: '打造打磨' }
+      { word: 'Engineered', translation: '研发 / 设计' },
+      { word: 'Architected', translation: '架构 / 设计' },
+      { word: 'Developed', translation: '开发 / 实现' },
+      { word: 'Constructed', translation: '搭建 / 构建' },
+      { word: 'Implemented', translation: '实现 / 交付' }
     ]
   },
   {
@@ -72,13 +72,13 @@ const WEAK_WORDS_CONFIG: WeakWordConfig[] = [
     pattern: /\b(?:managed)\b/gi,
     isRegex: true,
     weakText: 'managed',
-    desc: '虽然是常用词，但稍显单调。建议根据具体管理性质使用更具体的词汇。',
+    desc: '词义略显宽泛，建议根据具体管理与协调职责使用更精准的词汇。',
     replacements: [
-      { word: 'Orchestrated', translation: '统筹协调' },
-      { word: 'Steered', translation: '舵手引领' },
-      { word: 'Chaired', translation: '主持承担' },
-      { word: 'Mobilized', translation: '调动集结' },
-      { word: 'Supervised', translation: '监督督导' }
+      { word: 'Orchestrated', translation: '统筹 / 协调' },
+      { word: 'Steered', translation: '把控 / 推进' },
+      { word: 'Supervised', translation: '管理 / 监督' },
+      { word: 'Organized', translation: '组织 / 安排' },
+      { word: 'Chaired', translation: '主持 / 牵头' }
     ]
   },
   {
@@ -86,13 +86,13 @@ const WEAK_WORDS_CONFIG: WeakWordConfig[] = [
     pattern: /\b(?:improved)\b/gi,
     isRegex: true,
     weakText: 'improved',
-    desc: '含义较为泛化，建议用能够量化、具有显著提效意味的成就动词。',
+    desc: '含义泛化，建议用能够体现性能、质量或效率提升的动词。',
     replacements: [
-      { word: 'Optimized', translation: '极致优化' },
-      { word: 'Enhanced', translation: '显著提升' },
-      { word: 'Elevated', translation: '拔高提升' },
-      { word: 'Amplified', translation: '放大增强' },
-      { word: 'Refined', translation: '精雕细琢' }
+      { word: 'Optimized', translation: '优化 / 调优' },
+      { word: 'Enhanced', translation: '提升 / 增强' },
+      { word: 'Upgraded', translation: '升级 / 迭代' },
+      { word: 'Refined', translation: '重构 / 完善' },
+      { word: 'Streamlined', translation: '精简 / 提效' }
     ]
   },
   {
@@ -100,13 +100,13 @@ const WEAK_WORDS_CONFIG: WeakWordConfig[] = [
     pattern: /\b(?:used)\b/gi,
     isRegex: true,
     weakText: 'used',
-    desc: '单纯使用工具缺乏技术深度。用展现工程落地或技术选型主导力的词汇。',
+    desc: '单纯使用工具缺乏技术深度。用展现工程落地或技术集成的词汇。',
     replacements: [
-      { word: 'Leveraged', translation: '深度赋能' },
-      { word: 'Integrated', translation: '整合集成' },
-      { word: 'Deployed', translation: '部署落地' },
-      { word: 'Adopted', translation: '落地采纳' },
-      { word: 'Harnessed', translation: '驾驭运用' }
+      { word: 'Leveraged', translation: '运用 / 借助' },
+      { word: 'Integrated', translation: '集成 / 整合' },
+      { word: 'Deployed', translation: '部署 / 落地' },
+      { word: 'Adopted', translation: '引入 / 采纳' },
+      { word: 'Configured', translation: '配置 / 定制' }
     ]
   },
   {
@@ -116,10 +116,10 @@ const WEAK_WORDS_CONFIG: WeakWordConfig[] = [
     weakText: 'assisted',
     desc: '略显被动。强调个人在项目中的具体担当与关键技术产出。',
     replacements: [
-      { word: 'Partnered with', translation: '深度协同' },
-      { word: 'Contributed to', translation: '核心贡献' },
-      { word: 'Co-authored', translation: '联合主创' },
-      { word: 'Augmented', translation: '增强补充' }
+      { word: 'Partnered with', translation: '联合 / 协同' },
+      { word: 'Contributed to', translation: '参与 / 贡献' },
+      { word: 'Co-authored', translation: '共同编写' },
+      { word: 'Delivered', translation: '协助交付' }
     ]
   },
   // Chinese weak words
@@ -130,11 +130,11 @@ const WEAK_WORDS_CONFIG: WeakWordConfig[] = [
     weakText: '负责了',
     desc: '高频泛用词，建议根据具体角色换成更精准的业务担当或技术主导动词。',
     replacements: [
-      { word: '主导了', translation: '强调技术/业务掌控力' },
-      { word: '统筹了', translation: '强调跨团队协调' },
-      { word: '推进了', translation: '强调落地执行力' },
-      { word: '操盘了', translation: '强调业务全生命周期' },
-      { word: '落地了', translation: '强调结果达成' }
+      { word: '主导了', translation: '强调主导把控' },
+      { word: '统筹了', translation: '强调全局协调' },
+      { word: '推进了', translation: '强调落地执行' },
+      { word: '完成了', translation: '强调闭环交付' },
+      { word: '落地了', translation: '强调成果达成' }
     ]
   },
   {
@@ -144,10 +144,10 @@ const WEAK_WORDS_CONFIG: WeakWordConfig[] = [
     weakText: '负责',
     desc: '句首口水词，直接用强动词开篇更具冲击力。',
     replacements: [
-      { word: '主导', translation: '突出核心主导地位' },
-      { word: '统筹规划', translation: '突出全局视野' },
-      { word: '牵头组织', translation: '突出协调号召力' },
-      { word: '主持研发', translation: '突出技术资深度' }
+      { word: '主导', translation: '核心主导地位' },
+      { word: '统筹', translation: '全局协调规划' },
+      { word: '牵头', translation: '组织协同' },
+      { word: '研发', translation: '技术开发' }
     ]
   },
   {
@@ -155,12 +155,12 @@ const WEAK_WORDS_CONFIG: WeakWordConfig[] = [
     pattern: '做过',
     isRegex: false,
     weakText: '做过',
-    desc: '口语化严重，非常缺乏专业职场仪式感。建议替换为标准化项目描述。',
+    desc: '口语化严重，缺乏专业职场仪式感。建议替换为标准化项目描述。',
     replacements: [
-      { word: '主导设计与开发了', translation: '突出全栈/系统设计' },
-      { word: '落地实施了', translation: '突出闭环能力' },
-      { word: '重构并交付了', translation: '突出工程攻坚' },
-      { word: '搭建了', translation: '突出从0到1能力' }
+      { word: '设计并开发了', translation: '系统研发' },
+      { word: '实施落地了', translation: '闭环推进' },
+      { word: '重构并交付了', translation: '工程攻坚' },
+      { word: '搭建了', translation: '从0到1构建' }
     ]
   },
   {
@@ -168,13 +168,13 @@ const WEAK_WORDS_CONFIG: WeakWordConfig[] = [
     pattern: '写了',
     isRegex: false,
     weakText: '写了',
-    desc: '略显单薄的代码/文档编写描述。建议使用展现工程架构与设计水平的词汇。',
+    desc: '描述单薄。建议使用展现工程架构与设计水平的词汇。',
     replacements: [
-      { word: '封装了', translation: '强调组件封装' },
+      { word: '封装了', translation: '模块/组件封装' },
       { word: '编写了', translation: '规范书写' },
-      { word: '沉淀了', translation: '强调文档/规范沉淀' },
-      { word: '设计了', translation: '强调体系设计' },
-      { word: '独立完成了', translation: '强调独立担当' }
+      { word: '沉淀了', translation: '文档/规范沉淀' },
+      { word: '设计了', translation: '架构/体系设计' },
+      { word: '独立完成了', translation: '独立担当' }
     ]
   },
   {
@@ -182,13 +182,13 @@ const WEAK_WORDS_CONFIG: WeakWordConfig[] = [
     pattern: '改进了',
     isRegex: false,
     weakText: '改进了',
-    desc: '含义较为泛化，建议用能够量化、具有显著提效意味的成就动词。',
+    desc: '含义较为泛化，建议用能够量化、具有提效意味的成就动词。',
     replacements: [
-      { word: '深度优化了', translation: '强调深度' },
-      { word: '重构了', translation: '强调重构升级' },
-      { word: '大幅提升了', translation: '强调提效幅度' },
-      { word: '迭代了', translation: '强调演进升级' },
-      { word: '攻克了', translation: '强调攻坚解决' }
+      { word: '优化了', translation: '性能/体验优化' },
+      { word: '重构了', translation: '架构升级' },
+      { word: '提升了', translation: '效率/指标提升' },
+      { word: '迭代了', translation: '版本演进' },
+      { word: '解决了', translation: '攻坚排障' }
     ]
   }
 ];

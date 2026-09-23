@@ -2,11 +2,10 @@
 import React, { forwardRef, useState, useEffect, useMemo, useRef, useDeferredValue } from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { ZoomIn, ZoomOut, Sliders, Grid, Compass } from 'lucide-react';
+import { ZoomIn, ZoomOut, Sliders } from 'lucide-react';
 import { motion } from 'motion/react';
 import { ResumeSettings } from '../../types';
 import { useResumeStore } from '../../store/useResumeStore';
-import { ThreePreview } from './ThreePreview';
 import { storage, STORAGE_KEYS } from '../../lib/storage';
 
 import { 
@@ -17,6 +16,7 @@ import { createMarkdownComponents } from './PreviewRenderers';
 import { HeightGuard } from './HeightGuard';
 import { ResumeHeader } from './ResumeHeader';
 import { CustomSlider } from '../ui/CustomSlider';
+import { Tooltip } from '../ui/Tooltip';
 
 interface PreviewProps {
   overrideMarkdown?: string;
@@ -39,29 +39,6 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
   const fontClass = FONT_FAMILY_CLASSES[settings.fontFamily];
 
   const [targetPageLimit, setTargetPageLimit] = useState<1 | 2 | 3>(1);
-  const [showGrid, setShowGrid] = useState<boolean>(() => {
-    return storage.get<boolean>('resume_preview_show_grid', false);
-  });
-
-  const [show3D, setShow3D] = useState<boolean>(() => {
-    return storage.get<boolean>('resume_preview_show_3d', false);
-  });
-
-  const toggleGrid = () => {
-    setShowGrid(prev => {
-      const next = !prev;
-      storage.set('resume_preview_show_grid', next);
-      return next;
-    });
-  };
-
-  const toggle3D = () => {
-    setShow3D(prev => {
-      const next = !prev;
-      storage.set('resume_preview_show_3d', next);
-      return next;
-    });
-  };
   const [metrics, setMetrics] = useState({
     isOver: false,
     overflowPercent: 0,
@@ -307,19 +284,6 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
           </div>
         )}
 
-        {showGrid && (
-          <div 
-            className="absolute inset-0 pointer-events-none z-20 print:hidden select-none"
-            style={{
-              backgroundImage: `
-                linear-gradient(to right, rgba(99, 102, 241, 0.055) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(99, 102, 241, 0.055) 1px, transparent 1px)
-              `,
-              backgroundSize: '12px 12px',
-            }}
-          />
-        )}
-
         {settings.topAccentLine && <div className={`absolute top-0 left-0 right-0 h-[4.5px] ${theme.topAccentColor}`} />}
         
         {headerInfo.hasHeader && <ResumeHeader headerInfo={headerInfo} theme={theme} />}
@@ -375,7 +339,7 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
         })()}
       </>
     );
-  }, [headerInfo, cleaned, settings, markdownComponents, showGrid, theme]);
+  }, [headerInfo, cleaned, settings, markdownComponents, theme]);
 
   const t = settings.lang === 'en' ? {
     previewHeader: 'Real-time Rendering Preview (A4 Page)',
@@ -396,75 +360,23 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
   return (
     <div className="relative w-full h-full flex flex-col overflow-hidden">
       {/* Zoom and Preview Toolbar */}
-      <div className={`flex flex-row items-center justify-between px-3 sm:px-4 ${settings.isCompactTools ? 'py-1 sm:py-1.5' : 'py-1.5 sm:py-2'} bg-slate-50/95 dark:bg-slate-900/95 border-b border-slate-200/60 dark:border-slate-800/80 backdrop-blur-sm z-30 select-none print:hidden shrink-0 gap-2 transition-all`}>
+      <div className="flex flex-row items-center justify-between px-3 sm:px-4 py-1.5 sm:py-2 bg-slate-50/95 dark:bg-slate-900/95 border-b border-slate-200/60 dark:border-slate-800/80 backdrop-blur-sm z-30 select-none print:hidden shrink-0 gap-2 transition-all">
         <div className="flex items-center gap-2">
-          <span className={`text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider ${settings.isCompactTools ? 'hidden sm:inline-block' : ''}`}>{t.previewHeader}</span>
+          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{t.previewHeader}</span>
         </div>
         
-        <div className="flex items-center gap-1.5 sm:gap-2.5">
-          {/* Grid Toggle Button */}
-          <button
-            onClick={toggleGrid}
-            className={`group flex items-center gap-1.5 ${settings.isCompactTools ? 'px-2 py-1' : 'px-2.5 py-1'} text-[10px] font-bold rounded-lg border transition-all cursor-pointer shrink-0 ${
-              showGrid
-                ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border-indigo-200/50 dark:border-indigo-800/50 shadow-sm'
-                : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200/60 dark:border-slate-700/60 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-750'
-            }`}
-            title={settings.lang === 'en' ? 'Toggle alignment grid lines' : '显示/隐藏高精度排版网格辅助线'}
-          >
-            <Grid className="w-3.5 h-3.5 shrink-0" />
-            <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1" : ""}>
-              {settings.lang === 'en' ? 'Grid' : '网格线'}
-            </span>
-          </button>
-
-          {/* 3D Space Toggle Button */}
-          <button
-            onClick={toggle3D}
-            className={`group flex items-center gap-1.5 ${settings.isCompactTools ? 'px-2 py-1' : 'px-2.5 py-1'} text-[10px] font-bold rounded-lg border transition-all cursor-pointer shrink-0 ${
-              show3D
-                ? 'bg-indigo-600 text-white border-indigo-500 shadow-[0_2px_6px_rgba(99,102,241,0.3)]'
-                : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200/60 dark:border-slate-700/60 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-750'
-            }`}
-            title={settings.lang === 'en' ? 'Toggle 3D Immersive Studio' : '进入 3D 拟真排版空间'}
-          >
-            <Compass className="w-3.5 h-3.5 shrink-0" />
-            <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1" : ""}>
-              {settings.lang === 'en' ? '3D View' : '3D 空间'}
-            </span>
-          </button>
-
+        <div className="flex items-center gap-2">
           <span className="text-[10px] font-mono font-bold text-slate-400 dark:text-slate-500 min-w-[32px] text-right">
             {Math.round(calculatedZoom * 100)}%
           </span>
         </div>
       </div>
 
-      {show3D ? (
-        <div className="flex-1 w-full h-full relative">
-          <ThreePreview lang={settings.lang === 'en' ? 'en' : 'zh'}>
-            <div className={`w-full text-left relative ${fontClass} ${marginClasses}`}>
-              {resumeInnerContent}
-            </div>
-          </ThreePreview>
-          
-          {/* Hidden but print-accessible original 2D element so react-to-print finds it */}
-          <div className="hidden print:block absolute left-[-9999px] top-0">
-            <div 
-              ref={ref}
-              id="resume-print-content"
-              className={`bg-white resume-content w-full max-w-[210mm] min-h-[297mm] h-fit mx-auto ${fontClass} ${marginClasses}`}
-            >
-              {resumeInnerContent}
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div 
-          ref={wrapperRef}
-          id="resume-preview-wrapper" 
-          className="flex-1 overflow-y-auto p-2 sm:p-6 md:p-8 bg-slate-100/70 dark:bg-[#090d16] w-full flex justify-center items-start relative scrollbar-thin"
-        >
+      <div 
+        ref={wrapperRef}
+        id="resume-preview-wrapper" 
+        className="flex-1 overflow-y-auto p-2 sm:p-6 md:p-8 bg-slate-100/70 dark:bg-[#090d16] w-full flex justify-center items-start relative scrollbar-thin"
+      >
           <div 
             style={{
               width: '100%',
@@ -504,30 +416,30 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
             </div>
           </div>
         </div>
-      )}
 
       {/* Floating Zoom Control Slider Panel (Responsive, premium glassmorphism, hidden on mobile to avoid content overlay) */}
       <motion.div 
         initial={{ opacity: 0, y: 15, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.35, ease: 'easeOut' }}
-        className={`absolute bottom-5 left-5 z-40 print:hidden hidden sm:flex items-center gap-2 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800/90 shadow-[0_12px_32px_rgba(15,23,42,0.12),0_2px_6px_rgba(15,23,42,0.04)] dark:shadow-[0_12px_32px_rgba(0,0,0,0.4)] rounded-2xl ${settings.isCompactTools ? 'p-1.5' : 'p-2'} transition-all duration-300 hover:shadow-[0_16px_40px_rgba(15,23,42,0.16)] group`}
+        className="absolute bottom-5 left-5 z-40 print:hidden hidden sm:flex items-center gap-2 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800/90 shadow-[0_12px_32px_rgba(15,23,42,0.12),0_2px_6px_rgba(15,23,42,0.04)] dark:shadow-[0_12px_32px_rgba(0,0,0,0.4)] rounded-2xl p-2 transition-all duration-300 hover:shadow-[0_16px_40px_rgba(15,23,42,0.16)] group"
       >
         <div className="flex items-center gap-1">
-          <button 
-            onClick={() => {
-              const current = calculatedZoom;
-              const next = Math.max(0.5, Math.round((current - 0.05) * 100) / 100);
-              setZoomMode(next);
-              storage.set(STORAGE_KEYS.PREVIEW_ZOOM, String(next));
-            }}
-            className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer shrink-0"
-            title={t.zoomOut}
-          >
-            <ZoomOut className="w-3.5 h-3.5" />
-          </button>
+          <Tooltip content={t.zoomOut} side="top">
+            <button 
+              onClick={() => {
+                const current = calculatedZoom;
+                const next = Math.max(0.5, Math.round((current - 0.05) * 100) / 100);
+                setZoomMode(next);
+                storage.set(STORAGE_KEYS.PREVIEW_ZOOM, String(next));
+              }}
+              className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer shrink-0"
+            >
+              <ZoomOut className="w-3.5 h-3.5" />
+            </button>
+          </Tooltip>
           
-          <div className={`flex items-center gap-2 px-1 ${settings.isCompactTools ? 'w-20 md:w-24' : 'w-24 md:w-32'} transition-all`}>
+          <div className="flex items-center gap-2 px-1 w-24 md:w-32 transition-all">
             <CustomSlider
               min={0.5}
               max={1.5}
@@ -542,18 +454,19 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
             />
           </div>
 
-          <button 
-            onClick={() => {
-              const current = calculatedZoom;
-              const next = Math.min(1.5, Math.round((current + 0.05) * 100) / 100);
-              setZoomMode(next);
-              storage.set(STORAGE_KEYS.PREVIEW_ZOOM, String(next));
-            }}
-            className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
-            title={t.zoomIn}
-          >
-            <ZoomIn className="w-4 h-4" />
-          </button>
+          <Tooltip content={t.zoomIn} side="top">
+            <button 
+              onClick={() => {
+                const current = calculatedZoom;
+                const next = Math.min(1.5, Math.round((current + 0.05) * 100) / 100);
+                setZoomMode(next);
+                storage.set(STORAGE_KEYS.PREVIEW_ZOOM, String(next));
+              }}
+              className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+            >
+              <ZoomIn className="w-4 h-4" />
+            </button>
+          </Tooltip>
         </div>
 
         <div className="h-4 w-[1px] bg-slate-200/80 dark:bg-slate-800" />

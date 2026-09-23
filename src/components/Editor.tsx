@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { motion } from 'motion/react';
 import { 
   Edit3, Copy, RotateCcw, Check, Bold, Italic, Link, List, ListOrdered, Table, Minus, Heading1, Heading2, Code, Info, Scissors, Undo, Redo,
   Sparkles, Type, Layers, Award, Phone, GraduationCap, ChevronDown, Briefcase, Sliders, ChevronsUp, ChevronsDown, Wand2
@@ -11,6 +12,7 @@ import { useConfirm } from '../context/ConfirmContext';
 import { DEFAULT_MARKDOWN } from '../data';
 
 import { autoFormatAndCleanResume } from '../lib/resume-auto-fixer';
+import { Tooltip } from './ui';
 
 function highlightInline(text: string): string {
   let parsed = text;
@@ -261,158 +263,182 @@ export function Editor() {
         <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-600 dark:bg-indigo-500 rounded-r"></div>
         
         {/* Toggle Mode Segmented Control */}
-        <div className="flex bg-slate-100 dark:bg-slate-800/90 p-0.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-inner shrink-0">
+        <div className="relative flex bg-slate-100 dark:bg-slate-800/90 p-0.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-inner shrink-0">
           <button
             onClick={() => setActiveMode('form')}
-            className={`group flex items-center px-2.5 sm:px-3.5 py-1 text-xs font-bold rounded-lg transition-all duration-150 cursor-pointer whitespace-nowrap shrink-0 ${
+            className={`relative flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1 text-xs font-bold rounded-lg transition-colors cursor-pointer whitespace-nowrap shrink-0 z-10 ${
               activeMode === 'form'
-                ? 'bg-white dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 shadow-xs border border-slate-200/60 dark:border-slate-600 font-extrabold'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-700/50'
+                ? 'text-indigo-700 dark:text-indigo-300 font-extrabold'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
             }`}
-            title={settings.lang === 'en' ? 'Form Mode' : '表单编辑模式'}
           >
+            {activeMode === 'form' && (
+              <motion.div
+                layoutId="editorActiveModeCapsule"
+                className="absolute inset-0 bg-white dark:bg-slate-700 rounded-lg shadow-xs border border-slate-200/60 dark:border-slate-600 z-[-1]"
+                transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+              />
+            )}
             <Layers className="w-3.5 h-3.5 shrink-0" />
-            <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1.5" : "ml-1.5"}>
-              {settings.lang === 'en' ? 'Form' : '表单编辑'}
-            </span>
+            <span>{settings.lang === 'en' ? 'Form' : '表单编辑'}</span>
           </button>
+
           <button
             onClick={() => setActiveMode('markdown')}
-            className={`group flex items-center px-2.5 sm:px-3.5 py-1 text-xs font-bold rounded-lg transition-all duration-150 cursor-pointer whitespace-nowrap shrink-0 ${
+            className={`relative flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1 text-xs font-bold rounded-lg transition-colors cursor-pointer whitespace-nowrap shrink-0 z-10 ${
               activeMode === 'markdown'
-                ? 'bg-white dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 shadow-xs border border-slate-200/60 dark:border-slate-600 font-extrabold'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-700/50'
+                ? 'text-indigo-700 dark:text-indigo-300 font-extrabold'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
             }`}
-            title={settings.lang === 'en' ? 'Markdown Source Mode' : '源码编辑模式'}
           >
+            {activeMode === 'markdown' && (
+              <motion.div
+                layoutId="editorActiveModeCapsule"
+                className="absolute inset-0 bg-white dark:bg-slate-700 rounded-lg shadow-xs border border-slate-200/60 dark:border-slate-600 z-[-1]"
+                transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+              />
+            )}
             <Edit3 className="w-3.5 h-3.5 shrink-0" />
-            <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1.5" : "ml-1.5"}>
-              {settings.lang === 'en' ? 'Markdown' : '源码编辑'}
-            </span>
+            <span>{settings.lang === 'en' ? 'Markdown' : '源码编辑'}</span>
           </button>
+
           <button
             onClick={() => setActiveMode('layout')}
-            className={`group flex items-center px-2.5 sm:px-3.5 py-1 text-xs font-bold rounded-lg transition-all duration-150 cursor-pointer whitespace-nowrap shrink-0 ${
+            className={`relative flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1 text-xs font-bold rounded-lg transition-colors cursor-pointer whitespace-nowrap shrink-0 z-10 ${
               activeMode === 'layout'
-                ? 'bg-white dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 shadow-xs border border-slate-200/60 dark:border-slate-600 font-extrabold'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-700/50'
+                ? 'text-indigo-700 dark:text-indigo-300 font-extrabold'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
             }`}
-            title={settings.lang === 'en' ? 'Section Order Mode' : '板块排序模式'}
           >
+            {activeMode === 'layout' && (
+              <motion.div
+                layoutId="editorActiveModeCapsule"
+                className="absolute inset-0 bg-white dark:bg-slate-700 rounded-lg shadow-xs border border-slate-200/60 dark:border-slate-600 z-[-1]"
+                transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+              />
+            )}
             <Sliders className="w-3.5 h-3.5 shrink-0" />
-            <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1.5" : "ml-1.5"}>
-              {settings.lang === 'en' ? 'Order' : '板块排序'}
-            </span>
+            <span>{settings.lang === 'en' ? 'Order' : '板块排序'}</span>
           </button>
         </div>
 
         <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
-          <button 
-            onClick={onUndo}
-            disabled={!canUndo}
-            className={`p-1.5 rounded-lg transition-colors shrink-0 ${canUndo ? 'text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 cursor-pointer' : 'text-slate-300 dark:text-slate-600 cursor-not-allowed'}`}
-            title={settings.lang === 'en' ? 'Undo (Ctrl+Z)' : '撤销 (Ctrl+Z)'}
-          >
-            <Undo className="w-3.5 h-3.5" />
-          </button>
-          <button 
-            onClick={onRedo}
-            disabled={!canRedo}
-            className={`p-1.5 rounded-lg transition-colors shrink-0 ${canRedo ? 'text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 cursor-pointer' : 'text-slate-300 dark:text-slate-600 cursor-not-allowed'}`}
-            title={settings.lang === 'en' ? 'Redo (Ctrl+Y)' : '重做 (Ctrl+Y)'}
-          >
-            <Redo className="w-3.5 h-3.5" />
-          </button>
+          <Tooltip content={settings.lang === 'en' ? 'Undo' : '撤销'} shortcut="Ctrl+Z">
+            <button 
+              onClick={onUndo}
+              disabled={!canUndo}
+              className={`p-1.5 rounded-lg transition-colors shrink-0 ${canUndo ? 'text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 cursor-pointer' : 'text-slate-300 dark:text-slate-600 cursor-not-allowed'}`}
+            >
+              <Undo className="w-3.5 h-3.5" />
+            </button>
+          </Tooltip>
+
+          <Tooltip content={settings.lang === 'en' ? 'Redo' : '重做'} shortcut="Ctrl+Y">
+            <button 
+              onClick={onRedo}
+              disabled={!canRedo}
+              className={`p-1.5 rounded-lg transition-colors shrink-0 ${canRedo ? 'text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 cursor-pointer' : 'text-slate-300 dark:text-slate-600 cursor-not-allowed'}`}
+            >
+              <Redo className="w-3.5 h-3.5" />
+            </button>
+          </Tooltip>
+
           <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-0.5 sm:mx-1 shrink-0"></div>
           {activeMode === 'form' && formExpandedState.hasSections && (
             <>
-              <button 
-                onClick={() => {
-                  document.dispatchEvent(new CustomEvent('toggle-all-sections', {
-                    detail: { expand: !formExpandedState.isAllExpanded }
-                  }));
-                }}
-                className={`group flex items-center px-2 sm:px-2.5 py-1 text-xs font-bold rounded-lg border transition-all active:scale-95 cursor-pointer shadow-2xs whitespace-nowrap shrink-0 ${
-                  formExpandedState.isAllExpanded 
-                    ? 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200' 
-                    : 'bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300'
-                }`}
-                title={formExpandedState.isAllExpanded 
-                  ? (settings.lang === 'en' ? 'Collapse all sections' : '一键折叠所有模块') 
-                  : (settings.lang === 'en' ? 'Expand all sections' : '一键展开所有模块')
-                }
+              <Tooltip
+                content={formExpandedState.isAllExpanded ? (settings.lang === 'en' ? 'Collapse all sections' : '一键折叠所有模块') : (settings.lang === 'en' ? 'Expand all sections' : '一键展开所有模块')}
               >
-                {formExpandedState.isAllExpanded ? (
-                  <>
-                    <ChevronsUp className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
-                    <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1.5" : "ml-1.5"}>
-                      {settings.lang === 'en' ? 'Collapse All' : '全部折叠'}
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <ChevronsDown className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400 shrink-0" />
-                    <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1.5" : "ml-1.5"}>
-                      {settings.lang === 'en' ? 'Expand All' : '全部展开'}
-                    </span>
-                  </>
-                )}
-              </button>
+                <button 
+                  onClick={() => {
+                    document.dispatchEvent(new CustomEvent('toggle-all-sections', {
+                      detail: { expand: !formExpandedState.isAllExpanded }
+                    }));
+                  }}
+                  className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 text-xs font-bold rounded-lg border transition-all active:scale-95 cursor-pointer shadow-2xs whitespace-nowrap shrink-0 ${
+                    formExpandedState.isAllExpanded 
+                      ? 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200' 
+                      : 'bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300'
+                  }`}
+                >
+                  {formExpandedState.isAllExpanded ? (
+                    <>
+                      <ChevronsUp className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
+                      <span className="hidden sm:inline">{settings.lang === 'en' ? 'Collapse All' : '全部折叠'}</span>
+                    </>
+                  ) : (
+                    <>
+                      <ChevronsDown className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400 shrink-0" />
+                      <span className="hidden sm:inline">{settings.lang === 'en' ? 'Expand All' : '全部展开'}</span>
+                    </>
+                  )}
+                </button>
+              </Tooltip>
               <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-0.5 sm:mx-1 shrink-0"></div>
             </>
           )}
+
           {/* 1-Click Auto Clean & Format (Smart Detection) */}
-          <button 
-            onClick={handleAutoClean}
-            className={`group flex items-center px-2 sm:px-2.5 py-1 text-xs font-bold rounded-lg border transition-all active:scale-95 cursor-pointer whitespace-nowrap shrink-0 shadow-2xs ${
-              cleanFeedback
-                ? 'bg-emerald-500 text-white border-emerald-500 shadow-emerald-500/20'
-                : autoCleanResult.hasChanges
-                  ? 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/80 shadow-indigo-500/10'
-                  : 'bg-slate-50 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 border-slate-200/80 dark:border-slate-700/80 hover:text-slate-700 dark:hover:text-slate-200'
-            }`}
-            title={
+          <Tooltip
+            content={
               settings.lang === 'en' 
-                ? '1-Click Auto Clean & Beautify: standardizes CJK/English spacing, trims trailing spaces, compresses blank lines (Ctrl+Shift+F)' 
-                : '一键排版规整：自动纠正中英/数字空格、压缩多余空行、去除行尾冗余空格 (Ctrl+Shift+F)'
+                ? 'Standardize CJK/English spacing, trim extra lines' 
+                : '规范中英空格与去除多余空行'
             }
+            shortcut="Ctrl+Shift+F"
           >
-            {cleanFeedback ? (
-              <Check className="w-3.5 h-3.5 shrink-0" />
-            ) : (
-              <Wand2 className={`w-3.5 h-3.5 shrink-0 ${autoCleanResult.hasChanges ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}`} />
-            )}
-            <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1.5" : "ml-1.5"}>
-              {cleanFeedback 
-                ? cleanFeedback 
-                : autoCleanResult.hasChanges 
-                  ? (settings.lang === 'en' ? `Clean (${autoCleanResult.fixesCount})` : `一键规整 (${autoCleanResult.fixesCount})`)
-                  : (settings.lang === 'en' ? 'Format Clean' : '排版规整')}
-            </span>
-          </button>
+            <button 
+              onClick={handleAutoClean}
+              className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 text-xs font-bold rounded-lg border transition-all active:scale-95 cursor-pointer whitespace-nowrap shrink-0 shadow-2xs ${
+                cleanFeedback
+                  ? 'bg-emerald-500 text-white border-emerald-500 shadow-emerald-500/20'
+                  : autoCleanResult.hasChanges
+                    ? 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/80 shadow-indigo-500/10'
+                    : 'bg-slate-50 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 border-slate-200/80 dark:border-slate-700/80 hover:text-slate-700 dark:hover:text-slate-200'
+              }`}
+            >
+              {cleanFeedback ? (
+                <Check className="w-3.5 h-3.5 shrink-0" />
+              ) : (
+                <Wand2 className={`w-3.5 h-3.5 shrink-0 ${autoCleanResult.hasChanges ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}`} />
+              )}
+              <span className="hidden sm:inline">
+                {cleanFeedback 
+                  ? cleanFeedback 
+                  : autoCleanResult.hasChanges 
+                    ? (settings.lang === 'en' ? `Format (${autoCleanResult.fixesCount})` : `规整 (${autoCleanResult.fixesCount})`)
+                    : (settings.lang === 'en' ? 'Format' : '规范排版')}
+              </span>
+            </button>
+          </Tooltip>
+
           <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-0.5 sm:mx-1 shrink-0"></div>
 
-          <button 
-            onClick={handleCopy}
-            className="group flex items-center px-2 sm:px-2.5 py-1 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded-lg transition-colors cursor-pointer whitespace-nowrap shrink-0"
-            title={settings.lang === 'en' ? 'Copy Markdown Content' : '复制 Markdown 源码'}
-          >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> : <Copy className="w-3.5 h-3.5 shrink-0" />}
-            <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1.5" : "ml-1.5"}>
-              {copied ? (settings.lang === 'en' ? 'Copied!' : '已复制！') : (settings.lang === 'en' ? 'Copy All' : '复制全文')}
-            </span>
-          </button>
+          <Tooltip content={settings.lang === 'en' ? 'Copy Markdown source' : '复制 Markdown 源码'}>
+            <button 
+              onClick={handleCopy}
+              className="flex items-center gap-1 px-2 sm:px-2.5 py-1 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded-lg transition-colors cursor-pointer whitespace-nowrap shrink-0"
+            >
+              {copied ? <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> : <Copy className="w-3.5 h-3.5 shrink-0" />}
+              <span className="hidden sm:inline">
+                {copied ? (settings.lang === 'en' ? 'Copied!' : '已复制') : (settings.lang === 'en' ? 'Copy' : '复制')}
+              </span>
+            </button>
+          </Tooltip>
+
           <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-0.5 sm:mx-1 shrink-0"></div>
-          <button 
-            onClick={onReset}
-            className="group flex items-center px-2 sm:px-2.5 py-1 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors cursor-pointer whitespace-nowrap shrink-0"
-            title={settings.lang === 'en' ? 'Reset to Default Template' : '重置为默认模板'}
-          >
-            <RotateCcw className="w-3.5 h-3.5 shrink-0" />
-            <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1.5" : "ml-1.5"}>
-              {settings.lang === 'en' ? 'Reset' : '重置'}
-            </span>
-          </button>
+
+          <Tooltip content={settings.lang === 'en' ? 'Reset to default template' : '重置为默认模板'}>
+            <button 
+              onClick={onReset}
+              className="flex items-center gap-1 px-2 sm:px-2.5 py-1 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors cursor-pointer whitespace-nowrap shrink-0"
+            >
+              <RotateCcw className="w-3.5 h-3.5 shrink-0" />
+              <span className="hidden sm:inline">
+                {settings.lang === 'en' ? 'Reset' : '重置'}
+              </span>
+            </button>
+          </Tooltip>
         </div>
       </div>
 
@@ -420,101 +446,123 @@ export function Editor() {
         <>
           {/* Formatting Help Toolbar */}
           <div className="flex items-center flex-wrap gap-1 px-4 py-1.5 bg-gray-50/70 dark:bg-slate-850 border-b border-gray-100 dark:border-slate-800">
-            <button
-              onClick={() => insertMarkdown('# text')}
-              className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors"
-              title="Heading 1"
-            >
-              <Heading1 className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => insertMarkdown('## text')}
-              className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors"
-              title="Section Heading 2"
-            >
-              <Heading2 className="w-3.5 h-3.5" />
-            </button>
+            <Tooltip content={settings.lang === 'en' ? 'Heading 1' : '一级大标题'} shortcut="# text" side="bottom">
+              <button
+                onClick={() => insertMarkdown('# text')}
+                className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors cursor-pointer"
+              >
+                <Heading1 className="w-3.5 h-3.5" />
+              </button>
+            </Tooltip>
+
+            <Tooltip content={settings.lang === 'en' ? 'Heading 2 (Section)' : '二级板块标题'} shortcut="## text" side="bottom">
+              <button
+                onClick={() => insertMarkdown('## text')}
+                className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors cursor-pointer"
+              >
+                <Heading2 className="w-3.5 h-3.5" />
+              </button>
+            </Tooltip>
+
             <div className="w-px h-3.5 bg-gray-200 dark:bg-slate-700 mx-1"></div>
-            <button
-              onClick={() => insertMarkdown('**text**')}
-              className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors"
-              title="Bold"
-            >
-              <Bold className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => insertMarkdown('*text*')}
-              className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors"
-              title="Italic"
-            >
-              <Italic className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => insertMarkdown('`text`')}
-              className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors"
-              title="Code"
-            >
-              <Code className="w-3.5 h-3.5" />
-            </button>
+
+            <Tooltip content={settings.lang === 'en' ? 'Bold' : '文本加粗'} shortcut="**text**" side="bottom">
+              <button
+                onClick={() => insertMarkdown('**text**')}
+                className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors cursor-pointer"
+              >
+                <Bold className="w-3.5 h-3.5" />
+              </button>
+            </Tooltip>
+
+            <Tooltip content={settings.lang === 'en' ? 'Italic' : '斜体强调'} shortcut="*text*" side="bottom">
+              <button
+                onClick={() => insertMarkdown('*text*')}
+                className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors cursor-pointer"
+              >
+                <Italic className="w-3.5 h-3.5" />
+              </button>
+            </Tooltip>
+
+            <Tooltip content={settings.lang === 'en' ? 'Inline Code' : '行内代码/标签'} shortcut="`text`" side="bottom">
+              <button
+                onClick={() => insertMarkdown('`text`')}
+                className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors cursor-pointer"
+              >
+                <Code className="w-3.5 h-3.5" />
+              </button>
+            </Tooltip>
+
             <div className="w-px h-3.5 bg-gray-200 dark:bg-slate-700 mx-1"></div>
-            <button
-              onClick={() => insertMarkdown('- text')}
-              className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors"
-              title="Bullet List"
-            >
-              <List className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => insertMarkdown('1. text')}
-              className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors"
-              title="Numbered List"
-            >
-              <ListOrdered className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => insertMarkdown('[link](url)')}
-              className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors"
-              title="Link"
-            >
-              <Link className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => insertMarkdown('\n---\n')}
-              className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors"
-              title="Divider Line"
-            >
-              <Minus className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => insertMarkdown('\n<!-- pagebreak -->\n')}
-              className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors"
-              title="Insert Page Break (插入打印分页符)"
-            >
-              <Scissors className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-            </button>
-            <button
-              onClick={() => insertMarkdown('\n| Header 1 | Header 2 |\n| -------- | -------- |\n| Item 1   | Item 2   |\n')}
-              className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors"
-              title="Table"
-            >
-              <Table className="w-3.5 h-3.5" />
-            </button>
+
+            <Tooltip content={settings.lang === 'en' ? 'Bullet List' : '无序项目列表'} shortcut="- text" side="bottom">
+              <button
+                onClick={() => insertMarkdown('- text')}
+                className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors cursor-pointer"
+              >
+                <List className="w-3.5 h-3.5" />
+              </button>
+            </Tooltip>
+
+            <Tooltip content={settings.lang === 'en' ? 'Numbered List' : '有序项目列表'} shortcut="1. text" side="bottom">
+              <button
+                onClick={() => insertMarkdown('1. text')}
+                className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors cursor-pointer"
+              >
+                <ListOrdered className="w-3.5 h-3.5" />
+              </button>
+            </Tooltip>
+
+            <Tooltip content={settings.lang === 'en' ? 'Insert Link' : '插入超链接'} shortcut="[title](url)" side="bottom">
+              <button
+                onClick={() => insertMarkdown('[link](url)')}
+                className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors cursor-pointer"
+              >
+                <Link className="w-3.5 h-3.5" />
+              </button>
+            </Tooltip>
+
+            <Tooltip content={settings.lang === 'en' ? 'Divider Line' : '插入水平分割线'} shortcut="---" side="bottom">
+              <button
+                onClick={() => insertMarkdown('\n---\n')}
+                className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors cursor-pointer"
+              >
+                <Minus className="w-3.5 h-3.5" />
+              </button>
+            </Tooltip>
+
+            <Tooltip content={settings.lang === 'en' ? 'Insert Page Break' : '插入强制分页符'} side="bottom">
+              <button
+                onClick={() => insertMarkdown('\n<!-- pagebreak -->\n')}
+                className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors cursor-pointer"
+              >
+                <Scissors className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+              </button>
+            </Tooltip>
+
+            <Tooltip content={settings.lang === 'en' ? 'Insert Table' : '插入 Markdown 表格'} side="bottom">
+              <button
+                onClick={() => insertMarkdown('\n| Header 1 | Header 2 |\n| -------- | -------- |\n| Item 1   | Item 2   |\n')}
+                className="p-1.5 hover:bg-gray-200/60 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white rounded transition-colors cursor-pointer"
+              >
+                <Table className="w-3.5 h-3.5" />
+              </button>
+            </Tooltip>
 
             <div className="w-px h-3.5 bg-gray-200 dark:bg-slate-700 mx-1.5"></div>
 
             {/* Quick Snippets Inserter Dropdown */}
             <div className="relative">
-              <button
-                onClick={() => setIsSnippetsDropdownOpen(!isSnippetsDropdownOpen)}
-                className="group flex items-center px-2.5 py-1 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-indigo-950/60 dark:to-blue-950/60 hover:from-blue-100 hover:to-indigo-100 dark:hover:from-indigo-900/70 dark:hover:to-blue-900/70 text-blue-700 dark:text-blue-300 hover:text-indigo-800 dark:hover:text-white rounded border border-blue-200/50 dark:border-indigo-800 text-[11px] font-semibold transition-all shadow-sm cursor-pointer ml-1 active:scale-95"
-                title={settings.lang === 'en' ? 'Insert Snippets' : '插入常用模块'}
-              >
-                <Layers className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
-                <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1" : "ml-1"}>
-                  {settings.lang === 'en' ? 'Insert Snippets' : '插入常用模块'}
-                </span>
-                <ChevronDown className={`w-3 h-3 text-blue-500 dark:text-blue-400 transition-transform shrink-0 ${isSnippetsDropdownOpen ? 'rotate-180' : ''}`} />
-              </button>
+              <Tooltip content={settings.lang === 'en' ? 'Insert ready-made resume sections' : '快速插入常用结构化简历模块'}>
+                <button
+                  onClick={() => setIsSnippetsDropdownOpen(!isSnippetsDropdownOpen)}
+                  className="flex items-center gap-1 px-2.5 py-1 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-indigo-950/60 dark:to-blue-950/60 hover:from-blue-100 hover:to-indigo-100 dark:hover:from-indigo-900/70 dark:hover:to-blue-900/70 text-blue-700 dark:text-blue-300 hover:text-indigo-800 dark:hover:text-white rounded border border-blue-200/50 dark:border-indigo-800 text-[11px] font-semibold transition-all shadow-sm cursor-pointer ml-1 active:scale-95"
+                >
+                  <Layers className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
+                  <span>{settings.lang === 'en' ? 'Insert Snippets' : '插入常用模块'}</span>
+                  <ChevronDown className={`w-3 h-3 text-blue-500 dark:text-blue-400 transition-transform shrink-0 ${isSnippetsDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+              </Tooltip>
 
               {isSnippetsDropdownOpen && (
                 <>
@@ -609,26 +657,30 @@ export function Editor() {
             </div>
 
             {/* Auto Spacing & Clean button */}
-            <button
-              onClick={handleAutoClean}
-              className={`group flex items-center px-2.5 py-1 rounded border text-[11px] font-semibold transition-all shadow-sm cursor-pointer ml-1 active:scale-95 ${
-                cleanFeedback
-                  ? 'bg-emerald-500 text-white border-emerald-500'
-                  : autoCleanResult.hasChanges
-                    ? 'bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800'
-                    : 'bg-slate-50 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 border-slate-200/60 dark:border-slate-700/60'
-              }`}
-              title={settings.lang === 'en' ? 'Magic Formatter: Auto Clean & Format (Ctrl+Shift+F)' : '魔法排版：中英空格与格式一键规整 (Ctrl+Shift+F)'}
+            <Tooltip
+              content={settings.lang === 'en' ? 'Magic Formatter: Auto Clean & Format' : '魔法排版：中英空格与格式一键规整'}
+              shortcut="Ctrl+Shift+F"
             >
-              <Wand2 className="w-3 h-3 shrink-0" />
-              <span className={settings.isCompactTools ? "max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-200 ease-out overflow-hidden inline-block whitespace-nowrap ml-0 group-hover:ml-1" : "ml-1"}>
-                {cleanFeedback 
-                  ? cleanFeedback 
-                  : autoCleanResult.hasChanges 
-                    ? (settings.lang === 'en' ? `Clean (${autoCleanResult.fixesCount})` : `规整 (${autoCleanResult.fixesCount})`) 
-                    : (settings.lang === 'en' ? 'Formatted' : '格式正常')}
-              </span>
-            </button>
+              <button
+                onClick={handleAutoClean}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded border text-[11px] font-semibold transition-all shadow-sm cursor-pointer ml-1 active:scale-95 ${
+                  cleanFeedback
+                    ? 'bg-emerald-500 text-white border-emerald-500'
+                    : autoCleanResult.hasChanges
+                      ? 'bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800'
+                      : 'bg-slate-50 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 border-slate-200/60 dark:border-slate-700/60'
+                }`}
+              >
+                <Wand2 className="w-3 h-3 shrink-0" />
+                <span>
+                  {cleanFeedback 
+                    ? cleanFeedback 
+                    : autoCleanResult.hasChanges 
+                      ? (settings.lang === 'en' ? `Clean (${autoCleanResult.fixesCount})` : `规整 (${autoCleanResult.fixesCount})`) 
+                      : (settings.lang === 'en' ? 'Formatted' : '格式正常')}
+                </span>
+              </button>
+            </Tooltip>
           </div>
 
           {/* Main Textarea with Highlighted Overlay */}
@@ -687,22 +739,19 @@ export function Editor() {
       {/* Status Bar */}
       <div className="flex items-center justify-between px-3 sm:px-5 py-1.5 sm:py-2 bg-gray-50 dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800 text-[10px] sm:text-[11px] text-gray-500 dark:text-slate-400 font-medium z-10 overflow-x-auto scrollbar-none whitespace-nowrap gap-2">
         <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-          <span>{!settings.isCompactTools && (settings.lang === 'en' ? 'Words: ' : '总字数: ')}<strong className="text-gray-700 dark:text-slate-200">{wordCount}</strong>{settings.isCompactTools ? 'w' : ''}</span>
-          <span>{!settings.isCompactTools && (settings.lang === 'en' ? 'Chars: ' : '字符数: ')}<strong className="text-gray-700 dark:text-slate-200">{charCount}</strong>{settings.isCompactTools ? 'c' : ''}</span>
-          <span className="hidden xs:inline">{!settings.isCompactTools && (settings.lang === 'en' ? 'Lines: ' : '行数: ')}<strong className="text-gray-700 dark:text-slate-200">{lineCount}</strong>{settings.isCompactTools ? 'L' : ''}</span>
+          <Tooltip 
+            content={settings.lang === 'en' ? `Characters: ${charCount} | Lines: ${lineCount}` : `字符数：${charCount} 字（含标点空格） | 行数：${lineCount} 行`}
+            side="top"
+          >
+            <span className="cursor-help hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
+              {settings.lang === 'en' ? 'Words: ' : '字数: '}
+              <strong className="text-gray-700 dark:text-slate-200 font-bold">{wordCount}</strong>
+            </span>
+          </Tooltip>
         </div>
-        <div className="flex items-center gap-2 sm:gap-3 text-blue-600 dark:text-blue-400 shrink-0">
-          {!settings.isCompactTools && (
-            <>
-              <div className="hidden md:flex items-center gap-1 text-gray-400 dark:text-slate-500 cursor-help" title={settings.lang === 'en' ? "Click the scissors icon in toolbar to insert <!-- pagebreak --> where you want to force page partition" : "在需要强制分页的地方点击剪刀按钮插入 <!-- pagebreak -->"}>
-                <Info className="w-3 h-3" />
-                <span>{settings.lang === 'en' ? 'Supports <!-- pagebreak --> force paging' : '支持 <!-- pagebreak --> 强制分页'}</span>
-              </div>
-              <div className="w-px h-3 bg-gray-200 dark:bg-slate-700 hidden md:block"></div>
-            </>
-          )}
+        <div className="flex items-center gap-2 sm:gap-3 text-indigo-600 dark:text-indigo-400 shrink-0">
           <div className="flex items-center gap-1.5">
-            <span>{!settings.isCompactTools && (settings.lang === 'en' ? 'Est. Pages: ' : '预估页数: ')}<strong className="font-bold">{estPages}</strong>{settings.isCompactTools ? 'P' : ''}</span>
+            <span>{settings.lang === 'en' ? 'Est. Pages: ' : '预估页数: '}<strong className="font-bold">{estPages} {settings.lang === 'en' ? 'Page(s)' : '页'}</strong></span>
           </div>
         </div>
       </div>

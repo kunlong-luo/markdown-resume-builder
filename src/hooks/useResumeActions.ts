@@ -53,9 +53,12 @@ export function useResumeActions({ contentRef }: UseResumeActionsProps) {
     setPdfExportProgress(settings.lang === 'en' ? 'Preparing PDF...' : '准备导出 PDF...');
 
     try {
-      const targetElement = contentRef.current || document.getElementById('resume-print-content');
+      const targetElement = contentRef.current 
+        || document.getElementById('resume-print-content') 
+        || (document.querySelector('.resume-content') as HTMLElement);
+
       if (!targetElement) {
-        throw new Error('Print content element not found');
+        throw new Error('未找到简历内容节点');
       }
 
       await exportDirectPDF(targetElement, {
@@ -66,7 +69,7 @@ export function useResumeActions({ contentRef }: UseResumeActionsProps) {
       });
     } catch (err) {
       console.error('Direct PDF export error:', err);
-      // If direct capture fails for any reason, offer browser vector print fallback
+      // If direct capture fails, fall back to print
       handleExportVectorPrint();
     } finally {
       setIsExportingPDF(false);

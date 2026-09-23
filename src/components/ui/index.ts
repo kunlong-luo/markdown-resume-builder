@@ -5,3 +5,5 @@ export * from './CustomSlider';
 export * from './CustomColorPicker';
 export * from './CustomInput';
 export * from './CustomTextarea';
+export * from './Tooltip';
+export * from './Toast';

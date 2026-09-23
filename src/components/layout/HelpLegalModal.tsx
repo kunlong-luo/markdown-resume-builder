@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   X, 
   HelpCircle, 
@@ -54,13 +55,13 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
             </div>
             <div>
               <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <span>{isEn ? 'Help & Compliance Center' : '帮助文档与法规声明'}</span>
+                <span>{isEn ? 'Help & Guide' : '帮助与指南'}</span>
                 <span className="px-2 py-0.5 text-[10px] font-extrabold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/60 rounded-full">
-                  v1.6 PRO
+                  v1.6
                 </span>
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                {isEn ? 'User guide, local privacy policy & open-source information' : '使用技巧、本地隐私承诺与开源许可声明'}
+                {isEn ? 'Usage tips & privacy info' : '使用技巧与本地数据隐私说明'}
               </p>
             </div>
           </div>
@@ -77,38 +78,59 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
         <div className="flex items-center border-b border-slate-200/80 dark:border-slate-800 px-5 bg-white dark:bg-slate-900 gap-2">
           <button
             onClick={() => setActiveTab('guide')}
-            className={`flex items-center gap-2 px-3.5 py-3 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+            className={`relative flex items-center gap-2 px-3.5 py-3 text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'guide'
-                ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400'
-                : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
+                ? 'text-indigo-600 dark:text-indigo-400'
+                : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
             }`}
           >
             <BookOpen className="w-4 h-4" />
-            <span>{isEn ? 'User Guide' : '📖 使用指南与技巧'}</span>
+            <span>{isEn ? 'User Guide' : '使用技巧'}</span>
+            {activeTab === 'guide' && (
+              <motion.div
+                layoutId="helpLegalActiveTab"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full"
+                transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+              />
+            )}
           </button>
 
           <button
             onClick={() => setActiveTab('privacy')}
-            className={`flex items-center gap-2 px-3.5 py-3 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+            className={`relative flex items-center gap-2 px-3.5 py-3 text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'privacy'
-                ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400'
-                : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
+                ? 'text-indigo-600 dark:text-indigo-400'
+                : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
             }`}
           >
             <ShieldCheck className="w-4 h-4" />
-            <span>{isEn ? 'Privacy & Security' : '🔒 隐私与安全承诺'}</span>
+            <span>{isEn ? 'Privacy' : '隐私承诺'}</span>
+            {activeTab === 'privacy' && (
+              <motion.div
+                layoutId="helpLegalActiveTab"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full"
+                transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+              />
+            )}
           </button>
 
           <button
             onClick={() => setActiveTab('license')}
-            className={`flex items-center gap-2 px-3.5 py-3 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+            className={`relative flex items-center gap-2 px-3.5 py-3 text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'license'
-                ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400'
-                : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
+                ? 'text-indigo-600 dark:text-indigo-400'
+                : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
             }`}
           >
             <Code className="w-4 h-4" />
-            <span>{isEn ? 'Open Source' : '💻 开源协议与版权'}</span>
+            <span>{isEn ? 'Open Source' : '开源协议与版权'}</span>
+            {activeTab === 'license' && (
+              <motion.div
+                layoutId="helpLegalActiveTab"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full"
+                transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+              />
+            )}
           </button>
         </div>
 
@@ -132,12 +154,12 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
                 <div className="p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 rounded-xl space-y-1.5">
                   <div className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
                     <FileText className="w-3.5 h-3.5 text-indigo-500" />
-                    <span>{isEn ? 'Page Break Handling' : '精确分页（<!-- pagebreak -->）'}</span>
+                    <span>{isEn ? 'Page Break' : '手动精确分页'}</span>
                   </div>
                   <p className="text-slate-500 dark:text-slate-400">
                     {isEn
-                      ? 'Insert "<!-- pagebreak -->" in Markdown or click the Toolbar icon to split multi-page content cleanly.'
-                      : '在 Markdown 或工具栏点击「分页符」插入 <!-- pagebreak --> 即可精确定位 A4 强制换页位置。'}
+                      ? 'Click the Scissors icon in the editor toolbar to insert a clean A4 page break.'
+                      : '在编辑器工具栏点击「剪刀」图标插入分页符，即可精确定位 A4 强制换页位置。'}
                   </p>
                 </div>
 

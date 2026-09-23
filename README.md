@@ -2,7 +2,7 @@
 
 [English](./README.en.md) | 简体中文
 
-[![Version](https://img.shields.io/badge/version-v1.6.0--PRO-blue?style=flat-square&logo=github)](https://github.com/kunlong-luo/markdown-resume-builder)
+[![Version](https://img.shields.io/badge/version-v1.7.0--PRO-blue?style=flat-square&logo=github)](https://github.com/kunlong-luo/markdown-resume-builder)
 [![React](https://img.shields.io/badge/built%20with-React%2019-blueviolet?style=flat-square)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/bundler-Vite-646CFF?style=flat-square&logo=vite)](https://vite.dev/)
 [![TailwindCSS](https://img.shields.io/badge/styling-Tailwind%20v4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
@@ -68,6 +68,12 @@
 
 ### 14. 🔤 精致风格化字体系统 (Custom Styled Typography)
 *   **特性**：精选适配项目气质的风格化全局界面字体，大幅提升编辑器整体品质感；同时完整保留简历预览及导出 PDF 的专业排版字体配置，实现编辑器外观与导出文档的完美兼顾。
+
+### 15. ✨ 高回报低负荷 Framer Motion 微交互系统 (Tactile Motion System)
+*   **特性**：全站精细化重构微交互逻辑。快捷导航栏、视图切换器与语言切换器引入 `layoutId` 物理滑轨胶囊，高亮块沿视线与点击轨迹平滑滑移；表单折叠卡片支持渐进式风琴高度展开/收起；下拉菜单与色盘增加物理弹簧轻缩放（`Spring Scale`），赋予软件极高品质感与极致触感。
+
+### 16. 🌊 零闪烁无缝 View Transition 主题波浪切换 (Zero-Lag Theme Ripple)
+*   **特性**：采用浏览器底层原生 View Transitions API 重构深浅色主题切换。注入 `.view-transition-active` 瞬时快照冻结机制，解决 CSS color 渐变冲撞导致的“二次闪烁”与层级撕裂，实现以点击中心向外扩散的 420ms 无缝全屏水波涟漪过渡。
 
 ---
 

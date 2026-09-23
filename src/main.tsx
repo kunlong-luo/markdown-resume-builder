@@ -2,6 +2,7 @@ import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
 import { ConfirmProvider } from './context/ConfirmContext.tsx';
+import { ToastProvider } from './components/ui/Toast.tsx';
 import './index.css';
 
 // Suppress benign ResizeObserver loop notification messages that can occur during layout/zoom updates
@@ -21,7 +22,9 @@ if (typeof window !== 'undefined') {
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ConfirmProvider>
-      <App />
+      <ToastProvider>
+        <App />
+      </ToastProvider>
     </ConfirmProvider>
   </StrictMode>,
 );

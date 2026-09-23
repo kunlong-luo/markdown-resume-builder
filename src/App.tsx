@@ -12,7 +12,6 @@ import { useResumeActions } from './hooks/useResumeActions';
 import { ResumeSettings } from './types';
 import { deserializeShareState } from './lib/share-utils';
 import { SharedResumePage } from './components/share/SharedResumePage';
-import { AestheticBackdrop } from './components/layout/AestheticBackdrop';
 
 export default function App() {
   const shareState = useMemo(() => {
@@ -208,8 +207,6 @@ export default function App() {
 
   return (
     <div className={`flex flex-col h-screen overflow-hidden bg-[#f8fafc] dark:bg-[#070a13] text-slate-900 dark:text-slate-100 relative transition-colors duration-200 ${isDragging ? 'select-none cursor-col-resize' : ''}`}>
-      <AestheticBackdrop />
-      
       <div className="flex flex-col h-full w-full z-10 relative">
         <div className="relative z-50">
           <Header 
@@ -255,22 +252,22 @@ export default function App() {
             </div>
           )}
 
-          {(settings.layoutMode === 'split' || settings.layoutMode === 'preview') && (
-            <section 
-              style={{
-                width: settings.layoutMode === 'split' ? (!isMobile ? `${100 - splitRatio}%` : '100%') : '100%'
-              }}
-              className={`relative transition-none ${
-                settings.layoutMode === 'preview' 
-                  ? 'w-full h-full' 
-                  : 'h-1/2 md:h-full'
-              }`}
-            >
-              <Preview 
-                ref={contentRef} 
-              />
-            </section>
-          )}
+          <section 
+            style={{
+              width: settings.layoutMode === 'split' ? (!isMobile ? `${100 - splitRatio}%` : '100%') : '100%',
+            }}
+            className={`transition-none ${
+              settings.layoutMode === 'editor'
+                ? 'absolute -left-[9999px] top-0 w-[210mm] pointer-events-none opacity-0 select-none'
+                : settings.layoutMode === 'preview' 
+                  ? 'relative w-full h-full' 
+                  : 'relative h-1/2 md:h-full'
+            }`}
+          >
+            <Preview 
+              ref={contentRef} 
+            />
+          </section>
 
           <ResumeChecker />
         </main>
