@@ -146,8 +146,8 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
                 </h3>
                 <p className="text-slate-600 dark:text-slate-300">
                   {isEn
-                    ? 'ResuCraft combines visual form editing with standard Markdown power for 100% pixel-perfect A4 printing.'
-                    : 'ResuCraft (简匠) 支持可视表单（Form Mode）与原生 Markdown 模式无缝双向同步，专为 A4 标准简历排版设计。'}
+                    ? 'Resume Craft combines visual form editing with standard Markdown power for 100% pixel-perfect A4 printing.'
+                    : 'Resume Craft (简匠) 支持可视表单（Form Mode）与原生 Markdown 模式无缝双向同步，专为 A4 标准简历排版设计。'}
                 </p>
               </div>
 
@@ -281,7 +281,7 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
                     <GithubIcon className="w-4 h-4" />
-                    <span>ResuCraft · 简匠</span>
+                    <span>Resume Craft · 简匠</span>
                   </span>
                   <span className="px-2 py-0.5 text-[10px] font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-md border border-indigo-200/50 dark:border-indigo-800/50">
                     MIT License
@@ -320,7 +320,7 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
         {/* Modal Footer */}
         <div className="px-5 py-3 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 flex items-center justify-between text-xs">
           <span className="text-slate-400 dark:text-slate-500 font-mono text-[10px]">
-            ResuCraft · 简匠 v2.0.0 • Powered by React 19 & Vite
+            Resume Craft · 简匠 v2.0.0 • Powered by React 19 & Vite
           </span>
           <button
             onClick={onClose}

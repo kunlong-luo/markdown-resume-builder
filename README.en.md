@@ -1,4 +1,4 @@
-# 🚀 ResuCraft Pro - Markdown Resume Builder (v2.0.0)
+# 🚀 Resume Craft Pro - Markdown Resume Builder (v2.0.0)
 
 English | [简体中文](./README.md)
 
@@ -8,7 +8,7 @@ English | [简体中文](./README.md)
 [![TailwindCSS](https://img.shields.io/badge/styling-Tailwind%20v4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
 
-> **ResuCraft** is an elegant, bi-directional synchronous, pixel-perfect A4 online resume editor designed specifically for job seekers.
+> **Resume Craft** is an elegant, bi-directional synchronous, pixel-perfect A4 online resume editor designed specifically for job seekers.
 > 
 > 💡 **Tagline**: *"Craft your perfect one-page resume with Markdown."*
 > 

@@ -1,4 +1,4 @@
-# 🚀 ResuCraft · 简匠简历 Pro (v2.0.0)
+# 🚀 Resume Craft · 简匠简历 Pro (v2.0.0)
 
 [English](./README.en.md) | 简体中文
 
@@ -8,7 +8,7 @@
 [![TailwindCSS](https://img.shields.io/badge/styling-Tailwind%20v4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
 
-> **ResuCraft (简匠简历)** 是一款专为求职者打造的高颜值、双向同步、完美 A4 控页的在线 Markdown 简历编辑器。
+> **Resume Craft (简匠简历)** 是一款专为求职者打造的高颜值、双向同步、完美 A4 控页的在线 Markdown 简历编辑器。
 > 
 > 💡 **核心口号**：*“用 Markdown 匠造完美的一页纸简历 | Craft your perfect one-page resume with Markdown.”*
 > 
@@ -100,7 +100,7 @@ pnpm test
 
 ## 📈 高清 PDF 导出建议
 
-ResuCraft 提供矢量直接打印与高清 Canvas 渲染双模式导出：
+Resume Craft 提供矢量直接打印与高清 Canvas 渲染双模式导出：
 1. 撰写过程中可开启 **“A4 辅助线”** 确认页面边界。
 2. 内容若有少许超页，点击顶部工具栏 **“一键压缩贴合”** 按钮即可自动收纳至 1 页。
 3. 点击 **“导出 PDF”**，在系统打印窗口中：

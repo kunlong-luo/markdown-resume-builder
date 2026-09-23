@@ -142,7 +142,7 @@ export function Header({
           </div>
           <div className="flex items-baseline gap-1">
             <span className="font-extrabold text-xs text-slate-900 dark:text-white tracking-tight">
-              ResuCraft
+              Resume Craft
             </span>
           </div>
           <ProfileDropdown lang={settings.lang} />
@@ -177,7 +177,7 @@ export function Header({
             </div>
             <div>
               <h1 className="text-base font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-                <span>ResuCraft</span>
+                <span>Resume Craft</span>
                 <span className="px-2 py-0.5 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/80 dark:to-purple-950/80 text-indigo-600 dark:text-indigo-300 text-[10px] rounded-full font-bold border border-indigo-200/80 dark:border-indigo-800 shadow-2xs whitespace-nowrap">
                   {isEn ? 'PRO' : '简匠 PRO'}
                 </span>
