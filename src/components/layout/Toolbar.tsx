@@ -11,6 +11,7 @@ import { CustomSelect, SelectOption } from '../ui/CustomSelect';
 import { CustomSlider } from '../ui/CustomSlider';
 import { CustomColorPicker } from '../ui/CustomColorPicker';
 import { Tooltip } from '../ui/Tooltip';
+import { useTranslation } from '../../i18n';
 
 const MASTER_PRESETS = [
   {
@@ -564,33 +565,34 @@ export function Toolbar() {
         </div>
 
         {/* Aesthetics Popover Panel via Portal */}
-        <AnimatePresence>
-          {isAestheticsOpen && panelCoords && typeof document !== 'undefined' && createPortal(
-            <>
-              {/* High-priority click outside backdrop */}
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
-                className="fixed inset-0 z-[120] bg-slate-900/10 dark:bg-black/40 backdrop-blur-[0.5px] cursor-default" 
-                onClick={() => setIsAestheticsOpen(false)} 
-              />
-              
-              {/* Panel Card */}
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.96, y: -8 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.96, y: -8 }}
-                transition={{ type: 'spring', stiffness: 450, damping: 32 }}
-                style={{
-                  position: 'fixed',
-                  top: `${panelCoords.top}px`,
-                  right: `${panelCoords.right}px`,
-                  maxHeight: `calc(100vh - ${panelCoords.top + 16}px)`,
-                }}
-                className="w-84 sm:w-96 max-w-[calc(100vw-1.25rem)] bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 shadow-[0_20px_48px_rgba(15,23,42,0.18),0_4px_16px_rgba(15,23,42,0.06)] dark:shadow-[0_24px_56px_rgba(0,0,0,0.6)] rounded-2xl p-4 sm:p-5 z-[130] flex flex-col gap-4 scrollbar-thin overflow-y-auto"
-              >
+        {typeof document !== 'undefined' && createPortal(
+          <AnimatePresence>
+            {isAestheticsOpen && panelCoords && (
+              <>
+                {/* High-priority click outside backdrop */}
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="fixed inset-0 z-[120] bg-slate-900/10 dark:bg-black/40 backdrop-blur-[0.5px] cursor-default" 
+                  onClick={() => setIsAestheticsOpen(false)} 
+                />
+                
+                {/* Panel Card */}
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.96, y: -8 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.96, y: -8 }}
+                  transition={{ type: 'spring', stiffness: 450, damping: 32 }}
+                  style={{
+                    position: 'fixed',
+                    top: `${panelCoords.top}px`,
+                    right: `${panelCoords.right}px`,
+                    maxHeight: `calc(100vh - ${panelCoords.top + 16}px)`,
+                  }}
+                  className="w-84 sm:w-96 max-w-[calc(100vw-1.25rem)] bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 shadow-[0_20px_48px_rgba(15,23,42,0.18),0_4px_16px_rgba(15,23,42,0.06)] dark:shadow-[0_24px_56px_rgba(0,0,0,0.6)] rounded-2xl p-4 sm:p-5 z-[130] flex flex-col gap-4 scrollbar-thin overflow-y-auto"
+                >
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5 shrink-0">
                   <div className="flex items-center gap-1.5 font-extrabold text-slate-800 dark:text-white">
@@ -861,10 +863,11 @@ export function Toolbar() {
                 </div>
               </div>
             </motion.div>
-          </>,
-          document.body
+          </>
         )}
-        </AnimatePresence>
+      </AnimatePresence>,
+      document.body
+    )}
       </div>
     </div>
   );

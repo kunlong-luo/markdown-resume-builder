@@ -12,6 +12,13 @@
   --color-slate-750: #26334d;
   --color-slate-850: #131c2e;
   --color-slate-950: #070a13;
+
+  /* Z-Index Design Tokens for scale & maintainability */
+  --z-header: 30;
+  --z-dropdown: 40;
+  --z-popover: 50;
+  --z-modal: 100;
+  --z-toast: 1000;
 }
 
 @layer base {

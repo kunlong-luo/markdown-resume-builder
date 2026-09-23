@@ -114,7 +114,40 @@ const getInitialTemplateId = (initialMarkdown: string): string => {
   return match ? match.id : 'ai_backend';
 };
 
-// Helper to initialize settings
+// Helper to initialize and migrate settings
+const CURRENT_SETTINGS_SCHEMA_VERSION = 2;
+
+const sanitizeSettings = (raw: Partial<ResumeSettings> | null, defaultSettings: ResumeSettings): ResumeSettings => {
+  if (!raw || typeof raw !== 'object') return defaultSettings;
+
+  const merged = { ...defaultSettings, ...raw };
+
+  // Sanitize numeric bounds to prevent corrupted stored state
+  merged.lineHeight = typeof merged.lineHeight === 'number' && !isNaN(merged.lineHeight)
+    ? Math.min(Math.max(merged.lineHeight, 1.0), 2.5)
+    : defaultSettings.lineHeight;
+
+  merged.blockGap = typeof merged.blockGap === 'number' && !isNaN(merged.blockGap)
+    ? Math.min(Math.max(merged.blockGap, 0.0), 3.0)
+    : defaultSettings.blockGap;
+
+  merged.letterSpacing = typeof merged.letterSpacing === 'number' && !isNaN(merged.letterSpacing)
+    ? Math.min(Math.max(merged.letterSpacing, -1.0), 2.0)
+    : defaultSettings.letterSpacing;
+
+  // Sanitize themeMode
+  if (!merged.themeMode || !['light', 'dark', 'system'].includes(merged.themeMode)) {
+    merged.themeMode = 'light';
+  }
+
+  // Sanitize fontSize
+  if (!['compact', 'standard', 'spacious'].includes(merged.fontSize)) {
+    merged.fontSize = 'standard';
+  }
+
+  return merged;
+};
+
 const getInitialSettings = (): ResumeSettings => {
   const defaultSettings: ResumeSettings = {
     themeColor: 'indigo',
@@ -131,17 +164,14 @@ const getInitialSettings = (): ResumeSettings => {
     showPageBreakLine: true,
     templateLayout: 'single',
     lang: 'zh',
-    themeMode: (storage.getString(STORAGE_KEYS.THEME_MODE, 'light') as 'light' | 'dark' | 'system'),
+    themeMode: (storage.getString(STORAGE_KEYS.THEME_MODE, 'light') || 'light') as 'light' | 'dark' | 'system',
   };
   
   const savedSettings = storage.get<Partial<ResumeSettings> | null>(STORAGE_KEYS.SETTINGS, null);
-  if (savedSettings) {
-    return { ...defaultSettings, ...savedSettings };
-  }
-  return defaultSettings;
+  return sanitizeSettings(savedSettings, defaultSettings);
 };
 
-// Helper to initialize Multi-Profile Archive
+// Helper to initialize Multi-Profile Archive with migration
 const getInitialProfiles = (
   defaultMd: string,
   defaultSettings: ResumeSettings
@@ -150,8 +180,18 @@ const getInitialProfiles = (
   const savedActiveId = storage.getString(STORAGE_KEYS.ACTIVE_PROFILE_ID, '');
 
   if (savedProfiles && Array.isArray(savedProfiles) && savedProfiles.length > 0) {
-    const activeId = savedProfiles.some(p => p.id === savedActiveId) ? savedActiveId : savedProfiles[0].id;
-    return { profiles: savedProfiles, activeId };
+    // Migration & Sanitization for each profile
+    const migratedProfiles = savedProfiles.map(p => ({
+      ...p,
+      markdown: typeof p.markdown === 'string' ? p.markdown : defaultMd,
+      settings: sanitizeSettings(p.settings, defaultSettings),
+      name: p.name || '未命名简历草稿',
+      updatedAt: p.updatedAt || new Date().toISOString(),
+      createdAt: p.createdAt || new Date().toISOString()
+    }));
+
+    const activeId = migratedProfiles.some(p => p.id === savedActiveId) ? savedActiveId : migratedProfiles[0].id;
+    return { profiles: migratedProfiles, activeId };
   }
 
   // First time initialization: seed default profiles

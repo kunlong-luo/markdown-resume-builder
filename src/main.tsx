@@ -3,6 +3,7 @@ import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
 import { ConfirmProvider } from './context/ConfirmContext.tsx';
 import { ToastProvider } from './components/ui/Toast.tsx';
+import { ErrorBoundary } from './components/ui/ErrorBoundary.tsx';
 import './index.css';
 
 // Suppress benign ResizeObserver loop notification messages that can occur during layout/zoom updates
@@ -21,11 +22,13 @@ if (typeof window !== 'undefined') {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ConfirmProvider>
-      <ToastProvider>
-        <App />
-      </ToastProvider>
-    </ConfirmProvider>
+    <ErrorBoundary>
+      <ConfirmProvider>
+        <ToastProvider>
+          <App />
+        </ToastProvider>
+      </ConfirmProvider>
+    </ErrorBoundary>
   </StrictMode>,
 );
 

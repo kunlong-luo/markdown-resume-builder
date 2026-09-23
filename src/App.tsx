@@ -12,8 +12,12 @@ import { useResumeActions } from './hooks/useResumeActions';
 import { ResumeSettings } from './types';
 import { deserializeShareState } from './lib/share-utils';
 import { SharedResumePage } from './components/share/SharedResumePage';
+import { useToast } from './components/ui/Toast';
+import { smartAutoFit } from './lib/preview-utils';
+import { Edit3, Eye, FileDown, Sparkles } from 'lucide-react';
 
 export default function App() {
+  const [mobileTab, setMobileTab] = useState<'editor' | 'preview'>('editor');
   const shareState = useMemo(() => {
     try {
       const urlParams = new URLSearchParams(window.location.search);
@@ -205,8 +209,58 @@ export default function App() {
     }
   }, [settings.themeMode]);
 
+  const { showToast } = useToast() || {};
+  const { updateSetting } = useResumeStore();
+
+  // Global Keyboard Shortcuts (Cmd/Ctrl + S, Cmd/Ctrl + P, Cmd/Ctrl + Shift + F)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isCmdOrCtrl = e.metaKey || e.ctrlKey;
+
+      // Cmd/Ctrl + S -> Manual Save trigger Toast
+      if (isCmdOrCtrl && (e.key === 's' || e.key === 'S')) {
+        e.preventDefault();
+        try {
+          localStorage.setItem('resume-markdown', markdown);
+          const now = new Date();
+          const pad = (num: number) => String(num).padStart(2, '0');
+          setLastSaved(`${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`);
+          showToast?.({
+            title: '简历草稿已手动保存',
+            message: '核心内容已实时写入浏览器持久化存储',
+            type: 'success',
+            duration: 2500,
+          });
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      // Cmd/Ctrl + P -> Intercept default browser print and call vector PDF print
+      if (isCmdOrCtrl && !e.shiftKey && (e.key === 'p' || e.key === 'P')) {
+        e.preventDefault();
+        handleExportVectorPrint();
+      }
+
+      // Cmd/Ctrl + Shift + F -> Auto Fit One Page
+      if (isCmdOrCtrl && e.shiftKey && (e.key === 'f' || e.key === 'F')) {
+        e.preventDefault();
+        smartAutoFit(settings, updateSetting);
+        showToast?.({
+          title: '已触发一键贴合控页',
+          message: '微调行高与边距以压缩适应单页',
+          type: 'info',
+          duration: 2500,
+        });
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [markdown, settings, setLastSaved, showToast, handleExportVectorPrint, updateSetting]);
+
   return (
-    <div className={`flex flex-col h-screen overflow-hidden bg-[#f8fafc] dark:bg-[#070a13] text-slate-900 dark:text-slate-100 relative transition-colors duration-200 ${isDragging ? 'select-none cursor-col-resize' : ''}`}>
+    <div className={`flex flex-col h-[100dvh] overflow-hidden bg-[#f8fafc] dark:bg-[#070a13] text-slate-900 dark:text-slate-100 relative transition-colors duration-200 ${isDragging ? 'select-none cursor-col-resize' : ''}`}>
       <div className="flex flex-col h-full w-full z-10 relative">
         <div className="relative z-50">
           <Header 
@@ -221,26 +275,25 @@ export default function App() {
 
         <main 
           ref={containerRef}
-          className="flex-1 flex flex-col md:flex-row overflow-hidden relative"
+          className="flex-1 flex flex-col md:flex-row overflow-hidden relative pb-14 md:pb-0"
         >
-          {(settings.layoutMode === 'split' || settings.layoutMode === 'editor') && (
+          {/* Editor Pane */}
+          {(!isMobile || mobileTab === 'editor') && (
             <section 
               id="editor-pane" 
               style={{
-                width: settings.layoutMode === 'split' ? (!isMobile ? `${splitRatio}%` : '100%') : '100%'
+                width: !isMobile ? (settings.layoutMode === 'split' ? `${splitRatio}%` : settings.layoutMode === 'editor' ? '100%' : '0%') : '100%'
               }}
-              className={`z-10 relative border-r border-slate-200/90 dark:border-slate-800 transition-none ${
-                settings.layoutMode === 'editor' 
-                  ? 'w-full h-full' 
-                  : 'h-1/2 md:h-full border-b md:border-b-0 border-slate-200/90 dark:border-slate-800'
-              }`}
+              className={`z-10 relative transition-none h-full ${
+                !isMobile && settings.layoutMode === 'preview' ? 'hidden' : 'w-full'
+              } border-r border-slate-200/90 dark:border-slate-800`}
             >
               <Editor />
             </section>
           )}
 
-          {/* Draggable Divider for Split Mode */}
-          {settings.layoutMode === 'split' && (
+          {/* Draggable Divider for Split Mode on Desktop */}
+          {!isMobile && settings.layoutMode === 'split' && (
             <div 
               onMouseDown={handleMouseDown}
               onTouchStart={handleTouchStart}
@@ -252,16 +305,15 @@ export default function App() {
             </div>
           )}
 
+          {/* Preview Pane */}
           <section 
             style={{
-              width: settings.layoutMode === 'split' ? (!isMobile ? `${100 - splitRatio}%` : '100%') : '100%',
+              width: !isMobile ? (settings.layoutMode === 'split' ? `${100 - splitRatio}%` : settings.layoutMode === 'preview' ? '100%' : '0%') : '100%',
             }}
-            className={`transition-none ${
-              settings.layoutMode === 'editor'
-                ? 'absolute -left-[9999px] top-0 w-[210mm] pointer-events-none opacity-0 select-none'
-                : settings.layoutMode === 'preview' 
-                  ? 'relative w-full h-full' 
-                  : 'relative h-1/2 md:h-full'
+            className={`transition-none h-full ${
+              isMobile 
+                ? (mobileTab === 'preview' ? 'w-full relative' : 'absolute -left-[9999px] top-0 w-[210mm] pointer-events-none opacity-0 select-none')
+                : (settings.layoutMode === 'editor' ? 'absolute -left-[9999px] top-0 w-[210mm] pointer-events-none opacity-0 select-none' : 'relative')
             }`}
           >
             <Preview 
@@ -271,6 +323,45 @@ export default function App() {
 
           <ResumeChecker />
         </main>
+
+        {/* Mobile Ergonomic Bottom Floating Dock */}
+        {isMobile && (
+          <div className="md:hidden fixed bottom-3 left-1/2 -translate-x-1/2 z-50 bg-slate-900/90 dark:bg-slate-800/95 border border-slate-700/80 backdrop-blur-xl shadow-2xl rounded-full p-1.5 flex items-center gap-1.5 text-xs font-bold text-white animate-in fade-in slide-in-from-bottom-3 duration-200">
+            <button
+              onClick={() => setMobileTab('editor')}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
+                mobileTab === 'editor' 
+                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/30' 
+                  : 'text-slate-300 hover:text-white'
+              }`}
+            >
+              <Edit3 className="w-3.5 h-3.5" />
+              <span>编辑 Markdown</span>
+            </button>
+
+            <button
+              onClick={() => setMobileTab('preview')}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
+                mobileTab === 'preview' 
+                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/30' 
+                  : 'text-slate-300 hover:text-white'
+              }`}
+            >
+              <Eye className="w-3.5 h-3.5" />
+              <span>A4 预览</span>
+            </button>
+
+            <div className="w-px h-4 bg-slate-700 mx-0.5" />
+
+            <button
+              onClick={handleExportPDF}
+              className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full transition-all cursor-pointer active:scale-95"
+            >
+              <FileDown className="w-3.5 h-3.5" />
+              <span>导出</span>
+            </button>
+          </div>
+        )}
 
         <IframeWarningModal />
         <BackupDraftModal />
