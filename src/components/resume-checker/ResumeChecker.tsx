@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Sparkles, X, Type, Check } from 'lucide-react';
+import { SpellCheck, ClipboardCheck, X, Type, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { analyzeResume } from '../../lib/resume-checker-utils';
 import { formatChineseEnglishSpacing } from '../../lib/format-utils';
@@ -296,9 +296,9 @@ export function ResumeChecker(props: ResumeCheckerProps = {}) {
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 bg-slate-50 dark:bg-slate-850 border-b border-slate-200/80 dark:border-slate-800">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4.5 h-4.5 text-blue-600 dark:text-blue-400 animate-pulse" />
+              <ClipboardCheck className="w-4.5 h-4.5 text-indigo-600 dark:text-indigo-400" />
               <h2 className="text-sm font-bold text-slate-800 dark:text-slate-100 tracking-tight">
-                {isEn ? 'Smart Diagnostic' : '智能诊断'}
+                {isEn ? 'Resume Diagnostic' : '简历诊断'}
               </h2>
             </div>
             <button 
@@ -321,7 +321,7 @@ export function ResumeChecker(props: ResumeCheckerProps = {}) {
               onClick={() => setActiveTab('verbs')}
               className={`flex-1 py-3 text-xs font-bold border-b-2 transition-all flex items-center justify-center gap-1.5 cursor-pointer ${activeTab === 'verbs' ? 'border-blue-600 text-blue-600 dark:text-blue-400' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
             >
-              <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+              <SpellCheck className="w-3.5 h-3.5 text-indigo-500" />
               <span>{isEn ? 'Verb Optimization' : '用词优化'}</span>
               {matchedWeakWords.length > 0 && (
                 <span className="bg-rose-500 text-white text-[9px] px-1.5 py-0.2 rounded-full font-bold ml-1 scale-90">
@@ -342,7 +342,7 @@ export function ResumeChecker(props: ResumeCheckerProps = {}) {
               <div className="space-y-5 animate-in fade-in duration-200">
                 <div className="bg-indigo-50/50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-800/60 rounded-xl p-3">
                   <span className="text-[11px] font-bold text-indigo-800 dark:text-indigo-300 flex items-center gap-1 mb-1">
-                    <Sparkles className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                    <SpellCheck className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                     <span>{isEn ? 'Action Verb Optimizer' : '专业用词优化'}</span>
                   </span>
                   <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">

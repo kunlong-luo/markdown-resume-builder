@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, LayoutGrid, Sliders, Check, Settings, Maximize2, Columns, Eye, Globe, ChevronDown, Palette, Zap } from 'lucide-react';
+import { LayoutGrid, Sliders, SlidersHorizontal, Check, Settings, Maximize2, Columns, Eye, Globe, ChevronDown, Palette, Zap } from 'lucide-react';
 import { ResumeSettings, ThemeColor, FontSize, PaperMargin, FontFamily, TemplateLayout, H2Style } from '../../types';
 import { TEMPLATES } from '../../data';
 import { useResumeStore } from '../../store/useResumeStore';
@@ -325,7 +325,7 @@ export function Toolbar() {
   const t = isEn ? TRANSLATIONS.en : TRANSLATIONS.zh;
 
   const presetOptions: SelectOption[] = [
-    ...(getCurrentPresetId() === '' ? [{ value: '', label: isEn ? 'Custom Style' : '自定义配置', disabled: true }] : []),
+    ...(getCurrentPresetId() === '' ? [{ value: '', label: isEn ? 'Custom Style' : '自定义样式', disabled: true }] : []),
     ...MASTER_PRESETS.map(p => {
       let displayName = p.name;
       if (isEn) {
@@ -410,12 +410,12 @@ export function Toolbar() {
 
         {/* Style Preset Selector */}
         <div className="flex items-center gap-1.5 pr-2.5 border-r border-slate-200/90 dark:border-slate-800 shrink-0">
-          <Sparkles className="w-3.5 h-3.5 text-indigo-500 shrink-0 pointer-events-none" />
+          <SlidersHorizontal className="w-3.5 h-3.5 text-indigo-500 shrink-0 pointer-events-none" />
           <CustomSelect
             value={getCurrentPresetId()}
             onChange={handleApplyPreset}
             options={presetOptions}
-            placeholder={isEn ? 'Custom Style' : '自定义配置'}
+            placeholder={isEn ? 'Custom Style' : '自定义样式'}
             size="xs"
             triggerClassName="bg-indigo-50/90 dark:bg-indigo-950/60 border-indigo-200/80 dark:border-indigo-800/60 text-indigo-950 dark:text-indigo-300 font-bold text-[11px] h-7 rounded-lg hover:bg-indigo-100/80 dark:hover:bg-indigo-900/60 shadow-2xs"
           />

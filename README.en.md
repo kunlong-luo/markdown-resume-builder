@@ -2,7 +2,7 @@
 
 English | [简体中文](./README.md)
 
-[![Version](https://img.shields.io/badge/version-v1.7.0--PRO-blue?style=flat-square&logo=github)](https://github.com/kunlong-luo/markdown-resume-builder)
+[![Version](https://img.shields.io/badge/version-v1.8.0--PRO-blue?style=flat-square&logo=github)](https://github.com/kunlong-luo/markdown-resume-builder)
 [![React](https://img.shields.io/badge/built%20with-React%2019-blueviolet?style=flat-square)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/bundler-Vite-646CFF?style=flat-square&logo=vite)](https://vite.dev/)
 [![TailwindCSS](https://img.shields.io/badge/styling-Tailwind%20v4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
@@ -74,6 +74,12 @@ English | [简体中文](./README.md)
 
 ### 16. 🌊 Zero-Lag View Transitions Theme Ripple
 *   **The Feature**: Native View Transitions API implementation for dark/light mode switching. Integrated `.view-transition-active` snapshot freeze to eliminate CSS transition thrashing and double-flickers, driving a 420ms circular ripple wave emanating smoothly from the user's click coordinates.
+
+### 17. 🧹 Zero-Friction Clean UI & Implicit Interactions
+*   **The Feature**: Comprehensive cleanup of redundant text prompts, status telemetry indicators, and duplicate action buttons across the entire editor:
+    *   **Streamlined Resume Profiles**: Consolidated into clean "Resume Profiles", removing redundant banner copy and duplicate import/export buttons, integrating a lightweight "Create Blank Profile" card directly in the grid.
+    *   **Implicit Card Switching**: Eliminated all explicit "Click to Switch" text clutter. Users click anywhere on a card to switch profiles seamlessly or restore draft snapshots instantly.
+    *   **Refined Quick Actions**: Top dropdown menu and control bar buttons streamlined to concise "Copy" and "New" actions, providing a distraction-free editing workspace.
 
 ---
 

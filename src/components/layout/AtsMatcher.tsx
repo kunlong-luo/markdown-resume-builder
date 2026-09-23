@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Target, Sparkles, CheckCircle, AlertTriangle, Info, FileText, RefreshCw, Layers } from 'lucide-react';
+import { Target, Highlighter, CheckCircle, AlertTriangle, Info, FileText, RefreshCw, Layers } from 'lucide-react';
 import { useResumeStore } from '../../store/useResumeStore';
 import { extractKeywordsFromJd, analyzeResumeMatch } from '../../lib/ats-utils';
 
@@ -262,7 +262,7 @@ Requirements:
 
           {/* Preview Notification Accent */}
           <div className="p-3 bg-blue-50/40 dark:bg-blue-950/40 border border-blue-100/60 dark:border-blue-800/40 rounded-xl flex items-start gap-2 text-[11px] text-blue-700 dark:text-blue-300 font-medium">
-            <Sparkles className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+            <Highlighter className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
             <p className="leading-relaxed">
               {isEn
                 ? 'ATS Thermal Glow is active! Matched keywords are highlighted with a warm amber glowing underline in the preview pane.'

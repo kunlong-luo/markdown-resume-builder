@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 export interface TooltipProps {
   content?: React.ReactNode;
@@ -16,7 +17,7 @@ export function Tooltip({
   content,
   shortcut,
   children,
-  side = 'bottom',
+  side = 'top',
   align = 'center',
   disabled = false,
   delay = 150,
@@ -24,7 +25,79 @@ export function Tooltip({
   wrapperClassName = ''
 }: TooltipProps) {
   const [isVisible, setIsVisible] = useState(false);
+  const [coords, setCoords] = useState<{ top: number; left: number; actualSide: 'top' | 'bottom' | 'left' | 'right' }>({
+    top: 0,
+    left: 0,
+    actualSide: side
+  });
+  const triggerRef = useRef<HTMLDivElement>(null);
+  const tooltipRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const updatePosition = () => {
+    if (!triggerRef.current || !tooltipRef.current) return;
+    const triggerRect = triggerRef.current.getBoundingClientRect();
+    const tooltipRect = tooltipRef.current.getBoundingClientRect();
+
+    const gap = 6;
+    let actualSide = side;
+    let top = 0;
+    let left = 0;
+
+    // Check vertical flips
+    if (side === 'top') {
+      if (triggerRect.top - tooltipRect.height - gap < 8) {
+        actualSide = 'bottom';
+        top = triggerRect.bottom + gap;
+      } else {
+        top = triggerRect.top - tooltipRect.height - gap;
+      }
+    } else if (side === 'bottom') {
+      if (triggerRect.bottom + tooltipRect.height + gap > window.innerHeight - 8) {
+        actualSide = 'top';
+        top = triggerRect.top - tooltipRect.height - gap;
+      } else {
+        top = triggerRect.bottom + gap;
+      }
+    } else if (side === 'left') {
+      if (triggerRect.left - tooltipRect.width - gap < 8) {
+        actualSide = 'right';
+        left = triggerRect.right + gap;
+      } else {
+        left = triggerRect.left - tooltipRect.width - gap;
+      }
+      top = triggerRect.top + (triggerRect.height - tooltipRect.height) / 2;
+    } else if (side === 'right') {
+      if (triggerRect.right + tooltipRect.width + gap > window.innerWidth - 8) {
+        actualSide = 'left';
+        left = triggerRect.left - tooltipRect.width - gap;
+      } else {
+        left = triggerRect.right + gap;
+      }
+      top = triggerRect.top + (triggerRect.height - tooltipRect.height) / 2;
+    }
+
+    if (actualSide === 'top' || actualSide === 'bottom') {
+      if (align === 'start') {
+        left = triggerRect.left;
+      } else if (align === 'end') {
+        left = triggerRect.right - tooltipRect.width;
+      } else {
+        left = triggerRect.left + (triggerRect.width - tooltipRect.width) / 2;
+      }
+    }
+
+    // Viewport boundary clamping
+    const minX = 8;
+    const maxX = window.innerWidth - tooltipRect.width - 8;
+    left = Math.max(minX, Math.min(left, maxX));
+
+    const minY = 8;
+    const maxY = window.innerHeight - tooltipRect.height - 8;
+    top = Math.max(minY, Math.min(top, maxY));
+
+    setCoords({ top, left, actualSide });
+  };
 
   const handleMouseEnter = () => {
     if (disabled || !content) return;
@@ -45,6 +118,25 @@ export function Tooltip({
     setIsVisible(false);
   };
 
+  useLayoutEffect(() => {
+    if (isVisible) {
+      updatePosition();
+    }
+  }, [isVisible]);
+
+  useEffect(() => {
+    if (!isVisible) return;
+    const handleScrollOrResize = () => {
+      updatePosition();
+    };
+    window.addEventListener('scroll', handleScrollOrResize, true);
+    window.addEventListener('resize', handleScrollOrResize);
+    return () => {
+      window.removeEventListener('scroll', handleScrollOrResize, true);
+      window.removeEventListener('resize', handleScrollOrResize);
+    };
+  }, [isVisible]);
+
   useEffect(() => {
     return () => {
       if (timerRef.current) {
@@ -57,41 +149,9 @@ export function Tooltip({
     return <>{children}</>;
   }
 
-  // Positioning classes
-  let positionClasses = '';
-  let arrowClasses = '';
-
-  switch (side) {
-    case 'top':
-      positionClasses = 'bottom-full mb-1.5';
-      arrowClasses = 'top-full left-1/2 -translate-x-1/2 border-t-slate-900 dark:border-t-slate-800 border-x-transparent border-b-transparent border-t-4 border-x-4 border-b-0';
-      break;
-    case 'bottom':
-      positionClasses = 'top-full mt-1.5';
-      arrowClasses = 'bottom-full left-1/2 -translate-x-1/2 border-b-slate-900 dark:border-b-slate-800 border-x-transparent border-t-transparent border-b-4 border-x-4 border-t-0';
-      break;
-    case 'left':
-      positionClasses = 'right-full mr-1.5 top-1/2 -translate-y-1/2';
-      arrowClasses = 'left-full top-1/2 -translate-y-1/2 border-l-slate-900 dark:border-l-slate-800 border-y-transparent border-r-transparent border-l-4 border-y-4 border-r-0';
-      break;
-    case 'right':
-      positionClasses = 'left-full ml-1.5 top-1/2 -translate-y-1/2';
-      arrowClasses = 'right-full top-1/2 -translate-y-1/2 border-r-slate-900 dark:border-r-slate-800 border-y-transparent border-l-transparent border-r-4 border-y-4 border-l-0';
-      break;
-  }
-
-  if (side === 'top' || side === 'bottom') {
-    if (align === 'start') {
-      positionClasses += ' left-0';
-    } else if (align === 'end') {
-      positionClasses += ' right-0';
-    } else {
-      positionClasses += ' left-1/2 -translate-x-1/2';
-    }
-  }
-
   return (
     <div
+      ref={triggerRef}
       className={`relative inline-flex items-center ${wrapperClassName}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -100,25 +160,33 @@ export function Tooltip({
     >
       {children}
 
-      {isVisible && (
-        <div
-          role="tooltip"
-          className={`absolute z-[9999] pointer-events-none select-none animate-in fade-in zoom-in-95 duration-150 ${positionClasses}`}
-        >
+      {isVisible &&
+        typeof document !== 'undefined' &&
+        createPortal(
           <div
-            className={`flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium leading-tight text-slate-100 bg-slate-900/95 dark:bg-slate-800/95 border border-slate-700/80 dark:border-slate-700/80 rounded-lg shadow-xl shadow-slate-950/20 backdrop-blur-md whitespace-nowrap tracking-wide ${className}`}
+            ref={tooltipRef}
+            role="tooltip"
+            style={{
+              position: 'fixed',
+              top: `${coords.top}px`,
+              left: `${coords.left}px`,
+              zIndex: 99999
+            }}
+            className="pointer-events-none select-none transition-opacity duration-150 animate-in fade-in zoom-in-95"
           >
-            <span>{content}</span>
-            {shortcut && (
-              <kbd className="px-1.5 py-0.5 text-[9px] font-semibold bg-slate-800 dark:bg-slate-700 text-slate-300 rounded border border-slate-700 dark:border-slate-600 shadow-2xs">
-                {shortcut}
-              </kbd>
-            )}
-          </div>
-          {/* Subtle Arrow */}
-          <div className={`absolute w-0 h-0 ${arrowClasses}`} />
-        </div>
-      )}
+            <div
+              className={`flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium leading-tight text-slate-100 bg-slate-900/95 dark:bg-slate-800/95 border border-slate-700/80 dark:border-slate-700/80 rounded-lg shadow-xl shadow-slate-950/20 backdrop-blur-md whitespace-nowrap tracking-wide ${className}`}
+            >
+              <span>{content}</span>
+              {shortcut && (
+                <kbd className="px-1.5 py-0.5 text-[9px] font-semibold bg-slate-800 dark:bg-slate-700 text-slate-300 rounded border border-slate-700 dark:border-slate-600 shadow-2xs">
+                  {shortcut}
+                </kbd>
+              )}
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 }

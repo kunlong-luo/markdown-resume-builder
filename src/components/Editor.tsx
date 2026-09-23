@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { 
   Edit3, Copy, RotateCcw, Check, Bold, Italic, Link, List, ListOrdered, Table, Minus, Heading1, Heading2, Code, Info, Scissors, Undo, Redo,
-  Sparkles, Type, Layers, Award, Phone, GraduationCap, ChevronDown, Briefcase, Sliders, ChevronsUp, ChevronsDown, Wand2
+  Type, Layers, Award, Phone, GraduationCap, ChevronDown, Briefcase, Sliders, ChevronsUp, ChevronsDown, Wand2
 } from 'lucide-react';
 import { FormEditor } from './form/FormEditor';
 import { SectionSorter } from './layout/SectionSorter';
@@ -603,7 +603,7 @@ export function Editor() {
                       }}
                       className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-slate-750 hover:text-blue-700 dark:hover:text-blue-300 transition-colors cursor-pointer text-left font-medium"
                     >
-                      <Sparkles className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
+                      <Wand2 className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
                       <span>{settings.lang === 'en' ? 'Project Experience (STAR)' : '项目经历模板 (STAR)'}</span>
                     </button>
 

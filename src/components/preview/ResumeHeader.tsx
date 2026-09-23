@@ -141,25 +141,21 @@ export function ResumeHeader({ headerInfo, theme }: ResumeHeaderProps) {
                   ? matchedUrl
                   : `https://${matchedUrl}`;
 
-                // Extract username / repo part from URL, hiding 'github.com/' domain
-                const pathMatch = matchedUrl.match(/github\.com\/?([^\s?#]*)/i);
-                if (pathMatch && pathMatch[1]) {
-                  const segments = pathMatch[1].split('/').map(s => s.trim()).filter(Boolean);
-                  if (segments.length >= 2) {
-                    displayText = `${segments[0]}/${segments[1].replace(/\.git$/i, '')}`;
-                  } else if (segments.length === 1) {
-                    displayText = segments[0].replace(/\.git$/i, '');
-                  }
-                }
-                // If unable to extract segments (e.g. just github.com), fallback to contact without prefix
-                if (!displayText || displayText === contact) {
-                  const cleaned = contact.replace(/^(?:GitHub)[:：\s]*/i, '').trim();
-                  displayText = cleaned || contact;
+                if (mdLinkMatch && mdLinkMatch[1]) {
+                  displayText = mdLinkMatch[1].trim();
+                } else {
+                  // Clean display: remove protocol and trailing slash, e.g. github.com/username
+                  const cleanText = matchedUrl.replace(/^https?:\/\/(?:www\.)?/i, '').replace(/\/$/, '');
+                  displayText = cleanText || contact.replace(/^(?:GitHub)[:：\s]*/i, '').trim();
                 }
               } else if (isUrl) {
                 const urlClean = rawUrl || contact.replace(/^(?:GitHub|Gitee|Blog|博客|主页)[:：\s]*/i, '').trim();
                 href = urlClean.startsWith('http') ? urlClean : `https://${urlClean}`;
-                displayText = urlClean;
+                if (mdLinkMatch && mdLinkMatch[1]) {
+                  displayText = mdLinkMatch[1].trim();
+                } else {
+                  displayText = urlClean.replace(/^https?:\/\/(?:www\.)?/i, '').replace(/\/$/, '');
+                }
               }
 
               return (

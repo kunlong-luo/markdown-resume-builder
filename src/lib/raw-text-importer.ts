@@ -16,11 +16,13 @@ export function parseRawTextToResumeMarkdown(rawText: string): string {
   let name = '';
   let phone = '';
   let email = '';
+  let wechat = '';
   let role = '';
   let github = '';
 
   const phoneRegex = /(?:\+?86)?\s*(1[3-9]\d{9})/;
   const emailRegex = /([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)/;
+  const wechatRegex = /(?:微信|微信号|WeChat|Wechat|wechat|wx|WX)[:：\s]+([a-zA-Z0-9_-]+)/i;
   const githubRegex = /(?:github\.com\/([a-zA-Z0-9_-]+)|git@github\.com:([a-zA-Z0-9_-]+))/i;
 
   const remainingLines: string[] = [];
@@ -38,6 +40,12 @@ export function parseRawTextToResumeMarkdown(rawText: string): string {
     if (!email && emailRegex.test(line)) {
       const match = line.match(emailRegex);
       if (match) email = match[1];
+    }
+
+    // Detect wechat
+    if (!wechat && wechatRegex.test(line)) {
+      const match = line.match(wechatRegex);
+      if (match) wechat = match[1];
     }
 
     // Detect github
@@ -67,6 +75,7 @@ export function parseRawTextToResumeMarkdown(rawText: string): string {
   const contacts: string[] = [];
   if (phone) contacts.push(phone);
   if (email) contacts.push(email);
+  if (wechat) contacts.push(`微信: ${wechat}`);
   if (github) contacts.push(`[GitHub](${github})`);
 
   let markdown = `# ${name}\n`;

@@ -22,18 +22,18 @@ interface FormEditorProps {
 
 const TRANSLATIONS = {
   zh: {
-    outlineTitle: '简历板块大纲',
-    totalSections: (count: number) => `共 ${count} 个板块`,
+    outlineTitle: '板块结构',
+    totalSections: (count: number) => `${count} 个板块`,
     collapseOutline: '折叠大纲 [-]',
     expandOutline: '展开大纲 [+]',
-    tip: '💡 提示：您可以点击右侧箭头调整模块的上下顺序，右侧预览将实时重绘。',
+    tip: '💡 提示：点击箭头调整模块上下顺序，右侧实时显示。',
     expandAll: '展开所有',
     collapseAll: '折叠所有',
     basicInfo: '🧑‍💼 个人基本信息',
-    fixedTop: '固定置顶',
-    unnamedSec: '未命名板块',
-    moveUp: '上移板块',
-    moveDown: '下移板块',
+    fixedTop: '置顶',
+    unnamedSec: '未命名模块',
+    moveUp: '上移',
+    moveDown: '下移',
     
     // items defaults
     defaultSchool: '学校名称',

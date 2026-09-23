@@ -14,7 +14,8 @@ import { deserializeShareState } from './lib/share-utils';
 import { SharedResumePage } from './components/share/SharedResumePage';
 import { useToast } from './components/ui/Toast';
 import { smartAutoFit } from './lib/preview-utils';
-import { Edit3, Eye, FileDown, Sparkles } from 'lucide-react';
+import { Edit3, Eye, FileDown } from 'lucide-react';
+import { Tooltip } from './components/ui/Tooltip';
 
 export default function App() {
   const [mobileTab, setMobileTab] = useState<'editor' | 'preview'>('editor');
@@ -91,7 +92,9 @@ export default function App() {
       const newRatio = ((clientX - rect.left) / rect.width) * 100;
       // Clamp between 28% and 72%
       const clamped = Math.min(Math.max(newRatio, 28), 72);
-      setSplitRatio(clamped);
+      // Snap to exact 50% when close
+      const finalRatio = Math.abs(clamped - 50) < 1.5 ? 50 : clamped;
+      setSplitRatio(finalRatio);
     };
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -294,15 +297,29 @@ export default function App() {
 
           {/* Draggable Divider for Split Mode on Desktop */}
           {!isMobile && settings.layoutMode === 'split' && (
-            <div 
-              onMouseDown={handleMouseDown}
-              onTouchStart={handleTouchStart}
-              className="hidden md:flex items-center justify-center w-3 -mx-1.5 z-30 cursor-col-resize group hover:w-3.5 transition-all select-none"
-              title="拖拽调节编辑器与预览区宽度（双击复位 50%）"
-              onDoubleClick={() => setSplitRatio(50)}
+            <Tooltip
+              content={settings.lang === 'en' ? 'Drag to resize (Double click to reset 50%)' : '拖拽调节左右宽度（双击复位 50%）'}
+              side="top"
+              delay={400}
+              disabled={isDragging}
+              wrapperClassName="hidden md:flex h-full items-center justify-center z-30"
             >
-              <div className={`w-1 h-8 rounded-full transition-all duration-200 ${isDragging ? 'bg-indigo-600 scale-y-125' : 'bg-slate-300 dark:bg-slate-700 group-hover:bg-indigo-400 dark:group-hover:bg-indigo-400 group-hover:scale-y-110'}`} />
-            </div>
+              <div 
+                onMouseDown={handleMouseDown}
+                onTouchStart={handleTouchStart}
+                className="flex items-center justify-center w-3 h-full -mx-1.5 cursor-col-resize group hover:w-3.5 transition-all select-none relative"
+                onDoubleClick={() => setSplitRatio(50)}
+              >
+                <div className={`w-1 h-8 rounded-full transition-all duration-200 ${isDragging ? 'bg-indigo-600 scale-y-125' : 'bg-slate-300 dark:bg-slate-700 group-hover:bg-indigo-400 dark:group-hover:bg-indigo-400 group-hover:scale-y-110'}`} />
+                {isDragging && (
+                  <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-slate-900/90 dark:bg-slate-800/95 text-white text-[10px] font-mono font-bold px-2.5 py-1 rounded-full shadow-lg border border-slate-700/80 whitespace-nowrap pointer-events-none animate-in fade-in duration-150 flex items-center gap-1 z-50">
+                    <span>{Math.round(splitRatio)}%</span>
+                    <span className="text-slate-400">:</span>
+                    <span>{Math.round(100 - splitRatio)}%</span>
+                  </div>
+                )}
+              </div>
+            </Tooltip>
           )}
 
           {/* Preview Pane */}

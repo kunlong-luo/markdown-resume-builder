@@ -1,6 +1,7 @@
 import React from 'react';
 import { History, Plus, Clock, FileText, Settings, Check, X, Trash2 } from 'lucide-react';
 import { ResumeDraft } from '../../types';
+import { Tooltip } from '../ui/Tooltip';
 
 interface DraftsTabProps {
   drafts: ResumeDraft[];
@@ -39,10 +40,10 @@ export function DraftsTab({
       <form onSubmit={handleCreateDraft} className="flex gap-2">
         <input
           type="text"
-          placeholder={isEn ? "Enter draft label or description (e.g., Core Refined / English-Ver-2026)..." : "输入草稿备注 (如: 精简版、去除期望薪资)..."}
+          placeholder={isEn ? "Draft remark (optional)..." : "输入草稿备注..."}
           value={newDraftTitle}
           onChange={(e) => setNewDraftTitle(e.target.value)}
-          className="flex-1 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100/50 dark:hover:bg-slate-750 focus:bg-white dark:focus:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-indigo-500 rounded-xl px-4 py-2.5 text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-950/60 transition-all shadow-inner"
+          className="flex-1 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100/50 dark:hover:bg-slate-750 focus:bg-white dark:focus:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-indigo-500 rounded-xl px-4 py-2 text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-950/60 transition-all"
         />
         <button
           type="submit"
@@ -131,24 +132,27 @@ export function DraftsTab({
 
                 {/* Actions */}
                 <div className="flex items-center gap-1 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setEditingDraftId(draft.id);
-                      setEditingTitle(draft.title);
-                    }}
-                    className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700 rounded-lg transition-colors text-[10px] font-bold"
-                    title={isEn ? "Rename draft" : "重命名草稿"}
-                  >
-                    {isEn ? 'Rename' : '重命名'}
-                  </button>
-                  <button
-                    onClick={(e) => handleDeleteDraft(draft.id, e)}
-                    className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors"
-                    title={isEn ? "Delete draft" : "删除本草稿"}
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                  <Tooltip content={isEn ? "Rename draft" : "重命名草稿"}>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditingDraftId(draft.id);
+                        setEditingTitle(draft.title);
+                      }}
+                      className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700 rounded-lg transition-colors text-[10px] font-bold cursor-pointer"
+                    >
+                      {isEn ? 'Rename' : '重命名'}
+                    </button>
+                  </Tooltip>
+
+                  <Tooltip content={isEn ? "Delete draft" : "删除本草稿"}>
+                    <button
+                      onClick={(e) => handleDeleteDraft(draft.id, e)}
+                      className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </Tooltip>
                 </div>
               </div>
             ))}

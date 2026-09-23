@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Calendar, Check, X, RotateCcw } from 'lucide-react';
 import { CustomSelect } from '../ui/CustomSelect';
 import { CustomCheckbox } from '../ui/CustomCheckbox';
+import { Tooltip } from '../ui/Tooltip';
 
 interface MonthRangePickerProps {
   value: string;
@@ -10,6 +11,7 @@ interface MonthRangePickerProps {
   className?: string;
   lang?: string;
   leftIcon?: React.ReactNode;
+  showPresentToggle?: boolean;
 }
 
 export function MonthRangePicker({
@@ -18,7 +20,8 @@ export function MonthRangePicker({
   placeholder = '',
   className = '',
   lang = 'zh',
-  leftIcon
+  leftIcon,
+  showPresentToggle = false
 }: MonthRangePickerProps) {
   const isEn = lang === 'en';
   const [isOpen, setIsOpen] = useState(false);
@@ -119,17 +122,46 @@ export function MonthRangePicker({
 
   const handleApply = () => {
     const startStr = `${startYear}.${startMonth}`;
-    const now = new Date();
-    const cy = now.getFullYear();
-    const cm = String(now.getMonth() + 1).padStart(2, '0');
-    const endStr = isOngoing ? `${cy}.${cm}` : `${endYear}.${endMonth}`;
+    const endStr = isOngoing ? (isEn ? 'Present' : '至今') : `${endYear}.${endMonth}`;
     onChange(`${startStr} - ${endStr}`);
     setIsOpen(false);
   };
 
-  const handleClear = () => {
+  const handleClear = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     onChange('');
     setIsOpen(false);
+  };
+
+  const isEndingWithPresent = /(至今|present|现在|current|now)/i.test(value);
+
+  const handleTogglePresentQuickly = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const presentLabel = isEn ? 'Present' : '至今';
+    if (!value.trim()) {
+      const cy = new Date().getFullYear();
+      onChange(`${cy}.01 - ${presentLabel}`);
+      return;
+    }
+    
+    const parts = value.split(/\s*(?:[\-—–~至]|to)\s*/i).map(s => s.trim()).filter(Boolean);
+    if (parts.length === 0) {
+      const cy = new Date().getFullYear();
+      onChange(`${cy}.01 - ${presentLabel}`);
+    } else {
+      const startPart = parts[0];
+      if (isEndingWithPresent) {
+        const cy = new Date().getFullYear();
+        const cm = String(new Date().getMonth() + 1).padStart(2, '0');
+        onChange(`${startPart} - ${cy}.${cm}`);
+      } else {
+        onChange(`${startPart} - ${presentLabel}`);
+      }
+    }
   };
 
   const cleanedClassName = className
@@ -149,32 +181,35 @@ export function MonthRangePicker({
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          onBlur={(e) => {
-            const val = e.target.value;
-            if (!val) return;
-            const now = new Date();
-            const cy = now.getFullYear();
-            const cm = String(now.getMonth() + 1).padStart(2, '0');
-            const currentFormatted = `${cy}.${cm}`;
-            
-            // Auto replace "至今", "现在", "present", "Present", "now" with the current YYYY.MM
-            const regex = /(至今|现在|present|Present|now)/gi;
-            if (regex.test(val)) {
-              const cleaned = val.replace(regex, currentFormatted);
-              onChange(cleaned);
-            }
-          }}
-          className={`w-full ${leftIcon ? 'pl-9' : 'pl-3'} pr-9 ${cleanedClassName}`}
+          className={`w-full ${leftIcon ? 'pl-9' : 'pl-2.5'} ${showPresentToggle ? 'pr-16' : 'pr-8'} ${cleanedClassName}`}
           placeholder={placeholder}
         />
-        <button
-          type="button"
-          onClick={() => setIsOpen(!isOpen)}
-          className="absolute right-2 p-1 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-          title={isEn ? "Open Date Picker" : "打开日期选择器"}
-        >
-          <Calendar className="w-3.5 h-3.5" />
-        </button>
+        <div className="absolute right-1 flex items-center gap-1 z-10">
+          {showPresentToggle && (
+            <Tooltip content={isEn ? "Toggle Present status" : "一键切换至今状态"} side="top">
+              <button
+                type="button"
+                onClick={handleTogglePresentQuickly}
+                className={`text-[10px] px-1.5 py-0.5 rounded border transition-all cursor-pointer font-bold select-none ${
+                  isEndingWithPresent
+                    ? 'bg-indigo-50 dark:bg-indigo-950/60 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 shadow-2xs'
+                    : 'bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-750 text-slate-500 dark:text-slate-400 border-slate-200/80 dark:border-slate-700 hover:text-slate-700'
+                }`}
+              >
+                {isEn ? 'Present' : '至今'}
+              </button>
+            </Tooltip>
+          )}
+          <Tooltip content={isEn ? "Open Date Picker" : "打开日期选择器"} side="top">
+            <button
+              type="button"
+              onClick={() => setIsOpen(!isOpen)}
+              className="p-1 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            >
+              <Calendar className="w-3.5 h-3.5" />
+            </button>
+          </Tooltip>
+        </div>
       </div>
 
       {isOpen && (

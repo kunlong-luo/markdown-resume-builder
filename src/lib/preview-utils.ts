@@ -185,7 +185,8 @@ export function parseResumeHeader(markdown: string) {
       const isContact = lower.includes('@') ||
         isPhoneLike ||
         /^(?:电话|手机|手机号|手机号码|邮箱|微信|wechat|tel|phone|mobile|email|github|gitee|linkedin|blog|博客|网站|主页)[:：\s]/i.test(stripped) ||
-        lower.includes('github') || lower.includes('gitee') || lower.includes('wechat') || lower.includes('微信') || lower.includes('linkedin') || lower.includes('领英');
+        lower.includes('github') || lower.includes('gitee') || lower.includes('wechat') || lower.includes('微信') || lower.includes('linkedin') || lower.includes('领英') ||
+        lower.includes('http://') || lower.includes('https://') || lower.includes('www.');
 
       // 3. Check if experience / background / status / degree / english ability
       const isExpOrSkill = /^(?:经验|工作经验|工作年限|经验年限|年限|工作|在职|离职|到岗|年龄|岁|学历|学位|本科|硕士|大专|英语能力|英语|语言|资格)[:：\s]*/.test(stripped) ||

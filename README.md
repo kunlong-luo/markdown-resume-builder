@@ -2,7 +2,7 @@
 
 [English](./README.en.md) | 简体中文
 
-[![Version](https://img.shields.io/badge/version-v1.7.0--PRO-blue?style=flat-square&logo=github)](https://github.com/kunlong-luo/markdown-resume-builder)
+[![Version](https://img.shields.io/badge/version-v1.8.0--PRO-blue?style=flat-square&logo=github)](https://github.com/kunlong-luo/markdown-resume-builder)
 [![React](https://img.shields.io/badge/built%20with-React%2019-blueviolet?style=flat-square)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/bundler-Vite-646CFF?style=flat-square&logo=vite)](https://vite.dev/)
 [![TailwindCSS](https://img.shields.io/badge/styling-Tailwind%20v4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
@@ -74,6 +74,12 @@
 
 ### 16. 🌊 零闪烁无缝 View Transition 主题波浪切换 (Zero-Lag Theme Ripple)
 *   **特性**：采用浏览器底层原生 View Transitions API 重构深浅色主题切换。注入 `.view-transition-active` 瞬时快照冻结机制，解决 CSS color 渐变冲撞导致的“二次闪烁”与层级撕裂，实现以点击中心向外扩散的 420ms 无缝全屏水波涟漪过渡。
+
+### 17. 🧹 极致隐式交互与极简 UI 重构 (Zero-Friction Clean UI)
+*   **特性**：全面清理全站冗余提示词、系统状态指示器及显式重复按钮：
+    *   **简历档案库重构**：统一升级为极简「简历档案库」，完全移除大 Banner 冗余说明及重复的导入/导出按钮，直接在卡片网格尾部集成轻量级“创建空白简历档案”快捷入口。
+    *   **隐式卡片无缝切换**：剔除所有“点击卡片即可切换”文字干扰，支持全卡片直觉点击切换；草稿箱卡片支持直接点击快照即刻恢复。
+    *   **高频快捷操作精炼**：顶部下拉菜单与控制栏按钮文案精简为「复制」与「新建」，提供最干净、高效的写作空间。
 
 ---
 

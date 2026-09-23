@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Copy, FilePlus, Sparkles, FolderPlus, Check } from 'lucide-react';
+import { X, Copy, FilePlus, LayoutTemplate, FolderPlus, Check } from 'lucide-react';
 import { useResumeStore } from '../../store/useResumeStore';
 import { TEMPLATES } from '../../data';
 
@@ -118,7 +118,7 @@ export function NewProfileModal({ isOpen, onClose, lang }: NewProfileModalProps)
                 }`}
               >
                 <div className="flex items-center justify-between mb-1.5">
-                  <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                  <LayoutTemplate className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                   {mode === 'template' && <Check className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />}
                 </div>
                 <div className="font-bold text-xs">{isEn ? 'From Template' : '从岗位模板'}</div>

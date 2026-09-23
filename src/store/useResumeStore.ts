@@ -9,6 +9,8 @@ interface ResumeState {
   settings: ResumeSettings;
   currentTemplateId: string;
   lastSaved: string;
+  isSaving: boolean;
+  saveStatus: 'saved' | 'editing' | 'saving';
   history: string[];
   historyIndex: number;
   customFileName: string;
@@ -59,8 +61,10 @@ interface ResumeState {
   updateSettings: (newSettings: Partial<ResumeSettings>) => void;
 }
 
-// Module-level variable for debouncing history push
+// Module-level variable for debouncing history push & save status
 let debounceTimer: NodeJS.Timeout | null = null;
+let typingTimer: NodeJS.Timeout | null = null;
+let saveStatusTimer: NodeJS.Timeout | null = null;
 let isUndoRedoAction = false;
 
 // Helper to initialize markdown
@@ -74,6 +78,11 @@ const getInitialMarkdown = (): string => {
     storage.set(STORAGE_KEYS.MARKDOWN, DEFAULT_MARKDOWN);
   }
   
+  // Migration: Remove redundant "GitHub：" prefix before github URLs
+  md = md.replace(/GitHub[：:]\s*(https?:\/\/|github\.com\/)/gi, (_match, p1) => {
+    return p1.startsWith('http') ? p1 : `https://${p1}`;
+  });
+
   // Migration: Rename "教育经历" to "教育背景" to match the new convention and avoid duplicates
   if (md.includes('## 教育经历')) {
     md = md.replace(/## 教育经历/g, '## 教育背景');
@@ -183,7 +192,11 @@ const getInitialProfiles = (
     // Migration & Sanitization for each profile
     const migratedProfiles = savedProfiles.map(p => ({
       ...p,
-      markdown: typeof p.markdown === 'string' ? p.markdown : defaultMd,
+      markdown: typeof p.markdown === 'string' 
+        ? p.markdown.replace(/GitHub[：:]\s*(https?:\/\/|github\.com\/)/gi, (_match, p1) => {
+            return p1.startsWith('http') ? p1 : `https://${p1}`;
+          }) 
+        : defaultMd,
       settings: sanitizeSettings(p.settings, defaultSettings),
       name: p.name || '未命名简历草稿',
       updatedAt: p.updatedAt || new Date().toISOString(),
@@ -251,7 +264,9 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
   markdown: activeProfile.markdown,
   settings: activeProfile.settings,
   currentTemplateId: getInitialTemplateId(activeProfile.markdown),
-  lastSaved: '',
+  lastSaved: new Date().toLocaleTimeString(),
+  isSaving: false,
+  saveStatus: 'saved',
   history: [activeProfile.markdown],
   historyIndex: 0,
   customFileName: activeProfile.customFileName || '',
@@ -441,8 +456,19 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
 
     if (activeProfileId === profileId) {
       const nextActive = updated[0];
-      set({ profiles: updated });
-      get().switchProfile(nextActive.id);
+      storage.set(STORAGE_KEYS.ACTIVE_PROFILE_ID, nextActive.id);
+      storage.set(STORAGE_KEYS.MARKDOWN, nextActive.markdown);
+      storage.set(STORAGE_KEYS.SETTINGS, nextActive.settings);
+      if (nextActive.customFileName !== undefined) {
+        storage.set(STORAGE_KEYS.CUSTOM_FILE_NAME, nextActive.customFileName);
+      }
+      set({ 
+        profiles: updated,
+        activeProfileId: nextActive.id,
+        markdown: nextActive.markdown,
+        settings: nextActive.settings,
+        customFileName: nextActive.customFileName || ''
+      });
     } else {
       set({ profiles: updated });
     }
@@ -459,7 +485,6 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
   // Complex operations
   handleMarkdownChange: (newVal, immediate = false) => {
     const { profiles, activeProfileId } = get();
-    const nowTime = new Date().toLocaleTimeString();
 
     // Auto-update active profile in profiles array
     const updatedProfiles = profiles.map(p =>
@@ -470,7 +495,31 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
     storage.set(STORAGE_KEYS.PROFILES, updatedProfiles);
     storage.set(STORAGE_KEYS.MARKDOWN, newVal);
 
-    set({ markdown: newVal, profiles: updatedProfiles, lastSaved: nowTime });
+    if (typingTimer) clearTimeout(typingTimer);
+    if (saveStatusTimer) clearTimeout(saveStatusTimer);
+
+    if (immediate) {
+      set({
+        markdown: newVal,
+        profiles: updatedProfiles,
+        lastSaved: new Date().toLocaleTimeString(),
+        isSaving: false,
+        saveStatus: 'saved'
+      });
+    } else {
+      set({ markdown: newVal, profiles: updatedProfiles, isSaving: true, saveStatus: 'editing' });
+      
+      typingTimer = setTimeout(() => {
+        set({ saveStatus: 'saving' });
+        saveStatusTimer = setTimeout(() => {
+          set({
+            lastSaved: new Date().toLocaleTimeString(),
+            isSaving: false,
+            saveStatus: 'saved'
+          });
+        }, 400);
+      }, 350);
+    }
 
     if (isUndoRedoAction) {
       isUndoRedoAction = false;

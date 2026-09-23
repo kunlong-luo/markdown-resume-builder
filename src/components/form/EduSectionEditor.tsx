@@ -4,6 +4,8 @@ import { FormSection, FormItem } from '../../lib/form-types';
 import { FormTextareaToolbar } from './FormTextareaToolbar';
 import { MonthRangePicker } from './MonthRangePicker';
 import { CustomSelect } from '../ui/CustomSelect';
+import { SmartMarkdownTextarea } from './SmartMarkdownTextarea';
+import { Tooltip } from '../ui/Tooltip';
 
 interface EduSectionEditorProps {
   section: FormSection;
@@ -37,13 +39,13 @@ const TRANSLATIONS = {
     majorPlaceholder: '如：计算机科学与技术',
     timeLabel: '就读时间',
     timePlaceholder: '如：2020.09 - 2024.06',
-    gpaLabel: '在校表现 / 绩点 (可选)',
+    gpaLabel: '学业成绩 (选填)',
     gpaPlaceholder: '如：绩点 3.8/4.0，专业前 5%',
-    coursesLabel: '主修 / 核心课程 (可选)',
+    coursesLabel: '核心课程 (选填)',
     coursesPlaceholder: '如：数据结构、高级算法、计算机系统',
-    honorsLabel: '荣誉与奖项 (可选)',
+    honorsLabel: '荣誉奖项 (选填)',
     honorsPlaceholder: '如：国家奖学金、算法竞赛一等奖',
-    descLabel: '在校经历 / 补充描述 (可选)',
+    descLabel: '补充描述 (选填)',
     descPlaceholder: '如有其他校园经历、社团活动或实践活动可在此处填写（支持 Markdown）',
     addBtn: '添加一段教育背景',
     textLabel: '文本内容',
@@ -51,9 +53,9 @@ const TRANSLATIONS = {
     moveUp: '上移模块',
     moveDown: '下移模块',
     deleteSec: '删除该模块',
-    customOption: '自定义手动输入...',
+    customOption: '自定义输入',
     degreeOptions: [
-      { value: '', label: '未选择' },
+      { value: '', label: '' },
       { value: '大专', label: '大专' },
       { value: '本科', label: '本科' },
       { value: '硕士', label: '硕士' },
@@ -72,13 +74,13 @@ const TRANSLATIONS = {
     majorPlaceholder: 'e.g. Computer Science',
     timeLabel: 'Education Period',
     timePlaceholder: 'e.g. 2020.09 - 2024.06',
-    gpaLabel: 'GPA / Performance (Optional)',
+    gpaLabel: 'Academic GPA (Optional)',
     gpaPlaceholder: 'e.g. GPA 3.8/4.0, Top 5%',
     coursesLabel: 'Core Courses (Optional)',
     coursesPlaceholder: 'e.g. Data Structures, Algorithms, Computer Systems',
     honorsLabel: 'Honors & Awards (Optional)',
     honorsPlaceholder: 'e.g. National Scholarship, First Prize in Dean\'s List',
-    descLabel: 'Activities & Details (Optional)',
+    descLabel: 'Additional Notes (Optional)',
     descPlaceholder: 'e.g. campus activities, club leadership or research (Markdown supported)',
     addBtn: 'Add Education Background',
     textLabel: 'Text Content',
@@ -86,9 +88,9 @@ const TRANSLATIONS = {
     moveUp: 'Move Up',
     moveDown: 'Move Down',
     deleteSec: 'Delete Section',
-    customOption: 'Custom input...',
+    customOption: 'Custom Input',
     degreeOptions: [
-      { value: '', label: 'Not Selected' },
+      { value: '', label: '' },
       { value: 'Associate', label: 'Associate' },
       { value: 'Bachelor', label: 'Bachelor' },
       { value: 'Master', label: 'Master' },
@@ -178,32 +180,35 @@ export function EduSectionEditor({
         <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
           {onMove && (
             <>
-              <button
-                onClick={() => onMove('up')}
-                disabled={isFirst}
-                className={`p-1.5 rounded transition-colors ${isFirst ? 'text-slate-200 dark:text-slate-700 cursor-not-allowed' : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-100'}`}
-                title={t.moveUp}
-              >
-                <ArrowUp className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => onMove('down')}
-                disabled={isLast}
-                className={`p-1.5 rounded transition-colors ${isLast ? 'text-slate-200 dark:text-slate-700 cursor-not-allowed' : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-100'}`}
-                title={t.moveDown}
-              >
-                <ArrowDown className="w-4 h-4" />
-              </button>
+              <Tooltip content={t.moveUp} side="top" disabled={isFirst}>
+                <button
+                  onClick={() => onMove('up')}
+                  disabled={isFirst}
+                  className={`p-1.5 rounded transition-colors ${isFirst ? 'text-slate-200 dark:text-slate-700 cursor-not-allowed' : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-100 cursor-pointer'}`}
+                >
+                  <ArrowUp className="w-4 h-4" />
+                </button>
+              </Tooltip>
+              <Tooltip content={t.moveDown} side="top" disabled={isLast}>
+                <button
+                  onClick={() => onMove('down')}
+                  disabled={isLast}
+                  className={`p-1.5 rounded transition-colors ${isLast ? 'text-slate-200 dark:text-slate-700 cursor-not-allowed' : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-100 cursor-pointer'}`}
+                >
+                  <ArrowDown className="w-4 h-4" />
+                </button>
+              </Tooltip>
             </>
           )}
           {onDelete && (
-            <button
-              onClick={onDelete}
-              className="p-1.5 hover:bg-red-50 dark:hover:bg-rose-950/50 text-red-500 dark:text-rose-400 hover:text-red-700 dark:hover:text-rose-300 rounded transition-colors"
-              title={t.deleteSec}
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
+            <Tooltip content={t.deleteSec} side="top">
+              <button
+                onClick={onDelete}
+                className="p-1.5 hover:bg-red-50 dark:hover:bg-rose-950/50 text-red-500 dark:text-rose-400 hover:text-red-700 dark:hover:text-rose-300 rounded transition-colors cursor-pointer"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </Tooltip>
           )}
           <div className="w-px h-4 bg-slate-200 dark:bg-slate-750 mx-1"></div>
           <div className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer" onClick={onToggle}>
@@ -264,81 +269,87 @@ export function EduSectionEditor({
                     {/* Action Buttons */}
                     <div className="absolute right-3 top-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all z-10">
                       {onReorderItem && (
-                        <div
-                          draggable
-                          onDragStart={handleDragStart}
-                          className="p-1 text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/50 rounded cursor-grab active:cursor-grabbing transition-colors"
-                          title={lang === 'en' ? 'Drag to reorder' : '按住拖拽排序'}
-                        >
-                          <GripVertical className="w-3.5 h-3.5" />
-                        </div>
+                        <Tooltip content={lang === 'en' ? 'Drag to reorder' : '按住拖拽排序'} side="top">
+                          <div
+                            draggable
+                            onDragStart={handleDragStart}
+                            className="p-1 text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/50 rounded cursor-grab active:cursor-grabbing transition-colors"
+                          >
+                            <GripVertical className="w-3.5 h-3.5" />
+                          </div>
+                        </Tooltip>
                       )}
                       {onMoveItem && (
                         <>
-                          <button 
-                            type="button" 
-                            onClick={() => onMoveItem(itemIndex, 'up')} 
-                            disabled={itemIndex === 0} 
-                            className={`p-1 rounded transition-colors ${itemIndex === 0 ? 'text-slate-200 dark:text-slate-700 cursor-not-allowed' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-100 cursor-pointer'}`} 
-                            title={lang === 'en' ? 'Move Item Up' : '上移此项'}
-                          >
-                            <ArrowUp className="w-3.5 h-3.5" />
-                          </button>
-                          <button 
-                            type="button" 
-                            onClick={() => onMoveItem(itemIndex, 'down')} 
-                            disabled={itemIndex === section.items.length - 1} 
-                            className={`p-1 rounded transition-colors ${itemIndex === section.items.length - 1 ? 'text-slate-200 dark:text-slate-700 cursor-not-allowed' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-100 cursor-pointer'}`} 
-                            title={lang === 'en' ? 'Move Item Down' : '下移此项'}
-                          >
-                            <ArrowDown className="w-3.5 h-3.5" />
-                          </button>
+                          <Tooltip content={lang === 'en' ? 'Move Item Up' : '上移此项'} side="top" disabled={itemIndex === 0}>
+                            <button 
+                              type="button" 
+                              onClick={() => onMoveItem(itemIndex, 'up')} 
+                              disabled={itemIndex === 0} 
+                              className={`p-1 rounded transition-colors ${itemIndex === 0 ? 'text-slate-200 dark:text-slate-700 cursor-not-allowed' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-100 cursor-pointer'}`} 
+                            >
+                              <ArrowUp className="w-3.5 h-3.5" />
+                            </button>
+                          </Tooltip>
+                          <Tooltip content={lang === 'en' ? 'Move Item Down' : '下移此项'} side="top" disabled={itemIndex === section.items.length - 1}>
+                            <button 
+                              type="button" 
+                              onClick={() => onMoveItem(itemIndex, 'down')} 
+                              disabled={itemIndex === section.items.length - 1} 
+                              className={`p-1 rounded transition-colors ${itemIndex === section.items.length - 1 ? 'text-slate-200 dark:text-slate-700 cursor-not-allowed' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-100 cursor-pointer'}`} 
+                            >
+                              <ArrowDown className="w-3.5 h-3.5" />
+                            </button>
+                          </Tooltip>
                         </>
                       )}
-                      <button 
-                        onClick={() => onDeleteItem(item.id, item.org)}
-                        className="p-1 hover:bg-red-50 dark:hover:bg-rose-950/50 text-red-500 dark:text-rose-400 hover:text-red-700 dark:hover:text-rose-300 rounded transition-colors cursor-pointer"
-                        title={lang === 'en' ? 'Delete Item' : '删除此项'}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      <Tooltip content={lang === 'en' ? 'Delete Item' : '删除此项'} side="top">
+                        <button 
+                          onClick={() => onDeleteItem(item.id, item.org)}
+                          className="p-1 hover:bg-red-50 dark:hover:bg-rose-950/50 text-red-500 dark:text-rose-400 hover:text-red-700 dark:hover:text-rose-300 rounded transition-colors cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </Tooltip>
                     </div>
 
                   {/* Primary Fields Row */}
                   <div className="flex flex-col md:flex-row gap-4">
                     <div className="flex-[1.5] min-w-0 space-y-1.5">
-                      <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.schoolLabel}</label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none"><School className="w-3.5 h-3.5" /></span>
+                      <div className="h-6 flex items-center justify-between">
+                        <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-none select-none">{t.schoolLabel}</label>
+                      </div>
+                      <div className="relative h-9.5">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"><School className="w-3.5 h-3.5" /></span>
                         <input 
                           type="text" 
                           value={item.org || ''}
                           onChange={(e) => onItemChange(item.id, 'org', e.target.value)}
-                          className="w-full pl-9 pr-3 py-2 text-sm font-semibold tactile-input"
+                          className="w-full h-9.5 pl-9 pr-3 text-sm font-semibold tactile-input rounded-lg"
                           placeholder={t.schoolPlaceholder}
                         />
                       </div>
                     </div>
 
                     <div className="flex-1 min-w-0 space-y-1.5">
-                      <div className="flex justify-between items-center">
-                        <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.degreeLabel}</label>
+                      <div className="h-6 flex items-center justify-between">
+                        <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-none select-none">{t.degreeLabel}</label>
                         <button
                           type="button"
                           onClick={() => toggleCustomDegree(item.id)}
-                          className="text-[10px] text-purple-600 hover:text-purple-700 font-semibold cursor-pointer transition-colors"
+                          className="h-5 text-[10px] text-purple-600 hover:text-purple-700 font-semibold cursor-pointer transition-colors inline-flex items-center"
                         >
                           {customDegrees[item.id] ? t.degreeChoosePreset : t.degreeCustom}
                         </button>
                       </div>
-                      <div className="relative">
-                        <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none z-10"><GraduationCap className="w-3.5 h-3.5" /></span>
+                      <div className="relative h-9.5">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10"><GraduationCap className="w-3.5 h-3.5" /></span>
                         {customDegrees[item.id] ? (
                           <input 
                             type="text" 
                             value={item.degree || ''}
                             onChange={(e) => onItemChange(item.id, 'degree', e.target.value)}
-                            className="w-full pl-9 pr-3 py-2 text-sm tactile-input"
+                            className="w-full h-9.5 pl-9 pr-3 text-sm tactile-input rounded-lg"
                             placeholder={t.degreePlaceholder}
                           />
                         ) : (
@@ -357,8 +368,8 @@ export function EduSectionEditor({
                               { value: '__custom__', label: t.customOption }
                             ]}
                             size="md"
-                            className="w-full"
-                            triggerClassName="w-full pl-9 pr-3 py-2 text-sm tactile-input font-normal bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100"
+                            className="w-full h-9.5"
+                            triggerClassName="w-full h-9.5 pl-9 pr-3 text-sm tactile-input font-normal bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-lg"
                             placeholder={t.degreePlaceholder}
                           />
                         )}
@@ -366,14 +377,16 @@ export function EduSectionEditor({
                     </div>
 
                     <div className="flex-[1.2] min-w-0 space-y-1.5">
-                      <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.majorLabel}</label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none"><BookOpen className="w-3.5 h-3.5" /></span>
+                      <div className="h-6 flex items-center justify-between">
+                        <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-none select-none">{t.majorLabel}</label>
+                      </div>
+                      <div className="relative h-9.5">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"><BookOpen className="w-3.5 h-3.5" /></span>
                         <input 
                           type="text" 
                           value={item.role || ''}
                           onChange={(e) => onItemChange(item.id, 'role', e.target.value)}
-                          className="w-full pl-9 pr-3 py-2 text-sm tactile-input font-medium"
+                          className="w-full h-9.5 pl-9 pr-3 text-sm tactile-input font-medium rounded-lg"
                           placeholder={t.majorPlaceholder}
                         />
                       </div>
@@ -444,11 +457,11 @@ export function EduSectionEditor({
                     </div>
                     <div className="flex flex-col mt-1.5">
                       <FormTextareaToolbar textareaId={item.id} value={item.content || ''} onChange={(val) => onItemChange(item.id, 'content', val)} lang={lang} />
-                      <textarea 
+                      <SmartMarkdownTextarea 
                         id={item.id}
                         value={item.content || ''}
-                        onChange={(e) => onItemChange(item.id, 'content', e.target.value)}
-                        rows={3}
+                        onChange={(val) => onItemChange(item.id, 'content', val)}
+                        minRows={3}
                         className="w-full p-3 text-xs font-mono leading-relaxed bg-slate-50/10 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-750 rounded-b-lg rounded-t-none border-t-0 text-slate-800 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 shadow-[inset_0_1.5px_3px_rgba(15,23,42,0.04)] focus:shadow-none transition-all duration-200"
                         placeholder={t.descPlaceholder}
                       />

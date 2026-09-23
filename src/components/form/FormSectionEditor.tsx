@@ -1,6 +1,6 @@
 import React from 'react';
 import { 
-  Award, Layers, Briefcase, Sparkles, GraduationCap, FileText, Plus
+  Award, Layers, Briefcase, FolderKanban, GraduationCap, FileText, Plus
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FormSection } from '../../lib/form-types';
@@ -8,6 +8,7 @@ import { getSectionCategory } from '../../lib/markdown-parser';
 import { FormTextareaToolbar } from './FormTextareaToolbar';
 import { SectionHeader } from './SectionHeader';
 import { ItemEditor } from './ItemEditor';
+import { SmartMarkdownTextarea } from './SmartMarkdownTextarea';
 
 export function getSectionIcon(title: string) {
   const t = title.toLowerCase();
@@ -15,7 +16,7 @@ export function getSectionIcon(title: string) {
   if (t.includes('优势') || t.includes('总结') || t.includes('summary') || t.includes('objective')) return <Award className="w-4 h-4 text-emerald-500" />;
   if (t.includes('技能') || t.includes('技术') || t.includes('skills') || t.includes('technologies')) return <Layers className="w-4 h-4 text-blue-500" />;
   if (t.includes('经历') || t.includes('工作') || t.includes('experience') || t.includes('employment') || t.includes('work')) return <Briefcase className="w-4 h-4 text-indigo-500" />;
-  if (t.includes('项目') || t.includes('开源') || t.includes('projects') || t.includes('portfolio')) return <Sparkles className="w-4 h-4 text-amber-500" />;
+  if (t.includes('项目') || t.includes('开源') || t.includes('projects') || t.includes('portfolio')) return <FolderKanban className="w-4 h-4 text-amber-500" />;
   return <FileText className="w-4 h-4 text-slate-500" />;
 }
 
@@ -105,8 +106,11 @@ export function FormSectionEditor({
                 </div>
                 <div className="flex flex-col mt-1">
                   <FormTextareaToolbar textareaId={sec.id} value={sec.textValue} onChange={onTextChange} lang={lang} />
-                  <textarea
-                    id={sec.id} value={sec.textValue} onChange={(e) => onTextChange(e.target.value)} rows={6}
+                  <SmartMarkdownTextarea
+                    id={sec.id} 
+                    value={sec.textValue} 
+                    onChange={onTextChange} 
+                    minRows={5}
                     className="w-full p-3.5 text-xs font-mono leading-relaxed bg-slate-50/10 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-750 rounded-b-lg rounded-t-none border-t-0 text-slate-800 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 shadow-[inset_0_1.5px_3px_rgba(15,23,42,0.04)] focus:shadow-none transition-all duration-200"
                     placeholder={t.textPlaceholder}
                   />

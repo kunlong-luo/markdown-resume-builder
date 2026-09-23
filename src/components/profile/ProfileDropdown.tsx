@@ -169,7 +169,7 @@ export function ProfileDropdown({ lang, isCompact }: ProfileDropdownProps) {
               <div className="flex items-center gap-1.5">
                 <Layers className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                 <span className="text-xs font-black text-slate-800 dark:text-slate-100">
-                  {isEn ? 'Resume Profiles' : '简历独立档案库'}
+                  {isEn ? 'Resume Profiles' : '简历档案库'}
                 </span>
                 <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-slate-200/70 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
                   {profiles.length}
@@ -189,24 +189,24 @@ export function ProfileDropdown({ lang, isCompact }: ProfileDropdownProps) {
               </button>
             </div>
 
-            {/* 1-Click Fast Action Buttons: Zero Friction */}
+            {/* 1-Click Fast Action Buttons */}
             <div className="grid grid-cols-2 gap-1.5 pt-0.5">
               <button
                 type="button"
                 onClick={handleFastDuplicate}
-                className="flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/80 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/80 text-[11px] font-bold transition-all shadow-2xs cursor-pointer active:scale-95"
+                className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/80 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/80 text-[11px] font-bold transition-all shadow-2xs cursor-pointer active:scale-95"
               >
                 <Copy className="w-3 h-3" />
-                <span>{isEn ? 'Clone Active' : '复制当前简历'}</span>
+                <span>{isEn ? 'Copy' : '复制'}</span>
               </button>
 
               <button
                 type="button"
                 onClick={handleFastBlank}
-                className="flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100/80 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700 text-[11px] font-bold transition-all shadow-2xs cursor-pointer active:scale-95"
+                className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100/80 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700 text-[11px] font-bold transition-all shadow-2xs cursor-pointer active:scale-95"
               >
                 <FilePlus className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                <span>{isEn ? 'New Blank' : '新建空白档案'}</span>
+                <span>{isEn ? 'New' : '新建'}</span>
               </button>
             </div>
           </div>

@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { User, Phone, Mail, Link, Layers, ChevronDown, ChevronUp, X, Code, Globe, Calendar, GraduationCap, Briefcase, MapPin, Activity } from 'lucide-react';
 import { ResumeFormModel } from '../../lib/form-types';
 import { CustomSelect, SelectOption } from '../ui/CustomSelect';
+import { AgeInputWithPicker } from './AgeInputWithPicker';
+import { Tooltip } from '../ui/Tooltip';
+import { formatPhoneNumber } from '../../lib/markdown-parser';
 
 interface BasicInfoEditorProps {
   model: ResumeFormModel;
@@ -18,79 +21,80 @@ const TRANSLATIONS = {
     basicInfo: '基本信息',
     basicDesc: '姓名、联系方式与个人标签',
     pinnedTop: '固定置顶',
-    nameLabel: '姓名 (必填)',
+    nameLabel: '姓名',
     namePlaceholder: '例如：张三',
-    phoneLabel: '手机号码 (必填)',
+    phoneLabel: '手机号码',
     phonePlaceholder: '例如：138 0000 0000',
-    emailLabel: '电子邮箱 (必填)',
+    emailLabel: '电子邮箱',
     emailPlaceholder: '例如：zhangsan@example.com',
-    targetJobLabel: '求职意向 / 个人标签',
+    wechatLabel: '微信号',
+    wechatPlaceholder: '例如：wx_dev666 或 同手机号',
+    wechatOptionalBadge: '选填',
+    wechatSameAsPhone: '同手机号',
+    targetJobLabel: '求职意向',
     tagPlaceholder: '输入标签后按回车添加',
     addBtn: '添加',
-    socialLabel: '社交链接 (可选)',
-    socialPlaceholder: '例如：GitHub: github.com/username ｜ Blog: blog.example.com',
-    expLabel: '工作经验年限 (可选)',
-    degreeLabel: '最高学历 (可选)',
-    ageLabel: '年龄 / 出生年份 (可选)',
-    agePlaceholder: '例如：28岁 或 1998年10月',
-    cityLabel: '现居 / 意向城市 (可选)',
-    cityPlaceholder: '例如：深圳',
-    statusLabel: '求职状态 (可选)',
+    socialLabel: '社交链接',
+    socialPlaceholder: '例如：https://github.com/username ｜ https://blog.example.com',
+    expLabel: '工作经验',
+    expPlaceholder: '例如：5',
+    expSuffix: '年',
+    studentGradBadge: '在校生 / 应届生',
+    degreeLabel: '最高学历',
+    ageLabel: '年龄',
+    agePlaceholder: '例如：28',
+    cityLabel: '意向城市',
+    cityPlaceholder: '例如：杭州、上海 或 远程',
+    addCityPlaceholder: '输入城市按回车添加...',
+    statusLabel: '求职状态',
     customBtn: '自定义',
     presetBtn: '选择预设',
-    addMoreBtn: '+ 添加社交链接、城市信息等可选字段',
+    addMoreBtn: '+ 可选字段',
     collapseBtn: '收起可选字段',
-    customManual: '自定义手动输入...',
+    customManual: '自定义输入',
     schoolText: '硕士 或 本科',
   },
   en: {
     basicInfo: 'Basic Info',
     basicDesc: 'Name, contact info, and tags',
     pinnedTop: 'Pinned Top',
-    nameLabel: 'Full Name (Required)',
+    nameLabel: 'Full Name',
     namePlaceholder: 'e.g., John Doe',
-    phoneLabel: 'Phone Number (Required)',
+    phoneLabel: 'Phone Number',
     phonePlaceholder: 'e.g., +1 (123) 456-7890',
-    emailLabel: 'Email Address (Required)',
+    emailLabel: 'Email Address',
     emailPlaceholder: 'e.g., john.doe@email.com',
-    targetJobLabel: 'Job Target / Profile Tags',
+    wechatLabel: 'WeChat',
+    wechatPlaceholder: 'e.g., wx_username or same as phone',
+    wechatOptionalBadge: 'Optional',
+    wechatSameAsPhone: 'Same as phone',
+    targetJobLabel: 'Job Target',
     tagPlaceholder: 'Press Enter to add tag',
     addBtn: 'Add',
-    socialLabel: 'Social Link / Website (Optional)',
-    socialPlaceholder: 'e.g., GitHub: github.com/username ｜ Blog: blog.example.com',
-    expLabel: 'Work Experience (Optional)',
-    degreeLabel: 'Highest Degree (Optional)',
-    ageLabel: 'Age / Birth Year (Optional)',
-    agePlaceholder: 'e.g., 25 years old or 1999',
-    cityLabel: 'Location / City (Optional)',
-    cityPlaceholder: 'e.g., New York, NY',
-    statusLabel: 'Job Search Status (Optional)',
+    socialLabel: 'Social Link / Website',
+    socialPlaceholder: 'e.g., https://github.com/username ｜ https://blog.example.com',
+    expLabel: 'Work Experience',
+    expPlaceholder: 'e.g., 5',
+    expSuffix: 'yrs',
+    studentGradBadge: 'Student / New Grad',
+    degreeLabel: 'Highest Degree',
+    ageLabel: 'Age',
+    agePlaceholder: 'e.g., 28',
+    cityLabel: 'Target Cities / Location',
+    cityPlaceholder: 'e.g., Hangzhou, Shanghai or Remote',
+    addCityPlaceholder: 'Type city and press Enter...',
+    statusLabel: 'Job Search Status',
     customBtn: 'Custom',
     presetBtn: 'Preset',
-    addMoreBtn: '+ Add social, city, and other optional fields',
-    collapseBtn: 'Hide optional fields',
-    customManual: 'Enter custom value...',
+    addMoreBtn: '+ Optional Fields',
+    collapseBtn: 'Hide Optional Fields',
+    customManual: 'Custom Input',
     schoolText: 'e.g., Master or Bachelor',
   }
 };
 
-const getWorkYearsOptions = (l: 'zh' | 'en') => [
-  { value: '', label: l === 'en' ? 'Hide / Not selected' : '不显示 / 未选择' },
-  { value: '在校生/应届生', label: l === 'en' ? 'Student / New Graduate' : '在校生 / 应届生' },
-  { value: '1年工作经验', label: l === 'en' ? '1 Year Experience' : '1年工作经验' },
-  { value: '2年工作经验', label: l === 'en' ? '2 Years Experience' : '2年工作经验' },
-  { value: '3年工作经验', label: l === 'en' ? '3 Years Experience' : '3年工作经验' },
-  { value: '4年工作经验', label: l === 'en' ? '4 Years Experience' : '4年工作经验' },
-  { value: '5年工作经验', label: l === 'en' ? '5 Years Experience' : '5年工作经验' },
-  { value: '6年工作经验', label: l === 'en' ? '6 Years Experience' : '6年工作经验' },
-  { value: '7年工作经验', label: l === 'en' ? '7 Years Experience' : '7年工作经验' },
-  { value: '8年工作经验', label: l === 'en' ? '8 Years Experience' : '8年工作经验' },
-  { value: '9年工作经验', label: l === 'en' ? '9 Years Experience' : '9年工作经验' },
-  { value: '10年以上工作经验', label: l === 'en' ? '10+ Years Experience' : '10年以上工作经验' },
-];
-
 const getDegreeOptions = (l: 'zh' | 'en') => [
-  { value: '', label: l === 'en' ? 'Hide / Not selected' : '不显示 / 未选择' },
+  { value: '', label: '' },
   { value: '大专', label: l === 'en' ? 'Associate' : '大专' },
   { value: '本科', label: l === 'en' ? 'Bachelor' : '本科' },
   { value: '硕士', label: l === 'en' ? 'Master' : '硕士' },
@@ -98,12 +102,12 @@ const getDegreeOptions = (l: 'zh' | 'en') => [
 ];
 
 const getJobStatusOptions = (l: 'zh' | 'en') => [
-  { value: '', label: l === 'en' ? 'Hide / Not selected' : '不显示 / 未选择' },
+  { value: '', label: '' },
   { value: '在职-随时到岗', label: l === 'en' ? 'Employed - Immediate' : '在职 - 随时到岗' },
   { value: '在职-考虑机会', label: l === 'en' ? 'Employed - Open to Offers' : '在职 - 考虑机会' },
   { value: '在职-暂不考虑', label: l === 'en' ? 'Employed - Not Looking' : '在职 - 暂不考虑' },
   { value: '离职-随时到岗', label: l === 'en' ? 'Unemployed - Immediate' : '离职 - 随时到岗' },
-  { value: '在校生-寻实习', label: l === 'en' ? 'Student - Looking for Internship' : '在校生 - 寻实习' },
+  { value: '在校-寻找实习', label: l === 'en' ? 'Student - Looking for Internship' : '在校 - 寻找实习' },
 ];
 
 const GitHubIcon = ({ className }: { className?: string }) => (
@@ -112,18 +116,20 @@ const GitHubIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+const WeChatIcon = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M8.5 3C4.36 3 1 5.91 1 9.5c0 1.98.99 3.76 2.56 4.96-.13.72-.47 2.1-1.06 2.94 1.25-.16 2.66-.69 3.65-1.42.74.22 1.54.34 2.35.34.28 0 .55-.02.82-.05-.2-.58-.32-1.2-.32-1.85 0-3.37 3.25-6.11 7.27-6.11.23 0 .46.01.69.04C16.14 5.09 12.63 3 8.5 3zm-2.25 4.5c.69 0 1.25.56 1.25 1.25s-.56 1.25-1.25 1.25S5 9.44 5 8.75 5.56 7.5 6.25 7.5zm4.5 0c.69 0 1.25.56 1.25 1.25s-.56 1.25-1.25 1.25-.56-1.25-.56-1.25.56-1.25 1.25-1.25zM15.5 10c-3.59 0-6.5 2.46-6.5 5.5 0 3.04 2.91 5.5 6.5 5.5.7 0 1.37-.1 2-.29.83.61 2.02 1.05 3.08 1.19-.5-.71-.79-1.87-.9-2.48 1.34-1.02 2.18-2.53 2.18-4.2 0-3.04-2.91-5.5-6.5-5.5zm-1.88 3.75c.52 0 .94.42.94.94s-.42.94-.94.94-.94-.42-.94-.94.42-.94.94-.94zm3.75 0c.52 0 .94.42.94.94s-.42.94-.94.94-.94-.42-.94-.94.42-.94.94-.94z" />
+  </svg>
+);
+
 export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, showOptional, onToggleOptional, lang = 'zh' }: BasicInfoEditorProps) {
   const [tagInput, setTagInput] = useState('');
   
   const activeLang = lang === 'en' ? 'en' : 'zh';
   const t = TRANSLATIONS[activeLang];
-  const workYearsOptions = getWorkYearsOptions(activeLang);
   const degreeOptions = getDegreeOptions(activeLang);
   const jobStatusOptions = getJobStatusOptions(activeLang);
 
-  const [customWorkYears, setCustomWorkYears] = useState(() => {
-    return !!model.workYears && !getWorkYearsOptions(lang === 'en' ? 'en' : 'zh').some(o => o.value === model.workYears);
-  });
   const [customDegree, setCustomDegree] = useState(() => {
     return !!model.degree && !getDegreeOptions(lang === 'en' ? 'en' : 'zh').some(o => o.value === model.degree);
   });
@@ -133,16 +139,42 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
 
   React.useEffect(() => {
     const l = lang === 'en' ? 'en' : 'zh';
-    if (model.workYears && !getWorkYearsOptions(l).some(o => o.value === model.workYears)) {
-      setCustomWorkYears(true);
-    }
     if (model.degree && !getDegreeOptions(l).some(o => o.value === model.degree)) {
       setCustomDegree(true);
     }
     if (model.jobStatus && !getJobStatusOptions(l).some(o => o.value === model.jobStatus)) {
       setCustomJobStatus(true);
     }
-  }, [model.workYears, model.degree, model.jobStatus, lang]);
+  }, [model.degree, model.jobStatus, lang]);
+
+  const getNumericYears = (wy: string | undefined): string => {
+    if (!wy) return '';
+    if (/应届|在校|student|grad/i.test(wy)) return '';
+    const match = wy.match(/\d+/);
+    return match ? match[0] : '';
+  };
+
+  const isStudentGrad = /应届|在校|student|grad/i.test(model.workYears || '');
+
+  const handleYearsNumberChange = (val: string) => {
+    if (val === '') {
+      handleStructuredFieldChange('workYears', '');
+      return;
+    }
+    const n = parseInt(val, 10);
+    if (isNaN(n) || n < 0) {
+      handleStructuredFieldChange('workYears', '');
+      return;
+    }
+    if (n === 0) {
+      handleStructuredFieldChange('workYears', activeLang === 'en' ? 'Student / New Graduate' : '在校生/应届生');
+      return;
+    }
+    const formatted = activeLang === 'en' 
+      ? `${n} ${n === 1 ? 'Year' : 'Years'} Experience`
+      : `${n}年工作经验`;
+    handleStructuredFieldChange('workYears', formatted);
+  };
   
   const handleBasicInfoChange = (field: keyof Omit<ResumeFormModel, 'sections'>, newVal: string) => {
     onChange({
@@ -170,27 +202,113 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
     onChange(updatedModel);
   };
 
+  const addTagsFromString = (raw: string) => {
+    if (!raw.trim()) return;
+    const incoming = raw
+      .split(/[｜|、,，;/；\n]+/)
+      .map(t => t.trim())
+      .filter(Boolean);
+    if (incoming.length === 0) return;
+
+    const existingTags = model.subtitle ? model.subtitle.split(/[｜|]/).map(t => t.trim()).filter(Boolean) : [];
+    const set = new Set(existingTags);
+    const updated = [...existingTags];
+    for (const tag of incoming) {
+      if (!set.has(tag)) {
+        set.add(tag);
+        updated.push(tag);
+      }
+    }
+    handleBasicInfoChange('subtitle', updated.join(' ｜ '));
+    setTagInput('');
+  };
+
   const handleAddTag = (e?: React.KeyboardEvent<HTMLInputElement>) => {
     if (e && e.key !== 'Enter') return;
     if (e) e.preventDefault();
-    const trimmed = tagInput.trim();
-    if (!trimmed) return;
-    
-    const tags = model.subtitle ? model.subtitle.split(/[｜|]/).map(t => t.trim()).filter(Boolean) : [];
-    if (tags.includes(trimmed)) {
-      setTagInput('');
-      return;
+    addTagsFromString(tagInput);
+  };
+
+  const handleTagPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const pasted = e.clipboardData.getData('text');
+    if (/[｜|、,，;/；\n]/.test(pasted)) {
+      e.preventDefault();
+      addTagsFromString(pasted);
     }
-    
-    const newTags = [...tags, trimmed];
-    handleBasicInfoChange('subtitle', newTags.join(' ｜ '));
-    setTagInput('');
   };
 
   const handleRemoveTag = (tagToRemove: string) => {
     const tags = model.subtitle ? model.subtitle.split(/[｜|]/).map(t => t.trim()).filter(Boolean) : [];
     const newTags = tags.filter(t => t !== tagToRemove);
     handleBasicInfoChange('subtitle', newTags.join(' ｜ '));
+  };
+
+  const popularCities = activeLang === 'en' 
+    ? ['Remote', 'San Francisco', 'New York', 'Seattle', 'London']
+    : ['北京', '上海', '深圳', '杭州', '广州', '成都', '远程'];
+
+  const handlePhoneChange = (val: string) => {
+    // If starting with '+' (international)
+    if (val.startsWith('+')) {
+      handleBasicInfoChange('phone', val);
+      return;
+    }
+
+    const digitsOnly = val.replace(/\D/g, '');
+    
+    // For standard Chinese 11-digit mobile: dynamically format as 3-4-4
+    if (digitsOnly.length <= 11) {
+      if (digitsOnly.length > 7) {
+        handleBasicInfoChange('phone', `${digitsOnly.slice(0, 3)} ${digitsOnly.slice(3, 7)} ${digitsOnly.slice(7)}`);
+      } else if (digitsOnly.length > 3) {
+        handleBasicInfoChange('phone', `${digitsOnly.slice(0, 3)} ${digitsOnly.slice(3)}`);
+      } else {
+        handleBasicInfoChange('phone', digitsOnly);
+      }
+    } else {
+      // General format
+      handleBasicInfoChange('phone', formatPhoneNumber(val));
+    }
+  };
+
+  const cityInputRef = useRef<HTMLInputElement>(null);
+  const [cityInputDraft, setCityInputDraft] = useState('');
+
+  const cityList = useMemo(() => {
+    if (!model.city) return [];
+    return model.city
+      .split(/[\s]*[·•/、|｜,，]+[\s]*/)
+      .map(c => c.trim())
+      .filter(Boolean);
+  }, [model.city]);
+
+  const updateCityList = (newList: string[]) => {
+    const unique = Array.from(new Set(newList.map(c => c.trim()).filter(Boolean)));
+    handleStructuredFieldChange('city', unique.join(' · '));
+  };
+
+  const handleAddCity = (cityToAdd: string) => {
+    const trimmed = cityToAdd.trim();
+    if (!trimmed) return;
+    const parsed = trimmed
+      .split(/[\s,，、/·•]+/)
+      .map(c => c.trim())
+      .filter(Boolean);
+    if (parsed.length > 0) {
+      updateCityList([...cityList, ...parsed]);
+    }
+  };
+
+  const handleRemoveCity = (cityToRemove: string) => {
+    updateCityList(cityList.filter(c => c !== cityToRemove));
+  };
+
+  const toggleCity = (cityToToggle: string) => {
+    if (cityList.includes(cityToToggle)) {
+      handleRemoveCity(cityToToggle);
+    } else {
+      handleAddCity(cityToToggle);
+    }
   };
 
   const tags = model.subtitle ? model.subtitle.split(/[｜|]/).map(t => t.trim()).filter(Boolean) : [];
@@ -229,6 +347,7 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
       {expanded && (
         <div className="p-3.5 sm:p-5">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-5">
+            {/* 姓名 */}
             <div className="space-y-2">
               <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-1">{t.nameLabel}</label>
               <div className="relative">
@@ -243,39 +362,71 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
               </div>
             </div>
 
+            {/* 手机号码 */}
             <div className="space-y-2">
               <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-1">{t.phoneLabel}</label>
               <div className="relative">
                 <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none"><Phone className="w-4 h-4" /></span>
                 <input 
-                  type="text" 
+                  type="tel"
+                  inputMode="tel"
                   value={model.phone || ''}
-                  onChange={(e) => handleBasicInfoChange('phone', e.target.value)}
+                  onChange={(e) => handlePhoneChange(e.target.value)}
+                  onBlur={() => {
+                    if (model.phone) {
+                      handleBasicInfoChange('phone', formatPhoneNumber(model.phone));
+                    }
+                  }}
                   className="w-full pl-9 pr-3 py-2 text-sm tactile-input font-mono text-slate-800 dark:text-slate-100"
                   placeholder={t.phonePlaceholder}
                 />
               </div>
             </div>
 
+            {/* 电子邮箱 */}
             <div className="space-y-2">
-              <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{t.emailLabel}</label>
+              <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-1">{t.emailLabel}</label>
               <div className="relative">
                 <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none"><Mail className="w-4 h-4" /></span>
                 <input 
-                  type="email" 
+                  type="email"
+                  inputMode="email"
                   value={model.email || ''}
                   onChange={(e) => handleBasicInfoChange('email', e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 text-sm tactile-input font-mono"
+                  className="w-full pl-9 pr-3 py-2 text-sm tactile-input font-mono text-slate-800 dark:text-slate-100"
                   placeholder={t.emailPlaceholder}
                 />
               </div>
             </div>
-            
+
+            {/* 求职意向 */}
             <div className="space-y-2">
               <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{t.targetJobLabel}</label>
               
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none"><Layers className="w-4 h-4" /></span>
+                  <input 
+                    type="text" 
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    onKeyDown={handleAddTag}
+                    onPaste={handleTagPaste}
+                    className="w-full pl-9 pr-3 py-2 text-sm tactile-input"
+                    placeholder={t.tagPlaceholder}
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleAddTag()}
+                  className="px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-sm font-semibold rounded-lg transition-all border border-slate-200/80 shadow-[0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)] cursor-pointer active:translate-y-px shrink-0"
+                >
+                  {t.addBtn}
+                </button>
+              </div>
+
               {tags.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mb-2">
+                <div className="flex flex-wrap gap-1.5 pt-1">
                   {tags.map((tag, idx) => (
                     <span 
                       key={idx} 
@@ -285,7 +436,7 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                       <button 
                         type="button" 
                         onClick={() => handleRemoveTag(tag)}
-                        className="text-blue-400 hover:text-blue-700 hover:bg-blue-100 rounded-full p-0.5 transition-colors"
+                        className="text-blue-400 hover:text-blue-700 hover:bg-blue-100 rounded-full p-0.5 transition-colors cursor-pointer"
                       >
                         <X className="w-3 h-3" />
                       </button>
@@ -293,108 +444,139 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                   ))}
                 </div>
               )}
-
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none"><Layers className="w-4 h-4" /></span>
-                  <input 
-                    type="text" 
-                    value={tagInput}
-                    onChange={(e) => setTagInput(e.target.value)}
-                    onKeyDown={handleAddTag}
-                    className="w-full pl-9 pr-3 py-2 text-sm tactile-input"
-                    placeholder={t.tagPlaceholder}
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleAddTag()}
-                  className="px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-sm font-semibold rounded-lg transition-all border border-slate-200/80 shadow-[0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)] cursor-pointer active:translate-y-px"
-                >
-                  {t.addBtn}
-                </button>
-              </div>
             </div>
             
             {showOptional && (
-              <div className="md:col-span-2 space-y-4 pt-4 border-t border-slate-100 mt-2">
-                <div className="space-y-2">
-                  <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{t.socialLabel}</label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none">
-                      {(() => {
-                        const tLower = (model.social || '').toLowerCase();
-                        if (tLower.includes('github')) return <GitHubIcon className="w-4 h-4" />;
-                        if (tLower.includes('blog') || tLower.includes('web') || tLower.includes('http')) return <Globe className="w-4 h-4" />;
-                        return <Link className="w-4 h-4" />;
-                      })()}
-                    </span>
-                    <input 
-                      type="text" 
-                      value={model.social || ''}
-                      onChange={(e) => handleBasicInfoChange('social', e.target.value)}
-                      className="w-full pl-9 pr-3 py-2 text-sm tactile-input font-mono"
-                      placeholder={t.socialPlaceholder}
-                    />
+              <div className="md:col-span-2 space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800 mt-2">
+                {/* 1. 微信号 & 社交主页/作品集（2列并排） */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-5">
+                  {/* 微信号 */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-1">
+                        {t.wechatLabel}
+                      </label>
+                      {model.phone && !model.wechat && (
+                        <button
+                          type="button"
+                          onClick={() => handleBasicInfoChange('wechat', model.phone)}
+                          className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 hover:underline cursor-pointer transition-colors"
+                        >
+                          {t.wechatSameAsPhone}
+                        </button>
+                      )}
+                    </div>
+                    <div className="relative group/field">
+                      <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none">
+                        <WeChatIcon className="w-4 h-4" />
+                      </span>
+                      <input 
+                        type="text"
+                        value={model.wechat || ''}
+                        onChange={(e) => handleBasicInfoChange('wechat', e.target.value)}
+                        className="w-full pl-9 pr-8 py-2 text-sm tactile-input font-mono text-slate-800 dark:text-slate-100"
+                        placeholder={t.wechatPlaceholder}
+                      />
+                      {model.wechat && (
+                        <Tooltip content={activeLang === 'en' ? 'Clear' : '清空'} side="top">
+                          <button
+                            type="button"
+                            onClick={() => handleBasicInfoChange('wechat', '')}
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-600 dark:hover:text-slate-200 p-0.5 rounded transition-colors opacity-0 group-hover/field:opacity-100 focus:opacity-100 cursor-pointer"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </Tooltip>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 社交链接 */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">{t.socialLabel}</label>
+                    </div>
+                    <div className="relative group/field">
+                      <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none">
+                        {(() => {
+                          const tLower = (model.social || '').toLowerCase();
+                          if (tLower.includes('github')) return <GitHubIcon className="w-4 h-4 text-slate-800 dark:text-slate-200" />;
+                          if (tLower.includes('linkedin')) return <Globe className="w-4 h-4 text-sky-600" />;
+                          if (tLower.includes('twitter') || tLower.includes('x.com')) return <Globe className="w-4 h-4 text-blue-400" />;
+                          if (tLower.includes('zhihu') || tLower.includes('juejin')) return <Code className="w-4 h-4 text-blue-600" />;
+                          if (tLower.includes('blog') || tLower.includes('web') || tLower.includes('http')) return <Globe className="w-4 h-4 text-indigo-500" />;
+                          return <Link className="w-4 h-4" />;
+                        })()}
+                      </span>
+                      <input 
+                        type="text" 
+                        value={model.social || ''}
+                        onChange={(e) => handleBasicInfoChange('social', e.target.value)}
+                        className="w-full pl-9 pr-8 py-2 text-sm tactile-input font-mono"
+                        placeholder={t.socialPlaceholder}
+                      />
+                      {model.social && (
+                        <Tooltip content={activeLang === 'en' ? 'Clear' : '清空'} side="top">
+                          <button
+                            type="button"
+                            onClick={() => handleBasicInfoChange('social', '')}
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-600 dark:hover:text-slate-200 p-0.5 rounded transition-colors opacity-0 group-hover/field:opacity-100 focus:opacity-100 cursor-pointer"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </Tooltip>
+                      )}
+                    </div>
                   </div>
                 </div>
 
-                <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                {/* 2. 基本属性网格（4列：工作经验、最高学历、年龄、求职状态） */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
                   {/* 工作经验年限 */}
                   <div className="space-y-1.5">
-                    <div className="flex justify-between items-center">
-                      <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.expLabel}</label>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setCustomWorkYears(!customWorkYears);
-                          if (customWorkYears) {
-                            handleStructuredFieldChange('workYears', '');
-                          }
-                        }}
-                        className="text-[10px] text-indigo-600 hover:text-indigo-700 font-bold cursor-pointer transition-colors"
-                      >
-                        {customWorkYears ? t.presetBtn : t.customBtn}
-                      </button>
-                    </div>
-                    <div className="relative">
-                      <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none z-10"><Briefcase className="w-4 h-4" /></span>
-                      {customWorkYears ? (
-                        <input 
-                          type="text" 
-                          value={model.workYears || ''}
-                          onChange={(e) => handleStructuredFieldChange('workYears', e.target.value)}
-                          className="w-full pl-9 pr-3 py-2 text-sm tactile-input"
-                          placeholder={t.expLabel}
-                        />
-                      ) : (
-                        <CustomSelect
-                          value={model.workYears || ''}
-                          onChange={(val) => {
-                            if (val === '__custom__') {
-                              setCustomWorkYears(true);
+                    <div className="h-6 flex items-center justify-between">
+                      <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-none select-none">{t.expLabel}</label>
+                      <Tooltip content={activeLang === 'en' ? 'Toggle New Graduate status' : '点击快速切换为应届生/在校生'} side="top">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (isStudentGrad) {
+                              handleStructuredFieldChange('workYears', '');
                             } else {
-                              handleStructuredFieldChange('workYears', val);
+                              handleStructuredFieldChange('workYears', activeLang === 'en' ? 'Student / New Graduate' : '在校生/应届生');
                             }
                           }}
-                          options={[
-                            ...(model.workYears && !workYearsOptions.some(opt => opt.value === model.workYears) ? [{ value: model.workYears, label: model.workYears }] : []),
-                            ...workYearsOptions,
-                            { value: '__custom__', label: t.customManual }
-                          ]}
-                          size="md"
-                          className="w-full"
-                          triggerClassName="w-full pl-9 pr-3 py-2 text-sm tactile-input font-normal bg-white"
-                          placeholder={t.expLabel}
-                        />
-                      )}
+                          className={`h-5 text-[10px] px-2 rounded font-medium cursor-pointer transition-all inline-flex items-center border ${
+                            isStudentGrad 
+                              ? 'bg-blue-50 text-blue-700 font-bold border-blue-200 shadow-xs' 
+                              : 'text-slate-500 hover:text-indigo-600 bg-slate-50 hover:bg-slate-100 border-slate-200/60'
+                          }`}
+                        >
+                          {t.studentGradBadge}
+                        </button>
+                      </Tooltip>
+                    </div>
+                    <div className="relative flex items-center h-9.5">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10"><Briefcase className="w-4 h-4" /></span>
+                      <input 
+                        type="number" 
+                        min="0"
+                        max="50"
+                        value={isStudentGrad ? '' : getNumericYears(model.workYears)}
+                        onChange={(e) => handleYearsNumberChange(e.target.value)}
+                        className={`w-full h-9.5 pl-9 ${activeLang === 'en' ? 'pr-12' : 'pr-8'} text-sm tactile-input font-medium [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none bg-white rounded-lg`}
+                        placeholder={isStudentGrad ? t.studentGradBadge : t.expPlaceholder}
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-medium pointer-events-none select-none">
+                        {isStudentGrad ? '' : t.expSuffix}
+                      </span>
                     </div>
                   </div>
 
                   {/* 最高学历 */}
                   <div className="space-y-1.5">
-                    <div className="flex justify-between items-center">
-                      <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.degreeLabel}</label>
+                    <div className="h-6 flex items-center justify-between">
+                      <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-none select-none">{t.degreeLabel}</label>
                       <button
                         type="button"
                         onClick={() => {
@@ -403,19 +585,19 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                             handleStructuredFieldChange('degree', '');
                           }
                         }}
-                        className="text-[10px] text-indigo-600 hover:text-indigo-700 font-bold cursor-pointer transition-colors"
+                        className="h-5 text-[10px] text-indigo-600 hover:text-indigo-700 font-bold cursor-pointer transition-colors inline-flex items-center"
                       >
                         {customDegree ? t.presetBtn : t.customBtn}
                       </button>
                     </div>
-                    <div className="relative">
-                      <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none z-10"><GraduationCap className="w-4 h-4" /></span>
+                    <div className="relative h-9.5">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10"><GraduationCap className="w-4 h-4" /></span>
                       {customDegree ? (
                         <input 
                           type="text" 
                           value={model.degree || ''}
                           onChange={(e) => handleStructuredFieldChange('degree', e.target.value)}
-                          className="w-full pl-9 pr-3 py-2 text-sm tactile-input"
+                          className="w-full h-9.5 pl-9 pr-3 text-sm tactile-input rounded-lg"
                           placeholder={t.schoolText}
                         />
                       ) : (
@@ -434,8 +616,8 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                             { value: '__custom__', label: t.customManual }
                           ]}
                           size="md"
-                          className="w-full"
-                          triggerClassName="w-full pl-9 pr-3 py-2 text-sm tactile-input font-normal bg-white"
+                          className="w-full h-9.5"
+                          triggerClassName="w-full h-9.5 pl-9 pr-3 text-sm tactile-input font-normal bg-white rounded-lg"
                           placeholder={t.schoolText}
                         />
                       )}
@@ -444,38 +626,22 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
 
                   {/* 年龄 / 出生年份 */}
                   <div className="space-y-1.5">
-                    <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.ageLabel}</label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none"><Calendar className="w-4 h-4" /></span>
-                      <input 
-                        type="text" 
-                        value={model.age || ''}
-                        onChange={(e) => handleStructuredFieldChange('age', e.target.value)}
-                        className="w-full pl-9 pr-3 py-2 text-sm tactile-input"
-                        placeholder={t.agePlaceholder}
-                      />
+                    <div className="h-6 flex items-center justify-between">
+                      <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-none select-none">{t.ageLabel}</label>
                     </div>
-                  </div>
-
-                  {/* 现居 / 意向城市 */}
-                  <div className="space-y-1.5">
-                    <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.cityLabel}</label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none"><MapPin className="w-4 h-4" /></span>
-                      <input 
-                        type="text" 
-                        value={model.city || ''}
-                        onChange={(e) => handleStructuredFieldChange('city', e.target.value)}
-                        className="w-full pl-9 pr-3 py-2 text-sm tactile-input"
-                        placeholder={t.cityPlaceholder}
-                      />
-                    </div>
+                    <AgeInputWithPicker 
+                      value={model.age || ''}
+                      onChange={(val) => handleStructuredFieldChange('age', val)}
+                      placeholder={t.agePlaceholder}
+                      lang={activeLang}
+                      className="w-full"
+                    />
                   </div>
 
                   {/* 求职状态 */}
-                  <div className="space-y-1.5 sm:col-span-2 lg:col-span-2">
-                    <div className="flex justify-between items-center">
-                      <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.statusLabel}</label>
+                  <div className="space-y-1.5">
+                    <div className="h-6 flex items-center justify-between">
+                      <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-none select-none">{t.statusLabel}</label>
                       <button
                         type="button"
                         onClick={() => {
@@ -484,19 +650,19 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                             handleStructuredFieldChange('jobStatus', '');
                           }
                         }}
-                        className="text-[10px] text-indigo-600 hover:text-indigo-700 font-bold cursor-pointer transition-colors"
+                        className="h-5 text-[10px] text-indigo-600 hover:text-indigo-700 font-bold cursor-pointer transition-colors inline-flex items-center"
                       >
                         {customJobStatus ? t.presetBtn : t.customBtn}
                       </button>
                     </div>
-                    <div className="relative">
-                      <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none z-10"><Activity className="w-4 h-4" /></span>
+                    <div className="relative h-9.5">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10"><Activity className="w-4 h-4" /></span>
                       {customJobStatus ? (
                         <input 
                           type="text" 
                           value={model.jobStatus || ''}
                           onChange={(e) => handleStructuredFieldChange('jobStatus', e.target.value)}
-                          className="w-full pl-9 pr-3 py-2 text-sm tactile-input"
+                          className="w-full h-9.5 pl-9 pr-3 text-sm tactile-input rounded-lg"
                           placeholder={t.statusLabel}
                         />
                       ) : (
@@ -515,12 +681,103 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                             { value: '__custom__', label: t.customManual }
                           ]}
                           size="md"
-                          className="w-full"
-                          triggerClassName="w-full pl-9 pr-3 py-2 text-sm tactile-input font-normal bg-white"
+                          className="w-full h-9.5"
+                          triggerClassName="w-full h-9.5 pl-9 pr-3 text-sm tactile-input font-normal bg-white rounded-lg"
                           placeholder={t.statusLabel}
                         />
                       )}
                     </div>
+                  </div>
+                </div>
+
+                {/* 3. 意向城市（单独一行） */}
+                <div className="space-y-1.5 pt-1">
+                  <div className="h-6 flex items-center justify-between">
+                    <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-none select-none">{t.cityLabel}</label>
+                    {cityList.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => handleStructuredFieldChange('city', '')}
+                        className="h-5 text-[10px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 font-medium cursor-pointer transition-colors inline-flex items-center"
+                      >
+                        {activeLang === 'en' ? 'Clear' : '清空'}
+                      </button>
+                    )}
+                  </div>
+                  {/* Tag/Chip Container */}
+                  <div 
+                    onClick={() => cityInputRef.current?.focus()}
+                    className="min-h-9.5 w-full pl-9 pr-2.5 py-1.5 tactile-input rounded-lg flex flex-wrap items-center gap-1.5 cursor-text relative bg-white dark:bg-slate-900 transition-all focus-within:ring-2 focus-within:ring-indigo-100 dark:focus-within:ring-indigo-950 focus-within:border-indigo-500"
+                  >
+                    <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none">
+                      <MapPin className="w-4 h-4" />
+                    </span>
+
+                    {cityList.map((c) => (
+                      <span
+                        key={c}
+                        className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold rounded-md bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800 animate-in fade-in zoom-in-95 duration-100 select-none"
+                      >
+                        <span>{c}</span>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveCity(c);
+                          }}
+                          className="text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-200 p-0.5 rounded-xs transition-colors cursor-pointer"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </span>
+                    ))}
+
+                    <input
+                      ref={cityInputRef}
+                      type="text"
+                      value={cityInputDraft}
+                      onChange={(e) => setCityInputDraft(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ',' || e.key === '，' || e.key === '、') {
+                          e.preventDefault();
+                          if (cityInputDraft.trim()) {
+                            handleAddCity(cityInputDraft);
+                            setCityInputDraft('');
+                          }
+                        } else if (e.key === 'Backspace' && !cityInputDraft && cityList.length > 0) {
+                          handleRemoveCity(cityList[cityList.length - 1]);
+                        }
+                      }}
+                      onBlur={() => {
+                        if (cityInputDraft.trim()) {
+                          handleAddCity(cityInputDraft);
+                          setCityInputDraft('');
+                        }
+                      }}
+                      className="flex-1 min-w-[110px] bg-transparent text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none border-none p-0 h-6"
+                      placeholder={cityList.length === 0 ? t.cityPlaceholder : t.addCityPlaceholder}
+                    />
+                  </div>
+
+                  {/* Quick Popular Cities */}
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                    {popularCities.map((c) => {
+                      const isSelected = cityList.includes(c);
+                      return (
+                        <button
+                          key={c}
+                          type="button"
+                          onClick={() => toggleCity(c)}
+                          className={`text-[11px] px-2 py-0.5 rounded-md border transition-all cursor-pointer select-none font-medium ${
+                            isSelected
+                              ? 'bg-indigo-50 dark:bg-indigo-950/60 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 font-semibold shadow-2xs'
+                              : 'bg-slate-50 dark:bg-slate-800/70 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border-slate-200/60 dark:border-slate-700'
+                          }`}
+                        >
+                          {isSelected ? '✓ ' : ''}{c}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               </div>

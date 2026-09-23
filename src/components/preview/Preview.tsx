@@ -422,7 +422,7 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
         initial={{ opacity: 0, y: 15, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.35, ease: 'easeOut' }}
-        className="absolute bottom-5 left-5 z-40 print:hidden hidden sm:flex items-center gap-2 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800/90 shadow-[0_12px_32px_rgba(15,23,42,0.12),0_2px_6px_rgba(15,23,42,0.04)] dark:shadow-[0_12px_32px_rgba(0,0,0,0.4)] rounded-2xl p-2 transition-all duration-300 hover:shadow-[0_16px_40px_rgba(15,23,42,0.16)] group"
+        className="absolute bottom-5 left-5 z-40 print:hidden hidden sm:flex items-center gap-2 h-10 px-3 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800/90 shadow-[0_12px_32px_rgba(15,23,42,0.12),0_2px_6px_rgba(15,23,42,0.04)] dark:shadow-[0_12px_32px_rgba(0,0,0,0.4)] rounded-2xl transition-all duration-300 hover:shadow-[0_16px_40px_rgba(15,23,42,0.16)] group"
       >
         <div className="flex items-center gap-1">
           <Tooltip content={t.zoomOut} side="top">

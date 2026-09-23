@@ -30,7 +30,7 @@ export function BackupDraftModal() {
   };
 
   const { confirm } = useConfirm();
-  const [activeTab, setActiveTab] = useState<'profiles' | 'matrix' | 'drafts' | 'backup'>('profiles');
+  const [activeTab, setActiveTab] = useState<'profiles' | 'drafts' | 'backup'>('profiles');
   const [drafts, setDrafts] = useState<ResumeDraft[]>([]);
   const [newDraftTitle, setNewDraftTitle] = useState('');
   const [editingDraftId, setEditingDraftId] = useState<string | null>(null);
@@ -295,9 +295,8 @@ export function BackupDraftModal() {
               <div className="flex p-1 bg-slate-200/60 dark:bg-slate-800 rounded-xl gap-1 shrink-0">
                 {(
                   [
-                    { id: 'profiles', icon: Layers, label: settings.lang === 'en' ? 'Profiles' : '档案库' },
-                    { id: 'matrix', icon: Folder, label: settings.lang === 'en' ? 'Versions' : '岗位版本' },
-                    { id: 'drafts', icon: History, label: settings.lang === 'en' ? `Drafts (${drafts.length})` : `历史草稿 (${drafts.length})` },
+                    { id: 'profiles', icon: Layers, label: settings.lang === 'en' ? 'Profiles & Job Versions' : '简历档案库' },
+                    { id: 'drafts', icon: History, label: settings.lang === 'en' ? `Draft Snapshots (${drafts.length})` : `历史草稿 (${drafts.length})` },
                     { id: 'backup', icon: FileJson, label: settings.lang === 'en' ? 'JSON Backup' : '备份导出' }
                   ] as const
                 ).map((tab) => {
@@ -327,11 +326,7 @@ export function BackupDraftModal() {
                 })}
               </div>
 
-              {/* Small Tip Tag */}
-              <div className="hidden sm:flex items-center gap-1 text-[10px] text-slate-400 dark:text-slate-500 font-medium">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span>{settings.lang === 'en' ? 'Multi-Profile Architecture Active' : '多档案存储引擎就绪'}</span>
-              </div>
+
             </div>
 
             <AnimatePresence>
@@ -356,14 +351,6 @@ export function BackupDraftModal() {
             <div className="flex-1 overflow-y-auto p-0 sm:p-6 bg-white dark:bg-slate-900 scrollbar-thin">
               {activeTab === 'profiles' ? (
                 <ProfilesTab
-                  lang={settings.lang}
-                  showToast={showToast}
-                />
-              ) : activeTab === 'matrix' ? (
-                <MatrixTab 
-                  currentMarkdown={markdown}
-                  currentSettings={settings}
-                  onRestore={onRestore}
                   lang={settings.lang}
                   showToast={showToast}
                 />

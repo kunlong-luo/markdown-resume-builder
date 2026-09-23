@@ -127,10 +127,48 @@ export function splitItemTitle(titleStr: string): { org: string; role: string; t
   return { org, role, time, degree };
 }
 
+export function formatPhoneNumber(val: string): string {
+  if (!val) return '';
+  const trimmed = val.trim();
+  
+  // Strip non-digits
+  const digitsOnly = trimmed.replace(/\D/g, '');
+
+  // Case 1: Chinese 11-digit mobile: 1[3-9]\d{9} without country code
+  if (digitsOnly.length === 11 && /^1[3-9]\d{9}$/.test(digitsOnly) && !trimmed.startsWith('+')) {
+    return `${digitsOnly.slice(0, 3)} ${digitsOnly.slice(3, 7)} ${digitsOnly.slice(7)}`;
+  }
+
+  // Case 2: With +86 prefix
+  if (trimmed.startsWith('+86') || trimmed.startsWith('86-') || trimmed.startsWith('86 ')) {
+    const after86 = digitsOnly.startsWith('86') ? digitsOnly.slice(2) : digitsOnly;
+    if (after86.length === 11 && /^1[3-9]\d{9}$/.test(after86)) {
+      return `+86 ${after86.slice(0, 3)} ${after86.slice(3, 7)} ${after86.slice(7)}`;
+    }
+  }
+
+  // Case 3: Landline with area code e.g. 01088888888 or 057188888888
+  if (/^0\d{10,11}$/.test(digitsOnly)) {
+    if (digitsOnly.startsWith('01') || digitsOnly.startsWith('02')) {
+      return `${digitsOnly.slice(0, 3)}-${digitsOnly.slice(3)}`;
+    } else {
+      return `${digitsOnly.slice(0, 4)}-${digitsOnly.slice(4)}`;
+    }
+  }
+
+  // Case 4: US/International 10-digit number e.g. 2125551234
+  if (digitsOnly.length === 10 && !trimmed.startsWith('+') && !digitsOnly.startsWith('1') && !digitsOnly.startsWith('0')) {
+    return `(${digitsOnly.slice(0, 3)}) ${digitsOnly.slice(3, 6)}-${digitsOnly.slice(6)}`;
+  }
+
+  return trimmed;
+}
+
 export function parseContactString(contactStr: string) {
   let remaining = contactStr.trim();
   let phone = '';
   let email = '';
+  let wechat = '';
   let social = '';
 
   // 1. Extract email first (standard emails with domain)
@@ -145,19 +183,27 @@ export function parseContactString(contactStr: string) {
   const phonePrefixRegex = /(?:电话|手机|手机号|手机号码|电话号码|联系方式|联系电话|Tel|Mobile|Phone|Contact)[:：\s-]*((?:\+?\d{1,4}[\s-]?)?(?:\(?\d{2,4}\)?[\s-]?)?\d{3,4}[\s-]?\d{4}|\d{7,15})/i;
   const phonePrefixMatch = remaining.match(phonePrefixRegex);
   if (phonePrefixMatch) {
-    phone = phonePrefixMatch[1].trim();
+    phone = formatPhoneNumber(phonePrefixMatch[1].trim());
     remaining = remaining.replace(phonePrefixRegex, '').trim();
   } else {
     // Extract Chinese mobile, landline, or international alone without prefixes
     const phoneAloneRegex = /(?:\+?86[\s-]?)?1[3-9]\d(?:\s*-?\s*\d){8}|(?:0\d{2,3}-)?\d{7,8}|\b1[3-9]\d{10}\b|(?:\+?1[\s-]?)?\(?\d{3}\)?[\s-]?\d{3}[\s-]?\d{4}/;
     const phoneMatch = remaining.match(phoneAloneRegex);
     if (phoneMatch) {
-      phone = phoneMatch[0].trim();
+      phone = formatPhoneNumber(phoneMatch[0].trim());
       remaining = remaining.replace(phoneAloneRegex, '').trim();
     }
   }
 
-  // 3. Process remaining parts as social / other information
+  // 3. Extract WeChat if present
+  const wechatRegex = /(?:微信|微信号|WeChat|Wechat|wechat|wx|WX)[:：\s]+([a-zA-Z0-9_\-]+|[^\s·|｜••,，;；\t]+)/i;
+  const wechatMatch = remaining.match(wechatRegex);
+  if (wechatMatch) {
+    wechat = wechatMatch[1].trim();
+    remaining = remaining.replace(wechatRegex, '').trim();
+  }
+
+  // 4. Process remaining parts as social / other information
   // Split remaining string by typical separators (but not single space or dash inside phone numbers)
   const separatorRegex = /\s*[·|｜••,，;；\t]\s*|\s{2,}|\s+\/\s+/;
   const parts = remaining.split(separatorRegex)
@@ -168,23 +214,24 @@ export function parseContactString(contactStr: string) {
 
   social = parts.join(' · ');
 
-  // 4. Fallback if still empty but original had content (just in case)
-  if (!phone && !email && !social && contactStr.trim()) {
+  // 5. Fallback if still empty but original had content (just in case)
+  if (!phone && !email && !wechat && !social && contactStr.trim()) {
     const rawParts = contactStr.split(separatorRegex).map(p => p.trim()).filter(Boolean);
     if (rawParts.length > 0) {
-      phone = rawParts[0] || '';
+      phone = formatPhoneNumber(rawParts[0] || '');
       email = rawParts[1] || '';
       social = rawParts.slice(2).join(' · ');
     }
   }
 
-  return { phone, email, social };
+  return { phone, email, wechat, social };
 }
 
-export function classifySubsequentLines(subsequent: string[]): { subtitle: string; phone: string; email: string; social: string; experience: string } {
+export function classifySubsequentLines(subsequent: string[]): { subtitle: string; phone: string; email: string; wechat: string; social: string; experience: string } {
   let subtitle = '';
   let phone = '';
   let email = '';
+  let wechat = '';
   let social = '';
   let experience = '';
 
@@ -201,25 +248,25 @@ export function classifySubsequentLines(subsequent: string[]): { subtitle: strin
     return false;
   };
 
-  const isExperienceLine = (s: string) => {
+  const isRoleOrSubtitleLine = (s: string) => {
+    const clean = s.trim();
+    if (/^(?:求职方向|求职意向|求职目标|目标岗位|应聘职位|应聘岗位|意向岗位|个人标签|专业标签)[:：\s]*/.test(clean)) return true;
+    return /(?:工程师|架构|开发|研发|设计|产品|运营|总监|经理|专家|顾问|专员|研究员|应用|全栈|算法|前端|后端|大数据|数据分析|实习生|助理|负责人|作者|架构师)/i.test(clean);
+  };
+
+  const isStructuredExpLine = (s: string) => {
     const clean = s.toLowerCase();
-    // 1. Years of experience / work keywords
-    if (/年(?:工作|经验|研发|开发|设计|从业|管理|全栈|Java|开发经验|工作经验)/i.test(clean)) return true;
-    if (/\b(years|yrs|exp|experience)\b/i.test(clean)) return true;
-    // 2. Education degrees
-    if (/本科|硕士|博士|大专|等学|中专|大专|学士|研究生|学位|phd|master|bachelor|associate/i.test(clean)) return true;
-    // 3. Age
-    if (/\d+岁|生于|出生于|19\d{2}年|20\d{2}年/.test(clean)) return true;
-    // 4. Job search status
-    if (/在职|离职|到岗|考虑|求职|寻找|随时到岗/i.test(clean)) return true;
-    // 5. English ability & skills/credentials
-    if (/英语能力|英语|语言|证书|资质|CET|四级|六级/i.test(clean)) return true;
+    if (/^\d+\s*年(?:工作|经验|从业|全栈)?经验?$/i.test(clean)) return true;
+    if (/\d+年(?:工作经验|从业经验)/i.test(clean)) return true;
+    if (/应届毕业生|在校生|应届生/.test(clean)) return true;
+    if (/本科|硕士|博士|大专|学历/.test(clean)) return true;
+    if (/在职|随时到岗|离职|月内到岗/.test(clean)) return true;
+    if (/^(?:\d+年(?:工作经验|经验)?\s*[｜|·•]\s*)+/i.test(clean)) return true;
     return false;
   };
 
   const contactLines: string[] = [];
-  const expLines: string[] = [];
-  const otherLines: string[] = [];
+  const nonContactLines: string[] = [];
 
   subsequent.forEach(line => {
     const trimmed = line.trim();
@@ -238,13 +285,8 @@ export function classifySubsequentLines(subsequent: string[]): { subtitle: strin
 
     if (isContactLine(stripped)) {
       contactLines.push(stripped);
-    } else if (isExperienceLine(stripped)) {
-      expLines.push(stripped);
     } else {
-      const cleanOther = stripped.replace(/^(?:求职方向|求职意向|求职目标|目标岗位|应聘职位|应聘岗位|意向岗位)[:：\s]*/, '').trim();
-      if (cleanOther) {
-        otherLines.push(cleanOther);
-      }
+      nonContactLines.push(stripped);
     }
   });
 
@@ -252,6 +294,7 @@ export function classifySubsequentLines(subsequent: string[]): { subtitle: strin
     const parsed = parseContactString(contactLines[0]);
     phone = parsed.phone;
     email = parsed.email;
+    wechat = parsed.wechat;
     social = parsed.social;
     
     if (contactLines.length > 1) {
@@ -259,6 +302,7 @@ export function classifySubsequentLines(subsequent: string[]): { subtitle: strin
         const extraParsed = parseContactString(contactLines[i]);
         if (extraParsed.phone && !phone) phone = extraParsed.phone;
         if (extraParsed.email && !email) email = extraParsed.email;
+        if (extraParsed.wechat && !wechat) wechat = extraParsed.wechat;
         if (extraParsed.social) {
           social = social ? `${social} · ${extraParsed.social}` : extraParsed.social;
         }
@@ -266,15 +310,43 @@ export function classifySubsequentLines(subsequent: string[]): { subtitle: strin
     }
   }
 
-  if (expLines.length > 0) {
-    experience = expLines.join(' ｜ ');
+  // Parse non-contact lines into subtitle vs experience
+  if (nonContactLines.length === 1) {
+    const line = nonContactLines[0];
+    if (isStructuredExpLine(line) && !isRoleOrSubtitleLine(line)) {
+      experience = line;
+    } else {
+      subtitle = line.replace(/^(?:求职方向|求职意向|求职目标|目标岗位|应聘职位|应聘岗位|意向岗位)[:：\s]*/, '').trim();
+    }
+  } else if (nonContactLines.length > 1) {
+    const subtitleCandidates: string[] = [];
+    const expCandidates: string[] = [];
+
+    nonContactLines.forEach((line, idx) => {
+      const isRole = isRoleOrSubtitleLine(line);
+      const isExp = isStructuredExpLine(line);
+
+      if (isRole && !isExp) {
+        subtitleCandidates.push(line);
+      } else if (isExp && !isRole) {
+        expCandidates.push(line);
+      } else if (idx === 0) {
+        // First line under name is overwhelmingly the subtitle
+        subtitleCandidates.push(line);
+      } else {
+        expCandidates.push(line);
+      }
+    });
+
+    if (subtitleCandidates.length > 0) {
+      subtitle = subtitleCandidates.map(s => s.replace(/^(?:求职方向|求职意向|求职目标|目标岗位|应聘职位|应聘岗位|意向岗位)[:：\s]*/, '').trim()).join(' ｜ ');
+    }
+    if (expCandidates.length > 0) {
+      experience = expCandidates.join(' ｜ ');
+    }
   }
 
-  if (otherLines.length > 0) {
-    subtitle = otherLines.join(' ｜ ');
-  }
-
-  return { subtitle, phone, email, social, experience };
+  return { subtitle, phone, email, wechat, social, experience };
 }
 
 export function getSectionCategory(title: string): 'work' | 'project' | 'edu' | 'default' {
@@ -561,6 +633,7 @@ export function parseMarkdownToForm(md: string): ResumeFormModel {
   model.subtitle = classified.subtitle;
   model.phone = classified.phone;
   model.email = classified.email;
+  model.wechat = classified.wechat;
   model.social = classified.social;
   model.experience = classified.experience;
 
@@ -602,8 +675,8 @@ export function parseMarkdownToForm(md: string): ResumeFormModel {
               item.gpa = t.replace(/^- \*\*(学业成绩|在校表现|成绩|学术成绩|GPA \/ Performance|GPA|Performance)\*\*[:：\s]*/, '').trim();
             } else if (t.match(/^- \*\*(主修课程|核心课程|课程|Core Courses|Courses)\*\*[:：\s]/)) {
               item.courses = t.replace(/^- \*\*(主修课程|核心课程|课程|Core Courses|Courses)\*\*[:：\s]*/, '').trim();
-            } else if (t.match(/^- \*\*(荣誉成就|荣誉|实践成就|校园成就|Honors & Awards|Honors|Awards)\*\*[:：\s]/)) {
-              item.honors = t.replace(/^- \*\*(荣誉成就|荣誉|实践成就|校园成就|Honors & Awards|Honors|Awards)\*\*[:：\s]*/, '').trim();
+            } else if (t.match(/^- \*\*(荣誉成就|主要荣誉|荣誉|实践成就|校园成就|Honors & Awards|Honors|Awards)\*\*[:：\s]/)) {
+              item.honors = t.replace(/^- \*\*(荣誉成就|主要荣誉|荣誉|实践成就|校园成就|Honors & Awards|Honors|Awards)\*\*[:：\s]*/, '').trim();
             } else {
               remainingLines.push(line);
             }
@@ -628,23 +701,55 @@ export function parseExperienceField(expString: string) {
 
   if (!expString) return { workYears, degree, city, jobStatus, age };
 
-  const parts = expString.split(/[｜|·•]/).map(p => p.trim()).filter(Boolean);
+  // Split by pipeline | or ｜ (preserve dots/slashes in cities like 杭州 / 上海 or 深圳 · 远程)
+  const parts = expString.split(/[｜|]/).map(p => p.trim()).filter(Boolean);
+
+  const isRoleOrTechnicalTag = (s: string) => {
+    return /(?:工程师|架构|研发|开发|前端|后端|全栈|算法|测试|运维|设计|产品|运营|技术|大模型|专家|总监|经理|实战|深度学习|系统|应用|智能体|项目|业务|代码|模型|框架|工作流|微服务|分布式|低代码)/i.test(s);
+  };
+
+  const isCityOrLocation = (s: string) => {
+    const clean = s.trim();
+    if (!clean) return false;
+    if (isRoleOrTechnicalTag(clean)) return false;
+
+    // Explicit prefix
+    if (/^(?:意向城市|期望城市|现居|现居地|所在城市|城市|常驻|期望工作地|工作地点|地点|location|city)[:：\s]*/i.test(clean)) {
+      return true;
+    }
+
+    // Known cities, regions, remote, overseas (including combinations like 杭州 / 上海 or 深圳 / 远程)
+    if (/(?:北京|上海|广州|深圳|杭州|成都|武汉|南京|西安|厦门|苏州|天津|重庆|长沙|青岛|大连|宁波|郑州|合肥|无锡|福州|昆明|济南|佛山|东莞|珠海|南昌|贵阳|南宁|海口|三亚|长春|沈阳|哈尔滨|石家庄|太原|兰州|银川|西宁|乌鲁木齐|呼和浩特|拉萨|香港|澳门|台北|远程|全国|海外|硅谷|旧金山|西雅图|纽约|伦敦|东京|新加坡|多伦多|温哥华|悉尼|墨尔本|beijing|shanghai|shenzhen|hangzhou|guangzhou|remote)/i.test(clean)) {
+      return true;
+    }
+
+    // Ends with administrative region suffix
+    if (/^[\u4e00-\u9fa5\w\s/、·•\-]+[市省区县]$/.test(clean)) {
+      return true;
+    }
+
+    return false;
+  };
   
   parts.forEach(p => {
     const pl = p.toLowerCase();
-    if (/年(?:工作|经验|研发|开发|设计|从业|全栈|Java)/i.test(pl) || pl.includes('经验') || /^\d+\s*(?:year|yr|exp)/i.test(pl)) {
-      workYears = p;
-    } else if (/本科|硕士|博士|大专|等学|中专|大专|学士|研究生|学位|phd|master|bachelor|associate/i.test(pl)) {
-      degree = p;
-    } else if (/岁|生于|19\d{2}|20\d{2}/.test(pl)) {
-      age = p;
-    } else if (/在职|离职|到岗|考虑|求职|寻找/i.test(pl)) {
+    if (/在职|离职|到岗|考虑|随时到岗|寻实习|找实习|暂不考虑/i.test(pl)) {
       jobStatus = p;
-    } else {
+    } else if (/年(?:工作|经验|从业)|^\d+\s*年$/i.test(pl) || /^\d+\s*(?:year|yr|exp)/i.test(pl) || pl.includes('工作经验') || pl.includes('在校生') || pl.includes('应届生') || pl.includes('应届毕业生')) {
+      workYears = p;
+    } else if (/本科|硕士|博士|大专|等学|中专|学士|研究生|学位|phd|master|bachelor|associate/i.test(pl)) {
+      degree = p;
+    } else if (/岁|生于|出生于|19\d{2}|20\d{2}/.test(pl) || /^(?:1[6-9]|[2-6]\d|70)$/.test(pl.trim())) {
+      const numMatch = p.trim().match(/^(\d+)\s*(?:岁|years?\s*old|yrs)?$/i);
+      age = numMatch ? numMatch[1] : p.replace(/^(?:年龄|age)[:：\s]*/i, '').trim();
+    } else if (isCityOrLocation(p)) {
+      const rawCity = p.replace(/^(?:意向城市|期望城市|现居|现居地|所在城市|城市|常驻|期望工作地|工作地点|地点|location|city)[:：\s]*/i, '').trim();
+      const parsedCities = rawCity.split(/[\s]*[/·•、,，|｜]+[\s]*/).map(c => c.trim()).filter(Boolean);
+      const formattedCity = parsedCities.length > 0 ? parsedCities.join(' · ') : rawCity;
       if (!city) {
-        city = p;
+        city = formattedCity;
       } else {
-        city += ' · ' + p;
+        city += ' · ' + formattedCity;
       }
     }
   });
@@ -662,10 +767,18 @@ export function serializeExperienceField(fields: { workYears?: string; degree?: 
   return parts.join(' ｜ ');
 }
 
-export function generateContactString(phone: string, email: string, social: string): string {
+export function generateContactString(phone: string, email: string, social: string, wechat?: string): string {
   const parts: string[] = [];
   if (phone && phone.trim()) parts.push(phone.trim());
   if (email && email.trim()) parts.push(email.trim());
+  if (wechat && wechat.trim()) {
+    const cleanWx = wechat.trim();
+    if (/^(?:微信|微信号|wechat|wx)[:：\s]*/i.test(cleanWx)) {
+      parts.push(cleanWx);
+    } else {
+      parts.push(`微信: ${cleanWx}`);
+    }
+  }
   if (social && social.trim()) parts.push(social.trim());
   return parts.join(' · ');
 }
@@ -680,7 +793,7 @@ export function parseFormToMarkdown(model: ResumeFormModel): string {
     md += `${model.subtitle}\n`;
   }
   
-  const contactStr = generateContactString(model.phone, model.email, model.social);
+  const contactStr = generateContactString(model.phone, model.email, model.social, model.wechat);
   if (contactStr) {
     md += `${contactStr}\n`;
   }

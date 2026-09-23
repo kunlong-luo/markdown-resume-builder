@@ -95,7 +95,7 @@ export function HeightGuard({
     return (
       <div 
         onClick={() => toggleCollapse()}
-        className={`absolute bottom-5 right-5 z-40 flex items-center gap-2.5 px-3 py-1.5 bg-white/95 dark:bg-slate-850/95 backdrop-blur-md border border-slate-200/80 dark:border-slate-700/80 shadow-lg rounded-full cursor-pointer select-none print:hidden hover:shadow-xl transition-all duration-200 hover:border-slate-300 dark:hover:border-slate-600`}
+        className={`absolute bottom-5 right-5 z-40 flex items-center gap-2.5 h-10 px-3.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800/90 shadow-[0_12px_32px_rgba(15,23,42,0.12),0_2px_6px_rgba(15,23,42,0.04)] dark:shadow-[0_12px_32px_rgba(0,0,0,0.4)] rounded-2xl cursor-pointer select-none print:hidden hover:shadow-[0_16px_40px_rgba(15,23,42,0.16)] transition-all duration-200 hover:border-slate-300 dark:hover:border-slate-600`}
         title={lang === 'en' ? 'Click to expand A4 Height Guard' : '点击展开 A4 高度警报器'}
       >
         <div className="flex items-center gap-1.5">

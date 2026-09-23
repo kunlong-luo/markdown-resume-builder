@@ -150,6 +150,11 @@ export function QuickNav({ sections, expandedSections, setExpandedSections, lang
                 {getSectionIcon(sec.title)}
               </span>
               <span>{translateSectionTitle(sec.title, lang)}</span>
+              {sec.type === 'items' && sec.items && sec.items.length > 0 && (
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ml-0.5 ${isActive ? 'bg-white/20 text-white' : 'bg-slate-200/60 dark:bg-slate-800 text-slate-500 dark:text-slate-400'}`}>
+                  {sec.items.length}
+                </span>
+              )}
             </button>
           );
         })}

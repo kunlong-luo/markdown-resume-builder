@@ -7,7 +7,8 @@ import {
   BookOpen, 
   Lock, 
   Scale, 
-  Sparkles, 
+  Lightbulb,
+  Wand2,
   CheckCircle2, 
   Zap, 
   FileText, 
@@ -55,7 +56,7 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
             </div>
             <div>
               <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <span>{isEn ? 'Help & Guide' : '帮助与指南'}</span>
+                <span>{isEn ? 'User Guide' : '使用指南'}</span>
                 <span className="px-2 py-0.5 text-[10px] font-extrabold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/60 rounded-full">
                   v1.6
                 </span>
@@ -140,13 +141,13 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
             <div className="space-y-4 animate-in fade-in duration-150">
               <div className="p-3.5 bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-800/60 rounded-xl space-y-1">
                 <h3 className="font-bold text-indigo-900 dark:text-indigo-300 flex items-center gap-1.5 text-xs">
-                  <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                  <Lightbulb className="w-4 h-4 text-amber-500 dark:text-amber-400 shrink-0" />
                   {isEn ? 'Core Features Overview' : '快速上手指南与高效技巧'}
                 </h3>
                 <p className="text-slate-600 dark:text-slate-300">
                   {isEn
-                    ? 'Markdown Resume Builder combines visual form editing with standard Markdown power for 100% pixel-perfect A4 printing.'
-                    : '本编辑器支持可视表单（Form Mode）与原生 Markdown 模式无缝双向同步，专为 A4 标准简历排版设计。'}
+                    ? 'CraftCV combines visual form editing with standard Markdown power for 100% pixel-perfect A4 printing.'
+                    : 'CraftCV 支持可视表单（Form Mode）与原生 Markdown 模式无缝双向同步，专为 A4 标准简历排版设计。'}
                 </p>
               </div>
 
@@ -189,7 +190,7 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
 
                 <div className="p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 rounded-xl space-y-1.5">
                   <div className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+                    <Wand2 className="w-3.5 h-3.5 text-indigo-500" />
                     <span>{isEn ? 'Smart Raw Text Paste' : '智能纯文本一键导入'}</span>
                   </div>
                   <p className="text-slate-500 dark:text-slate-400">
@@ -280,7 +281,7 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
                     <GithubIcon className="w-4 h-4" />
-                    <span>Markdown Resume Builder</span>
+                    <span>CraftCV</span>
                   </span>
                   <span className="px-2 py-0.5 text-[10px] font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-md border border-indigo-200/50 dark:border-indigo-800/50">
                     MIT License
@@ -319,7 +320,7 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
         {/* Modal Footer */}
         <div className="px-5 py-3 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 flex items-center justify-between text-xs">
           <span className="text-slate-400 dark:text-slate-500 font-mono text-[10px]">
-            Markdown Resume Builder v1.5.0 • Powered by React 18 & Vite
+            CraftCV v1.6.0 • Powered by React 18 & Vite
           </span>
           <button
             onClick={onClose}

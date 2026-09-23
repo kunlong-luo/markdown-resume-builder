@@ -162,7 +162,8 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
   `;
 
   // Format display label for trigger (clean up parenthetical suffixes in compact mode)
-  const rawLabel = selectedOption ? selectedOption.label : (placeholder || '请选择');
+  const isPlaceholder = !selectedOption?.label || (!value && selectedOption?.value === '');
+  const rawLabel = selectedOption?.label ? selectedOption.label : (placeholder || '');
   const displayLabel = compact ? rawLabel.split('(')[0].split('（')[0].trim() : rawLabel;
 
   return (
@@ -174,7 +175,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
         onClick={handleToggle}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
-        title={selectedOption ? selectedOption.label : placeholder}
+        title={selectedOption?.label || placeholder}
         className={`
           ${sizeClasses[size]}
           ${defaultTriggerStyles}
@@ -188,8 +189,8 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
           {selectedOption?.icon && (
             <span className="shrink-0 text-slate-400">{selectedOption.icon}</span>
           )}
-          <span className="truncate">
-            {displayLabel}
+          <span className={`truncate ${isPlaceholder ? 'text-slate-400 dark:text-slate-500 font-normal' : ''}`}>
+            {displayLabel || '\u00A0'}
           </span>
         </span>
         <ChevronDown
@@ -231,11 +232,12 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
                 {options.length === 0 ? (
                   <div className="px-3 py-2 text-xs text-slate-400 text-center">无可选选项</div>
                 ) : (
-                  options.map((option) => {
+                  options.map((option, idx) => {
                     const isSelected = option.value === value;
+                    const isBlankOption = !option.label || option.label.trim() === '';
                     return (
                       <button
-                        key={option.value}
+                        key={option.value || `__empty_${idx}`}
                         type="button"
                         role="option"
                         aria-selected={isSelected}
@@ -258,9 +260,15 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
                           }
                         `}
                       >
-                        <span className="flex items-center gap-2 truncate pr-2">
+                        <span className="flex items-center gap-2 truncate pr-2 min-h-[1.125rem]">
                           {option.icon && <span className="shrink-0">{option.icon}</span>}
-                          <span className="truncate">{option.label}</span>
+                          <span className="truncate">
+                            {isBlankOption ? (
+                              <span className="text-transparent select-none inline-block w-4">&nbsp;</span>
+                            ) : (
+                              option.label
+                            )}
+                          </span>
                         </span>
                         {isSelected && (
                           <Check className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0 ml-1" />

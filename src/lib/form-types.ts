@@ -23,6 +23,7 @@ export interface ResumeFormModel {
   subtitle: string;
   phone: string;
   email: string;
+  wechat?: string;
   social: string;
   experience: string;
   workYears?: string;
