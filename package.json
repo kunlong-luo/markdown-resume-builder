@@ -17,7 +17,7 @@
     "@vitejs/plugin-react": "^6.0.3",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "framer-motion": "^13.4.1",
+    "framer-motion": "^13.4.0",
     "html2canvas": "^1.4.1",
     "html2canvas-pro": "^2.4.4",
     "jspdf": "^4.2.1",
