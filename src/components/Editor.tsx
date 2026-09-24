@@ -588,7 +588,37 @@ export const Editor = React.memo(function Editor() {
                       {settings.lang === 'en' ? 'Select Snippet to Insert' : '选择常用模块插入'}
                     </div>
                     
-                    {/* 1. Work experience */}
+                    {/* 1. Summary / Personal Advantages */}
+                    <button
+                      onClick={() => {
+                        const snippet = settings.lang === 'en'
+                          ? `\n## Summary\n- **Core Competence**: Over 5 years of solid experience in large-scale web applications and frontend architecture.\n- **Engineering Excellence**: Proven track record in performance optimization, CI/CD pipeline automation, and code quality standards.\n- **Team Leadership**: Experienced in cross-functional collaboration, technical mentoring, and leading agile delivery teams.\n`
+                          : `\n## 个人优势\n- **专业深度**：5 年前端研发与架构经验，精通 React/TypeScript 技术栈与现代工程化体系。\n- **性能攻坚**：主导多次核心系统性能重构与指标调优，具备丰富的大型复杂业务系统治理经验。\n- **团队协作**：具备良好的跨团队沟通与技术攻坚能力，指导初中级工程师，推动敏捷迭代与工程规范落地。\n`;
+                        insertMarkdown(snippet);
+                        setIsSnippetsDropdownOpen(false);
+                      }}
+                      className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-750 hover:text-amber-700 dark:hover:text-amber-300 transition-colors cursor-pointer text-left font-medium"
+                    >
+                      <User className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
+                      <span>{settings.lang === 'en' ? 'Strengths' : '个人优势模板'}</span>
+                    </button>
+
+                    {/* 2. Skill bar progress indicators */}
+                    <button
+                      onClick={() => {
+                        const snippet = settings.lang === 'en'
+                          ? `\n- **Frontend Core**: React / Vue.js | Expert ★★★★★\n- **Backend/Full-stack**: Node.js / Go | Proficient ★★★★☆\n- **AI & LLM**: RAG / Agent Development | Proficient ★★★★☆\n- **DevOps & Tooling**: Webpack / Vite / Docker | Familiar ★★★☆☆\n`
+                          : `\n- **前端核心**：React / Vue.js ｜ 精通 ★★★★★\n- **后端/全栈**：Node.js / Go ｜ 熟练 ★★★★☆\n- **大模型应用**：RAG / Agent 开发 ｜ 熟练 ★★★★☆\n- **工具与工程**：Webpack / Vite / Docker ｜ 熟悉 ★★★☆☆\n`;
+                        insertMarkdown(snippet);
+                        setIsSnippetsDropdownOpen(false);
+                      }}
+                      className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-cyan-50 dark:hover:bg-slate-750 hover:text-cyan-700 dark:hover:text-cyan-300 transition-colors cursor-pointer text-left font-medium"
+                    >
+                      <Layers className="w-3.5 h-3.5 text-cyan-500 dark:text-cyan-400" />
+                      <span>{settings.lang === 'en' ? 'Skills & Ratings' : '专业技能 (带星级)'}</span>
+                    </button>
+
+                    {/* 3. Work experience */}
                     <button
                       onClick={() => {
                         const snippet = settings.lang === 'en'
@@ -603,7 +633,7 @@ export const Editor = React.memo(function Editor() {
                       <span>{settings.lang === 'en' ? 'Work Experience' : '工作经历模板'}</span>
                     </button>
 
-                    {/* 2. STAR Project */}
+                    {/* 4. STAR Project */}
                     <button
                       onClick={() => {
                         const snippet = settings.lang === 'en'
@@ -615,37 +645,7 @@ export const Editor = React.memo(function Editor() {
                       className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-slate-750 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors cursor-pointer text-left font-medium"
                     >
                       <FolderKanban className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
-                      <span>{settings.lang === 'en' ? 'Project Experience (STAR)' : '项目经历模板 (STAR)'}</span>
-                    </button>
-
-                    {/* 3. Skill bar progress indicators */}
-                    <button
-                      onClick={() => {
-                        const snippet = settings.lang === 'en'
-                          ? `\n- **Frontend Core**: React / Vue.js | Expert ★★★★★\n- **Backend/Full-stack**: Node.js / Go | Proficient ★★★★☆\n- **AI & LLM**: RAG / Agent Development | Proficient ★★★★☆\n- **DevOps & Tooling**: Webpack / Vite / Docker | Familiar ★★★☆☆\n`
-                          : `\n- **前端核心**：React / Vue.js ｜ 精通 ★★★★★\n- **后端/全栈**：Node.js / Go ｜ 熟练 ★★★★☆\n- **大模型应用**：RAG / Agent 开发 ｜ 熟练 ★★★★☆\n- **工具与工程**：Webpack / Vite / Docker ｜ 熟悉 ★★★☆☆\n`;
-                        insertMarkdown(snippet);
-                        setIsSnippetsDropdownOpen(false);
-                      }}
-                      className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-cyan-50 dark:hover:bg-slate-750 hover:text-cyan-700 dark:hover:text-cyan-300 transition-colors cursor-pointer text-left font-medium"
-                    >
-                      <Layers className="w-3.5 h-3.5 text-cyan-500 dark:text-cyan-400" />
-                      <span>{settings.lang === 'en' ? 'Skills & Ratings' : '技能掌握度 (带星级)'}</span>
-                    </button>
-
-                    {/* 4. Multi-column Contacts */}
-                    <button
-                      onClick={() => {
-                        const snippet = settings.lang === 'en'
-                          ? `\n# Your Name\nPosition: Senior Software Engineer | 5 Years Experience | San Francisco, CA\n+1 (555) 019-2834 | your.email@email.com | github.com/yourusername | linkedin.com/in/yourprofile\n`
-                          : `\n# 姓名\n意向岗位：高级前端工程师 ｜ 5年工作经验 ｜ 深圳\n13812345678 ｜ your.email@email.com ｜ github.com/yourgithub\n`;
-                        insertMarkdown(snippet);
-                        setIsSnippetsDropdownOpen(false);
-                      }}
-                      className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-slate-750 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors cursor-pointer text-left font-medium"
-                    >
-                      <User className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
-                      <span>{settings.lang === 'en' ? 'Contact Info Header' : '个人联系方式栏'}</span>
+                      <span>{settings.lang === 'en' ? 'Project Experience (STAR)' : '代表项目 (STAR)'}</span>
                     </button>
 
                     {/* 5. Education experiences */}
@@ -661,6 +661,21 @@ export const Editor = React.memo(function Editor() {
                     >
                       <GraduationCap className="w-3.5 h-3.5 text-purple-500 dark:text-purple-400" />
                       <span>{settings.lang === 'en' ? 'Education Background' : '教育背景模板'}</span>
+                    </button>
+
+                    {/* 6. Multi-column Contacts */}
+                    <button
+                      onClick={() => {
+                        const snippet = settings.lang === 'en'
+                          ? `\n# Your Name\nPosition: Senior Software Engineer | 5 Years Experience | San Francisco, CA\n+1 (555) 019-2834 | your.email@email.com | github.com/yourusername | linkedin.com/in/yourprofile\n`
+                          : `\n# 姓名\n意向岗位：高级前端工程师 ｜ 5年工作经验 ｜ 深圳\n13812345678 ｜ your.email@email.com ｜ github.com/yourgithub\n`;
+                        insertMarkdown(snippet);
+                        setIsSnippetsDropdownOpen(false);
+                      }}
+                      className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-slate-750 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors cursor-pointer text-left font-medium"
+                    >
+                      <User className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
+                      <span>{settings.lang === 'en' ? 'Contact Info Header' : '个人联系方式栏'}</span>
                     </button>
                   </div>
                 </>

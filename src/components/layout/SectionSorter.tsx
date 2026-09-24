@@ -6,6 +6,7 @@ import { Reorder } from 'motion/react';
 import { splitMarkdownIntoSections, joinSectionsIntoMarkdown, MarkdownSection } from '../../lib/markdown-utils';
 import { Tooltip } from '../ui/Tooltip';
 import { getSectionTheme } from '../../lib/section-themes';
+import { translateSectionTitle } from '../../lib/section-translator';
 
 interface SectionSorterProps {
   markdown: string;
@@ -163,7 +164,7 @@ export function SectionSorter({ markdown, onChange, lang }: SectionSorterProps) 
                   <div className="min-w-0 flex-1 space-y-0.5">
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <span className="font-bold text-slate-800 dark:text-slate-100 text-xs sm:text-[13px]">
-                        {item.title}
+                        {isEn ? translateSectionTitle(item.title, 'en') : item.title}
                       </span>
                       {/* 只保留图标，移除图标后重复的文本 */}
                       <span 

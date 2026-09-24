@@ -15,7 +15,7 @@ export function SectionPresets({ onAddPreset, lang = 'zh' }: SectionPresetsProps
   const t = translations.form.section;
 
   const presets = [
-    { type: 'summary' as const, label: isEn ? 'Summary / Strengths' : '个人优势' },
+    { type: 'summary' as const, label: isEn ? 'Strengths' : '个人优势' },
     { type: 'skills' as const, label: isEn ? 'Skills' : '专业技能' },
     { type: 'work' as const, label: isEn ? 'Work Experience' : '工作经历' },
     { type: 'project' as const, label: isEn ? 'Projects' : '代表项目' },

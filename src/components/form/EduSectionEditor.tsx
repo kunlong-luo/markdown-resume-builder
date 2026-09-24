@@ -1,5 +1,6 @@
 import React from 'react';
 import { School, Calendar, BookOpen, Plus, Trash2, Award, Book, ArrowUp, ArrowDown, GraduationCap, GripVertical } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { FormSection, FormItem } from '../../lib/form-types';
 import { SectionHeader } from './SectionHeader';
 import { FormTextareaToolbar } from './FormTextareaToolbar';
@@ -9,6 +10,7 @@ import { SmartMarkdownTextarea } from './SmartMarkdownTextarea';
 import { Tooltip } from '../ui/Tooltip';
 import { getTranslation } from '../../i18n';
 import { getDegreeOptions } from '../../lib/form-constants';
+import { getSectionTheme } from '../../lib/section-themes';
 
 interface EduSectionEditorProps {
   section: FormSection;
@@ -78,12 +80,14 @@ export function EduSectionEditor({
     });
   };
 
+  const theme = getSectionTheme(section.title, lang);
+
   return (
     <div 
       id={`form-sec-${section.id}`} 
-      className={`rounded-xl overflow-hidden scroll-mt-20 transition-all duration-300 ${
+      className={`rounded-xl overflow-hidden relative group/section scroll-mt-20 transition-all duration-300 ${
         expanded 
-          ? 'tactile-card shadow-[0_16px_36px_rgba(30,41,59,0.06),0_3px_10px_rgba(30,41,59,0.03)] border-indigo-200/50 dark:border-slate-800 scale-[1.002] ring-1 ring-indigo-50/50 dark:ring-slate-800 mb-5' 
+          ? `tactile-card shadow-[0_16px_36px_rgba(30,41,59,0.06),0_3px_10px_rgba(30,41,59,0.03)] ${theme.border} scale-[1.002] ring-1 ${theme.accentRing} mb-5` 
           : 'bg-slate-50/60 dark:bg-slate-900/60 border border-slate-200/50 dark:border-slate-800 shadow-[0_2px_6px_rgba(30,41,59,0.015)] opacity-85 hover:opacity-100 scale-[0.995] hover:scale-100 mb-3'
       }`}
     >
@@ -103,274 +107,275 @@ export function EduSectionEditor({
         lang={lang}
       />
       
-      {expanded && (
-        <div className="p-5 space-y-6">
-          {section.type === 'text' ? (
-            <div>
-              <div className="mb-1.5">
-                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">{t.textLabel}</label>
+      <AnimatePresence initial={false}>
+        {expanded && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0, overflow: 'hidden' }}
+            animate={{ opacity: 1, height: 'auto', overflow: 'visible' }}
+            exit={{ opacity: 0, height: 0, overflow: 'hidden' }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="p-5 space-y-4"
+          >
+            {section.type === 'text' ? (
+              <div>
+                <div className="mb-1.5">
+                  <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest">{t.textLabel}</label>
+                </div>
+                <div className="flex flex-col mt-1">
+                  <FormTextareaToolbar textareaId={section.id} value={section.textValue || ''} onChange={onTextChange!} lang={lang} />
+                  <SmartMarkdownTextarea
+                    id={section.id} 
+                    value={section.textValue || ''} 
+                    onChange={(val) => onTextChange!(val)} 
+                    minRows={5}
+                    className="w-full p-3.5 text-xs font-mono leading-relaxed bg-slate-50/10 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-750 rounded-b-lg rounded-t-none border-t-0 text-slate-800 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 shadow-[inset_0_1.5px_3px_rgba(15,23,42,0.04)] focus:shadow-none transition-all duration-200"
+                    placeholder={t.textPlaceholder}
+                  />
+                </div>
               </div>
-              <div className="flex flex-col mt-1">
-                <FormTextareaToolbar textareaId={section.id} value={section.textValue || ''} onChange={onTextChange!} lang={lang} />
-                <textarea
-                  id={section.id} 
-                  value={section.textValue || ''} 
-                  onChange={(e) => onTextChange!(e.target.value)} 
-                  rows={6}
-                  className="w-full p-3.5 text-xs font-mono leading-relaxed bg-slate-50/10 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-750 rounded-b-lg rounded-t-none border-t-0 text-slate-800 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 shadow-[inset_0_1.5px_3px_rgba(15,23,42,0.04)] focus:shadow-none transition-all duration-200"
-                  placeholder={t.textPlaceholder}
-                />
-              </div>
-            </div>
-          ) : (
-            <>
-              {section.items.map((item, itemIndex) => {
-                const handleDragStart = (e: React.DragEvent) => {
-                  e.dataTransfer.setData('text/plain', String(itemIndex));
-                  e.dataTransfer.effectAllowed = 'move';
-                };
+            ) : (
+              <>
+                {section.items.map((item, itemIndex) => {
+                  const handleDragStart = (e: React.DragEvent) => {
+                    e.dataTransfer.setData('text/plain', String(itemIndex));
+                    e.dataTransfer.effectAllowed = 'move';
+                  };
 
-                const handleDragOver = (e: React.DragEvent) => {
-                  e.preventDefault();
-                  e.dataTransfer.dropEffect = 'move';
-                };
+                  const handleDragOver = (e: React.DragEvent) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                  };
 
-                const handleDrop = (e: React.DragEvent) => {
-                  e.preventDefault();
-                  const sourceIndexStr = e.dataTransfer.getData('text/plain');
-                  if (!sourceIndexStr) return;
-                  const sourceIndex = parseInt(sourceIndexStr, 10);
-                  if (!isNaN(sourceIndex) && sourceIndex !== itemIndex && onReorderItem) {
-                    onReorderItem(sourceIndex, itemIndex);
-                  }
-                };
+                  const handleDrop = (e: React.DragEvent) => {
+                    e.preventDefault();
+                    const sourceIndexStr = e.dataTransfer.getData('text/plain');
+                    if (!sourceIndexStr) return;
+                    const sourceIndex = parseInt(sourceIndexStr, 10);
+                    if (!isNaN(sourceIndex) && sourceIndex !== itemIndex && onReorderItem) {
+                      onReorderItem(sourceIndex, itemIndex);
+                    }
+                  };
 
-                return (
-                  <div 
-                    key={item.id} 
-                    onDragOver={handleDragOver}
-                    onDrop={handleDrop}
-                    className="relative p-5 border border-slate-200/60 dark:border-slate-800 rounded-xl bg-gradient-to-br from-white to-slate-50/60 dark:from-slate-850 dark:to-slate-900/90 transition-all group shadow-[0_2px_6px_rgba(15,23,42,0.01),inset_0_1.5px_2px_rgba(255,255,255,0.95)] dark:shadow-none hover:border-purple-300 dark:hover:border-purple-800 hover:shadow-[0_4px_12px_rgba(15,23,42,0.03),inset_0_1.5px_2px_rgba(255,255,255,0.95)]"
-                  >
-                    {/* Action Buttons */}
-                    <div className="absolute right-3 top-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all z-10">
-                      {onReorderItem && (
-                        <Tooltip content={secT.dragToReorder} side="top">
-                          <div
-                            draggable
-                            onDragStart={handleDragStart}
-                            className="p-1 text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/50 rounded cursor-grab active:cursor-grabbing transition-colors"
+                  return (
+                    <div 
+                      key={item.id} 
+                      onDragOver={handleDragOver}
+                      onDrop={handleDrop}
+                      className="p-3 sm:p-4 border border-slate-200/60 dark:border-slate-800 rounded-xl bg-gradient-to-br from-white to-slate-50/60 dark:from-slate-850 dark:to-slate-900/90 relative space-y-2.5 sm:space-y-3 transition-all group/item shadow-[0_2px_6px_rgba(15,23,42,0.01),inset_0_1.5px_2px_rgba(255,255,255,0.95)] dark:shadow-none hover:border-purple-300 dark:hover:border-purple-800"
+                    >
+                      {/* Action Buttons */}
+                      <div className="flex items-center justify-end gap-1 sm:absolute sm:right-3 sm:top-3 sm:opacity-40 sm:group-hover/item:opacity-100 transition-opacity">
+                        {onReorderItem && (
+                          <Tooltip content={secT.dragToReorder} side="top">
+                            <div
+                              draggable
+                              onDragStart={handleDragStart}
+                              className="p-1 text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/50 rounded cursor-grab active:cursor-grabbing transition-colors"
+                            >
+                              <GripVertical className="w-3.5 h-3.5" />
+                            </div>
+                          </Tooltip>
+                        )}
+                        {onMoveItem && (
+                          <>
+                            <Tooltip content={secT.moveItemUp} side="top" disabled={itemIndex === 0}>
+                              <button 
+                                type="button" 
+                                onClick={() => onMoveItem(itemIndex, 'up')} 
+                                disabled={itemIndex === 0} 
+                                className={`p-1 rounded transition-colors ${itemIndex === 0 ? 'text-slate-200 dark:text-slate-700 cursor-not-allowed' : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-750 hover:text-slate-800 dark:hover:text-slate-100 cursor-pointer'}`} 
+                              >
+                                <ArrowUp className="w-3.5 h-3.5" />
+                              </button>
+                            </Tooltip>
+                            <Tooltip content={secT.moveItemDown} side="top" disabled={itemIndex === section.items.length - 1}>
+                              <button 
+                                type="button" 
+                                onClick={() => onMoveItem(itemIndex, 'down')} 
+                                disabled={itemIndex === section.items.length - 1} 
+                                className={`p-1 rounded transition-colors ${itemIndex === section.items.length - 1 ? 'text-slate-200 dark:text-slate-700 cursor-not-allowed' : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-750 hover:text-slate-800 dark:hover:text-slate-100 cursor-pointer'}`} 
+                              >
+                                <ArrowDown className="w-3.5 h-3.5" />
+                              </button>
+                            </Tooltip>
+                          </>
+                        )}
+                        <Tooltip content={secT.deleteItem} side="top">
+                          <button 
+                            onClick={() => onDeleteItem(item.id, item.org)}
+                            className="p-1 hover:bg-red-50 dark:hover:bg-rose-950/50 text-red-500 dark:text-rose-400 hover:text-red-700 dark:hover:text-rose-300 rounded transition-colors cursor-pointer"
                           >
-                            <GripVertical className="w-3.5 h-3.5" />
-                          </div>
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         </Tooltip>
-                      )}
-                      {onMoveItem && (
-                        <>
-                          <Tooltip content={secT.moveItemUp} side="top" disabled={itemIndex === 0}>
-                            <button 
-                              type="button" 
-                              onClick={() => onMoveItem(itemIndex, 'up')} 
-                              disabled={itemIndex === 0} 
-                              className={`p-1 rounded transition-colors ${itemIndex === 0 ? 'text-slate-200 dark:text-slate-700 cursor-not-allowed' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-100 cursor-pointer'}`} 
-                            >
-                              <ArrowUp className="w-3.5 h-3.5" />
-                            </button>
-                          </Tooltip>
-                          <Tooltip content={secT.moveItemDown} side="top" disabled={itemIndex === section.items.length - 1}>
-                            <button 
-                              type="button" 
-                              onClick={() => onMoveItem(itemIndex, 'down')} 
-                              disabled={itemIndex === section.items.length - 1} 
-                              className={`p-1 rounded transition-colors ${itemIndex === section.items.length - 1 ? 'text-slate-200 dark:text-slate-700 cursor-not-allowed' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-100 cursor-pointer'}`} 
-                            >
-                              <ArrowDown className="w-3.5 h-3.5" />
-                            </button>
-                          </Tooltip>
-                        </>
-                      )}
-                      <Tooltip content={secT.deleteItem} side="top">
-                        <button 
-                          onClick={() => onDeleteItem(item.id, item.org)}
-                          className="p-1 hover:bg-red-50 dark:hover:bg-rose-950/50 text-red-500 dark:text-rose-400 hover:text-red-700 dark:hover:text-rose-300 rounded transition-colors cursor-pointer"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </Tooltip>
-                    </div>
+                      </div>
 
-                  {/* Primary Fields Row */}
-                  <div className="flex flex-col md:flex-row gap-4">
-                    <div className="flex-[1.5] min-w-0 space-y-1.5">
-                      <div className="h-6 flex items-center justify-between">
-                        <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-none select-none">{t.schoolLabel}</label>
-                      </div>
-                      <div className="relative h-9.5">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"><School className="w-3.5 h-3.5" /></span>
-                        <input 
-                          type="text" 
-                          value={item.org || ''}
-                          onChange={(e) => onItemChange(item.id, 'org', e.target.value)}
-                          className="w-full h-9.5 pl-9 pr-3 text-sm font-semibold tactile-input rounded-lg"
-                          placeholder={t.schoolPlaceholder}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex-1 min-w-0 space-y-1.5">
-                      <div className="h-6 flex items-center justify-between">
-                        <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-none select-none">{t.degreeLabel}</label>
-                        <button
-                          type="button"
-                          onClick={() => toggleCustomDegree(item.id)}
-                          className="h-5 text-[10px] text-purple-600 hover:text-purple-700 font-semibold cursor-pointer transition-colors inline-flex items-center"
-                        >
-                          {customDegrees[item.id] ? t.degreeChoosePreset : t.degreeCustom}
-                        </button>
-                      </div>
-                      <div className="relative h-9.5">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10"><GraduationCap className="w-3.5 h-3.5" /></span>
-                        {customDegrees[item.id] ? (
+                    {/* Primary Fields Row */}
+                    <div className="flex flex-col md:flex-row gap-2.5 sm:gap-3 sm:pr-24">
+                      <div className="flex-[1.5] min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest">{t.schoolLabel}</label>
+                        </div>
+                        <div className="relative">
+                          <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none"><School className="w-3.5 h-3.5" /></span>
                           <input 
                             type="text" 
-                            value={item.degree || ''}
-                            onChange={(e) => onItemChange(item.id, 'degree', e.target.value)}
-                            className="w-full h-9.5 pl-9 pr-3 text-sm tactile-input rounded-lg"
-                            placeholder={t.degreePlaceholder}
+                            value={item.org || ''}
+                            onChange={(e) => onItemChange(item.id, 'org', e.target.value)}
+                            className="w-full pl-9 pr-3 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-100 tactile-input"
+                            placeholder={t.schoolPlaceholder}
                           />
-                        ) : (
-                          <CustomSelect
-                            value={item.degree || ''}
-                            onChange={(val) => {
-                              if (val === '__custom__') {
-                                toggleCustomDegree(item.id);
-                              } else {
-                                onItemChange(item.id, 'degree', val);
-                              }
-                            }}
-                            options={[
-                              ...(item.degree && !degreeOptions.some(opt => opt.value === item.degree) ? [{ value: item.degree, label: item.degree }] : []),
-                              ...degreeOptions,
-                              { value: '__custom__', label: t.customOption }
-                            ]}
-                            size="md"
-                            className="w-full h-9.5"
-                            triggerClassName="w-full h-9.5 pl-9 pr-3 text-sm tactile-input font-normal bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-lg"
-                            placeholder={t.degreePlaceholder}
+                        </div>
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest">{t.degreeLabel}</label>
+                          <button
+                            type="button"
+                            onClick={() => toggleCustomDegree(item.id)}
+                            className="text-[10px] text-purple-600 dark:text-purple-400 hover:text-purple-700 font-semibold cursor-pointer transition-colors"
+                          >
+                            {customDegrees[item.id] ? t.degreeChoosePreset : t.degreeCustom}
+                          </button>
+                        </div>
+                        <div className="relative">
+                          <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none z-10"><GraduationCap className="w-3.5 h-3.5" /></span>
+                          {customDegrees[item.id] ? (
+                            <input 
+                              type="text" 
+                              value={item.degree || ''}
+                              onChange={(e) => onItemChange(item.id, 'degree', e.target.value)}
+                              className="w-full pl-9 pr-3 py-1.5 text-xs text-slate-800 dark:text-slate-100 tactile-input"
+                              placeholder={t.degreePlaceholder}
+                            />
+                          ) : (
+                            <CustomSelect
+                              value={item.degree || ''}
+                              onChange={(val) => {
+                                if (val === '__custom__') {
+                                  toggleCustomDegree(item.id);
+                                } else {
+                                  onItemChange(item.id, 'degree', val);
+                                }
+                              }}
+                              options={[
+                                ...(item.degree && !degreeOptions.some(opt => opt.value === item.degree) ? [{ value: item.degree, label: item.degree }] : []),
+                                ...degreeOptions,
+                                { value: '__custom__', label: t.customOption }
+                              ]}
+                              size="md"
+                              className="w-full"
+                              triggerClassName="w-full pl-9 pr-3 py-1.5 text-xs tactile-input font-normal bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-lg"
+                              placeholder={t.degreePlaceholder}
+                            />
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex-[1.2] min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest">{t.majorLabel}</label>
+                        </div>
+                        <div className="relative">
+                          <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none"><BookOpen className="w-3.5 h-3.5" /></span>
+                          <input 
+                            type="text" 
+                            value={item.role || ''}
+                            onChange={(e) => onItemChange(item.id, 'role', e.target.value)}
+                            className="w-full pl-9 pr-3 py-1.5 text-xs text-slate-800 dark:text-slate-100 tactile-input font-medium"
+                            placeholder={t.majorPlaceholder}
                           />
-                        )}
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="flex-[1.2] min-w-0 space-y-1.5">
-                      <div className="h-6 flex items-center justify-between">
-                        <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-none select-none">{t.majorLabel}</label>
-                      </div>
-                      <div className="relative h-9.5">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"><BookOpen className="w-3.5 h-3.5" /></span>
-                        <input 
-                          type="text" 
-                          value={item.role || ''}
-                          onChange={(e) => onItemChange(item.id, 'role', e.target.value)}
-                          className="w-full h-9.5 pl-9 pr-3 text-sm tactile-input font-medium rounded-lg"
-                          placeholder={t.majorPlaceholder}
+                      <div className="w-full md:w-[220px] shrink-0">
+                        <div className="mb-1">
+                          <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest">{secT.periodLabel}</label>
+                        </div>
+                        <MonthRangePicker
+                          value={item.time || ''}
+                          onChange={(val) => onItemChange(item.id, 'time', val)}
+                          className="pl-9 pr-3 py-1.5 text-xs text-slate-800 dark:text-slate-100 tactile-input font-mono"
+                          placeholder={t.timePlaceholder}
+                          lang={lang}
+                          leftIcon={<Calendar className="w-3.5 h-3.5" />}
                         />
                       </div>
                     </div>
 
-                     <div className="w-full md:w-[220px] shrink-0 space-y-1.5">
-                      <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.timeLabel}</label>
-                      <MonthRangePicker
-                        value={item.time || ''}
-                        onChange={(val) => onItemChange(item.id, 'time', val)}
-                        className="pl-9 pr-3 py-2 text-sm tactile-input font-mono"
-                        placeholder={t.timePlaceholder}
-                        lang={lang}
-                        leftIcon={<Calendar className="w-3.5 h-3.5" />}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Secondary Fields Row: Academic & Achievements */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                    <div className="space-y-1.5">
-                      <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.gpaLabel}</label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none"><Award className="w-3.5 h-3.5" /></span>
+                    {/* Secondary Fields Row: Academic & Achievements */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-1">{t.gpaLabel}</label>
                         <input 
                           type="text" 
-                          value={item.gpa || ''}
-                          onChange={(e) => onItemChange(item.id, 'gpa', e.target.value)}
-                          className="w-full pl-9 pr-3 py-2 text-sm tactile-input"
-                          placeholder={t.gpaPlaceholder}
+                          value={item.gpa || ''} 
+                          onChange={(e) => onItemChange(item.id, 'gpa', e.target.value)} 
+                          className="w-full px-2.5 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-100 tactile-input" 
+                          placeholder={t.gpaPlaceholder} 
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-1">{t.coursesLabel}</label>
+                        <input 
+                          type="text" 
+                          value={item.courses || ''} 
+                          onChange={(e) => onItemChange(item.id, 'courses', e.target.value)} 
+                          className="w-full px-2.5 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-100 tactile-input" 
+                          placeholder={t.coursesPlaceholder} 
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-1">{t.honorsLabel}</label>
+                        <input 
+                          type="text" 
+                          value={item.honors || ''} 
+                          onChange={(e) => onItemChange(item.id, 'honors', e.target.value)} 
+                          className="w-full px-2.5 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-100 tactile-input" 
+                          placeholder={t.honorsPlaceholder} 
                         />
                       </div>
                     </div>
 
-                    <div className="space-y-1.5">
-                      <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.coursesLabel}</label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none"><Book className="w-3.5 h-3.5" /></span>
-                        <input 
-                          type="text" 
-                          value={item.courses || ''}
-                          onChange={(e) => onItemChange(item.id, 'courses', e.target.value)}
-                          className="w-full pl-9 pr-3 py-2 text-sm tactile-input"
-                          placeholder={t.coursesPlaceholder}
-                        />
+                    {/* Supplemental Content / Description Textarea */}
+                    <div>
+                      <div className="mb-1">
+                        <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest">{t.descLabel}</label>
                       </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.honorsLabel}</label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none"><Award className="w-3.5 h-3.5" /></span>
-                        <input 
-                          type="text" 
-                          value={item.honors || ''}
-                          onChange={(e) => onItemChange(item.id, 'honors', e.target.value)}
-                          className="w-full pl-9 pr-3 py-2 text-sm tactile-input"
-                          placeholder={t.honorsPlaceholder}
+                      <div className="flex flex-col mt-1">
+                        <FormTextareaToolbar textareaId={item.id} value={item.content || ''} onChange={(val) => onItemChange(item.id, 'content', val)} lang={lang} />
+                        <SmartMarkdownTextarea 
+                          id={item.id}
+                          value={item.content || ''}
+                          onChange={(val) => onItemChange(item.id, 'content', val)}
+                          minRows={3}
+                          className="w-full p-2.5 text-xs font-mono leading-relaxed bg-slate-50/10 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-750 rounded-b-lg rounded-t-none border-t-0 text-slate-800 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 shadow-[inset_0_1.5px_3px_rgba(15,23,42,0.04)] focus:shadow-none transition-all duration-200"
+                          placeholder={t.descPlaceholder}
                         />
                       </div>
                     </div>
                   </div>
+                );
+              })}
 
-                  {/* Supplemental Content / Description Textarea */}
-                  <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                    <div className="mb-1">
-                      <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{t.descLabel}</label>
-                    </div>
-                    <div className="flex flex-col mt-1.5">
-                      <FormTextareaToolbar textareaId={item.id} value={item.content || ''} onChange={(val) => onItemChange(item.id, 'content', val)} lang={lang} />
-                      <SmartMarkdownTextarea 
-                        id={item.id}
-                        value={item.content || ''}
-                        onChange={(val) => onItemChange(item.id, 'content', val)}
-                        minRows={3}
-                        className="w-full p-3 text-xs font-mono leading-relaxed bg-slate-50/10 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-750 rounded-b-lg rounded-t-none border-t-0 text-slate-800 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 shadow-[inset_0_1.5px_3px_rgba(15,23,42,0.04)] focus:shadow-none transition-all duration-200"
-                        placeholder={t.descPlaceholder}
-                      />
-                    </div>
-                  </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={onAddItem}
+                    className="flex-1 py-2.5 flex items-center justify-center gap-2 text-sm font-bold text-purple-600 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/50 border border-dashed border-purple-200 dark:border-purple-800 rounded-xl transition-all group cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                    <span>{t.addBtn}</span>
+                  </button>
                 </div>
-              );
-            })}
-
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={onAddItem}
-                  className="flex-1 py-2.5 flex items-center justify-center gap-2 text-sm font-bold text-purple-600 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/50 border border-dashed border-purple-200 dark:border-purple-800 rounded-xl transition-all group cursor-pointer"
-                >
-                  <Plus className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                  <span>{t.addBtn}</span>
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-      )}
+              </>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

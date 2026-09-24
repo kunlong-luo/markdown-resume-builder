@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { FormSection } from '../../lib/form-types';
 import { getSectionTheme } from '../../lib/section-themes';
 import { getTranslation } from '../../i18n';
+import { translateSectionTitle } from '../../lib/section-translator';
 
 interface QuickNavProps {
   sections: FormSection[];
@@ -23,8 +24,7 @@ export function QuickNav({ sections, expandedSections, setExpandedSections, lang
 
   const getTranslatedTitle = (sectionTitle: string) => {
     if (!isEn) return sectionTitle || '自定义模块';
-    const theme = getSectionTheme(sectionTitle, 'en');
-    return theme.badge || sectionTitle || 'Custom Section';
+    return translateSectionTitle(sectionTitle, 'en') || sectionTitle || 'Custom Section';
   };
 
   useEffect(() => {

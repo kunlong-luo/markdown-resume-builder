@@ -1,5 +1,6 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { User, Phone, Mail, Link, Layers, ChevronDown, ChevronUp, X, Code, Globe, Calendar, GraduationCap, Briefcase, MapPin, Activity } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { ResumeFormModel } from '../../lib/form-types';
 import { CustomSelect } from '../ui/CustomSelect';
 import { AgeInputWithPicker } from './AgeInputWithPicker';
@@ -256,9 +257,16 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
         </div>
       </div>
       
-      {expanded && (
-        <div className="p-3.5 sm:p-5">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-5">
+      <AnimatePresence initial={false}>
+        {expanded && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0, overflow: 'hidden' }}
+            animate={{ opacity: 1, height: 'auto', overflow: 'visible' }}
+            exit={{ opacity: 0, height: 0, overflow: 'hidden' }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="p-5 space-y-4"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-5">
             {/* 姓名 */}
             <div className="space-y-2">
               <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-1">{t.nameLabel}</label>
@@ -719,8 +727,9 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
       )}
-    </div>
-  );
+    </AnimatePresence>
+  </div>
+);
 }

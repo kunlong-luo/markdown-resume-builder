@@ -266,5 +266,60 @@ AI前端工程师 ｜ React大模型应用架构 ｜ 全栈实战
 - **美国大学生数学建模竞赛 (MCM/ICM) 一等奖** ｜ *2024*
 - **“互联网+”大学生创新创业大赛 省级金奖** ｜ *2023*
 `
+  },
+  {
+    id: 'english',
+    name: 'English CV (Global Standard)',
+    category: 'Overseas / Global',
+    content: `# Alex Chen
+Senior Full-Stack & AI Systems Architect | Distributed Cloud Systems
++1 (555) 234-5678 · alex.chen@fake-email.com · https://github.com/alex-chen-ai
+7 Years Exp ｜ B.S. in CS ｜ 29 ｜ San Francisco, CA · Remote ｜ Immediate
+
+## Summary
+- 7+ years of engineering experience in high-concurrency distributed systems and AI Agent application architecture. Served as lead architect designing multi-model streaming gateways and resilient microservices handling tens of millions of daily API requests.
+- Deep expertise in LLM system engineering, Model Context Protocol (MCP), Spring AI, and LangChain, spearheading hybrid RAG vector database (pgvector) retrieval pipelines and autonomous multi-agent routing frameworks.
+- Strong technical leadership and full-stack ownership, proficient in Cloud-Native Kubernetes deployments, high-throughput Kafka streaming, Netty network programming, and modern React/TypeScript frontends.
+
+## Skills
+- **Core Languages:** Java, Go, TypeScript, Python, SQL, Rust
+- **AI & LLM Stack:** Model Context Protocol (MCP), Spring AI, LangChain, RAG, pgvector, DeepSeek, OpenAI
+- **Distributed Systems:** Spring Cloud, Netty, Redis, Apache Kafka, PostgreSQL, Docker, Kubernetes, gRPC
+- **Engineering Tools:** Git, Linux, Prometheus, Grafana, CI/CD Pipelines, Vite, Next.js
+
+## Work Experience
+
+### Apex Nexus Technologies Inc.　Lead AI Systems Architect　*2024.03 — Present*
+- Spearheaded the end-to-end architecture and rollout of a next-generation AI streaming gateway, implementing dynamic load routing, request queuing, and failover across multiple LLM clusters to support 15M+ daily requests.
+- Developed an enterprise-grade Model Context Protocol (MCP) tool registry and intelligent scheduling center, enabling dynamic API discovery with 94% execution accuracy and a 40% reduction in tool calling latency.
+- Optimized the pgvector-based RAG knowledge base using HNSW multi-route recall and hybrid reranking, boosting semantic recall precision by 25% with average p95 retrieval latency under 80ms.
+- Architected a reactive SSE streaming distribution pipeline with Kafka asynchronous decoupling and Redis cache warming, achieving 5,000+ peak TPS with 99.99% service reliability.
+
+### CloudWing Dynamics Inc.　Senior Backend Engineer　*2021.06 — 2024.02*
+- Led technical execution for the company's real-time IoT data aggregation platform connecting 3,000+ distributed sensors with 99.9% uptime.
+- Engineered a high-performance Go/Netty binary protocol gateway, resolving heartbeat keepalive bottlenecks and supporting 100,000+ concurrent long-lived TCP connections per instance.
+- Championed automated CI/CD workflows and Kubernetes service mesh integration, improving deployment cadence by 60% with zero-downtime canary rollouts.
+
+### Horizon ChainTech Corp.　Software Engineer　*2018.08 — 2021.05*
+- Refactored core microservice business modules and optimized complex SQL queries, suppressing high-frequency endpoint latency below 50ms.
+- Built a partitioned Kafka event processing engine with multi-threaded consumers, completely eliminating message queue buildup during peak traffic surges.
+
+## Featured Projects
+
+### Ares Multi-Agent Routing Gateway System　*2025.02 — Present*
+- **Role & Scope:** Principal Architect & Full-Stack Developer
+- **Tech Stack:** Spring Cloud, Spring AI, pgvector, Apache Kafka, Redis, React
+- **Impact & Deliverables:**
+  - Built an open-source, low-latency agent workflow router with dynamic memory isolation and secure multi-tenant streaming distribution.
+  - Implemented SSE relay proxy in Netty, mitigating long-lived connection memory overhead and slashing first-token latency to under 350ms.
+  - Integrated pgvector prompt template caching and conversational vector store for multi-turn RAG retrieval.
+
+## Education
+
+### Zhejiang University ｜ B.S. in Computer Science & Technology ｜ *2014.09 — 2018.06*
+- **GPA / Performance**: GPA 3.82 / 4.0 (Top 5% in Major), First-Class Academic Scholarship
+- **Core Courses**: Advanced Data Structures, Distributed Systems, Computer Networks, Operating Systems, Database Internals
+- **Honors & Awards**: First Prize in National Mathematical Contest in Modeling, ACM-ICPC Regional Bronze Medal, Provincial Outstanding Graduate
+`
   }
 ];

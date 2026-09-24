@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { DEFAULT_MARKDOWN, TEMPLATES } from '../data';
 import { ResumeSettings, ResumeProfile } from '../types';
 import { storage, STORAGE_KEYS } from '../lib/storage';
+import { translateMarkdownContent } from '../lib/section-translator';
 
 interface ResumeState {
   // States
@@ -198,18 +199,28 @@ const getInitialProfiles = (
 
   if (savedProfiles && Array.isArray(savedProfiles) && savedProfiles.length > 0) {
     // Migration & Sanitization for each profile
-    const migratedProfiles = savedProfiles.map(p => ({
-      ...p,
-      markdown: typeof p.markdown === 'string' 
+    const migratedProfiles = savedProfiles.map(p => {
+      let md = typeof p.markdown === 'string' 
         ? p.markdown.replace(/GitHub[：:]\s*(https?:\/\/|github\.com\/)/gi, (_match, p1) => {
             return p1.startsWith('http') ? p1 : `https://${p1}`;
           }) 
-        : defaultMd,
-      settings: sanitizeSettings(p.settings, defaultSettings),
-      name: p.name || '未命名简历草稿',
-      updatedAt: p.updatedAt || new Date().toISOString(),
-      createdAt: p.createdAt || new Date().toISOString()
-    }));
+        : defaultMd;
+      
+      // If profile is English and still contains default Chinese resume, migrate to English template
+      if (p.id === 'profile_english' && (md.includes('钟晨杰') || md.includes('## 个人优势'))) {
+        const engTpl = TEMPLATES.find(t => t.id === 'english')?.content;
+        if (engTpl) md = engTpl;
+      }
+
+      return {
+        ...p,
+        markdown: md,
+        settings: sanitizeSettings(p.settings, defaultSettings),
+        name: p.name || '未命名简历草稿',
+        updatedAt: p.updatedAt || new Date().toISOString(),
+        createdAt: p.createdAt || new Date().toISOString()
+      };
+    });
 
     const activeId = migratedProfiles.some(p => p.id === savedActiveId) ? savedActiveId : migratedProfiles[0].id;
     return { profiles: migratedProfiles, activeId };
@@ -586,35 +597,51 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
   },
 
   updateSetting: (key, value) => {
+    const prevLang = get().settings?.lang;
     const newSettings = { ...get().settings, [key]: value };
     storage.set(STORAGE_KEYS.SETTINGS, newSettings);
     if (key === 'themeMode') {
       storage.set(STORAGE_KEYS.THEME_MODE, value);
     }
+
+    let nextMarkdown = get().markdown;
+    if (key === 'lang' && value !== prevLang && (value === 'zh' || value === 'en')) {
+      nextMarkdown = translateMarkdownContent(nextMarkdown, value);
+      storage.set(STORAGE_KEYS.MARKDOWN, nextMarkdown);
+    }
+
     const { profiles, activeProfileId } = get();
     const updatedProfiles = profiles.map(p =>
       p.id === activeProfileId
-        ? { ...p, settings: newSettings, updatedAt: new Date().toISOString() }
+        ? { ...p, settings: newSettings, markdown: nextMarkdown, updatedAt: new Date().toISOString() }
         : p
     );
     storage.set(STORAGE_KEYS.PROFILES, updatedProfiles);
-    set({ settings: newSettings, profiles: updatedProfiles });
+    set({ settings: newSettings, markdown: nextMarkdown, profiles: updatedProfiles });
   },
 
   updateSettings: (partialSettings) => {
+    const prevLang = get().settings?.lang;
     const newSettings = { ...get().settings, ...partialSettings };
     storage.set(STORAGE_KEYS.SETTINGS, newSettings);
     if (partialSettings.themeMode) {
       storage.set(STORAGE_KEYS.THEME_MODE, partialSettings.themeMode);
     }
+
+    let nextMarkdown = get().markdown;
+    if (partialSettings.lang && partialSettings.lang !== prevLang && (partialSettings.lang === 'zh' || partialSettings.lang === 'en')) {
+      nextMarkdown = translateMarkdownContent(nextMarkdown, partialSettings.lang);
+      storage.set(STORAGE_KEYS.MARKDOWN, nextMarkdown);
+    }
+
     const { profiles, activeProfileId } = get();
     const updatedProfiles = profiles.map(p =>
       p.id === activeProfileId
-        ? { ...p, settings: newSettings, updatedAt: new Date().toISOString() }
+        ? { ...p, settings: newSettings, markdown: nextMarkdown, updatedAt: new Date().toISOString() }
         : p
     );
     storage.set(STORAGE_KEYS.PROFILES, updatedProfiles);
-    set({ settings: newSettings, profiles: updatedProfiles });
+    set({ settings: newSettings, markdown: nextMarkdown, profiles: updatedProfiles });
   }
 }));
 
