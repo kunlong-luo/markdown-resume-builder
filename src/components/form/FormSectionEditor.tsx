@@ -1,6 +1,6 @@
 import React from 'react';
 import { 
-  Award, Layers, Briefcase, FolderKanban, GraduationCap, FileText, Plus
+  Plus
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FormSection } from '../../lib/form-types';
@@ -10,6 +10,7 @@ import { SectionHeader } from './SectionHeader';
 import { ItemEditor } from './ItemEditor';
 import { SmartMarkdownTextarea } from './SmartMarkdownTextarea';
 import { getSectionTheme } from '../../lib/section-themes';
+import { getTranslation } from '../../i18n';
 
 export function getSectionIcon(title: string, className?: string, lang = 'zh') {
   const theme = getSectionTheme(title, lang);
@@ -39,24 +40,9 @@ interface FormSectionEditorProps {
   lang?: string;
 }
 
-const TRANSLATIONS = {
-  zh: {
-    textLabel: '文本内容',
-    textPlaceholder: '- **核心技能 1**：描述您的核心竞争力...',
-    noItems: '该模块下暂无经历子项',
-    addItem: '添加一条新经历'
-  },
-  en: {
-    textLabel: 'Text Content',
-    textPlaceholder: '- **Core Skill 1**: Describe your core competencies and strengths...',
-    noItems: 'No items in this section yet',
-    addItem: 'Add a new entry'
-  }
-};
-
 // Helper to determine if a section is inherently text-only (e.g., Personal Advantages, Self-Evaluation, Skills)
 const isTextOnlySection = (title: string): boolean => {
-  const t = title.trim().toLowerCase();
+  const t = (title || '').trim().toLowerCase();
   const textOnlyKeywords = [
     '个人优势', '自我评价', '个人评价', '专业技能', '核心技能', '技能特长', '技能证书', '职业规划', '求职意向', '关于我', '兴趣爱好', '自我介绍',
     'summary', 'skills', 'personal summary', 'self evaluation', 'self-evaluation', 'key skills', 'core competencies', 'interests', 'certifications', 'hobbies', 'about me'
@@ -69,7 +55,9 @@ export function FormSectionEditor({
   onTypeChange,
   lang = 'zh'
 }: FormSectionEditorProps) {
-  const t = lang === 'en' ? TRANSLATIONS.en : TRANSLATIONS.zh;
+  const activeLang = lang === 'en' ? 'en' : 'zh';
+  const translations = getTranslation(activeLang);
+  const t = translations.form.section;
   const hideTypeSwitcher = isTextOnlySection(sec.title);
   const theme = getSectionTheme(sec.title, lang);
 

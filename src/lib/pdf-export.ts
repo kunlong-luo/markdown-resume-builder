@@ -1,6 +1,3 @@
-import html2canvas from 'html2canvas-pro';
-import { jsPDF } from 'jspdf';
-
 export interface DirectPDFExportOptions {
   filename?: string;
   onProgress?: (status: string) => void;
@@ -181,6 +178,12 @@ export async function exportDirectPDF(
   document.body.appendChild(exportWrapper);
 
   try {
+    onProgress?.('正在加载渲染引擎与排版组件...');
+    const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+      import('html2canvas-pro'),
+      import('jspdf')
+    ]);
+
     onProgress?.('正在生成超清渲染光栅...');
     
     // Short wait for layout and fonts to settle in DOM

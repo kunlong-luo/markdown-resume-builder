@@ -92,15 +92,20 @@ export default function App() {
   useEffect(() => {
     if (!isDragging) return;
 
+    let rafId: number | null = null;
+
     const handleMove = (clientX: number) => {
-      if (!containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      const newRatio = ((clientX - rect.left) / rect.width) * 100;
-      // Clamp between 28% and 72%
-      const clamped = Math.min(Math.max(newRatio, 28), 72);
-      // Snap to exact 50% when close
-      const finalRatio = Math.abs(clamped - 50) < 1.5 ? 50 : clamped;
-      setSplitRatio(finalRatio);
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        if (!containerRef.current) return;
+        const rect = containerRef.current.getBoundingClientRect();
+        const newRatio = ((clientX - rect.left) / rect.width) * 100;
+        // Clamp between 28% and 72%
+        const clamped = Math.min(Math.max(newRatio, 28), 72);
+        // Snap to exact 50% when close
+        const finalRatio = Math.abs(clamped - 50) < 1.5 ? 50 : clamped;
+        setSplitRatio(finalRatio);
+      });
     };
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -114,6 +119,7 @@ export default function App() {
     };
 
     const handleEnd = () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
       setIsDragging(false);
       try {
         localStorage.setItem('resume-split-ratio', String(splitRatio));
@@ -122,9 +128,10 @@ export default function App() {
 
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleEnd);
-    window.addEventListener('touchmove', handleTouchMove);
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
     window.addEventListener('touchend', handleEnd);
     return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleEnd);
       window.removeEventListener('touchmove', handleTouchMove);

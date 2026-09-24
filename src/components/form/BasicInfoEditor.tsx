@@ -1,10 +1,12 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { User, Phone, Mail, Link, Layers, ChevronDown, ChevronUp, X, Code, Globe, Calendar, GraduationCap, Briefcase, MapPin, Activity } from 'lucide-react';
 import { ResumeFormModel } from '../../lib/form-types';
-import { CustomSelect, SelectOption } from '../ui/CustomSelect';
+import { CustomSelect } from '../ui/CustomSelect';
 import { AgeInputWithPicker } from './AgeInputWithPicker';
 import { Tooltip } from '../ui/Tooltip';
 import { formatPhoneNumber } from '../../lib/markdown-parser';
+import { getTranslation } from '../../i18n';
+import { getDegreeOptions, getJobStatusOptions, getPopularCities } from '../../lib/form-constants';
 
 interface BasicInfoEditorProps {
   model: ResumeFormModel;
@@ -15,100 +17,6 @@ interface BasicInfoEditorProps {
   onToggleOptional: () => void;
   lang?: 'zh' | 'en';
 }
-
-const TRANSLATIONS = {
-  zh: {
-    basicInfo: '基本信息',
-    basicDesc: '姓名、联系方式与个人标签',
-    pinnedTop: '固定置顶',
-    nameLabel: '姓名',
-    namePlaceholder: '例如：张三',
-    phoneLabel: '手机号码',
-    phonePlaceholder: '例如：138 0000 0000',
-    emailLabel: '电子邮箱',
-    emailPlaceholder: '例如：zhangsan@example.com',
-    wechatLabel: '微信号',
-    wechatPlaceholder: '例如：wx_dev666 或 同手机号',
-    wechatOptionalBadge: '选填',
-    wechatSameAsPhone: '同手机号',
-    targetJobLabel: '求职意向',
-    tagPlaceholder: '输入标签后按回车添加',
-    addBtn: '添加',
-    socialLabel: '社交链接',
-    socialPlaceholder: '例如：https://github.com/username ｜ https://blog.example.com',
-    expLabel: '工作经验',
-    expPlaceholder: '例如：5',
-    expSuffix: '年',
-    studentGradBadge: '在校生 / 应届生',
-    degreeLabel: '最高学历',
-    ageLabel: '年龄',
-    agePlaceholder: '例如：28',
-    cityLabel: '意向城市',
-    cityPlaceholder: '例如：杭州、上海 或 远程',
-    addCityPlaceholder: '输入城市按回车添加...',
-    statusLabel: '求职状态',
-    customBtn: '自定义',
-    presetBtn: '选择预设',
-    addMoreBtn: '+ 可选字段',
-    collapseBtn: '收起可选字段',
-    customManual: '自定义输入',
-    schoolText: '硕士 或 本科',
-  },
-  en: {
-    basicInfo: 'Basic Info',
-    basicDesc: 'Name, contact info, and tags',
-    pinnedTop: 'Pinned Top',
-    nameLabel: 'Full Name',
-    namePlaceholder: 'e.g., John Doe',
-    phoneLabel: 'Phone Number',
-    phonePlaceholder: 'e.g., +1 (123) 456-7890',
-    emailLabel: 'Email Address',
-    emailPlaceholder: 'e.g., john.doe@email.com',
-    wechatLabel: 'WeChat',
-    wechatPlaceholder: 'e.g., wx_username or same as phone',
-    wechatOptionalBadge: 'Optional',
-    wechatSameAsPhone: 'Same as phone',
-    targetJobLabel: 'Job Target',
-    tagPlaceholder: 'Press Enter to add tag',
-    addBtn: 'Add',
-    socialLabel: 'Social Link / Website',
-    socialPlaceholder: 'e.g., https://github.com/username ｜ https://blog.example.com',
-    expLabel: 'Work Experience',
-    expPlaceholder: 'e.g., 5',
-    expSuffix: 'yrs',
-    studentGradBadge: 'Student / New Grad',
-    degreeLabel: 'Highest Degree',
-    ageLabel: 'Age',
-    agePlaceholder: 'e.g., 28',
-    cityLabel: 'Target Cities / Location',
-    cityPlaceholder: 'e.g., Hangzhou, Shanghai or Remote',
-    addCityPlaceholder: 'Type city and press Enter...',
-    statusLabel: 'Job Search Status',
-    customBtn: 'Custom',
-    presetBtn: 'Preset',
-    addMoreBtn: '+ Optional Fields',
-    collapseBtn: 'Hide Optional Fields',
-    customManual: 'Custom Input',
-    schoolText: 'e.g., Master or Bachelor',
-  }
-};
-
-const getDegreeOptions = (l: 'zh' | 'en') => [
-  { value: '', label: '' },
-  { value: '大专', label: l === 'en' ? 'Associate' : '大专' },
-  { value: '本科', label: l === 'en' ? 'Bachelor' : '本科' },
-  { value: '硕士', label: l === 'en' ? 'Master' : '硕士' },
-  { value: '博士', label: l === 'en' ? 'PhD' : '博士' },
-];
-
-const getJobStatusOptions = (l: 'zh' | 'en') => [
-  { value: '', label: '' },
-  { value: '在职-随时到岗', label: l === 'en' ? 'Employed - Immediate' : '在职 - 随时到岗' },
-  { value: '在职-考虑机会', label: l === 'en' ? 'Employed - Open to Offers' : '在职 - 考虑机会' },
-  { value: '在职-暂不考虑', label: l === 'en' ? 'Employed - Not Looking' : '在职 - 暂不考虑' },
-  { value: '离职-随时到岗', label: l === 'en' ? 'Unemployed - Immediate' : '离职 - 随时到岗' },
-  { value: '在校-寻找实习', label: l === 'en' ? 'Student - Looking for Internship' : '在校 - 寻找实习' },
-];
 
 const GitHubIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
@@ -126,26 +34,28 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
   const [tagInput, setTagInput] = useState('');
   
   const activeLang = lang === 'en' ? 'en' : 'zh';
-  const t = TRANSLATIONS[activeLang];
+  const translations = getTranslation(activeLang);
+  const t = translations.form.basic;
+  const commonT = translations.common;
   const degreeOptions = getDegreeOptions(activeLang);
   const jobStatusOptions = getJobStatusOptions(activeLang);
+  const popularCities = getPopularCities(activeLang);
 
   const [customDegree, setCustomDegree] = useState(() => {
-    return !!model.degree && !getDegreeOptions(lang === 'en' ? 'en' : 'zh').some(o => o.value === model.degree);
+    return !!model.degree && !degreeOptions.some(o => o.value === model.degree);
   });
   const [customJobStatus, setCustomJobStatus] = useState(() => {
-    return !!model.jobStatus && !getJobStatusOptions(lang === 'en' ? 'en' : 'zh').some(o => o.value === model.jobStatus);
+    return !!model.jobStatus && !jobStatusOptions.some(o => o.value === model.jobStatus);
   });
 
   React.useEffect(() => {
-    const l = lang === 'en' ? 'en' : 'zh';
-    if (model.degree && !getDegreeOptions(l).some(o => o.value === model.degree)) {
+    if (model.degree && !degreeOptions.some(o => o.value === model.degree)) {
       setCustomDegree(true);
     }
-    if (model.jobStatus && !getJobStatusOptions(l).some(o => o.value === model.jobStatus)) {
+    if (model.jobStatus && !jobStatusOptions.some(o => o.value === model.jobStatus)) {
       setCustomJobStatus(true);
     }
-  }, [model.degree, model.jobStatus, lang]);
+  }, [model.degree, model.jobStatus, activeLang]);
 
   const getNumericYears = (wy: string | undefined): string => {
     if (!wy) return '';
@@ -206,11 +116,11 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
     if (!raw.trim()) return;
     const incoming = raw
       .split(/[｜|、,，;/；\n]+/)
-      .map(t => t.trim())
+      .map(item => item.trim())
       .filter(Boolean);
     if (incoming.length === 0) return;
 
-    const existingTags = model.subtitle ? model.subtitle.split(/[｜|]/).map(t => t.trim()).filter(Boolean) : [];
+    const existingTags = model.subtitle ? model.subtitle.split(/[｜|]/).map(item => item.trim()).filter(Boolean) : [];
     const set = new Set(existingTags);
     const updated = [...existingTags];
     for (const tag of incoming) {
@@ -238,17 +148,12 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
   };
 
   const handleRemoveTag = (tagToRemove: string) => {
-    const tags = model.subtitle ? model.subtitle.split(/[｜|]/).map(t => t.trim()).filter(Boolean) : [];
-    const newTags = tags.filter(t => t !== tagToRemove);
+    const tags = model.subtitle ? model.subtitle.split(/[｜|]/).map(item => item.trim()).filter(Boolean) : [];
+    const newTags = tags.filter(item => item !== tagToRemove);
     handleBasicInfoChange('subtitle', newTags.join(' ｜ '));
   };
 
-  const popularCities = activeLang === 'en' 
-    ? ['Remote', 'San Francisco', 'New York', 'Seattle', 'London']
-    : ['北京', '上海', '深圳', '杭州', '广州', '成都', '远程'];
-
   const handlePhoneChange = (val: string) => {
-    // If starting with '+' (international)
     if (val.startsWith('+')) {
       handleBasicInfoChange('phone', val);
       return;
@@ -256,7 +161,6 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
 
     const digitsOnly = val.replace(/\D/g, '');
     
-    // For standard Chinese 11-digit mobile: dynamically format as 3-4-4
     if (digitsOnly.length <= 11) {
       if (digitsOnly.length > 7) {
         handleBasicInfoChange('phone', `${digitsOnly.slice(0, 3)} ${digitsOnly.slice(3, 7)} ${digitsOnly.slice(7)}`);
@@ -266,7 +170,6 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
         handleBasicInfoChange('phone', digitsOnly);
       }
     } else {
-      // General format
       handleBasicInfoChange('phone', formatPhoneNumber(val));
     }
   };
@@ -323,24 +226,33 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
       }`}
     >
       <div 
-        className={`flex items-center justify-between p-4 bg-gradient-to-r cursor-pointer transition-colors ${
+        className={`flex items-center justify-between px-5 py-3.5 bg-gradient-to-r cursor-pointer select-none transition-all duration-300 ${
           expanded 
             ? 'from-indigo-50/40 to-slate-50 dark:from-indigo-950/30 dark:to-slate-900/60 border-b border-indigo-100/40 dark:border-indigo-900/40 hover:from-indigo-50/60 hover:to-slate-100/60 dark:hover:from-indigo-950/50 dark:hover:to-slate-900/80' 
-            : 'from-slate-50/80 to-slate-100/30 dark:from-slate-850/60 dark:to-slate-900/40 border-b border-slate-200/40 dark:border-slate-800 hover:from-slate-100/60 hover:to-slate-100/90 dark:hover:from-slate-800 dark:hover:to-slate-800/80'
+            : 'from-slate-50/80 to-slate-100/30 dark:from-slate-850/60 dark:to-slate-900/40 border-b border-slate-200/40 dark:border-slate-800 dark:hover:from-slate-800 dark:hover:to-slate-800/80 hover:from-slate-100/60 hover:to-slate-100/90'
         }`}
         onClick={onToggleExpanded}
       >
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg border bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border-indigo-200/60 dark:border-indigo-800/60 shrink-0 flex items-center justify-center">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="p-2 rounded-lg border bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border-indigo-200/60 dark:border-indigo-800/60 shrink-0 flex items-center justify-center shadow-2xs">
             <User className="w-5 h-5" />
           </div>
-          <div>
-            <h3 className="font-bold text-slate-800 dark:text-slate-100">{t.basicInfo}</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{t.basicDesc}</p>
+          <div className="min-w-0 flex flex-col justify-center">
+            <div className="flex items-center gap-2">
+              <h3 className="font-bold text-sm text-slate-800 dark:text-slate-100 px-1 py-0.5">{t.title}</h3>
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800/60">
+                {t.pinnedTop}
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 px-1 truncate max-w-xs sm:max-w-md">
+              {t.desc}
+            </p>
           </div>
         </div>
-        <div className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer">
-          {expanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+        <div className="flex items-center gap-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
+          <div className="p-0.5 transition-transform duration-200 active:scale-75 cursor-pointer" onClick={onToggleExpanded}>
+            {expanded ? <ChevronUp className="w-4 h-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" /> : <ChevronDown className="w-4 h-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" />}
+          </div>
         </div>
       </div>
       
@@ -421,7 +333,7 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                   onClick={() => handleAddTag()}
                   className="px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-sm font-semibold rounded-lg transition-all border border-slate-200/80 shadow-[0_1px_2px_rgba(15,23,42,0.02),inset_0_1.5px_2px_rgba(255,255,255,0.95)] cursor-pointer active:translate-y-px shrink-0"
                 >
-                  {t.addBtn}
+                  {t.addTagBtn}
                 </button>
               </div>
 
@@ -471,14 +383,14 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                         <WeChatIcon className="w-4 h-4" />
                       </span>
                       <input 
-                        type="text"
+                        type="text" 
                         value={model.wechat || ''}
                         onChange={(e) => handleBasicInfoChange('wechat', e.target.value)}
                         className="w-full pl-9 pr-8 py-2 text-sm tactile-input font-mono text-slate-800 dark:text-slate-100"
                         placeholder={t.wechatPlaceholder}
                       />
                       {model.wechat && (
-                        <Tooltip content={activeLang === 'en' ? 'Clear' : '清空'} side="top">
+                        <Tooltip content={commonT.clear} side="top">
                           <button
                             type="button"
                             onClick={() => handleBasicInfoChange('wechat', '')}
@@ -516,7 +428,7 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                         placeholder={t.socialPlaceholder}
                       />
                       {model.social && (
-                        <Tooltip content={activeLang === 'en' ? 'Clear' : '清空'} side="top">
+                        <Tooltip content={commonT.clear} side="top">
                           <button
                             type="button"
                             onClick={() => handleBasicInfoChange('social', '')}
@@ -536,7 +448,7 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                   <div className="space-y-1.5">
                     <div className="h-6 flex items-center justify-between">
                       <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-none select-none">{t.expLabel}</label>
-                      <Tooltip content={activeLang === 'en' ? 'Toggle New Graduate status' : '点击快速切换为应届生/在校生'} side="top">
+                      <Tooltip content={t.studentGradTooltip} side="top">
                         <button
                           type="button"
                           onClick={() => {
@@ -598,7 +510,7 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                           value={model.degree || ''}
                           onChange={(e) => handleStructuredFieldChange('degree', e.target.value)}
                           className="w-full h-9.5 pl-9 pr-3 text-sm tactile-input rounded-lg"
-                          placeholder={t.schoolText}
+                          placeholder={t.degreePlaceholder}
                         />
                       ) : (
                         <CustomSelect
@@ -618,7 +530,7 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                           size="md"
                           className="w-full h-9.5"
                           triggerClassName="w-full h-9.5 pl-9 pr-3 text-sm tactile-input font-normal bg-white rounded-lg"
-                          placeholder={t.schoolText}
+                          placeholder={t.degreePlaceholder}
                         />
                       )}
                     </div>
@@ -700,7 +612,7 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                         onClick={() => handleStructuredFieldChange('city', '')}
                         className="h-5 text-[10px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 font-medium cursor-pointer transition-colors inline-flex items-center"
                       >
-                        {activeLang === 'en' ? 'Clear' : '清空'}
+                        {t.clearCity}
                       </button>
                     )}
                   </div>

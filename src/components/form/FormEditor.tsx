@@ -13,7 +13,7 @@ interface FormEditorProps {
   settings?: any;
 }
 
-export function FormEditor({ value, onChange, settings }: FormEditorProps) {
+export const FormEditor = React.memo(function FormEditor({ value, onChange, settings }: FormEditorProps) {
   const {
     localModel,
     expandedSections,
@@ -72,6 +72,7 @@ export function FormEditor({ value, onChange, settings }: FormEditorProps) {
                 onAddItem={() => addItem(sec.id, sec.title)}
                 onDeleteItem={(itemId, org) => deleteItem(sec.id, itemId, org)}
                 onTitleChange={(newTitle) => handleSectionTitleChange(sec.id, newTitle)}
+                onApplySpacing={() => applyChineseEnglishSpacingToSection(sec.id)}
                 onMove={(direction) => moveSection(secIndex, direction)}
                 onDelete={() => deleteSection(sec.id, sec.title)}
                 isFirst={secIndex === 0}
@@ -115,5 +116,5 @@ export function FormEditor({ value, onChange, settings }: FormEditorProps) {
       </div>
     </div>
   );
-}
+});
 export default FormEditor;

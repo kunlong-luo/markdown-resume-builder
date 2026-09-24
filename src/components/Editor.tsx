@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useDeferredValue } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Edit3, Copy, RotateCcw, Check, Bold, Italic, Link, List, ListOrdered, Table, Minus, Heading1, Heading2, Code, Info, Scissors, Undo, Redo,
@@ -101,7 +101,7 @@ function highlightMarkdown(text: string): string {
 }
 
 // Props are refactored to use Zustand global store
-export function Editor() {
+export const Editor = React.memo(function Editor() {
   const {
     markdown: value,
     handleMarkdownChange: onChange,
@@ -112,6 +112,8 @@ export function Editor() {
     settings,
     measuredPageCount
   } = useResumeStore();
+
+  const deferredValue = useDeferredValue(value);
 
   const { confirm } = useConfirm();
 
@@ -217,8 +219,8 @@ export function Editor() {
 
   // Auto detect format issues and 1-click clean
   const autoCleanResult = useMemo(() => {
-    return autoFormatAndCleanResume(value);
-  }, [value]);
+    return autoFormatAndCleanResume(deferredValue);
+  }, [deferredValue]);
 
   const handleAutoClean = () => {
     if (!autoCleanResult.hasChanges) {
@@ -254,7 +256,7 @@ export function Editor() {
   const lineCount = useMemo(() => value.split('\n').length, [value]);
   // Estimate page logic (uses actual measured page count if available from preview, otherwise estimates based on length)
   const estPages = useMemo(() => measuredPageCount || Math.max(1, Math.ceil(charCount / 2400)), [measuredPageCount, charCount]);
-  const highlightedHtml = useMemo(() => highlightMarkdown(value) + '\n', [value]);
+  const highlightedHtml = useMemo(() => highlightMarkdown(deferredValue) + '\n', [deferredValue]);
 
   return (
     <div className="flex flex-col h-full bg-[#fdfdfd] dark:bg-slate-900 border-r border-gray-200 dark:border-slate-800 shadow-[inset_-4px_0_12px_rgb(0,0,0,0.02)] min-w-0 overflow-hidden">
@@ -786,4 +788,5 @@ export function Editor() {
       </div>
     </div>
   );
-}
+});
+

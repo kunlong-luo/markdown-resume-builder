@@ -11,7 +11,7 @@ interface ZoomControlsProps {
   lang?: string;
 }
 
-export const ZoomControls: React.FC<ZoomControlsProps> = ({
+export const ZoomControls: React.FC<ZoomControlsProps> = React.memo(({
   zoomMode,
   calculatedZoom,
   onZoomChange,
@@ -114,5 +114,5 @@ export const ZoomControls: React.FC<ZoomControlsProps> = ({
       </span>
     </motion.div>
   );
-};
+});
 export default ZoomControls;

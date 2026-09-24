@@ -4,95 +4,7 @@ import { FormItem, FormSection, ResumeFormModel } from '../lib/form-types';
 import { parseMarkdownToForm, parseFormToMarkdown, getSectionCategory } from '../lib/markdown-parser';
 import { getPresetSection, getStarTemplate } from '../lib/form-helpers';
 import { useConfirm } from '../context/ConfirmContext';
-
-export const FORM_EDITOR_TRANSLATIONS = {
-  zh: {
-    outlineTitle: '板块结构',
-    totalSections: (count: number) => `${count} 个板块`,
-    collapseOutline: '折叠大纲 [-]',
-    expandOutline: '展开大纲 [+]',
-    tip: '💡 提示：点击箭头调整模块上下顺序，右侧实时显示。',
-    expandAll: '展开所有',
-    collapseAll: '折叠所有',
-    basicInfo: '🧑‍💼 个人基本信息',
-    fixedTop: '置顶',
-    unnamedSec: '未命名模块',
-    moveUp: '上移',
-    moveDown: '下移',
-    
-    // items defaults
-    defaultSchool: '学校名称',
-    defaultCompany: '公司/项目名称',
-    defaultMajor: '专业与学位',
-    defaultRole: '职位角色',
-    defaultTime: '2026.01 - 至今',
-    defaultDesc: '- 职责/业绩描述...',
-    defaultGpa: '绩点 GPA 3.8/4.0',
-    defaultCourses: '核心课程...',
-    defaultHonors: '奖项荣誉...',
-    
-    // markdown conversion labels
-    gpaLabel: '在校表现',
-    coursesLabel: '主修课程',
-    honorsLabel: '荣誉成就',
-
-    // confirmations
-    deleteSecTitle: '删除模块确认',
-    deleteSecMsg: (title: string) => `确定要删除模块「${title}」吗？此操作将移除该模块的所有内容且无法撤销。`,
-    confirmDelete: '确认删除',
-    cancel: '取消',
-    
-    deleteItemTitle: '删除经历项确认',
-    deleteItemMsg: (org: string) => `确定要删除此条经历「${org || '未命名经历'}」吗？此操作将彻底删除此项内容且无法撤销。`,
-    
-    overwriteTitle: '覆盖内容提示',
-    overwriteMsg: '这将会覆盖您当前已输入的内容，确定要导入推荐的内容模板吗？',
-    confirmImport: '确认导入'
-  },
-  en: {
-    outlineTitle: 'Resume Outline & Easy Sorting',
-    totalSections: (count: number) => `${count} sections total`,
-    collapseOutline: 'Collapse Outline [-]',
-    expandOutline: 'Expand Outline [+]',
-    tip: '💡 Tip: Click arrows to adjust the layout order of sections. The preview renders in real-time.',
-    expandAll: 'Expand All Forms',
-    collapseAll: 'Collapse All Forms',
-    basicInfo: '🧑‍💼 Personal Information',
-    fixedTop: 'Fixed Top',
-    unnamedSec: 'Unnamed Section',
-    moveUp: 'Move Up',
-    moveDown: 'Move Down',
-    
-    // items defaults
-    defaultSchool: 'Institution Name',
-    defaultCompany: 'Company / Project Name',
-    defaultMajor: 'Major & Degree',
-    defaultRole: 'Role / Title',
-    defaultTime: '2026.01 - Present',
-    defaultDesc: '- Responsibilities / achievements description...',
-    defaultGpa: 'GPA 3.8/4.0',
-    defaultCourses: 'Core courses...',
-    defaultHonors: 'Awards & Honors...',
-    
-    // markdown conversion labels
-    gpaLabel: 'GPA / Performance',
-    coursesLabel: 'Core Courses',
-    honorsLabel: 'Honors & Awards',
-
-    // confirmations
-    deleteSecTitle: 'Delete Section Confirmation',
-    deleteSecMsg: (title: string) => `Are you sure you want to delete section "${title}"? This will remove all its content and cannot be undone.`,
-    confirmDelete: 'Confirm Delete',
-    cancel: 'Cancel',
-    
-    deleteItemTitle: 'Delete Item Confirmation',
-    deleteItemMsg: (org: string) => `Are you sure you want to delete "${org || 'Unnamed Entry'}"? This action is permanent and cannot be undone.`,
-    
-    overwriteTitle: 'Overwrite Content Prompt',
-    overwriteMsg: 'This will overwrite your existing text for this entry. Are you sure you want to import the recommended template?',
-    confirmImport: 'Confirm Import'
-  }
-};
+import { getTranslation } from '../i18n';
 
 export function useFormEditor(
   value: string,
@@ -106,8 +18,9 @@ export function useFormEditor(
     basic: true
   });
   
-  const isEn = settings?.lang === 'en';
-  const t = isEn ? FORM_EDITOR_TRANSLATIONS.en : FORM_EDITOR_TRANSLATIONS.zh;
+  const currentLang = settings?.lang || 'zh';
+  const translations = getTranslation(currentLang);
+  const t = translations.form;
 
   const [showOptionalBasic, setShowOptionalBasic] = useState(() => {
     const parsed = parseMarkdownToForm(value);
@@ -197,34 +110,38 @@ export function useFormEditor(
         if (newType === 'items' && sec.items.length === 0) {
           const category = getSectionCategory(sec.title);
           const newItem: FormItem = {
-            id: `item_${Date.now()}_${Math.random().toString(36).substring(2, 5)}`,
-            org: category === 'edu' ? t.defaultSchool : t.defaultCompany,
-            role: category === 'edu' ? t.defaultMajor : t.defaultRole,
-            time: t.defaultTime,
-            content: t.defaultDesc,
+            id: `item_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+            org: '',
+            role: '',
+            time: '',
+            content: '',
           };
           if (category === 'edu') {
+            newItem.degree = '';
             newItem.gpa = '';
             newItem.courses = '';
             newItem.honors = '';
-            newItem.content = '';
           }
           return { ...sec, type: newType, items: [newItem], textValue: '' };
         } else if (newType === 'text' && !sec.textValue && sec.items.length > 0) {
           let textVal = '';
+          const gpaTitle = currentLang === 'en' ? 'GPA / Performance' : '在校表现';
+          const coursesTitle = currentLang === 'en' ? 'Core Courses' : '主修课程';
+          const honorsTitle = currentLang === 'en' ? 'Honors & Awards' : '荣誉成就';
+
           sec.items.forEach(item => {
             const heading = [item.org, item.degree, item.role, item.time].filter(Boolean).join(' ｜ ');
             if (heading) {
               textVal += `### ${heading}\n`;
             }
             if (item.gpa && item.gpa.trim()) {
-              textVal += `- **${t.gpaLabel}**：${item.gpa.trim()}\n`;
+              textVal += `- **${gpaTitle}**：${item.gpa.trim()}\n`;
             }
             if (item.courses && item.courses.trim()) {
-              textVal += `- **${t.coursesLabel}**：${item.courses.trim()}\n`;
+              textVal += `- **${coursesTitle}**：${item.courses.trim()}\n`;
             }
             if (item.honors && item.honors.trim()) {
-              textVal += `- **${t.honorsLabel}**：${item.honors.trim()}\n`;
+              textVal += `- **${honorsTitle}**：${item.honors.trim()}\n`;
             }
             if (item.content) {
               textVal += `${item.content.trim()}\n`;
@@ -254,10 +171,10 @@ export function useFormEditor(
 
   const deleteSection = async (sectionId: string, sectionTitle: string) => {
     const confirmed = await confirm({
-      title: t.deleteSecTitle,
-      message: t.deleteSecMsg(sectionTitle),
-      confirmText: t.confirmDelete,
-      cancelText: t.cancel,
+      title: t.dialogs.deleteSecTitle,
+      message: t.dialogs.deleteSecMsg(sectionTitle),
+      confirmText: t.dialogs.confirmDelete,
+      cancelText: translations.common.cancel,
       type: 'danger'
     });
     if (confirmed) {
@@ -267,7 +184,7 @@ export function useFormEditor(
   };
 
   const addPresetSection = (presetType: 'work' | 'project' | 'edu' | 'skills' | 'summary' | 'custom_text' | 'custom_items') => {
-    const preset = getPresetSection(presetType, settings?.lang || 'zh');
+    const preset = getPresetSection(presetType, currentLang);
     const now = Date.now();
     const newSection: FormSection = {
       ...preset,
@@ -338,10 +255,10 @@ export function useFormEditor(
 
   const deleteItem = async (sectionId: string, itemId: string, itemOrg: string) => {
     const confirmed = await confirm({
-      title: t.deleteItemTitle,
-      message: t.deleteItemMsg(itemOrg.trim()),
-      confirmText: t.confirmDelete,
-      cancelText: t.cancel,
+      title: t.dialogs.deleteItemTitle,
+      message: t.dialogs.deleteItemMsg(itemOrg.trim()),
+      confirmText: t.dialogs.confirmDelete,
+      cancelText: translations.common.cancel,
       type: 'danger'
     });
     if (confirmed) {
@@ -358,19 +275,19 @@ export function useFormEditor(
   const addItem = (sectionId: string, sectionTitle: string) => {
     const category = getSectionCategory(sectionTitle);
     
-    let newItem: FormItem = {
-      id: `item_${Date.now()}_${Math.random().toString(36).substring(2, 5)}`,
-      org: category === 'edu' ? t.defaultSchool : t.defaultCompany,
-      role: category === 'edu' ? t.defaultMajor : t.defaultRole,
-      time: t.defaultTime,
-      content: t.defaultDesc,
+    const newItem: FormItem = {
+      id: `item_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      org: '',
+      role: '',
+      time: '',
+      content: '',
     };
 
     if (category === 'edu') {
-      newItem.gpa = t.defaultGpa;
-      newItem.courses = t.defaultCourses;
-      newItem.honors = t.defaultHonors;
-      newItem.content = '';
+      newItem.degree = '';
+      newItem.gpa = '';
+      newItem.courses = '';
+      newItem.honors = '';
     }
 
     const updatedSections = localModel.sections.map(sec => {
@@ -403,7 +320,7 @@ export function useFormEditor(
 
   const insertStarTemplateToItem = async (sectionId: string, itemId: string, currentContent: string, sectionTitle: string) => {
     const applyTemplate = () => {
-      const template = getStarTemplate(sectionTitle, settings?.lang || 'zh');
+      const template = getStarTemplate(sectionTitle, currentLang);
       const updatedSections = localModel.sections.map(sec => {
         if (sec.id === sectionId) {
           const updatedItems = sec.items.map(item => item.id === itemId ? { ...item, ...template } : item);
@@ -416,10 +333,10 @@ export function useFormEditor(
 
     if (currentContent.trim()) {
       const confirmed = await confirm({
-        title: t.overwriteTitle,
-        message: t.overwriteMsg,
-        confirmText: t.confirmImport,
-        cancelText: t.cancel,
+        title: t.dialogs.overwriteTitle,
+        message: t.dialogs.overwriteMsg,
+        confirmText: t.dialogs.confirmImport,
+        cancelText: translations.common.cancel,
         type: 'warning'
       });
       if (confirmed) {
@@ -436,7 +353,6 @@ export function useFormEditor(
     setExpandedSections,
     showOptionalBasic,
     setShowOptionalBasic,
-    t,
     handleModelChange,
     toggleSection,
     handleSectionTitleChange,

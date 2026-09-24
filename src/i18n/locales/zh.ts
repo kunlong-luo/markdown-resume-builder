@@ -13,6 +13,7 @@ export interface TranslationSchema {
     loading: string;
     success: string;
     error: string;
+    clear: string;
   };
   header: {
     title: string;
@@ -80,6 +81,101 @@ export interface TranslationSchema {
       twoColumn: string;
     };
   };
+  form: {
+    basic: {
+      title: string;
+      desc: string;
+      pinnedTop: string;
+      nameLabel: string;
+      namePlaceholder: string;
+      phoneLabel: string;
+      phonePlaceholder: string;
+      emailLabel: string;
+      emailPlaceholder: string;
+      wechatLabel: string;
+      wechatPlaceholder: string;
+      wechatSameAsPhone: string;
+      targetJobLabel: string;
+      tagPlaceholder: string;
+      addTagBtn: string;
+      socialLabel: string;
+      socialPlaceholder: string;
+      expLabel: string;
+      expPlaceholder: string;
+      expSuffix: string;
+      studentGradBadge: string;
+      studentGradTooltip: string;
+      degreeLabel: string;
+      degreePlaceholder: string;
+      customBtn: string;
+      presetBtn: string;
+      customManual: string;
+      ageLabel: string;
+      agePlaceholder: string;
+      cityLabel: string;
+      cityPlaceholder: string;
+      addCityPlaceholder: string;
+      statusLabel: string;
+      addMoreBtn: string;
+      collapseBtn: string;
+      clearCity: string;
+    };
+    edu: {
+      subtitle: string;
+      schoolLabel: string;
+      schoolPlaceholder: string;
+      degreeLabel: string;
+      degreeChoosePreset: string;
+      degreeCustom: string;
+      degreePlaceholder: string;
+      majorLabel: string;
+      majorPlaceholder: string;
+      timeLabel: string;
+      timePlaceholder: string;
+      gpaLabel: string;
+      gpaPlaceholder: string;
+      coursesLabel: string;
+      coursesPlaceholder: string;
+      honorsLabel: string;
+      honorsPlaceholder: string;
+      descLabel: string;
+      descPlaceholder: string;
+      addBtn: string;
+      textLabel: string;
+      textPlaceholder: string;
+      customOption: string;
+    };
+    section: {
+      textLabel: string;
+      textPlaceholder: string;
+      noItems: string;
+      addItem: string;
+      formatSpacing: string;
+      moveUp: string;
+      moveDown: string;
+      deleteSec: string;
+      dragToReorder: string;
+      moveItemUp: string;
+      moveItemDown: string;
+      deleteItem: string;
+      customTextSection: string;
+      customItemSection: string;
+      standardModules: string;
+      customModules: string;
+      charCountWarn: string;
+      periodLabel: string;
+    };
+    dialogs: {
+      deleteSecTitle: string;
+      deleteSecMsg: (title: string) => string;
+      deleteItemTitle: string;
+      deleteItemMsg: (name: string) => string;
+      overwriteTitle: string;
+      overwriteMsg: string;
+      confirmImport: string;
+      confirmDelete: string;
+    };
+  };
   importer: {
     title: string;
     description: string;
@@ -113,6 +209,7 @@ export const zh: TranslationSchema = {
     loading: '加载中...',
     success: '成功',
     error: '错误',
+    clear: '清空',
   },
   header: {
     title: 'ResuCraft 简历生成器',
@@ -179,6 +276,101 @@ export const zh: TranslationSchema = {
       singleColumn: '标准单栏',
       twoColumn: '双栏布局',
     }
+  },
+  form: {
+    basic: {
+      title: '基本信息',
+      desc: '姓名、联系方式与个人标签',
+      pinnedTop: '固定置顶',
+      nameLabel: '姓名',
+      namePlaceholder: '例如：张三',
+      phoneLabel: '手机号码',
+      phonePlaceholder: '例如：138 0000 0000',
+      emailLabel: '电子邮箱',
+      emailPlaceholder: '例如：zhangsan@example.com',
+      wechatLabel: '微信号',
+      wechatPlaceholder: '例如：wx_dev666 或 同手机号',
+      wechatSameAsPhone: '同手机号',
+      targetJobLabel: '求职意向',
+      tagPlaceholder: '输入标签后按回车添加',
+      addTagBtn: '添加',
+      socialLabel: '社交链接',
+      socialPlaceholder: '例如：https://github.com/username ｜ https://blog.example.com',
+      expLabel: '工作经验',
+      expPlaceholder: '例如：5',
+      expSuffix: '年',
+      studentGradBadge: '在校生 / 应届生',
+      studentGradTooltip: '点击快速切换为应届生/在校生',
+      degreeLabel: '最高学历',
+      degreePlaceholder: '硕士 或 本科',
+      customBtn: '自定义',
+      presetBtn: '选择预设',
+      customManual: '自定义输入',
+      ageLabel: '年龄',
+      agePlaceholder: '例如：28',
+      cityLabel: '意向城市',
+      cityPlaceholder: '例如：杭州、上海 或 远程',
+      addCityPlaceholder: '输入城市按回车添加...',
+      statusLabel: '求职状态',
+      addMoreBtn: '+ 可选字段',
+      collapseBtn: '收起可选字段',
+      clearCity: '清空',
+    },
+    edu: {
+      subtitle: '院校名称、学历专业与就读表现',
+      schoolLabel: '院校名称',
+      schoolPlaceholder: '如：清华大学',
+      degreeLabel: '学历',
+      degreeChoosePreset: '选择预设',
+      degreeCustom: '自定义',
+      degreePlaceholder: '如：本科',
+      majorLabel: '专业名称',
+      majorPlaceholder: '如：计算机科学与技术',
+      timeLabel: '就读时间',
+      timePlaceholder: '如：2020.09 - 2024.06',
+      gpaLabel: '学业成绩 (选填)',
+      gpaPlaceholder: '如：绩点 3.8/4.0，专业前 5%',
+      coursesLabel: '核心课程 (选填)',
+      coursesPlaceholder: '如：数据结构、高级算法、计算机系统',
+      honorsLabel: '荣誉奖项 (选填)',
+      honorsPlaceholder: '如：国家奖学金、算法竞赛一等奖',
+      descLabel: '补充描述 (选填)',
+      descPlaceholder: '如有其他校园经历、社团活动或实践活动可在此处填写（支持 Markdown）',
+      addBtn: '添加一段教育背景',
+      textLabel: '文本内容',
+      textPlaceholder: '请输入教育背景，支持 Markdown...',
+      customOption: '自定义输入',
+    },
+    section: {
+      textLabel: '文本内容',
+      textPlaceholder: '- **核心技能 1**：描述您的核心竞争力...',
+      noItems: '该模块下暂无经历子项',
+      addItem: '添加一条新经历',
+      formatSpacing: '格式化中英空格',
+      moveUp: '上移模块',
+      moveDown: '下移模块',
+      deleteSec: '删除模块',
+      dragToReorder: '按住拖拽排序',
+      moveItemUp: '上移此项',
+      moveItemDown: '下移此项',
+      deleteItem: '删除此项',
+      customTextSection: '文本自由块',
+      customItemSection: '经历列表块',
+      standardModules: '常用模块',
+      customModules: '自定义模块',
+      charCountWarn: '标题较长可能会在简历单行中折行',
+      periodLabel: '起止时间',
+    },
+    dialogs: {
+      deleteSecTitle: '删除模块确认',
+      deleteSecMsg: (title: string) => `确定要删除模块「${title}」吗？此操作将移除该模块的所有内容且无法撤销。`,
+      deleteItemTitle: '删除经历项确认',
+      deleteItemMsg: (name: string) => `确定要删除此条经历「${name || '未命名经历'}」吗？此操作将彻底删除此项内容且无法撤销。`,
+      overwriteTitle: '覆盖内容提示',
+      overwriteMsg: '这将会覆盖您当前已输入的内容，确定要导入推荐的内容模板吗？',
+      confirmImport: '确认导入',
+      confirmDelete: '确认删除',
+    },
   },
   importer: {
     title: '文本解析与导入',

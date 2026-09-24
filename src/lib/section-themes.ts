@@ -17,6 +17,7 @@ export interface SectionTheme {
   name: string;
   icon: LucideIcon;
   badge: string;
+  subtitle: string;
   iconColor: string;
   iconBg: string;
   dot: string;
@@ -42,6 +43,7 @@ export function getSectionTheme(title: string, lang = 'zh'): SectionTheme {
       name: 'work',
       icon: Briefcase,
       badge: isEn ? (t.includes('intern') ? 'Internship' : 'Work') : (t.includes('实习') ? '实习经历' : '工作经历'),
+      subtitle: isEn ? 'Company, role, duration & accomplishments' : '公司名称、职位角色与工作成果',
       iconColor: 'text-blue-600 dark:text-blue-400',
       iconBg: 'bg-blue-50 dark:bg-blue-950/60',
       dot: 'bg-blue-500',
@@ -64,6 +66,7 @@ export function getSectionTheme(title: string, lang = 'zh'): SectionTheme {
       name: 'edu',
       icon: GraduationCap,
       badge: isEn ? 'Education' : '教育背景',
+      subtitle: isEn ? 'Institution, degree, major & academic record' : '院校名称、学历专业与就读表现',
       iconColor: 'text-purple-600 dark:text-purple-400',
       iconBg: 'bg-purple-50 dark:bg-purple-950/60',
       dot: 'bg-purple-500',
@@ -85,6 +88,7 @@ export function getSectionTheme(title: string, lang = 'zh'): SectionTheme {
       name: 'project',
       icon: FolderKanban,
       badge: isEn ? 'Project' : '项目经历',
+      subtitle: isEn ? 'Project name, role & key deliverables' : '项目名称、担任角色与核心产出',
       iconColor: 'text-emerald-600 dark:text-emerald-400',
       iconBg: 'bg-emerald-50 dark:bg-emerald-950/60',
       dot: 'bg-emerald-500',
@@ -103,6 +107,7 @@ export function getSectionTheme(title: string, lang = 'zh'): SectionTheme {
       name: 'skills_and_strengths',
       icon: Target,
       badge: isEn ? 'Skills & Strengths' : '技能与优势',
+      subtitle: isEn ? 'Core competencies, skillsets & personal highlights' : '核心技术、熟练程度与个人亮点',
       iconColor: 'text-teal-600 dark:text-teal-400',
       iconBg: 'bg-teal-50 dark:bg-teal-950/60',
       dot: 'bg-teal-500',
@@ -129,6 +134,7 @@ export function getSectionTheme(title: string, lang = 'zh'): SectionTheme {
       name: 'strengths',
       icon: UserCheck,
       badge: badgeLabel,
+      subtitle: isEn ? 'Summary, strengths & key highlights' : '综合总结、核心特长与个人亮点',
       iconColor: 'text-amber-600 dark:text-amber-400',
       iconBg: 'bg-amber-50 dark:bg-amber-950/60',
       dot: 'bg-amber-500',
@@ -154,6 +160,7 @@ export function getSectionTheme(title: string, lang = 'zh'): SectionTheme {
       name: 'skills',
       icon: Layers,
       badge: badgeLabel,
+      subtitle: isEn ? 'Core competencies, toolchain & tech stack' : '核心技术栈、工具链与熟练程度',
       iconColor: 'text-cyan-600 dark:text-cyan-400',
       iconBg: 'bg-cyan-50 dark:bg-cyan-950/60',
       dot: 'bg-cyan-500',
@@ -180,6 +187,7 @@ export function getSectionTheme(title: string, lang = 'zh'): SectionTheme {
       name: 'awards',
       icon: Trophy,
       badge: badgeLabel,
+      subtitle: isEn ? 'Certificates, competitions & honors' : '资质证书、专业竞赛与荣誉表彰',
       iconColor: 'text-rose-600 dark:text-rose-400',
       iconBg: 'bg-rose-50 dark:bg-rose-950/60',
       dot: 'bg-rose-500',
@@ -197,6 +205,7 @@ export function getSectionTheme(title: string, lang = 'zh'): SectionTheme {
     name: 'custom',
     icon: FileText,
     badge: isEn ? 'Section' : '常规模块',
+    subtitle: isEn ? 'Custom section content & styling' : '自定义板块内容与排版',
     iconColor: 'text-slate-500 dark:text-slate-400',
     iconBg: 'bg-slate-100 dark:bg-slate-800',
     dot: 'bg-slate-400',
@@ -211,16 +220,16 @@ export function getSectionTheme(title: string, lang = 'zh'): SectionTheme {
 export function getPresetTheme(type: 'work' | 'project' | 'edu' | 'skills' | 'summary' | 'custom_text' | 'custom_items', lang = 'zh'): SectionTheme {
   const isEn = lang === 'en';
   switch (type) {
-    case 'work':
-      return getSectionTheme(isEn ? 'Work Experience' : '工作经历', lang);
-    case 'edu':
-      return getSectionTheme(isEn ? 'Education' : '教育背景', lang);
-    case 'project':
-      return getSectionTheme(isEn ? 'Projects' : '项目经历', lang);
-    case 'skills':
-      return getSectionTheme(isEn ? 'Skills' : '专业技能', lang);
     case 'summary':
       return getSectionTheme(isEn ? 'Summary' : '个人优势', lang);
+    case 'skills':
+      return getSectionTheme(isEn ? 'Skills' : '专业技能', lang);
+    case 'work':
+      return getSectionTheme(isEn ? 'Work Experience' : '工作经历', lang);
+    case 'project':
+      return getSectionTheme(isEn ? 'Projects' : '项目经历', lang);
+    case 'edu':
+      return getSectionTheme(isEn ? 'Education' : '教育背景', lang);
     case 'custom_text':
     case 'custom_items':
     default:

@@ -54,7 +54,7 @@ const TRANSLATIONS = {
   }
 };
 
-export function HeightGuard({ 
+export const HeightGuard = React.memo(function HeightGuard({ 
   metrics, 
   targetPageLimit, 
   setTargetPageLimit, 
@@ -271,5 +271,6 @@ export function HeightGuard({
       </AnimatePresence>
     </div>
   );
-}
+});
+
 

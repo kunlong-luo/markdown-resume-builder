@@ -23,7 +23,7 @@ const GitHubIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-export function ResumeHeader({ headerInfo, theme, lang = 'zh' }: ResumeHeaderProps) {
+export const ResumeHeader = React.memo(function ResumeHeader({ headerInfo, theme, lang = 'zh' }: ResumeHeaderProps) {
   const basicInfoItems = useMemo(() => {
     return parseBasicInfoMetadata(headerInfo.experience, lang);
   }, [headerInfo.experience, lang]);
@@ -256,4 +256,5 @@ export function ResumeHeader({ headerInfo, theme, lang = 'zh' }: ResumeHeaderPro
       </div>
     </div>
   );
-}
+});
+

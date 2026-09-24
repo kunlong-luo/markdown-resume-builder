@@ -18,7 +18,7 @@ interface PreviewProps {
   overrideSettings?: ResumeSettings;
 }
 
-export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkdown, overrideSettings }, ref) => {
+export const Preview = React.memo(forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkdown, overrideSettings }, ref) => {
   const {
     markdown: storeMarkdown,
     settings: storeSettings,
@@ -384,7 +384,8 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
       />
     </div>
   );
-});
+}));
+
 
 Preview.displayName = 'Preview';
 export default Preview;
