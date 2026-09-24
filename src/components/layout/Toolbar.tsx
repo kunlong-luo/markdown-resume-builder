@@ -317,6 +317,12 @@ export function Toolbar() {
 
   const handleApplyPreset = (presetId: string) => {
     if (!presetId) return;
+    if (presetId === 'custom') {
+      setSelectedPresetId('custom');
+      // Open the aesthetics panel so user can customize settings
+      setIsAestheticsOpen(true);
+      return;
+    }
     const preset = MASTER_PRESETS.find(p => p.id === presetId);
     if (!preset) return;
     
@@ -327,7 +333,7 @@ export function Toolbar() {
 
   const getCurrentPresetId = () => {
     // If selectedPresetId still matches active settings, return it
-    if (selectedPresetId) {
+    if (selectedPresetId && selectedPresetId !== 'custom') {
       const active = MASTER_PRESETS.find(p => p.id === selectedPresetId);
       if (active) {
         const matches = Object.entries(active.settings).every(([key, val]) => {
@@ -348,20 +354,21 @@ export function Toolbar() {
         return settings[key as keyof ResumeSettings] === val;
       });
     });
-    return matched ? matched.id : '';
+    return matched ? matched.id : 'custom';
   };
 
   const isEn = settings.lang === 'en';
   const t = isEn ? TRANSLATIONS.en : TRANSLATIONS.zh;
 
   const presetOptions: SelectOption[] = [
-    ...(getCurrentPresetId() === '' ? [{ value: '', label: isEn ? 'Custom Style' : '自定义样式', disabled: true }] : []),
+    { value: 'custom', label: isEn ? 'Custom Style' : '自定义样式' },
     ...MASTER_PRESETS.map(p => {
       let displayName = p.name;
       if (isEn) {
         if (p.id === 'finance') displayName = 'Finance & Consulting';
         if (p.id === 'tech') displayName = 'Tech & Internet';
         if (p.id === 'latex_academic') displayName = 'Academic & Research';
+        if (p.id === 'modern_cards') displayName = 'Modern Cards';
         if (p.id === 'cambridge_green') displayName = 'Cambridge Emerald';
         if (p.id === 'executive') displayName = 'Executive Leadership';
       }
@@ -457,7 +464,7 @@ export function Toolbar() {
 
         {/* Template Selector */}
         <div className="flex items-center gap-1.5 pr-2.5 border-r border-slate-200/90 dark:border-slate-800 shrink-0">
-          <LayoutGrid className="w-3.5 h-3.5 text-blue-500 shrink-0 pointer-events-none" />
+          <LayoutGrid className="w-3.5 h-3.5 text-indigo-500 shrink-0 pointer-events-none" />
           <CustomSelect
             value={currentTemplateId}
             onChange={handleTemplateChange}

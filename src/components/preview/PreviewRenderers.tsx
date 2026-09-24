@@ -79,15 +79,15 @@ function renderStructuralRow(
 
       // Elegant premium typography for resume headers
       return (
-        <div className={`flex flex-row items-baseline justify-between gap-4 border-b border-gray-100/60 pb-1.5 ${isEdu ? 'mt-6 mb-3' : 'mt-5 mb-1.5'} break-inside-avoid break-after-avoid w-full`}>
+        <div className="flex flex-row items-baseline justify-between gap-4 border-b border-gray-100/70 pb-1.5 mt-5 mb-2 break-inside-avoid break-after-avoid w-full">
           <div className="flex flex-wrap items-baseline gap-x-2.5">
             {companyOrProject && (
-              <span className={`font-bold text-gray-950 tracking-tight ${isEdu ? 'text-[14.5px] sm:text-[15px]' : 'text-xs sm:text-[13.0px]'}`}>
+              <span className="font-bold text-gray-950 tracking-tight text-[13.5px] sm:text-[14px]">
                 {companyOrProject}
               </span>
             )}
             
-            <div className="flex flex-wrap items-center gap-2 text-gray-600 font-medium text-[12.5px] sm:text-[13px]">
+            <div className="flex flex-wrap items-center gap-2 text-gray-650 font-medium text-[12.5px] sm:text-[13px]">
               {roleOrTitle && (
                 <>
                   <span className="text-gray-300 select-none text-[10px]">•</span>
@@ -105,7 +105,7 @@ function renderStructuralRow(
           </div>
 
           {datePart && (
-            <span className={`text-gray-500 font-bold font-mono whitespace-nowrap ml-auto tabular-nums ${isEdu ? 'text-[12.5px]' : 'text-[11px] sm:text-[11.5px]'}`}>
+            <span className="text-gray-500 font-semibold font-mono whitespace-nowrap ml-auto tabular-nums text-[12px] sm:text-[12.5px]">
               {datePart}
             </span>
           )}

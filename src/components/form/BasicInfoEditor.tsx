@@ -331,7 +331,7 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
         onClick={onToggleExpanded}
       >
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 rounded-lg">
+          <div className="p-2 rounded-lg border bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border-indigo-200/60 dark:border-indigo-800/60 shrink-0 flex items-center justify-center">
             <User className="w-5 h-5" />
           </div>
           <div>

@@ -12,6 +12,7 @@ import {
   parseMarkdownToForm,
   parseFormToMarkdown
 } from '../lib/markdown-parser';
+import { parseBasicInfoMetadata } from '../lib/preview-utils';
 
 describe('markdown-parser', () => {
   describe('isTimeString', () => {
@@ -127,4 +128,55 @@ describe('markdown-parser', () => {
       expect(generatedMd).toContain('浙江大学');
     });
   });
+
+  describe('parseBasicInfoMetadata', () => {
+    it('should correctly parse standard pipe-separated profile line', () => {
+      const items = parseBasicInfoMetadata('7年工作经验 ｜ 本科 ｜ 29 ｜ 杭州 · 远程 ｜ 随时到岗');
+      expect(items.length).toBe(5);
+      
+      const expItem = items.find(i => i.type === 'exp');
+      expect(expItem?.text).toBe('7年工作经验');
+
+      const degreeItem = items.find(i => i.type === 'degree');
+      expect(degreeItem?.text).toBe('本科');
+
+      const ageItem = items.find(i => i.type === 'age');
+      expect(ageItem?.text).toBe('29岁');
+
+      const locItem = items.find(i => i.type === 'location');
+      expect(locItem?.text).toBe('杭州 · 远程');
+
+      const statusItem = items.find(i => i.type === 'status');
+      expect(statusItem?.text).toBe('随时到岗');
+      expect(statusItem?.statusType).toBe('available');
+    });
+
+    it('should handle unstructured space-separated line with bare numbers like "本科 9 杭州 远程 随时到岗"', () => {
+      const items = parseBasicInfoMetadata('本科 9 杭州 远程 随时到岗');
+      
+      const degreeItem = items.find(i => i.type === 'degree');
+      expect(degreeItem?.text).toBe('本科');
+
+      const expItem = items.find(i => i.type === 'exp');
+      expect(expItem?.text).toBe('9年工作经验');
+
+      const locItem = items.find(i => i.type === 'location');
+      expect(locItem?.text).toBe('杭州 · 远程');
+
+      const statusItem = items.find(i => i.type === 'status');
+      expect(statusItem?.text).toBe('随时到岗');
+      expect(statusItem?.statusType).toBe('available');
+    });
+
+    it('should handle considering status and english locale', () => {
+      const items = parseBasicInfoMetadata('5年经验 ｜ 硕士 ｜ 28岁 ｜ 深圳 / 广州 ｜ 在职-考虑机会');
+      const statusItem = items.find(i => i.type === 'status');
+      expect(statusItem?.statusType).toBe('considering');
+
+      const enItems = parseBasicInfoMetadata('5 Years Exp | Master | 28 | Seattle | Open to work', 'en');
+      const ageEn = enItems.find(i => i.type === 'age');
+      expect(ageEn?.text).toBe('28 yrs');
+    });
+  });
 });
+

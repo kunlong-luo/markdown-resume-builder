@@ -96,7 +96,7 @@ export function ScoreDisplay({ analysis, scoreBadge, lang }: ScoreDisplayProps) 
             {isEn ? 'Action Verbs' : '强行动词数'}
           </p>
           <div className="flex items-baseline justify-center gap-1">
-            <span className="text-lg font-black text-blue-600 dark:text-blue-400">
+            <span className="text-lg font-black text-indigo-600 dark:text-indigo-400">
               {analysis.foundVerbsCount}
             </span>
             <span className="text-[10px] text-slate-400 dark:text-slate-500">

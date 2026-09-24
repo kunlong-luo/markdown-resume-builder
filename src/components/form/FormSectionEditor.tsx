@@ -9,15 +9,12 @@ import { FormTextareaToolbar } from './FormTextareaToolbar';
 import { SectionHeader } from './SectionHeader';
 import { ItemEditor } from './ItemEditor';
 import { SmartMarkdownTextarea } from './SmartMarkdownTextarea';
+import { getSectionTheme } from '../../lib/section-themes';
 
-export function getSectionIcon(title: string) {
-  const t = title.toLowerCase();
-  if (t.includes('教育') || t.includes('学校') || t.includes('education') || t.includes('academic')) return <GraduationCap className="w-4 h-4 text-purple-500" />;
-  if (t.includes('优势') || t.includes('总结') || t.includes('summary') || t.includes('objective')) return <Award className="w-4 h-4 text-emerald-500" />;
-  if (t.includes('技能') || t.includes('技术') || t.includes('skills') || t.includes('technologies')) return <Layers className="w-4 h-4 text-blue-500" />;
-  if (t.includes('经历') || t.includes('工作') || t.includes('experience') || t.includes('employment') || t.includes('work')) return <Briefcase className="w-4 h-4 text-indigo-500" />;
-  if (t.includes('项目') || t.includes('开源') || t.includes('projects') || t.includes('portfolio')) return <FolderKanban className="w-4 h-4 text-amber-500" />;
-  return <FileText className="w-4 h-4 text-slate-500" />;
+export function getSectionIcon(title: string, className?: string, lang = 'zh') {
+  const theme = getSectionTheme(title, lang);
+  const Icon = theme.icon;
+  return <Icon className={className || `w-4 h-4 ${theme.iconColor}`} />;
 }
 
 interface FormSectionEditorProps {
@@ -74,13 +71,14 @@ export function FormSectionEditor({
 }: FormSectionEditorProps) {
   const t = lang === 'en' ? TRANSLATIONS.en : TRANSLATIONS.zh;
   const hideTypeSwitcher = isTextOnlySection(sec.title);
+  const theme = getSectionTheme(sec.title, lang);
 
   return (
     <div 
       id={`form-sec-${sec.id}`} 
       className={`rounded-xl overflow-hidden relative group/section scroll-mt-20 transition-all duration-300 ${
         isExpanded 
-          ? 'tactile-card shadow-[0_16px_36px_rgba(30,41,59,0.06),0_3px_10px_rgba(30,41,59,0.03)] border-indigo-200/50 dark:border-slate-800 scale-[1.002] ring-1 ring-indigo-50/50 dark:ring-slate-800 mb-5' 
+          ? `tactile-card shadow-[0_16px_36px_rgba(30,41,59,0.06),0_3px_10px_rgba(30,41,59,0.03)] ${theme.border} scale-[1.002] ring-1 ${theme.accentRing} mb-5` 
           : 'bg-slate-50/60 dark:bg-slate-900/60 border border-slate-200/50 dark:border-slate-800 shadow-[0_2px_6px_rgba(30,41,59,0.015)] opacity-85 hover:opacity-100 scale-[0.995] hover:scale-100 mb-3'
       }`}
     >

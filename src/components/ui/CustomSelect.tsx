@@ -162,7 +162,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
   `;
 
   // Format display label for trigger (clean up parenthetical suffixes in compact mode)
-  const isPlaceholder = !selectedOption?.label || (!value && selectedOption?.value === '');
+  const isPlaceholder = !selectedOption?.label;
   const rawLabel = selectedOption?.label ? selectedOption.label : (placeholder || '');
   const displayLabel = compact ? rawLabel.split('(')[0].split('（')[0].trim() : rawLabel;
 

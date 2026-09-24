@@ -78,7 +78,7 @@ Requirements:
     <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 sm:space-y-5 bg-slate-50/50 dark:bg-slate-900/40 scrollbar-thin">
       <div className="space-y-1">
         <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-          <Target className="w-4 h-4 text-blue-600 dark:text-blue-400 animate-pulse" />
+          <Target className="w-4 h-4 text-indigo-600 dark:text-indigo-400 animate-pulse" />
           <span>{isEn ? 'Pure Frontend ATS Matcher' : '岗位 JD 匹配'}</span>
         </h3>
         <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -126,7 +126,7 @@ Requirements:
           <button
             onClick={() => handleAnalyze()}
             disabled={!localJd.trim()}
-            className="flex-1 py-2 rounded-lg tactile-btn-primary tactile-btn-primary-hover tactile-btn-primary-active disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-xs shadow-md shadow-blue-500/10 flex items-center justify-center gap-1.5 cursor-pointer"
+            className="flex-1 py-2 rounded-lg tactile-btn-primary tactile-btn-primary-hover tactile-btn-primary-active disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-xs shadow-md shadow-indigo-500/10 flex items-center justify-center gap-1.5 cursor-pointer"
           >
             <RefreshCw className="w-3.5 h-3.5 animate-spin-slow" />
             <span>{isEn ? 'Analyze Keyword Match' : '开始匹配'}</span>
@@ -261,8 +261,8 @@ Requirements:
           </div>
 
           {/* Preview Notification Accent */}
-          <div className="p-3 bg-blue-50/40 dark:bg-blue-950/40 border border-blue-100/60 dark:border-blue-800/40 rounded-xl flex items-start gap-2 text-[11px] text-blue-700 dark:text-blue-300 font-medium">
-            <Highlighter className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+          <div className="p-3 bg-indigo-50/40 dark:bg-indigo-950/40 border border-indigo-100/60 dark:border-indigo-800/40 rounded-xl flex items-start gap-2 text-[11px] text-indigo-700 dark:text-indigo-300 font-medium">
+            <Highlighter className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" />
             <p className="leading-relaxed">
               {isEn
                 ? 'ATS Thermal Glow is active! Matched keywords are highlighted with a warm amber glowing underline in the preview pane.'
@@ -276,7 +276,7 @@ Requirements:
       {atsKeywords.length === 0 && (
         <div className="p-4 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 space-y-2 text-[11px]">
           <span className="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1">
-            <Info className="w-3.5 h-3.5 text-blue-500" />
+            <Info className="w-3.5 h-3.5 text-indigo-500" />
             <span>{isEn ? 'How to use pure-frontend matching' : '本地化匹配说明'}</span>
           </span>
           <p className="leading-relaxed">

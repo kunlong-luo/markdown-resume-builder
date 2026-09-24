@@ -1,8 +1,11 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { ArrowUp, ArrowDown, Move, Info, GripVertical } from 'lucide-react';
+import { 
+  ArrowUp, ArrowDown, Move, Info, GripVertical 
+} from 'lucide-react';
 import { Reorder } from 'motion/react';
 import { splitMarkdownIntoSections, joinSectionsIntoMarkdown, MarkdownSection } from '../../lib/markdown-utils';
 import { Tooltip } from '../ui/Tooltip';
+import { getSectionTheme } from '../../lib/section-themes';
 
 interface SectionSorterProps {
   markdown: string;
@@ -84,54 +87,6 @@ export function SectionSorter({ markdown, onChange, lang }: SectionSorterProps) 
     handleReorder(newItems);
   };
 
-  // Helper to get nice background colors and badges for different section types
-  const getSectionTheme = (title: string) => {
-    const t = title.trim().toLowerCase();
-    if (t.includes('工作') || t.includes('实习') || t.includes('experience') || t.includes('work')) {
-      return {
-        border: 'border-blue-200/60 dark:border-blue-800/50',
-        bg: 'bg-white dark:bg-slate-850',
-        badgeBg: 'bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-300 border-blue-100 dark:border-blue-800/60',
-        dot: 'bg-blue-500',
-        badge: isEn ? 'Work' : '工作经历'
-      };
-    }
-    if (t.includes('教育') || t.includes('学校') || t.includes('education') || t.includes('academic')) {
-      return {
-        border: 'border-emerald-200/60 dark:border-emerald-800/50',
-        bg: 'bg-white dark:bg-slate-850',
-        badgeBg: 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-300 border-emerald-100 dark:border-emerald-800/60',
-        dot: 'bg-emerald-500',
-        badge: isEn ? 'Education' : '教育背景'
-      };
-    }
-    if (t.includes('项目') || t.includes('产品') || t.includes('project')) {
-      return {
-        border: 'border-purple-200/60 dark:border-purple-800/50',
-        bg: 'bg-white dark:bg-slate-850',
-        badgeBg: 'bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-300 border-purple-100 dark:border-purple-800/60',
-        dot: 'bg-purple-500',
-        badge: isEn ? 'Project' : '项目经历'
-      };
-    }
-    if (t.includes('技能') || t.includes('评价') || t.includes('优势') || t.includes('skill') || t.includes('award') || t.includes('honor')) {
-      return {
-        border: 'border-amber-200/60 dark:border-amber-800/50',
-        bg: 'bg-white dark:bg-slate-850',
-        badgeBg: 'bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-300 border-amber-100 dark:border-amber-800/60',
-        dot: 'bg-amber-500',
-        badge: isEn ? 'Skills' : '技能/优势'
-      };
-    }
-    return {
-      border: 'border-slate-200/80 dark:border-slate-750',
-      bg: 'bg-white dark:bg-slate-850',
-      badgeBg: 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200/80 dark:border-slate-700',
-      dot: 'bg-indigo-500',
-      badge: isEn ? 'Section' : '常规模块'
-    };
-  };
-
   return (
     <div className="flex-1 overflow-y-auto p-3.5 sm:p-5 space-y-3.5 bg-slate-50/40 dark:bg-slate-900/60 select-none">
       {/* Header Info */}
@@ -170,7 +125,8 @@ export function SectionSorter({ markdown, onChange, lang }: SectionSorterProps) 
           className="space-y-2 list-none p-0 m-0"
         >
           {items.map((item, idx) => {
-            const theme = getSectionTheme(item.title);
+            const theme = getSectionTheme(item.title, lang);
+            const Icon = theme.icon;
             const contentPreview = cleanContentPreview(item.content, 30);
 
             return (
@@ -209,8 +165,12 @@ export function SectionSorter({ markdown, onChange, lang }: SectionSorterProps) 
                       <span className="font-bold text-slate-800 dark:text-slate-100 text-xs sm:text-[13px]">
                         {item.title}
                       </span>
-                      <span className={`text-[10px] px-1.5 py-0.2 rounded font-medium border ${theme.badgeBg}`}>
-                        {theme.badge}
+                      {/* 只保留图标，移除图标后重复的文本 */}
+                      <span 
+                        className={`inline-flex items-center justify-center w-5 h-5 rounded-md border ${theme.badgeBg} shrink-0`}
+                        title={theme.badge}
+                      >
+                        <Icon className="w-3 h-3 shrink-0" />
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-400 dark:text-slate-400 truncate font-normal">

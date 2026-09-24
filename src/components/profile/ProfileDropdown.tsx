@@ -9,7 +9,7 @@ import {
   Edit2, 
   Plus, 
   ExternalLink,
-  Sparkles,
+  LayoutTemplate,
   FilePlus,
   ArrowRight
 } from 'lucide-react';
@@ -377,7 +377,7 @@ export function ProfileDropdown({ lang, isCompact }: ProfileDropdownProps) {
               className="w-full px-3 py-2 flex items-center justify-between text-[11px] font-bold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors cursor-pointer"
             >
               <div className="flex items-center gap-1.5">
-                <Sparkles className="w-3 h-3 text-purple-500" />
+                <LayoutTemplate className="w-3 h-3 text-purple-500" />
                 <span>{isEn ? 'Fast load from benchmark templates...' : '快速选用标杆模板创建...'}</span>
               </div>
               <ChevronDown className={`w-3 h-3 transition-transform ${showTemplates ? 'rotate-180' : ''}`} />

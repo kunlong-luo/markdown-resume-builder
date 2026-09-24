@@ -1,5 +1,6 @@
 import React from 'react';
 import { Ruler, AlertTriangle, Info, Zap, Maximize2, Minimize2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface HeightGuardProps {
   metrics: {
@@ -82,59 +83,69 @@ export function HeightGuard({
     } catch (e) {}
   };
 
-  // Render compact minimized pill state
-  if (isCollapsed) {
-    const statusColorClass = isAutoFitting
-      ? 'bg-indigo-50 dark:bg-indigo-950/60 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 shadow-xs'
-      : metrics.isOver
-        ? 'bg-rose-50 dark:bg-rose-950/60 border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/60 shadow-xs'
-        : metrics.overflowPercent > 92
-          ? 'bg-amber-50 dark:bg-amber-950/60 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/60 shadow-xs'
-          : 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 shadow-xs';
-
-    return (
-      <div 
-        onClick={() => toggleCollapse()}
-        className={`absolute bottom-5 right-5 z-40 flex items-center gap-2.5 h-10 px-3.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800/90 shadow-[0_12px_32px_rgba(15,23,42,0.12),0_2px_6px_rgba(15,23,42,0.04)] dark:shadow-[0_12px_32px_rgba(0,0,0,0.4)] rounded-2xl cursor-pointer select-none print:hidden hover:shadow-[0_16px_40px_rgba(15,23,42,0.16)] transition-all duration-200 hover:border-slate-300 dark:hover:border-slate-600`}
-        title={lang === 'en' ? 'Click to expand A4 Height Guard' : '点击展开 A4 高度警报器'}
-      >
-        <div className="flex items-center gap-1.5">
-          <Ruler className={`w-3.5 h-3.5 ${
-            isAutoFitting
-              ? 'text-indigo-500 animate-spin'
-              : metrics.isOver
-                ? 'text-rose-500'
-                : metrics.overflowPercent > 92
-                  ? 'text-amber-500'
-                  : 'text-emerald-500'
-          }`} />
-          <span className="text-xs font-bold text-slate-700 dark:text-slate-200 font-mono">
-            {metrics.overflowPercent}%
-          </span>
-          <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
-            / {targetPageLimit}{t.pageUnit}
-          </span>
-        </div>
-
-        {/* Status text pill */}
-        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border transition-colors ${statusColorClass}`}>
-          {isAutoFitting ? t.autoFitting : metrics.isOver ? (lang === 'en' ? 'Overflow' : '溢出') : metrics.overflowPercent > 92 ? (lang === 'en' ? 'Near Limit' : '临近') : (lang === 'en' ? 'Fit' : '契合')}
-        </span>
-
-        {/* Small Expand Button */}
-        <button
-          onClick={toggleCollapse}
-          className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-750 rounded-full transition-colors cursor-pointer"
-          title={lang === 'en' ? 'Expand' : '展开'}
-        >
-          <Maximize2 className="w-3 h-3" />
-        </button>
-      </div>
-    );
-  }
+  const statusColorClass = isAutoFitting
+    ? 'bg-indigo-50 dark:bg-indigo-950/60 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 shadow-xs'
+    : metrics.isOver
+      ? 'bg-rose-50 dark:bg-rose-950/60 border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/60 shadow-xs'
+      : metrics.overflowPercent > 92
+        ? 'bg-amber-50 dark:bg-amber-950/60 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/60 shadow-xs'
+        : 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 shadow-xs';
 
   return (
-    <div className="absolute bottom-5 right-5 z-40 max-w-[310px] w-full bg-white/95 dark:bg-slate-850/95 backdrop-blur-md border border-slate-200/80 dark:border-slate-700/80 shadow-2xl rounded-2xl p-4 flex flex-col gap-3 select-none transition-all print:hidden">
+    <div className="absolute bottom-5 right-5 z-40 select-none print:hidden pointer-events-none">
+      <AnimatePresence mode="wait">
+        {isCollapsed ? (
+          <motion.div 
+            key="height-guard-pill"
+            initial={{ opacity: 0, scale: 0.9, y: 8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 8 }}
+            transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+            onClick={() => toggleCollapse()}
+            className="pointer-events-auto flex items-center gap-2.5 h-10 px-3.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800/90 shadow-[0_12px_32px_rgba(15,23,42,0.12),0_2px_6px_rgba(15,23,42,0.04)] dark:shadow-[0_12px_32px_rgba(0,0,0,0.4)] rounded-2xl cursor-pointer hover:shadow-[0_16px_40px_rgba(15,23,42,0.16)] transition-all duration-200 hover:border-slate-300 dark:hover:border-slate-600 active:scale-95"
+            title={lang === 'en' ? 'Click to expand A4 Height Guard' : '点击展开 A4 高度警报器'}
+          >
+            <div className="flex items-center gap-1.5">
+              <Ruler className={`w-3.5 h-3.5 ${
+                isAutoFitting
+                  ? 'text-indigo-500 animate-spin'
+                  : metrics.isOver
+                    ? 'text-rose-500'
+                    : metrics.overflowPercent > 92
+                      ? 'text-amber-500'
+                      : 'text-emerald-500'
+              }`} />
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-200 font-mono">
+                {metrics.overflowPercent}%
+              </span>
+              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
+                / {targetPageLimit}{t.pageUnit}
+              </span>
+            </div>
+
+            {/* Status text pill */}
+            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border transition-colors ${statusColorClass}`}>
+              {isAutoFitting ? t.autoFitting : metrics.isOver ? (lang === 'en' ? 'Overflow' : '溢出') : metrics.overflowPercent > 92 ? (lang === 'en' ? 'Near Limit' : '临近') : (lang === 'en' ? 'Fit' : '契合')}
+            </span>
+
+            {/* Small Expand Button */}
+            <button
+              onClick={toggleCollapse}
+              className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-750 rounded-full transition-colors cursor-pointer"
+              title={lang === 'en' ? 'Expand' : '展开'}
+            >
+              <Maximize2 className="w-3 h-3" />
+            </button>
+          </motion.div>
+        ) : (
+          <motion.div 
+            key="height-guard-card"
+            initial={{ opacity: 0, scale: 0.95, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 12 }}
+            transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+            className="pointer-events-auto max-w-[310px] w-full bg-white/95 dark:bg-slate-850/95 backdrop-blur-md border border-slate-200/80 dark:border-slate-700/80 shadow-2xl rounded-2xl p-4 flex flex-col gap-3 transition-all"
+          >
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -255,6 +266,9 @@ export function HeightGuard({
           <span>{isAutoFitting ? t.autoFittingBtn : metrics.isOver ? t.autoFitBtn : t.optimizeBtn}</span>
         </button>
       )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

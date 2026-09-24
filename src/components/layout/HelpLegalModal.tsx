@@ -136,9 +136,17 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
         </div>
 
         {/* Modal Body Content */}
-        <div className="p-5 sm:p-6 overflow-y-auto space-y-4 max-h-[60vh] text-xs leading-relaxed scrollbar-thin">
-          {activeTab === 'guide' && (
-            <div className="space-y-4 animate-in fade-in duration-150">
+        <div className="p-5 sm:p-6 overflow-y-auto max-h-[60vh] text-xs leading-relaxed scrollbar-thin">
+          <AnimatePresence mode="wait" initial={false}>
+            {activeTab === 'guide' && (
+              <motion.div
+                key="help-tab-guide"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
+                className="space-y-4"
+              >
               <div className="p-3.5 bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-800/60 rounded-xl space-y-1">
                 <h3 className="font-bold text-indigo-900 dark:text-indigo-300 flex items-center gap-1.5 text-xs">
                   <Lightbulb className="w-4 h-4 text-amber-500 dark:text-amber-400 shrink-0" />
@@ -212,11 +220,18 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
                   </p>
                 </div>
               </div>
-            </div>
+            </motion.div>
           )}
 
           {activeTab === 'privacy' && (
-            <div className="space-y-3.5 animate-in fade-in duration-150">
+            <motion.div
+              key="help-tab-privacy"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
+              className="space-y-3.5"
+            >
               <div className="p-3.5 bg-emerald-50/60 dark:bg-emerald-950/40 border border-emerald-200/70 dark:border-emerald-800/60 rounded-xl space-y-1">
                 <h3 className="font-bold text-emerald-900 dark:text-emerald-300 flex items-center gap-1.5 text-xs">
                   <Shield className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
@@ -272,11 +287,18 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           )}
 
           {activeTab === 'license' && (
-            <div className="space-y-3.5 animate-in fade-in duration-150">
+            <motion.div
+              key="help-tab-license"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
+              className="space-y-3.5"
+            >
               <div className="p-3.5 bg-slate-100 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 rounded-xl space-y-1.5">
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
@@ -298,12 +320,12 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
                 <div className="flex items-center justify-between font-bold text-slate-800 dark:text-slate-200 text-[11px]">
                   <span>{isEn ? 'GitHub Repository' : 'GitHub 官方开源仓库'}</span>
                   <a
-                    href="https://github.com/kunlong-luo/markdown-resume-builder"
+                    href="https://github.com/kunlong-luo/resume-craft"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
                   >
-                    <span>kunlong-luo/markdown-resume-builder</span>
+                    <span>kunlong-luo/resume-craft</span>
                     <ExternalLink className="w-3 h-3" />
                   </a>
                 </div>
@@ -313,8 +335,9 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
                     : '依据 MIT 开源协议许可：任何个人和企业均可免费使用、修改和分发本源代码，不含任何强制性付费或隐藏条款。'}
                 </div>
               </div>
-            </div>
+            </motion.div>
           )}
+          </AnimatePresence>
         </div>
 
         {/* Modal Footer */}

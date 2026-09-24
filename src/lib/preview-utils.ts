@@ -519,3 +519,206 @@ export function getSizeClasses(fontSize: string, theme: any) {
   };
   return (map as any)[fontSize];
 }
+
+export interface BasicInfoItem {
+  key: string;
+  type: 'exp' | 'degree' | 'age' | 'location' | 'status' | 'other';
+  raw: string;
+  text: string;
+  statusType?: 'available' | 'considering' | 'employed' | 'neutral';
+}
+
+export function isDegreeToken(s: string): boolean {
+  const clean = s.trim();
+  if (/^(?:最高学历|学历|学位)[:：\s]*/i.test(clean)) return true;
+  if (/^(?:本科|学士|硕士|博士|大专|高职|专科|双学士|双学位|研究生|博士后|中专|高中|PhD|Ph\.D|Master|Bachelor|Associate)$/i.test(clean)) return true;
+  return /(?:本科|学士|硕士|博士|大专|高职|专科|双学士|研究生|PhD|Master|Bachelor)/i.test(clean);
+}
+
+export function isStatusToken(s: string): boolean {
+  const clean = s.trim();
+  if (/^(?:求职状态|求职意向|状态)[:：\s]*/i.test(clean)) return true;
+  return /(?:随时到岗|在职|离职|考虑机会|看机会|暂不考虑|急寻|找工作|寻实习|在校生-寻实习|月内到岗|一周内到岗|两周内到岗|open to work|actively looking|available)/i.test(clean);
+}
+
+export function isLocationToken(s: string): boolean {
+  const clean = s.trim();
+  if (!clean) return false;
+  if (/^(?:意向城市|期望城市|现居|现居地|所在城市|城市|常驻|期望工作地|工作地点|地点|location|city)[:：\s]*/i.test(clean)) {
+    return true;
+  }
+  if (/(?:北京|上海|广州|深圳|杭州|成都|武汉|南京|西安|厦门|苏州|天津|重庆|长沙|青岛|大连|宁波|郑州|合肥|无锡|福州|昆明|济南|佛山|东莞|珠海|南昌|贵阳|南宁|海口|三亚|长春|沈阳|哈尔滨|石家庄|太原|兰州|银川|西宁|乌鲁木齐|呼和浩特|拉萨|香港|澳门|台北|远程|全国|海外|硅谷|旧金山|西雅图|纽约|伦敦|东京|新加坡|多伦多|温哥华|悉尼|墨尔本|beijing|shanghai|shenzhen|hangzhou|guangzhou|remote)/i.test(clean)) {
+    return true;
+  }
+  if (/^[\u4e00-\u9fa5\w\s/、·•\-]+[市省区县]$/.test(clean)) {
+    return true;
+  }
+  return false;
+}
+
+export function parseBasicInfoMetadata(rawExp: string, lang: 'zh' | 'en' = 'zh'): BasicInfoItem[] {
+  if (!rawExp || !rawExp.trim()) return [];
+
+  const trimmed = rawExp.trim();
+
+  // 1. Identify segments by primary separator
+  let rawSegments: string[] = [];
+
+  if (/[|｜]/.test(trimmed)) {
+    rawSegments = trimmed.split(/[|｜]/).map(s => s.trim()).filter(Boolean);
+  } else if (/[•●▪]/.test(trimmed)) {
+    rawSegments = trimmed.split(/[•●▪]/).map(s => s.trim()).filter(Boolean);
+  } else if (/\s{2,}/.test(trimmed)) {
+    rawSegments = trimmed.split(/\s{2,}/).map(s => s.trim()).filter(Boolean);
+  } else if (trimmed.includes('·')) {
+    rawSegments = trimmed.split(/\s*·\s*/).map(s => s.trim()).filter(Boolean);
+  } else {
+    // Space separated, like "本科 9 杭州 远程 随时到岗"
+    rawSegments = trimmed.split(/\s+/).map(s => s.trim()).filter(Boolean);
+  }
+
+  // Pre-process adjacent location words: e.g. ["杭州", "远程"] or ["深圳", "广州"]
+  const mergedSegments: string[] = [];
+  for (let i = 0; i < rawSegments.length; i++) {
+    const cur = rawSegments[i];
+    const next = rawSegments[i + 1];
+    if (isLocationToken(cur) && next && (next === '远程' || next === 'Remote' || isLocationToken(next)) && !isStatusToken(next)) {
+      mergedSegments.push(`${cur} · ${next}`);
+      i++; // skip next
+    } else {
+      mergedSegments.push(cur);
+    }
+  }
+
+  // First pass to detect explicit experience or age
+  let hasExperience = false;
+  let hasAge = false;
+
+  mergedSegments.forEach(seg => {
+    if (/\d+\s*年|(?:工作|从业|全栈)?经验|应届|在校|student|grad/i.test(seg)) {
+      hasExperience = true;
+    }
+    if (/岁|years?\s*old|生于|出生|age/i.test(seg) || /^(?:1[6-9]|[2-6]\d|70)$/.test(seg)) {
+      hasAge = true;
+    }
+  });
+
+  const items: BasicInfoItem[] = [];
+
+  mergedSegments.forEach((seg, idx) => {
+    const clean = seg.trim();
+    if (!clean) return;
+
+    // A. Degree
+    if (isDegreeToken(clean)) {
+      items.push({
+        key: `degree-${idx}`,
+        type: 'degree',
+        raw: clean,
+        text: clean.replace(/^(?:最高学历|学历|学位)[:：\s]*/i, ''),
+      });
+      return;
+    }
+
+    // B. Status
+    if (isStatusToken(clean)) {
+      let statusType: BasicInfoItem['statusType'] = 'neutral';
+      if (/随时到岗|离职|open to work|actively looking|available/i.test(clean)) {
+        statusType = 'available';
+      } else if (/考虑|看机会|在职-考虑|looking/i.test(clean)) {
+        statusType = 'considering';
+      } else if (/在职|employed/i.test(clean)) {
+        statusType = 'employed';
+      }
+      items.push({
+        key: `status-${idx}`,
+        type: 'status',
+        raw: clean,
+        text: clean.replace(/^(?:求职状态|状态)[:：\s]*/i, ''),
+        statusType,
+      });
+      return;
+    }
+
+    // C. Explicit Work Experience
+    if (/\d+\s*年|(?:工作|从业|全栈)?经验|应届|在校生?|毕业生|实习生|无工作经验|years?\s*(?:of)?\s*exp/i.test(clean)) {
+      items.push({
+        key: `exp-${idx}`,
+        type: 'exp',
+        raw: clean,
+        text: clean.replace(/^(?:工作经验|从业经验|经验)[:：\s]*/i, ''),
+      });
+      return;
+    }
+
+    // D. Explicit Age or Pure 2-digit number (16-70)
+    if (/^(?:年龄|age)[:：\s]*\d+/i.test(clean) || /^\d+\s*(?:岁|years?\s*old|yrs)$/i.test(clean) || /^(?:1[6-9]|[2-6]\d|70)$/.test(clean)) {
+      const numMatch = clean.match(/\d+/);
+      const num = numMatch ? numMatch[0] : clean;
+      items.push({
+        key: `age-${idx}`,
+        type: 'age',
+        raw: clean,
+        text: lang === 'en' ? `${num} yrs` : `${num}岁`,
+      });
+      return;
+    }
+
+    // E. Pure number without unit (e.g. "9" or "5")
+    if (/^\d{1,2}$/.test(clean)) {
+      const num = parseInt(clean, 10);
+      if (num >= 16 && num <= 70) {
+        items.push({
+          key: `age-${idx}`,
+          type: 'age',
+          raw: clean,
+          text: lang === 'en' ? `${num} yrs` : `${num}岁`,
+        });
+        return;
+      } else if (num < 16) {
+        if (!hasExperience) {
+          hasExperience = true;
+          items.push({
+            key: `exp-${idx}`,
+            type: 'exp',
+            raw: clean,
+            text: lang === 'en' ? `${num} ${num === 1 ? 'Year' : 'Years'} Exp` : `${num}年工作经验`,
+          });
+          return;
+        } else if (!hasAge) {
+          hasAge = true;
+          items.push({
+            key: `age-${idx}`,
+            type: 'age',
+            raw: clean,
+            text: lang === 'en' ? `${num} yrs` : `${num}岁`,
+          });
+          return;
+        }
+      }
+    }
+
+    // F. Location / City
+    if (isLocationToken(clean)) {
+      const cleanLoc = clean.replace(/^(?:意向城市|期望城市|现居|现居地|所在城市|城市|常驻|期望工作地|工作地点|地点|location|city)[:：\s]*/i, '');
+      items.push({
+        key: `loc-${idx}`,
+        type: 'location',
+        raw: clean,
+        text: cleanLoc,
+      });
+      return;
+    }
+
+    // G. Fallback: other tag
+    items.push({
+      key: `other-${idx}`,
+      type: 'other',
+      raw: clean,
+      text: clean,
+    });
+  });
+
+  return items;
+}
+

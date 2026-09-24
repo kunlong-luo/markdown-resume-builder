@@ -205,7 +205,7 @@ export const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ overrideMarkd
 
         {settings.topAccentLine && <div className={`absolute top-0 left-0 right-0 h-[4.5px] ${theme.topAccentColor}`} />}
         
-        {headerInfo.hasHeader && <ResumeHeader headerInfo={headerInfo} theme={theme} />}
+        {headerInfo.hasHeader && <ResumeHeader headerInfo={headerInfo} theme={theme} lang={settings.lang} />}
 
         {(() => {
           // 1. Two-Column Layout

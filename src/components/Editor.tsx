@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   Edit3, Copy, RotateCcw, Check, Bold, Italic, Link, List, ListOrdered, Table, Minus, Heading1, Heading2, Code, Info, Scissors, Undo, Redo,
-  Type, Layers, Award, Phone, GraduationCap, ChevronDown, Briefcase, Sliders, ChevronsUp, ChevronsDown, Wand2
+  Type, Layers, Award, Phone, GraduationCap, ChevronDown, Briefcase, Sliders, ChevronsUp, ChevronsDown, Wand2, FolderKanban, User
 } from 'lucide-react';
 import { FormEditor } from './form/FormEditor';
 import { SectionSorter } from './layout/SectionSorter';
@@ -442,8 +442,17 @@ export function Editor() {
         </div>
       </div>
 
-      {activeMode === 'markdown' ? (
-        <>
+      <div className="flex-1 flex flex-col min-h-0 relative overflow-hidden">
+        <AnimatePresence mode="wait" initial={false}>
+          {activeMode === 'markdown' ? (
+            <motion.div
+              key="editor-markdown"
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -5 }}
+              transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
+              className="flex-1 flex flex-col min-h-0 w-full h-full"
+            >
           {/* Formatting Help Toolbar */}
           <div className="flex items-center flex-wrap gap-1 px-4 py-1.5 bg-gray-50/70 dark:bg-slate-850 border-b border-gray-100 dark:border-slate-800">
             <Tooltip content={settings.lang === 'en' ? 'Heading 1' : '一级大标题'} shortcut="# text" side="bottom">
@@ -577,7 +586,7 @@ export function Editor() {
                       {settings.lang === 'en' ? 'Select Snippet to Insert' : '选择常用模块插入'}
                     </div>
                     
-                    {/* 1. Work Experience */}
+                    {/* 1. Work experience */}
                     <button
                       onClick={() => {
                         const snippet = settings.lang === 'en'
@@ -601,9 +610,9 @@ export function Editor() {
                         insertMarkdown(snippet);
                         setIsSnippetsDropdownOpen(false);
                       }}
-                      className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-slate-750 hover:text-blue-700 dark:hover:text-blue-300 transition-colors cursor-pointer text-left font-medium"
+                      className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-slate-750 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors cursor-pointer text-left font-medium"
                     >
-                      <Wand2 className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
+                      <FolderKanban className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
                       <span>{settings.lang === 'en' ? 'Project Experience (STAR)' : '项目经历模板 (STAR)'}</span>
                     </button>
 
@@ -616,9 +625,9 @@ export function Editor() {
                         insertMarkdown(snippet);
                         setIsSnippetsDropdownOpen(false);
                       }}
-                      className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-slate-750 hover:text-blue-700 dark:hover:text-blue-300 transition-colors cursor-pointer text-left font-medium"
+                      className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-cyan-50 dark:hover:bg-slate-750 hover:text-cyan-700 dark:hover:text-cyan-300 transition-colors cursor-pointer text-left font-medium"
                     >
-                      <Award className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
+                      <Layers className="w-3.5 h-3.5 text-cyan-500 dark:text-cyan-400" />
                       <span>{settings.lang === 'en' ? 'Skills & Ratings' : '技能掌握度 (带星级)'}</span>
                     </button>
 
@@ -631,9 +640,9 @@ export function Editor() {
                         insertMarkdown(snippet);
                         setIsSnippetsDropdownOpen(false);
                       }}
-                      className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-slate-750 hover:text-blue-700 dark:hover:text-blue-300 transition-colors cursor-pointer text-left font-medium"
+                      className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-slate-750 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors cursor-pointer text-left font-medium"
                     >
-                      <Phone className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
+                      <User className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
                       <span>{settings.lang === 'en' ? 'Contact Info Header' : '个人联系方式栏'}</span>
                     </button>
 
@@ -646,7 +655,7 @@ export function Editor() {
                         insertMarkdown(snippet);
                         setIsSnippetsDropdownOpen(false);
                       }}
-                      className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-slate-750 hover:text-blue-700 dark:hover:text-blue-300 transition-colors cursor-pointer text-left font-medium"
+                      className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-purple-50 dark:hover:bg-slate-750 hover:text-purple-700 dark:hover:text-purple-300 transition-colors cursor-pointer text-left font-medium"
                     >
                       <GraduationCap className="w-3.5 h-3.5 text-purple-500 dark:text-purple-400" />
                       <span>{settings.lang === 'en' ? 'Education Background' : '教育背景模板'}</span>
@@ -728,13 +737,33 @@ export function Editor() {
               placeholder="Type your resume in Markdown here..."
               spellCheck="false"
             />
-          </div>
-        </>
-      ) : activeMode === 'layout' ? (
-        <SectionSorter markdown={value} onChange={onChange} lang={settings.lang} />
-      ) : (
-        <FormEditor value={value} onChange={onChange} settings={settings} />
-      )}
+            </div>
+          </motion.div>
+        ) : activeMode === 'layout' ? (
+          <motion.div
+            key="editor-layout"
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
+            className="flex-1 flex flex-col min-h-0 w-full h-full overflow-hidden"
+          >
+            <SectionSorter markdown={value} onChange={onChange} lang={settings.lang} />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="editor-form"
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
+            className="flex-1 flex flex-col min-h-0 w-full h-full overflow-hidden"
+          >
+            <FormEditor value={value} onChange={onChange} settings={settings} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
 
       {/* Status Bar */}
       <div className="flex items-center justify-between px-3 sm:px-5 py-1.5 sm:py-2 bg-gray-50 dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800 text-[10px] sm:text-[11px] text-gray-500 dark:text-slate-400 font-medium z-10 overflow-x-auto scrollbar-none whitespace-nowrap gap-2">

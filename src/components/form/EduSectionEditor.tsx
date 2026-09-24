@@ -6,6 +6,7 @@ import { MonthRangePicker } from './MonthRangePicker';
 import { CustomSelect } from '../ui/CustomSelect';
 import { SmartMarkdownTextarea } from './SmartMarkdownTextarea';
 import { Tooltip } from '../ui/Tooltip';
+import { getSectionTheme } from '../../lib/section-themes';
 
 interface EduSectionEditorProps {
   section: FormSection;
@@ -119,6 +120,8 @@ export function EduSectionEditor({
 }: EduSectionEditorProps) {
   const [customDegrees, setCustomDegrees] = React.useState<Record<string, boolean>>({});
   const t = lang === 'en' ? TRANSLATIONS.en : TRANSLATIONS.zh;
+  const theme = getSectionTheme(section.title, lang);
+  const Icon = theme.icon;
 
   React.useEffect(() => {
     if (section.type === 'items') {
@@ -160,8 +163,8 @@ export function EduSectionEditor({
         onClick={onToggle}
       >
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 rounded-lg">
-            <GraduationCap className="w-5 h-5" />
+          <div className={`p-2 rounded-lg border ${theme.iconBg} ${theme.iconColor} ${theme.border}`}>
+            <Icon className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">

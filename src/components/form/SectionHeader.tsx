@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { Type, ArrowUp, ArrowDown, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
-import { getSectionIcon } from './FormSectionEditor';
 import { Tooltip } from '../ui/Tooltip';
+import { getSectionTheme } from '../../lib/section-themes';
 
 interface SectionHeaderProps {
   title: string;
@@ -25,24 +25,31 @@ export function SectionHeader({
   onTypeChange, lang = 'zh'
 }: SectionHeaderProps) {
   const isEn = lang === 'en';
+  const theme = getSectionTheme(title, lang);
+  const Icon = theme.icon;
+
   return (
     <div 
-      className={`flex items-center justify-between px-5 py-4 bg-gradient-to-r cursor-pointer select-none transition-all duration-300 ${
+      className={`flex items-center justify-between px-5 py-3.5 bg-gradient-to-r cursor-pointer select-none transition-all duration-300 ${
         isExpanded 
           ? 'from-indigo-50/40 to-slate-50 dark:from-indigo-950/30 dark:to-slate-900/60 border-b border-indigo-100/40 dark:border-indigo-900/40 hover:from-indigo-50/60 hover:to-slate-100/60 dark:hover:from-indigo-950/50 dark:hover:to-slate-900/80' 
           : 'from-slate-50/80 to-slate-100/30 dark:from-slate-850/60 dark:to-slate-900/40 border-b border-slate-200/40 dark:border-slate-800 dark:hover:from-slate-800 dark:hover:to-slate-800/80 hover:from-slate-100/60 hover:to-slate-100/90'
       }`} 
       onClick={onToggle}
     >
-      <div className="flex items-center gap-2.5">
-        {getSectionIcon(title)}
-        <input 
-          type="text"
-          value={title}
-          onClick={(e) => e.stopPropagation()} 
-          onChange={(e) => onTitleChange(e.target.value)}
-          className="font-semibold text-sm text-slate-800 dark:text-slate-100 bg-transparent border-b border-transparent hover:border-slate-300 dark:hover:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-100/50 dark:focus:ring-indigo-900/50 px-1.5 py-0.5 rounded transition-all w-48 md:w-64"
-        />
+      <div className="flex items-center gap-3 min-w-0">
+        <div className={`p-2 rounded-lg border ${theme.iconBg} ${theme.iconColor} ${theme.border} shrink-0 flex items-center justify-center`}>
+          <Icon className="w-5 h-5" />
+        </div>
+        <div className="flex items-center gap-2 min-w-0 flex-wrap sm:flex-nowrap">
+          <input 
+            type="text"
+            value={title}
+            onClick={(e) => e.stopPropagation()} 
+            onChange={(e) => onTitleChange(e.target.value)}
+            className="font-bold text-sm text-slate-800 dark:text-slate-100 bg-transparent border-b border-transparent hover:border-slate-300 dark:hover:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-100/50 dark:focus:ring-indigo-900/50 px-1.5 py-0.5 rounded transition-all w-36 sm:w-48 md:w-56"
+          />
+        </div>
       </div>
       
       <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>

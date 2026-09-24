@@ -310,16 +310,23 @@ export function ResumeChecker(props: ResumeCheckerProps = {}) {
           </div>
 
           {/* Sub Navigation Tabs */}
-          <div className="flex border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/60">
+          <div className="flex border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/60 relative">
             <button
               onClick={() => setActiveTab('diagnostics')}
-              className={`flex-1 py-3 text-xs font-bold border-b-2 transition-all cursor-pointer ${activeTab === 'diagnostics' ? 'border-blue-600 text-blue-600 dark:text-blue-400' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
+              className={`relative flex-1 py-3 text-xs font-bold transition-all cursor-pointer ${activeTab === 'diagnostics' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
             >
-              {isEn ? 'Score & Advice' : '评分建议'}
+              <span>{isEn ? 'Score & Advice' : '评分建议'}</span>
+              {activeTab === 'diagnostics' && (
+                <motion.div
+                  layoutId="checkerActiveTabIndicator"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full"
+                  transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                />
+              )}
             </button>
             <button
               onClick={() => setActiveTab('verbs')}
-              className={`flex-1 py-3 text-xs font-bold border-b-2 transition-all flex items-center justify-center gap-1.5 cursor-pointer ${activeTab === 'verbs' ? 'border-blue-600 text-blue-600 dark:text-blue-400' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
+              className={`relative flex-1 py-3 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${activeTab === 'verbs' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
             >
               <SpellCheck className="w-3.5 h-3.5 text-indigo-500" />
               <span>{isEn ? 'Verb Optimization' : '用词优化'}</span>
@@ -328,18 +335,40 @@ export function ResumeChecker(props: ResumeCheckerProps = {}) {
                   {matchedWeakWords.length}
                 </span>
               )}
+              {activeTab === 'verbs' && (
+                <motion.div
+                  layoutId="checkerActiveTabIndicator"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full"
+                  transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                />
+              )}
             </button>
           </div>
 
           {/* Body Content */}
           <div className="flex-1 overflow-y-auto p-5 scrollbar-thin">
-            {activeTab === 'diagnostics' ? (
-              <div className="space-y-8 animate-in fade-in duration-200">
-                <ScoreDisplay analysis={analysis} scoreBadge={scoreBadge} lang={lang} />
-                <DiagnosticList issues={analysis.issues} lang={lang} />
-              </div>
-            ) : (
-              <div className="space-y-5 animate-in fade-in duration-200">
+            <AnimatePresence mode="wait" initial={false}>
+              {activeTab === 'diagnostics' ? (
+                <motion.div 
+                  key="tab-diagnostics"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
+                  className="space-y-8"
+                >
+                  <ScoreDisplay analysis={analysis} scoreBadge={scoreBadge} lang={lang} />
+                  <DiagnosticList issues={analysis.issues} lang={lang} />
+                </motion.div>
+              ) : (
+                <motion.div 
+                  key="tab-verbs"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
+                  className="space-y-5"
+                >
                 <div className="bg-indigo-50/50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-800/60 rounded-xl p-3">
                   <span className="text-[11px] font-bold text-indigo-800 dark:text-indigo-300 flex items-center gap-1 mb-1">
                     <SpellCheck className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
@@ -419,8 +448,9 @@ export function ResumeChecker(props: ResumeCheckerProps = {}) {
                     </div>
                   </div>
                 )}
-              </div>
-            )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Action Button at the bottom of the panel */}

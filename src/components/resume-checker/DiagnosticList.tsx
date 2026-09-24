@@ -59,7 +59,7 @@ export function DiagnosticList({ issues, lang }: DiagnosticListProps) {
                 {issue.fixable && issue.onFix && (
                   <button
                     onClick={issue.onFix}
-                    className="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-[10px] font-bold rounded transition-all cursor-pointer shadow-xs shadow-blue-600/10"
+                    className="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white text-[10px] font-bold rounded transition-all cursor-pointer shadow-xs shadow-indigo-600/20"
                   >
                     <Zap className="w-2.5 h-2.5" />
                     <span>{isEn ? 'Auto Fix' : '一键智能修正'}</span>

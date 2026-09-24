@@ -293,7 +293,9 @@ export default function App() {
               style={{
                 width: !isMobile ? (settings.layoutMode === 'split' ? `${splitRatio}%` : settings.layoutMode === 'editor' ? '100%' : '0%') : '100%'
               }}
-              className={`z-10 relative transition-none h-full ${
+              className={`z-10 relative h-full ${
+                isDragging ? 'transition-none' : 'transition-[width] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]'
+              } ${
                 !isMobile && settings.layoutMode === 'preview' ? 'hidden' : 'w-full'
               } border-r border-slate-200/90 dark:border-slate-800`}
             >
@@ -333,7 +335,9 @@ export default function App() {
             style={{
               width: !isMobile ? (settings.layoutMode === 'split' ? `${100 - splitRatio}%` : settings.layoutMode === 'preview' ? '100%' : '0%') : '100%',
             }}
-            className={`transition-none h-full ${
+            className={`h-full ${
+              isDragging ? 'transition-none' : 'transition-[width] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]'
+            } ${
               isMobile 
                 ? (mobileTab === 'preview' ? 'w-full relative' : 'absolute -left-[9999px] top-0 w-[210mm] pointer-events-none opacity-0 select-none')
                 : (settings.layoutMode === 'editor' ? 'absolute -left-[9999px] top-0 w-[210mm] pointer-events-none opacity-0 select-none' : 'relative')

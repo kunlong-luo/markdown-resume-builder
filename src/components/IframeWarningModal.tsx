@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, ExternalLink, HelpCircle, FileDown, AlertCircle, Sparkles, Check, Zap } from 'lucide-react';
+import { X, ExternalLink, HelpCircle, FileDown, AlertCircle, Printer, Check, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useResumeStore } from '../store/useResumeStore';
 import { exportDirectPDF } from '../lib/pdf-export';
@@ -162,7 +162,7 @@ export function IframeWarningModal() {
               {/* Graphic/Visual Aid */}
               <div className="bg-slate-50 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-750 rounded-xl p-3.5 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                  <Printer className="w-3.5 h-3.5 text-blue-500 shrink-0" />
                   <span>
                     {isEn ? 'Supports pixel-perfect HD vector A4 PDF printing' : '支持无损 A4 纸张排版与打印'}
                   </span>

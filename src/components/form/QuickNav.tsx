@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { User } from 'lucide-react';
 import { motion } from 'motion/react';
 import { FormSection } from '../../lib/form-types';
-import { getSectionIcon } from './FormSectionEditor';
+import { getSectionTheme } from '../../lib/section-themes';
 
 interface QuickNavProps {
   sections: FormSection[];
@@ -117,6 +117,9 @@ export function QuickNav({ sections, expandedSections, setExpandedSections, lang
         
         {sections.map((sec) => {
           const isActive = activeSectionId === sec.id;
+          const theme = getSectionTheme(sec.title, lang);
+          const Icon = theme.icon;
+
           return (
             <button
               key={sec.id}
@@ -146,8 +149,8 @@ export function QuickNav({ sections, expandedSections, setExpandedSections, lang
                   transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                 />
               )}
-              <span className={`flex items-center justify-center shrink-0 ${isActive ? '[&_svg]:text-white [&_svg]:stroke-white text-white' : ''}`}>
-                {getSectionIcon(sec.title)}
+              <span className={`flex items-center justify-center shrink-0 ${isActive ? 'text-white' : theme.iconColor}`}>
+                <Icon className="w-3.5 h-3.5" />
               </span>
               <span>{translateSectionTitle(sec.title, lang)}</span>
               {sec.type === 'items' && sec.items && sec.items.length > 0 && (
