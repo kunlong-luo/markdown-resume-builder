@@ -210,43 +210,57 @@ export function EduSectionEditor({
                         </Tooltip>
                       </div>
 
-                    {/* Primary Fields Row */}
-                    <div className="flex flex-col md:flex-row gap-2.5 sm:gap-3 sm:pr-24">
-                      <div className="flex-[1.5] min-w-0">
-                        <div className="flex items-center justify-between mb-1">
-                          <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest">{t.schoolLabel}</label>
-                        </div>
-                        <div className="relative">
-                          <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none"><School className="w-3.5 h-3.5" /></span>
+                    {/* Primary Fields Rows */}
+                    <div className="space-y-2.5 sm:space-y-3">
+                      {/* Row 1: 学校名称 & 时间段 */}
+                      <div className="flex flex-col md:flex-row gap-2.5 sm:gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-1">
+                            <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest">{t.schoolLabel}</label>
+                          </div>
                           <input 
                             type="text" 
                             value={item.org || ''}
                             onChange={(e) => onItemChange(item.id, 'org', e.target.value)}
-                            className="w-full pl-9 pr-3 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-100 tactile-input"
+                            className="w-full px-2.5 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-100 tactile-input"
                             placeholder={t.schoolPlaceholder}
+                          />
+                        </div>
+
+                        <div className="w-full md:w-[220px] shrink-0">
+                          <div className="flex items-center justify-between mb-1">
+                            <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest">{secT.periodLabel}</label>
+                          </div>
+                          <MonthRangePicker
+                            value={item.time || ''}
+                            onChange={(val) => onItemChange(item.id, 'time', val)}
+                            className="w-full px-2.5 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-100 tactile-input font-mono"
+                            placeholder={t.timePlaceholder}
+                            lang={lang}
                           />
                         </div>
                       </div>
 
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-1">
-                          <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest">{t.degreeLabel}</label>
-                          <button
-                            type="button"
-                            onClick={() => toggleCustomDegree(item.id)}
-                            className="text-[10px] text-purple-600 dark:text-purple-400 hover:text-purple-700 font-semibold cursor-pointer transition-colors"
-                          >
-                            {customDegrees[item.id] ? t.degreeChoosePreset : t.degreeCustom}
-                          </button>
-                        </div>
-                        <div className="relative">
-                          <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none z-10"><GraduationCap className="w-3.5 h-3.5" /></span>
+                      {/* Row 2: 学历 & 专业名称 (干净的双列并排) */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3">
+                        {/* 学历 */}
+                        <div className="min-w-0">
+                          <div className="flex items-center justify-between mb-1">
+                            <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest">{t.degreeLabel}</label>
+                            <button
+                              type="button"
+                              onClick={() => toggleCustomDegree(item.id)}
+                              className="text-[10px] text-purple-600 dark:text-purple-400 hover:text-purple-700 font-semibold cursor-pointer transition-colors"
+                            >
+                              {customDegrees[item.id] ? t.degreeChoosePreset : t.degreeCustom}
+                            </button>
+                          </div>
                           {customDegrees[item.id] ? (
                             <input 
                               type="text" 
                               value={item.degree || ''}
                               onChange={(e) => onItemChange(item.id, 'degree', e.target.value)}
-                              className="w-full pl-9 pr-3 py-1.5 text-xs text-slate-800 dark:text-slate-100 tactile-input"
+                              className="w-full px-2.5 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-100 tactile-input"
                               placeholder={t.degreePlaceholder}
                             />
                           ) : (
@@ -264,43 +278,27 @@ export function EduSectionEditor({
                                 ...degreeOptions,
                                 { value: '__custom__', label: t.customOption }
                               ]}
-                              size="md"
+                              size="sm"
                               className="w-full"
-                              triggerClassName="w-full pl-9 pr-3 py-1.5 text-xs tactile-input font-normal bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-lg"
+                              triggerClassName="w-full px-2.5 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-100 tactile-input bg-white dark:bg-slate-900"
                               placeholder={t.degreePlaceholder}
                             />
                           )}
                         </div>
-                      </div>
 
-                      <div className="flex-[1.2] min-w-0">
-                        <div className="flex items-center justify-between mb-1">
-                          <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest">{t.majorLabel}</label>
-                        </div>
-                        <div className="relative">
-                          <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none"><BookOpen className="w-3.5 h-3.5" /></span>
+                        {/* 专业名称 */}
+                        <div className="min-w-0">
+                          <div className="flex items-center justify-between mb-1">
+                            <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest">{t.majorLabel}</label>
+                          </div>
                           <input 
                             type="text" 
                             value={item.role || ''}
                             onChange={(e) => onItemChange(item.id, 'role', e.target.value)}
-                            className="w-full pl-9 pr-3 py-1.5 text-xs text-slate-800 dark:text-slate-100 tactile-input font-medium"
+                            className="w-full px-2.5 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-100 tactile-input"
                             placeholder={t.majorPlaceholder}
                           />
                         </div>
-                      </div>
-
-                      <div className="w-full md:w-[220px] shrink-0">
-                        <div className="mb-1">
-                          <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest">{secT.periodLabel}</label>
-                        </div>
-                        <MonthRangePicker
-                          value={item.time || ''}
-                          onChange={(val) => onItemChange(item.id, 'time', val)}
-                          className="pl-9 pr-3 py-1.5 text-xs text-slate-800 dark:text-slate-100 tactile-input font-mono"
-                          placeholder={t.timePlaceholder}
-                          lang={lang}
-                          leftIcon={<Calendar className="w-3.5 h-3.5" />}
-                        />
                       </div>
                     </div>
 

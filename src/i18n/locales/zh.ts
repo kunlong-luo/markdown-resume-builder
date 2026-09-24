@@ -299,7 +299,7 @@ export const zh: TranslationSchema = {
       expLabel: '工作经验',
       expPlaceholder: '例如：5',
       expSuffix: '年',
-      studentGradBadge: '在校生 / 应届生',
+      studentGradBadge: '应届生',
       studentGradTooltip: '点击快速切换为应届生/在校生',
       degreeLabel: '最高学历',
       degreePlaceholder: '硕士 或 本科',

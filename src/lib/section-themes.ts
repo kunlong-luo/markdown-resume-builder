@@ -78,7 +78,7 @@ export function getSectionTheme(title: string, lang = 'zh'): SectionTheme {
     };
   }
 
-  // 3. 项目经历 / 作品集 (活力绿 Emerald)
+  // 3. 项目经历 / 作品集 / 代表项目 (活力绿 Emerald)
   if (
     t.includes('项目') || t.includes('产品') || t.includes('作品') || 
     t.includes('project') || t.includes('portfolio')
@@ -87,7 +87,7 @@ export function getSectionTheme(title: string, lang = 'zh'): SectionTheme {
       category: 'project',
       name: 'project',
       icon: FolderKanban,
-      badge: isEn ? 'Project' : '项目经历',
+      badge: isEn ? 'Key Projects' : (t.includes('代表') || t.includes('项目') ? '代表项目' : '项目经历'),
       subtitle: isEn ? 'Project name, role & key deliverables' : '项目名称、担任角色与核心产出',
       iconColor: 'text-emerald-600 dark:text-emerald-400',
       iconBg: 'bg-emerald-50 dark:bg-emerald-950/60',

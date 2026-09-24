@@ -25,7 +25,7 @@ export const getPresetSection = (presetType: string, lang = 'zh'): Omit<FormSect
       }];
       break;
     case 'project':
-      title = isEn ? 'Project Experience' : '项目经验';
+      title = isEn ? 'Key Projects' : '代表项目';
       type = 'items';
       items = [{
         id: `item_${now}_1`,
@@ -59,7 +59,7 @@ export const getPresetSection = (presetType: string, lang = 'zh'): Omit<FormSect
         : '- **前端开发**：熟练掌握 React, TypeScript, Tailwind CSS, Next.js 等主流工程技术栈\n- **后端技术**：熟练掌握 Node.js / Java / Go 开发，对 Redis 缓存设计 and 高并发场景处理有实践心得\n- **工程素养**：注重团队规范协作，熟练掌握 CI/CD 与 Git 工作流体系';
       break;
     case 'summary':
-      title = isEn ? 'Summary / Evaluation' : '个人总结 / 自我评价';
+      title = isEn ? 'Personal Strengths' : '个人优势';
       type = 'text';
       textValue = isEn
         ? 'Experienced software engineer with X years of practical experience in high-concurrency internet projects. Passionate about solving technical challenges and improving development efficiency. Excellent collaboration and communication skills.'
@@ -125,3 +125,46 @@ export const getStarTemplate = (sectionTitle: string, lang = 'zh'): Partial<Form
     };
   }
 };
+
+/**
+ * Scroll smoothly to a section card in the form editor with sticky header offset correction
+ */
+export const scrollToSectionElement = (sectionId: string, expandFn?: (id: string) => void) => {
+  if (!sectionId) return;
+
+  if (expandFn) {
+    expandFn(sectionId);
+  }
+
+  const scrollAction = () => {
+    const targetId = `form-sec-${sectionId}`;
+    const targetEl = document.getElementById(targetId);
+    if (!targetEl) return;
+
+    targetEl.classList.add('ring-2', 'ring-indigo-500', 'dark:ring-indigo-400', 'transition-all');
+    setTimeout(() => {
+      targetEl.classList.remove('ring-2', 'ring-indigo-500', 'dark:ring-indigo-400');
+    }, 2000);
+
+    const container = targetEl.closest('.overflow-y-auto') as HTMLElement | null;
+    if (container) {
+      const containerRect = container.getBoundingClientRect();
+      const targetRect = targetEl.getBoundingClientRect();
+      const relativeTop = targetRect.top - containerRect.top;
+      // Account for QuickNav sticky top header height (~52px) + top padding (18px) = 70px offset
+      const desiredScrollTop = container.scrollTop + relativeTop - 70;
+
+      container.scrollTo({
+        top: Math.max(0, desiredScrollTop),
+        behavior: 'smooth'
+      });
+    } else {
+      targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  scrollAction();
+  setTimeout(scrollAction, 100);
+  setTimeout(scrollAction, 260);
+};
+

@@ -99,11 +99,8 @@ export const Preview = React.memo(forwardRef<HTMLDivElement, PreviewProps>(({ ov
 
   const handleSmartAutoFit = () => {
     if (!onChangeSettings) return;
-    if (metrics.isOver) {
-      setIsAutoFitting(true);
-    } else {
-      smartAutoFit(settings, (key, val) => onChangeSettings(key as any, val));
-    }
+    setTargetPageLimit(1);
+    setIsAutoFitting(true);
   };
   
   const cleaned = useMemo(() => cleanMarkdown(markdown), [markdown]);
@@ -182,20 +179,20 @@ export const Preview = React.memo(forwardRef<HTMLDivElement, PreviewProps>(({ ov
           .resume-content .flex-row.items-baseline { margin-top: calc(1.25rem * ${settings.blockGap ?? 1.0}) !important; margin-bottom: calc(0.375rem * ${settings.blockGap ?? 1.0}) !important; }
         `}} />
 
-        {settings.showPageBreakLine && (
+        {settings.showPageBreakLine && (metrics.actualPages ?? 1) > 1 && (
           <div className="absolute inset-x-0 top-0 bottom-0 pointer-events-none print:hidden z-30">
-            {[1, 2, 3].map(p => (
+            {Array.from({ length: Math.min(3, (metrics.actualPages ?? 1) - 1) }, (_, i) => i + 1).map(p => (
               <div 
                 key={p} 
-                className="absolute left-0 right-0 border-b border-dashed border-rose-300/70 dark:border-rose-700/60 flex items-center justify-between text-[9.5px] select-none h-0" 
+                className="absolute left-0 right-0 border-b-2 border-dashed border-rose-400/80 dark:border-rose-500/80 flex items-center justify-between text-[9.5px] select-none h-0 shadow-[0_1px_4px_rgba(244,63,94,0.15)]" 
                 style={{ top: `${p * 297}mm` }}
               >
-                <div className="bg-white/95 dark:bg-slate-850/95 backdrop-blur-md border border-slate-200/90 dark:border-slate-700 text-slate-600 dark:text-slate-300 px-2.5 py-0.5 rounded-md shadow-xs ml-4 -translate-y-1/2 flex items-center gap-1.5 font-medium tracking-tight">
-                  <span className="text-[10px] opacity-70">✂️</span>
-                  <span className="text-[9px] font-mono tracking-wider">{settings.lang === 'en' ? 'A4 Page Fold' : 'A4 分页裁切线'}</span>
+                <div className="bg-rose-500 dark:bg-rose-600 text-white border border-rose-400/60 px-2.5 py-0.5 rounded-full shadow-md ml-4 -translate-y-1/2 flex items-center gap-1.5 font-bold tracking-tight">
+                  <span className="text-[10px]">✂️</span>
+                  <span className="text-[9.5px] font-mono tracking-wider">{settings.lang === 'en' ? `A4 Page ${p} Fold` : `A4 第 ${p} 页裁切参考线`}</span>
                 </div>
-                <div className="bg-white/95 dark:bg-slate-850/95 backdrop-blur-md border border-slate-200/90 dark:border-slate-700 text-slate-600 dark:text-slate-300 px-2.5 py-0.5 rounded-md shadow-xs mr-4 -translate-y-1/2 font-mono flex items-center gap-1.5 text-[9px] font-medium tracking-tight">
-                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500/80 inline-block" />
+                <div className="bg-white/95 dark:bg-slate-850/95 backdrop-blur-md border border-rose-200/90 dark:border-rose-800 text-rose-600 dark:text-rose-300 px-2.5 py-0.5 rounded-full shadow-xs mr-4 -translate-y-1/2 font-mono flex items-center gap-1.5 text-[9.5px] font-bold tracking-tight">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 inline-block animate-pulse" />
                   <span>{pageBreakLabel.replace('{p}', String(p)).replace('{size}', String(p * 297))}</span>
                 </div>
               </div>
@@ -211,7 +208,7 @@ export const Preview = React.memo(forwardRef<HTMLDivElement, PreviewProps>(({ ov
           // 1. Two-Column Layout
           if (settings.templateLayout === 'two-column') {
             const sections = parseH2Sections(bodyContent);
-            const SIDEBAR_KEYWORDS = ['个人信息', '基本信息', '联系', '技能', '评价', '总结', 'about', 'skill', 'contact', 'summary'];
+            const SIDEBAR_KEYWORDS = ['个人信息', '基本信息', '联系', '技能', '评价', '总结', '优势', 'about', 'skill', 'contact', 'summary', 'strength', 'strengths'];
             const isSidebar = (t: string) => SIDEBAR_KEYWORDS.some(k => t.toLowerCase().includes(k));
 
             let sidebarSections = sections.filter(s => isSidebar(s.title));
@@ -341,14 +338,15 @@ export const Preview = React.memo(forwardRef<HTMLDivElement, PreviewProps>(({ ov
             id="resume-print-content"
             style={{
               transformOrigin: 'top center',
-              width: '100%',
+              width: '210mm',
+              minWidth: '210mm',
               maxWidth: '210mm',
               position: 'absolute',
               top: 0,
               left: '50%',
               transform: `translateX(-50%) scale(${calculatedZoom})`,
             }}
-            className={`bg-white resume-content w-full max-w-[210mm] min-h-[297mm] h-fit mx-auto print:shadow-none print:ring-0 print:m-0 print:w-full relative origin-top transition-all duration-300 print:relative print:left-auto print:top-auto print:transform-none print:max-w-full print:w-full ${fontClass} ${marginClasses} ${
+            className={`bg-white resume-content w-[210mm] min-w-[210mm] max-w-[210mm] min-h-[297mm] h-fit mx-auto print:shadow-none print:ring-0 print:m-0 print:w-full relative origin-top transition-all duration-300 print:relative print:left-auto print:top-auto print:transform-none print:max-w-full print:w-full ${fontClass} ${marginClasses} ${
               metrics.isOver 
                 ? 'shadow-[0_4px_24px_rgba(244,63,94,0.08),0_16px_40px_-6px_rgba(15,23,42,0.12),0_0_0_1.5px_rgba(244,63,94,0.4)] ring-1 ring-rose-400/30' 
                 : 'shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02),0_12px_28px_-4px_rgba(15,23,42,0.06),0_24px_60px_-12px_rgba(15,23,42,0.08),0_0_0_1px_rgba(15,23,42,0.04)] ring-1 ring-black/5'
@@ -371,6 +369,8 @@ export const Preview = React.memo(forwardRef<HTMLDivElement, PreviewProps>(({ ov
         zoomMode={zoomMode} 
         calculatedZoom={calculatedZoom} 
         onZoomChange={setZoomMode} 
+        showPageBreakLine={settings.showPageBreakLine}
+        onTogglePageBreakLine={() => onChangeSettings?.('showPageBreakLine', !settings.showPageBreakLine)}
         lang={settings.lang} 
       />
 

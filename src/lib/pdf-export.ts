@@ -90,6 +90,45 @@ function findSmartSplitY(
 }
 
 /**
+ * Intelligent helper to check if a horizontal canvas slice is completely blank/white background.
+ * Prevents appending trailing empty pages to exported PDF documents.
+ */
+function isCanvasSliceBlank(
+  mainCtx: CanvasRenderingContext2D,
+  canvasWidth: number,
+  startY: number,
+  endY: number
+): boolean {
+  if (endY <= startY) return true;
+  const height = endY - startY;
+  if (height <= 2) return true;
+
+  const startX = Math.floor(canvasWidth * 0.03);
+  const endX = Math.floor(canvasWidth * 0.97);
+  const sampleStep = Math.max(1, Math.floor((endX - startX) / 60));
+
+  try {
+    const imgData = mainCtx.getImageData(startX, startY, endX - startX, height);
+    const data = imgData.data;
+
+    for (let i = 0; i < data.length; i += 4 * sampleStep) {
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+      const a = data[i + 3];
+
+      // Check if there is any dark text pixel or non-white element
+      if (a > 15 && (r < 240 || g < 240 || b < 240)) {
+        return false; // Found actual visible content!
+      }
+    }
+  } catch (e) {
+    return false;
+  }
+  return true; // Completely blank/white background
+}
+
+/**
  * Direct PDF generation and download utility using html2canvas + jsPDF.
  * Bypasses browser print dialog and downloads a pristine A4 PDF file directly to the user's device.
  */
@@ -220,6 +259,11 @@ export async function exportDirectPDF(
     let pageCount = 0;
 
     while (currentY < canvas.height) {
+      // Check if remaining slice from currentY to canvas.height is completely blank/white
+      if (mainCtx && isCanvasSliceBlank(mainCtx, canvas.width, currentY, canvas.height)) {
+        break;
+      }
+
       pageCount++;
       onProgress?.(`正在渲染第 ${pageCount} 页 PDF (智能避让文字)...`);
 

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://kunlong-luo.github.io/resume-craft/sitemap.xml

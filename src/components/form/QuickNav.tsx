@@ -5,6 +5,7 @@ import { FormSection } from '../../lib/form-types';
 import { getSectionTheme } from '../../lib/section-themes';
 import { getTranslation } from '../../i18n';
 import { translateSectionTitle } from '../../lib/section-translator';
+import { scrollToSectionElement } from '../../lib/form-helpers';
 
 interface QuickNavProps {
   sections: FormSection[];
@@ -83,13 +84,7 @@ export function QuickNav({ sections, expandedSections, setExpandedSections, lang
           onClick={() => {
             lastClickedRef.current = { id: 'basic', time: Date.now() };
             setActiveSectionId('basic');
-            
-            if (expandedSections.basic === false) {
-              setExpandedSections(prev => ({ ...prev, basic: true }));
-            }
-            setTimeout(() => {
-              document.getElementById('form-sec-basic')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 60);
+            scrollToSectionElement('basic', (id) => setExpandedSections(prev => ({ ...prev, [id]: true })));
           }}
           className={`relative px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 z-10 transition-colors ${
             activeSectionId === 'basic'
@@ -119,13 +114,7 @@ export function QuickNav({ sections, expandedSections, setExpandedSections, lang
               onClick={() => {
                 lastClickedRef.current = { id: sec.id, time: Date.now() };
                 setActiveSectionId(sec.id);
-
-                if (expandedSections[sec.id] === false) {
-                  setExpandedSections(prev => ({ ...prev, [sec.id]: true }));
-                }
-                setTimeout(() => {
-                  document.getElementById(`form-sec-${sec.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }, 60);
+                scrollToSectionElement(sec.id, (id) => setExpandedSections(prev => ({ ...prev, [id]: true })));
               }}
               className={`relative px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 z-10 transition-colors ${
                 isActive

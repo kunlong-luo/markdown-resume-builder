@@ -5,6 +5,7 @@ interface A4Metrics {
   isOver: boolean;
   overflowPercent: number;
   overflowPixels: number;
+  actualPages: number;
 }
 
 export function useA4Measurement(
@@ -20,6 +21,7 @@ export function useA4Measurement(
     isOver: false,
     overflowPercent: 0,
     overflowPixels: 0,
+    actualPages: 1,
   });
 
   const [zoomMode, setZoomMode] = useState<'fit' | number>(() => {
@@ -82,25 +84,60 @@ export function useA4Measurement(
         const height = element.clientHeight;
         if (!width || !height) return;
 
-        setUnscaledHeight(height);
-
         // Standard A4 aspect ratio height: 297mm / 210mm = 1.4142857
         const pHeight = (width / 210) * 297;
+
+        // Measure true content height by inspecting actual resume content nodes
+        let maxContentBottom = 0;
+        const elemRect = element.getBoundingClientRect();
+        const scale = elemRect.width > 0 ? elemRect.width / width : 1;
+
+        // Query actual content elements, excluding absolute overlay guides (like cut lines)
+        const contentNodes = element.querySelectorAll(
+          'h1, h2, h3, h4, p, li, table, img, .resume-header, blockquote, [data-resume-section]'
+        );
+
+        if (contentNodes.length > 0) {
+          contentNodes.forEach((node) => {
+            // Skip print-hidden overlay controls or cut lines
+            if (
+              node.classList.contains('print:hidden') || 
+              node.classList.contains('scissors-guide') ||
+              node.closest('.print\\:hidden')
+            ) {
+              return;
+            }
+            const rect = node.getBoundingClientRect();
+            if (rect.height > 0) {
+              const bottomUnscaled = (rect.bottom - elemRect.top) / scale;
+              if (bottomUnscaled > maxContentBottom) {
+                maxContentBottom = bottomUnscaled;
+              }
+            }
+          });
+        }
+
+        // Include bottom margin allowance (16px)
+        const effectiveHeight = maxContentBottom > 0
+          ? Math.max(pHeight, maxContentBottom + 16)
+          : Math.max(pHeight, height);
+
+        setUnscaledHeight(effectiveHeight);
         
-        // 24px tolerance for subpixel rounding
-        const tolerance = 24;
-        const actualPages = Math.max(1, Math.floor((height - tolerance) / pHeight) + 1);
+        // 36px tolerance (~9.5mm) for subpixel rounding, font metrics & padding at page boundary
+        const tolerance = 36;
+        const actualPages = Math.max(1, Math.ceil((effectiveHeight - tolerance) / pHeight));
         onPageCountChange?.(actualPages);
 
         const limitHeight = targetPageLimit * pHeight;
-        const isOver = height > limitHeight + tolerance;
-        const overflowPixels = Math.max(0, Math.round(height - limitHeight));
+        const isOver = effectiveHeight > limitHeight + tolerance;
+        const overflowPixels = Math.max(0, Math.round(effectiveHeight - limitHeight));
         const overflowPercent = Math.min(
           150,
-          Math.max(10, Math.round((height / limitHeight) * 100))
+          Math.max(10, Math.round((effectiveHeight / limitHeight) * 100))
         );
 
-        setMetrics({ isOver, overflowPercent, overflowPixels });
+        setMetrics({ isOver, overflowPercent, overflowPixels, actualPages });
       });
     };
 

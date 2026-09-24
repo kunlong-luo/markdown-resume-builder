@@ -7,6 +7,7 @@ interface HeightGuardProps {
     isOver: boolean;
     overflowPercent: number;
     overflowPixels?: number;
+    actualPages?: number;
   };
   targetPageLimit: number;
   setTargetPageLimit: (limit: 1 | 2 | 3) => void;
@@ -64,6 +65,9 @@ export const HeightGuard = React.memo(function HeightGuard({
 }: HeightGuardProps) {
   const t = lang === 'en' ? TRANSLATIONS.en : TRANSLATIONS.zh;
 
+  const [isHovered, setIsHovered] = React.useState(false);
+  const hoverTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+
   const [isCollapsed, setIsCollapsed] = React.useState(() => {
     try {
       return localStorage.getItem('height-guard-collapsed') === 'true';
@@ -71,6 +75,18 @@ export const HeightGuard = React.memo(function HeightGuard({
       return false;
     }
   });
+
+  const handleMouseEnter = () => {
+    if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+    hoverTimerRef.current = setTimeout(() => {
+      setIsHovered(false);
+    }, 450);
+  };
 
   const toggleCollapse = (e?: React.MouseEvent) => {
     if (e) {
@@ -91,22 +107,28 @@ export const HeightGuard = React.memo(function HeightGuard({
         ? 'bg-amber-50 dark:bg-amber-950/60 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/60 shadow-xs'
         : 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 shadow-xs';
 
+  const isShowCard = !isCollapsed || isHovered;
+
   return (
-    <div className="absolute bottom-5 right-5 z-40 select-none print:hidden pointer-events-none">
+    <div 
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      className="absolute bottom-5 right-5 z-40 select-none print:hidden pointer-events-auto"
+    >
       <AnimatePresence mode="wait">
-        {isCollapsed ? (
+        {!isShowCard ? (
           <motion.div 
             key="height-guard-pill"
             initial={{ opacity: 0, scale: 0.9, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 8 }}
             transition={{ type: 'spring', stiffness: 450, damping: 30 }}
-            onClick={() => toggleCollapse()}
-            className="pointer-events-auto flex items-center gap-2.5 h-10 px-3.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800/90 shadow-[0_12px_32px_rgba(15,23,42,0.12),0_2px_6px_rgba(15,23,42,0.04)] dark:shadow-[0_12px_32px_rgba(0,0,0,0.4)] rounded-2xl cursor-pointer hover:shadow-[0_16px_40px_rgba(15,23,42,0.16)] transition-all duration-200 hover:border-slate-300 dark:hover:border-slate-600 active:scale-95"
-            title={lang === 'en' ? 'Click to expand A4 Height Guard' : '点击展开 A4 高度警报器'}
+            onClick={() => setIsHovered(true)}
+            className="flex items-center gap-2.5 h-10 px-3.5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 shadow-[0_8px_24px_rgba(15,23,42,0.1)] dark:shadow-[0_8px_24px_rgba(0,0,0,0.4)] rounded-2xl cursor-pointer hover:shadow-[0_12px_32px_rgba(15,23,42,0.16)] transition-all duration-200 hover:border-slate-300 dark:hover:border-slate-600 group"
+            title={lang === 'en' ? 'Hover or click to expand A4 Height Guard' : '悬停或点击展开 A4 高度警报器'}
           >
             <div className="flex items-center gap-1.5">
-              <Ruler className={`w-3.5 h-3.5 ${
+              <Ruler className={`w-3.5 h-3.5 group-hover:scale-110 transition-transform ${
                 isAutoFitting
                   ? 'text-indigo-500 animate-spin'
                   : metrics.isOver
@@ -115,11 +137,11 @@ export const HeightGuard = React.memo(function HeightGuard({
                       ? 'text-amber-500'
                       : 'text-emerald-500'
               }`} />
-              <span className="text-xs font-bold text-slate-700 dark:text-slate-200 font-mono">
-                {metrics.overflowPercent}%
+              <span className="text-xs font-extrabold text-slate-800 dark:text-slate-100 font-sans">
+                {lang === 'en' ? `${metrics.actualPages || 1} Page(s)` : `预估 ${metrics.actualPages || 1} 页`}
               </span>
-              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
-                / {targetPageLimit}{t.pageUnit}
+              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">
+                ({metrics.overflowPercent}%)
               </span>
             </div>
 
@@ -130,6 +152,7 @@ export const HeightGuard = React.memo(function HeightGuard({
 
             {/* Small Expand Button */}
             <button
+              type="button"
               onClick={toggleCollapse}
               className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-750 rounded-full transition-colors cursor-pointer"
               title={lang === 'en' ? 'Expand' : '展开'}
@@ -144,7 +167,7 @@ export const HeightGuard = React.memo(function HeightGuard({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 12 }}
             transition={{ type: 'spring', stiffness: 450, damping: 30 }}
-            className="pointer-events-auto max-w-[310px] w-full bg-white/95 dark:bg-slate-850/95 backdrop-blur-md border border-slate-200/80 dark:border-slate-700/80 shadow-2xl rounded-2xl p-4 flex flex-col gap-3 transition-all"
+            className="max-w-[310px] w-full bg-white/95 dark:bg-slate-850/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-700/90 shadow-[0_16px_40px_rgba(15,23,42,0.18)] dark:shadow-[0_16px_40px_rgba(0,0,0,0.5)] rounded-2xl p-4 flex flex-col gap-3 transition-all"
           >
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -177,11 +200,11 @@ export const HeightGuard = React.memo(function HeightGuard({
       {/* Height gauge visual */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between text-xs">
-          <span className="font-semibold text-slate-500 dark:text-slate-400">
-            {t.targetLimit}: <strong className="text-slate-700 dark:text-slate-200 font-semibold">{targetPageLimit} {t.pages}</strong>
+          <span className="font-semibold text-slate-600 dark:text-slate-300">
+            {lang === 'en' ? 'Estimated Total:' : '预估排版页数:'} <strong className="text-indigo-600 dark:text-indigo-400 font-extrabold">{metrics.actualPages || 1} {t.pageUnit}</strong>
           </span>
-          <span className="font-mono font-bold text-slate-700 dark:text-slate-200">
-            {metrics.overflowPercent}%
+          <span className="font-mono font-bold text-slate-600 dark:text-slate-300">
+            {lang === 'en' ? 'Capacity:' : '容量:'} {metrics.overflowPercent}%
           </span>
         </div>
         

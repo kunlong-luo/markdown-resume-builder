@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { formatChineseEnglishSpacing } from '../lib/format-utils';
 import { FormItem, FormSection, ResumeFormModel } from '../lib/form-types';
 import { parseMarkdownToForm, parseFormToMarkdown, getSectionCategory } from '../lib/markdown-parser';
-import { getPresetSection, getStarTemplate } from '../lib/form-helpers';
+import { getPresetSection, getStarTemplate, scrollToSectionElement } from '../lib/form-helpers';
 import { useConfirm } from '../context/ConfirmContext';
+import { useToast } from '../components/ui/Toast';
 import { getTranslation } from '../i18n';
 
 export function useFormEditor(
@@ -12,6 +13,7 @@ export function useFormEditor(
   settings?: { lang?: string }
 ) {
   const { confirm } = useConfirm();
+  const { showToast } = useToast();
   const [localModel, setLocalModel] = useState<ResumeFormModel>(() => parseMarkdownToForm(value));
   const [lastParsedValue, setLastParsedValue] = useState<string>(value);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
@@ -184,6 +186,44 @@ export function useFormEditor(
   };
 
   const addPresetSection = (presetType: 'work' | 'project' | 'edu' | 'skills' | 'summary' | 'custom_text' | 'custom_items') => {
+    const isStandardPreset = ['work', 'project', 'edu', 'skills', 'summary'].includes(presetType);
+
+    if (isStandardPreset) {
+      const existing = localModel.sections.find(sec => {
+        const titleLower = sec.title.trim().toLowerCase();
+        if (presetType === 'summary') {
+          return titleLower.includes('优势') || titleLower.includes('总结') || titleLower.includes('评价') || titleLower.includes('summary') || titleLower.includes('strength');
+        }
+        if (presetType === 'skills') {
+          return titleLower.includes('技能') || titleLower.includes('skill');
+        }
+        if (presetType === 'work') {
+          return titleLower.includes('工作') || titleLower.includes('职业') || titleLower.includes('work') || titleLower.includes('experience');
+        }
+        if (presetType === 'project') {
+          return titleLower.includes('项目') || titleLower.includes('作品') || titleLower.includes('project') || titleLower.includes('portfolio');
+        }
+        if (presetType === 'edu') {
+          return titleLower.includes('教育') || titleLower.includes('学历') || titleLower.includes('education') || titleLower.includes('edu');
+        }
+        return false;
+      });
+
+      if (existing) {
+        scrollToSectionElement(existing.id, (id) => setExpandedSections(prev => ({ ...prev, [id]: true })));
+        const isEn = currentLang === 'en';
+
+        showToast({
+          type: 'info',
+          title: isEn ? 'Module Already Exists' : '常用模块已存在',
+          message: isEn
+            ? `"${existing.title}" module is already in your resume. Navigated to it.`
+            : `简历中已存在“${existing.title}”模块，已为您滚动并定位到该模块。`
+        });
+        return;
+      }
+    }
+
     const preset = getPresetSection(presetType, currentLang);
     const now = Date.now();
     const newSection: FormSection = {
@@ -195,9 +235,14 @@ export function useFormEditor(
     setExpandedSections(prev => ({ ...prev, [newSection.id]: true }));
     handleModelChange({ ...localModel, sections: updatedSections });
 
-    setTimeout(() => {
-      document.getElementById(`form-sec-${newSection.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 120);
+    const isEn = currentLang === 'en';
+    showToast({
+      type: 'success',
+      title: isEn ? 'Module Added' : '常用模块添加成功',
+      message: isEn ? `Added "${newSection.title}" module.` : `已新增“${newSection.title}”模块`
+    });
+
+    scrollToSectionElement(newSection.id);
   };
 
   const handleItemFieldChange = (sectionId: string, itemId: string, field: keyof FormItem, value: string) => {

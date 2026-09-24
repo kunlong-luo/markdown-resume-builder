@@ -12,6 +12,7 @@ import { useConfirm } from '../context/ConfirmContext';
 import { DEFAULT_MARKDOWN } from '../data';
 
 import { autoFormatAndCleanResume } from '../lib/resume-auto-fixer';
+import { getWordCount } from '../lib/word-count';
 import { Tooltip } from './ui';
 
 function highlightInline(text: string): string {
@@ -252,7 +253,7 @@ export const Editor = React.memo(function Editor() {
 
   // Stats calculation and markdown highlighting memoization
   const charCount = useMemo(() => value.length, [value]);
-  const wordCount = useMemo(() => value.trim() === '' ? 0 : value.trim().split(/\s+/).length, [value]);
+  const wordCount = useMemo(() => getWordCount(value), [value]);
   const lineCount = useMemo(() => value.split('\n').length, [value]);
   // Estimate page logic (uses actual measured page count if available from preview, otherwise estimates based on length)
   const estPages = useMemo(() => measuredPageCount || Math.max(1, Math.ceil(charCount / 2400)), [measuredPageCount, charCount]);
@@ -795,10 +796,10 @@ export const Editor = React.memo(function Editor() {
             </span>
           </Tooltip>
         </div>
-        <div className="flex items-center gap-2 sm:gap-3 text-indigo-600 dark:text-indigo-400 shrink-0">
-          <div className="flex items-center gap-1.5">
-            <span>{settings.lang === 'en' ? 'Est. Pages: ' : '预估页数: '}<strong className="font-bold">{estPages} {settings.lang === 'en' ? 'Page(s)' : '页'}</strong></span>
-          </div>
+        <div className="flex items-center gap-3 text-slate-400 dark:text-slate-500 text-[10px] shrink-0">
+          <span>{settings.lang === 'en' ? `Chars: ${charCount}` : `字符: ${charCount}`}</span>
+          <span>•</span>
+          <span>{settings.lang === 'en' ? `Lines: ${lineCount}` : `行数: ${lineCount}`}</span>
         </div>
       </div>
     </div>
