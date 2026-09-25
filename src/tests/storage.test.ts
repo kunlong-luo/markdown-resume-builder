@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { storage, STORAGE_KEYS } from '../lib/storage';
+import { isQuotaExceededError, storage, STORAGE_KEYS } from '../lib/storage';
 
 describe('storage', () => {
   let mockStore: Record<string, string> = {};
@@ -57,5 +57,33 @@ describe('storage', () => {
 
     storage.clearAllResumeData();
     expect(storage.getString(STORAGE_KEYS.MARKDOWN)).toBe('');
+  });
+
+  it('should return false when a localStorage write is rejected', () => {
+    const failingStorage = {
+      getItem: () => null,
+      setItem: () => {
+        throw new DOMException('Storage quota exceeded', 'QuotaExceededError');
+      },
+      removeItem: () => {},
+      clear: () => {},
+      length: 0,
+      key: (_index: number) => null,
+    };
+
+    (globalThis as unknown as { localStorage: Storage }).localStorage =
+      failingStorage as unknown as Storage;
+
+    expect(storage.set(STORAGE_KEYS.MARKDOWN, '# Too large')).toBe(false);
+  });
+
+  it('should detect browser quota errors', () => {
+    expect(
+      isQuotaExceededError(
+        new DOMException('Storage quota exceeded', 'QuotaExceededError'),
+      ),
+    ).toBe(true);
+
+    expect(isQuotaExceededError(new Error('ordinary failure'))).toBe(false);
   });
 });
