@@ -1,27 +1,36 @@
 # 🚀 Resume Craft · 简匠简历
 
-[English](./README.en.md) | 简体中文
+<h3 align="center">Local-first Markdown Resume Builder</h3>
 
-[![Latest Release](https://img.shields.io/github/v/release/kunlong-luo/resume-craft?style=flat-square&logo=github)](https://github.com/kunlong-luo/resume-craft/releases/latest)
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-%E5%9C%A8%E7%BA%BF%E4%BD%93%E9%AA%8C-4F46E5?style=flat-square&logo=github)](https://kunlong-luo.github.io/resume-craft/)
-[![CI](https://github.com/kunlong-luo/resume-craft/actions/workflows/ci.yml/badge.svg)](https://github.com/kunlong-luo/resume-craft/actions/workflows/ci.yml)
-[![React](https://img.shields.io/badge/built%20with-React%2019-blueviolet?style=flat-square&logo=react)](https://react.dev/)
-[![Vite](https://img.shields.io/badge/bundler-Vite%208-646CFF?style=flat-square&logo=vite)](https://vite.dev/)
-[![TailwindCSS](https://img.shields.io/badge/styling-Tailwind%20v4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
-[![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
+<p align="center">
+  本地优先的 Markdown 简历编辑器：实时 A4 预览、ATS 检查、中英双语、PDF 导出。
+</p>
+
+<p align="center">
+  <a href="https://kunlong-luo.github.io/resume-craft/"><strong>在线体验</strong></a>
+  ·
+  <a href="./README.en.md">English</a>
+  ·
+  <a href="https://github.com/kunlong-luo/resume-craft/releases/latest">Latest Release</a>
+</p>
+
+<p align="center">
+  <a href="https://kunlong-luo.github.io/resume-craft/"><img src="https://img.shields.io/badge/Live%20Demo-%E5%9C%A8%E7%BA%BF%E4%BD%93%E9%AA%8C-4F46E5?style=flat-square&logo=github" alt="Live Demo" /></a>
+  <a href="https://github.com/kunlong-luo/resume-craft/actions/workflows/ci.yml"><img src="https://github.com/kunlong-luo/resume-craft/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://github.com/kunlong-luo/resume-craft/releases/latest"><img src="https://img.shields.io/github/v/release/kunlong-luo/resume-craft?style=flat-square&logo=github" alt="Latest Release" /></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="MIT License" /></a>
+</p>
 
 <p align="center">
   <img src=".github/assets/readme-banner.svg" alt="Resume Craft — Markdown Resume Builder" width="100%" />
 </p>
 
 
-> **Resume Craft (简匠简历)** 是一款专为求职者打造的高颜值、双向同步、完美 A4 控页的在线 Markdown 简历编辑器。
-> 
-> 🌐 **在线体验地址**：[https://kunlong-luo.github.io/resume-craft/](https://kunlong-luo.github.io/resume-craft/)
-> 
-> 💡 **核心口号**：*“用 Markdown 匠造完美的一页纸简历 | Craft your perfect one-page resume with Markdown.”*
-> 
-> 它融合了 Markdown 的高效书写与可视化表单的易用性，支持中英双语，并提供 ATS 诊断、一键压缩贴合（1-Click Auto Fit）、中英排版优化、主题定制、多档案管理与带可选访问口令的链接分享。
+> **Resume Craft** 面向希望摆脱 Word 排版负担的求职者和开发者。它把 Markdown 的高效编辑、结构化表单和 A4 实时预览放在同一个本地优先工作流里，无需注册即可开始制作简历。
+>
+> **Markdown ↔ Form · Live A4 Preview · ATS Checks · Auto Fit · PDF Export · Local-first · PWA**
+>
+> 简历草稿与设置主要保存在浏览器本地；ATS 检查、排版工具和 PDF 导出都在前端完成。需要分享时，也可以生成带可选访问口令的链接。
 
 ---
 
