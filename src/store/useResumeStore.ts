@@ -151,7 +151,7 @@ const sanitizeSettings = (raw: Partial<ResumeSettings> | null, defaultSettings: 
   }
 
   // Sanitize fontSize
-  if (!['compact', 'standard', 'spacious'].includes(merged.fontSize)) {
+  if (!['compact', 'standard', 'relaxed'].includes(merged.fontSize)) {
     merged.fontSize = 'standard';
   }
 
@@ -424,11 +424,11 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
   },
 
   duplicateProfile: (profileId: string) => {
-    const { profiles, settings } = get();
+    const { profiles } = get();
     const source = profiles.find(p => p.id === profileId);
     if (!source) return profiles[0];
 
-    const isEn = settings.lang === 'en';
+    const isEn = source.settings.lang === 'en';
     const now = new Date().toISOString();
     const id = `profile_${Date.now()}`;
     const newProfile: ResumeProfile = {
