@@ -47,7 +47,8 @@ export function useResumeActions({ contentRef }: UseResumeActionsProps) {
     }
   });
 
-  // Mode A: Direct PDF download (one-click silent download via html2canvas + jsPDF)
+  // Quick PDF: one-click raster download via html2canvas + jsPDF.
+  // This is kept as a visual-fidelity fallback, not the recommended ATS submission path.
   const handleExportDirectPDF = async () => {
     if (isExportingPDF) return;
     setIsExportingPDF(true);
@@ -69,17 +70,22 @@ export function useResumeActions({ contentRef }: UseResumeActionsProps) {
         }
       });
       trackAnalyticsEvent('pdf_export_success');
-    } catch (err) {
-      console.error('Direct PDF export error:', err);
-      // If direct capture fails, fall back to print
-      handleExportVectorPrint();
-    } finally {
       setIsExportingPDF(false);
       setPdfExportProgress(null);
+    } catch (err) {
+      console.error('Quick PDF export error:', err);
+      setIsExportingPDF(false);
+      setPdfExportProgress(null);
+
+      // Fall back to the browser print engine so the user still has
+      // a text-preserving export path when raster capture fails.
+      handleExportVectorPrint();
     }
   };
 
-  // Mode B: Native browser vector print
+  // ATS PDF: native browser print / Save as PDF.
+  // This is the recommended submission path because browser-generated PDFs
+  // normally preserve text/searchability instead of flattening each page to JPEG.
   const handleExportVectorPrint = () => {
     if (isExportingPDF) return;
     const isInIframe = window.self !== window.top;
@@ -104,9 +110,9 @@ export function useResumeActions({ contentRef }: UseResumeActionsProps) {
     }
   };
 
-  // Main action: default to Direct PDF Download
+  // Main action: default to ATS-friendly browser print / Save as PDF.
   const handleExportPDF = () => {
-    handleExportDirectPDF();
+    handleExportVectorPrint();
   };
 
   const handleExportMarkdown = () => {

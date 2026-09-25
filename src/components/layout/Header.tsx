@@ -19,7 +19,8 @@ import {
   X,
   Globe,
   Settings,
-  CheckCircle2
+  CheckCircle2,
+  Printer
 } from 'lucide-react';
 import { useResumeStore } from '../../store/useResumeStore';
 import { getWordCount } from '../../lib/word-count';
@@ -44,6 +45,7 @@ export function Header({
   handleExportMarkdown,
   handleExportPDF,
   handleExportDirectPDF,
+  handleExportVectorPrint,
 }: HeaderProps) {
   const {
     markdown,
@@ -71,10 +73,16 @@ export function Header({
   const { isInstallable, triggerInstall } = usePWAInstall();
 
   const handleTriggerExport = () => {
-    if (handleExportDirectPDF) {
-      handleExportDirectPDF();
+    if (handleExportVectorPrint) {
+      handleExportVectorPrint();
     } else {
       handleExportPDF();
+    }
+  };
+
+  const handleQuickPdfExport = () => {
+    if (handleExportDirectPDF) {
+      handleExportDirectPDF();
     }
   };
 
@@ -162,8 +170,8 @@ export function Header({
             disabled={isExportingPDF}
             className="flex items-center gap-1 px-3 py-1 rounded-lg bg-indigo-600 text-white text-xs font-bold active:scale-95 transition-all shadow-xs"
           >
-            {isExportingPDF ? <Loader2 className="w-3 h-3 animate-spin" /> : <FileDown className="w-3 h-3" />}
-            <span>PDF</span>
+            {isExportingPDF ? <Loader2 className="w-3 h-3 animate-spin" /> : <Printer className="w-3 h-3" />}
+            <span>ATS PDF</span>
           </button>
 
           <button
@@ -321,25 +329,50 @@ export function Header({
             </Tooltip>
           </div>
 
-          {/* Direct PDF Export Action Button */}
-          <Tooltip content={isEn ? 'Download PDF' : '下载 PDF 简历'} side="bottom">
-            <button
-              onClick={() => handleTriggerExport()}
-              disabled={isExportingPDF}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 active:scale-95 text-white text-xs font-bold transition-all shadow-md shadow-indigo-500/20 disabled:opacity-75 disabled:cursor-not-allowed cursor-pointer whitespace-nowrap"
+          {/* ATS-first PDF export with a raster fallback option */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {handleExportDirectPDF && (
+              <Tooltip
+                content={isEn
+                  ? 'Quick PDF: image-based download for visual sharing; browser print is recommended for ATS submissions'
+                  : '快速 PDF：图片型下载，适合视觉分享；正式投递建议使用 ATS PDF'}
+                side="bottom"
+              >
+                <button
+                  onClick={handleQuickPdfExport}
+                  disabled={isExportingPDF}
+                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg tactile-btn tactile-btn-hover tactile-btn-active text-slate-600 dark:text-slate-300 text-xs font-semibold disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer whitespace-nowrap"
+                >
+                  <FileDown className="w-3.5 h-3.5 shrink-0" />
+                  <span>{isEn ? 'Quick PDF' : '快速 PDF'}</span>
+                </button>
+              </Tooltip>
+            )}
+
+            <Tooltip
+              content={isEn
+                ? 'ATS PDF (recommended): use browser print / Save as PDF to preserve searchable text'
+                : 'ATS PDF（推荐）：使用浏览器打印 / 另存为 PDF，尽量保留可搜索文本'}
+              side="bottom"
             >
-              {isExportingPDF ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0 text-white" />
-              ) : (
-                <FileDown className="w-3.5 h-3.5 text-white shrink-0" />
-              )}
-              <span>
-                {isExportingPDF 
-                  ? (pdfExportProgress || (isEn ? 'Exporting...' : '生成中...')) 
-                  : (isEn ? 'Download' : '下载')}
-              </span>
-            </button>
-          </Tooltip>
+              <button
+                onClick={handleTriggerExport}
+                disabled={isExportingPDF}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 active:scale-95 text-white text-xs font-bold transition-all shadow-md shadow-indigo-500/20 disabled:opacity-75 disabled:cursor-not-allowed cursor-pointer whitespace-nowrap"
+              >
+                {isExportingPDF ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0 text-white" />
+                ) : (
+                  <Printer className="w-3.5 h-3.5 text-white shrink-0" />
+                )}
+                <span>
+                  {isExportingPDF
+                    ? (pdfExportProgress || (isEn ? 'Exporting...' : '生成中...'))
+                    : 'ATS PDF'}
+                </span>
+              </button>
+            </Tooltip>
+          </div>
         </div>
       </div>
 
@@ -405,6 +438,17 @@ export function Header({
                 <HelpCircle className="w-4 h-4 text-indigo-500" />
                 <span>{isEn ? 'Help' : '使用帮助与隐私'}</span>
               </button>
+
+              {handleExportDirectPDF && (
+                <button
+                  onClick={() => { handleQuickPdfExport(); setIsMobileMenuOpen(false); }}
+                  disabled={isExportingPDF}
+                  className="col-span-2 flex items-center justify-center gap-2 p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all active:scale-95 disabled:opacity-60"
+                >
+                  <FileDown className="w-4 h-4 text-slate-500" />
+                  <span>{isEn ? 'Quick PDF (image-based)' : '快速 PDF（图片型）'}</span>
+                </button>
+              )}
 
               {isInstallable && (
                 <button

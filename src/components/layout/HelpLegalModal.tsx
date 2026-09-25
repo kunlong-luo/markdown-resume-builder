@@ -216,8 +216,8 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
                   </div>
                   <p className="text-slate-500 dark:text-slate-400">
                     {isEn
-                      ? 'Use Download for direct PDF export, or press Ctrl/Cmd + P for the browser print / Save as PDF workflow.'
-                      : '点击顶部「下载」可直接生成 PDF；也可以使用 Ctrl/Cmd + P 打开浏览器打印 / 另存为 PDF 流程。'}
+                      ? 'Use ATS PDF (recommended) to open the browser print / Save as PDF workflow and preserve searchable text where supported. Quick PDF is image-based and intended for visual sharing or fallback use.'
+                      : '优先使用顶部「ATS PDF」进入浏览器打印 / 另存为 PDF 流程，在浏览器支持时可保留可搜索文本；「快速 PDF」为图片型文件，更适合视觉分享或备用导出。'}
                   </p>
                 </div>
               </div>

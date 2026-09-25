@@ -56,7 +56,7 @@ When creating resumes, candidates frequently suffer from **Word layout nightmare
 |                                         |                                         |
 |                   +---------------------+---------------------+                   |
 |                   |                                           |                   |
-|         [ Direct PDF / Browser Print ]               [ H5 Share Link ]   |
+|         [ ATS PDF / Quick PDF ]                      [ H5 Share Link ]   |
 +-----------------------------------------------------------------------------------+
 ```
 
@@ -157,7 +157,7 @@ When creating resumes, candidates frequently suffer from **Word layout nightmare
 | **State** | [Zustand 5](https://github.com/pmndrs/zustand) | Lightweight reactive state with LocalStorage sync |
 | **Animations** | [Motion 13](https://github.com/framer/motion) | Smooth drag-and-drop & modal transitions |
 | **Markdown** | `react-markdown` + `remark-gfm` | GFM-compliant markdown parsing |
-| **PDF Engine** | Browser print + `html2canvas-pro` + `jspdf` | Direct PDF download plus native Save as PDF workflow |
+| **PDF Engine** | Browser print + `html2canvas-pro` + `jspdf` | ATS-friendly Save as PDF plus image-based Quick PDF fallback |
 
 ---
 
@@ -197,12 +197,12 @@ Open your browser at [http://localhost:3000](http://localhost:3000) to start edi
 
 Resume Craft provides two export paths:
 
-1. **Direct PDF download (default)**: click **Download** to generate a PDF in the browser with `html2canvas-pro + jsPDF`.
-2. **Browser print / Save as PDF**: press **Ctrl/Cmd + P** to use the native browser print workflow.
+1. **ATS PDF (default, recommended)**: click **ATS PDF** or press **Ctrl/Cmd + P**, then choose **Save as PDF** in the browser print flow. Where supported by the browser, this preserves searchable/selectable text and is the preferred path for job applications and ATS parsing.
+2. **Quick PDF (fallback)**: uses `html2canvas-pro + jsPDF` to rasterize the A4 canvas into an image-based PDF. It is useful for fast downloads, visual sharing, or environments where browser printing is blocked, but it is not the preferred ATS submission format.
 
 While editing, use the **A4 Page Line** and **1-Click Auto Fit** tools to check page boundaries. For the browser print path (Chrome / Edge / Safari), recommended settings are:
 
-* **Destination**: `Save as PDF`
+* **Destination**: `Save as PDF` (recommended for ATS submissions)
 * **Paper Size**: `A4`
 * **Margins**: try **`None`** first and confirm against the preview
 * **Options**: enable **`Background graphics`** when needed
