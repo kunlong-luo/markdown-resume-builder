@@ -127,22 +127,24 @@ export const ResumeHeader = React.memo(function ResumeHeader({ headerInfo, theme
               const contactLower = contact.toLowerCase();
               const isEmail = contact.includes('@');
 
-              // Check if contact has markdown link syntax [text](url)
               const mdLinkMatch = contact.match(/\[([^\]]*)\]\(([^)]+)\)/);
               let rawUrl = '';
               if (mdLinkMatch) {
                 rawUrl = mdLinkMatch[2].trim();
               } else {
-                const withoutPrefix = contact.replace(/^(?:GitHub|Gitee|LinkedIn|领英|Blog|博客|主页|Website|个人主页|代码仓库)[:：\s]*/i, '').trim();
-                rawUrl = withoutPrefix.replace(/^<|>$/g, '').trim();
+                rawUrl = contact
+                  .replace(/^(?:GitHub|Gitee|LinkedIn|领英|Blog|博客|主页|Website|个人主页|代码仓库)[:：\s]*/i, '')
+                  .replace(/^<|>$/g, '')
+                  .trim();
               }
 
               const parsedUrl = parseWebUrl(rawUrl);
               const hasGithubCom = hostnameMatches(parsedUrl, 'github.com');
               const hasGiteeCom = hostnameMatches(parsedUrl, 'gitee.com');
               const hasLinkedinCom = hostnameMatches(parsedUrl, 'linkedin.com');
-              const isGithub = contactLower.includes('github') || hasGithubCom;
-              const isLinkedin = contactLower.includes('linkedin') || contactLower.includes('领英') || hasLinkedinCom;
+
+              const isGithubLabel = contactLower.includes('github');
+              const isLinkedinLabel = contactLower.includes('linkedin') || contactLower.includes('领英');
               const isWechat = contactLower.includes('wechat') || contactLower.includes('微信') || contactLower.includes('wx');
               const digitsOnly = contact.replace(/[^\d]/g, '');
               const isPhone = !isEmail && (
@@ -153,16 +155,15 @@ export const ResumeHeader = React.memo(function ResumeHeader({ headerInfo, theme
                 (digitsOnly.length >= 7 && digitsOnly.length <= 15)
               );
               const isUrl = !isEmail && !isPhone && Boolean(parsedUrl);
-              
-              const isAddress = !isEmail && !isPhone && !isGithub && !isLinkedin && !isWechat && (
+              const isAddress = !isEmail && !isPhone && !isWechat && !isGithubLabel && !isLinkedinLabel && (
                 /^(?:地址|住址|常住地|现居地|现住址|籍贯|address|location)[:：\s]*/i.test(contact)
               );
-              
+
               if (isEmail) {
                 icon = <Mail className={`w-3.5 h-3.5 ${theme.iconColor}`} />;
-              } else if (isGithub) {
+              } else if (isGithubLabel || hasGithubCom) {
                 icon = <GitHubIcon className={`w-3.5 h-3.5 ${theme.iconColor}`} />;
-              } else if (isLinkedin) {
+              } else if (isLinkedinLabel || hasLinkedinCom) {
                 icon = <User className={`w-3.5 h-3.5 ${theme.iconColor}`} />;
               } else if (isWechat) {
                 icon = <MessageSquare className={`w-3.5 h-3.5 ${theme.iconColor}`} />;
@@ -170,9 +171,40 @@ export const ResumeHeader = React.memo(function ResumeHeader({ headerInfo, theme
                 icon = <Phone className={`w-3.5 h-3.5 ${theme.iconColor}`} />;
               } else if (isAddress) {
                 icon = <MapPin className={`w-3.5 h-3.5 ${theme.iconColor}`} />;
+              } else {
+                icon = <Globe className={`w-3.5 h-3.5 ${theme.iconColor}`} />;
+              }
+
+              let href = '';
+              let displayText = contact;
+
+              if (isEmail) {
+                const cleanEmail = contact.replace(/^(?:邮箱|email|mail)[:：\s]*/i, '').trim();
+                href = `mailto:${cleanEmail}`;
+                displayText = cleanEmail || contact;
+              } else if (isAddress) {
+                displayText = contact.replace(/^(?:地址|住址|常住地|现居地|现住址|籍贯|address|location)[:：\s]*/i, '').trim() || contact;
+              } else if (isPhone) {
+                const cleanPhone = contact.replace(/^(?:电话|手机|手机号|手机号码|联系方式|联系电话|tel|phone|mobile)[:：\s]*/i, '').trim();
+                href = `tel:${cleanPhone.replace(/[^\d+]/g, '')}`;
+                displayText = cleanPhone || contact;
+              } else if (isWechat) {
+                const cleanWechat = contact.replace(/^(?:微信|wechat|wx)[:：\s]*/i, '').trim();
+                displayText = cleanWechat || contact;
+              } else if (hasLinkedinCom && parsedUrl) {
+                href = parsedUrl.href;
+                const handle = parsedUrl.pathname
+                  .replace(/^\/(?:in\/)?/i, '')
+                  .replace(/\/$/, '')
+                  .trim();
+                displayText = mdLinkMatch?.[1]?.trim() || (handle ? `in/${handle}` : 'LinkedIn');
+              } else if (hasGithubCom && parsedUrl) {
+                href = parsedUrl.href;
+                const cleanHandle = parsedUrl.pathname.replace(/^\//, '').replace(/\/$/, '').trim();
+                displayText = mdLinkMatch?.[1]?.trim() || cleanHandle || 'GitHub';
               } else if (isUrl && parsedUrl) {
                 href = parsedUrl.href;
-                if (mdLinkMatch && mdLinkMatch[1]) {
+                if (mdLinkMatch?.[1]) {
                   displayText = mdLinkMatch[1].trim();
                 } else if (hasGiteeCom) {
                   const giteeHandle = parsedUrl.pathname.replace(/^\//, '').replace(/\/$/, '').trim();
@@ -180,7 +212,6 @@ export const ResumeHeader = React.memo(function ResumeHeader({ headerInfo, theme
                 } else {
                   displayText = `${parsedUrl.hostname}${parsedUrl.pathname}`.replace(/\/$/, '');
                 }
-
               }
 
               return (
