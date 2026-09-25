@@ -144,9 +144,6 @@ export function Header({
             <span className="font-black text-xs text-slate-900 dark:text-white tracking-tight">
               {isEn ? 'Resume Craft' : '简匠'}
             </span>
-            <span className="text-[9px] font-bold text-indigo-600 dark:text-indigo-400 font-mono">
-              PRO
-            </span>
           </div>
           <ProfileDropdown lang={settings.lang} />
         </div>
@@ -181,9 +178,6 @@ export function Header({
             <div className="flex items-baseline gap-1.5">
               <span className="text-[15px] font-black text-slate-900 dark:text-white tracking-tight">
                 {isEn ? 'Resume Craft' : '简匠'}
-              </span>
-              <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 font-mono uppercase tracking-wider select-none">
-                PRO
               </span>
             </div>
           </div>
@@ -346,7 +340,7 @@ export function Header({
         <div className="md:hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex flex-col justify-end animate-in fade-in duration-200">
           <div className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 rounded-t-2xl p-4 flex flex-col gap-3 shadow-2xl max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
-              <span className="font-extrabold text-sm text-slate-900 dark:text-white">快捷功能菜单</span>
+              <span className="font-extrabold text-sm text-slate-900 dark:text-white">{isEn ? 'Quick Actions' : '快捷功能菜单'}</span>
               <button 
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
@@ -410,7 +404,7 @@ export function Header({
                   className="col-span-2 flex items-center justify-center gap-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-bold transition-all active:scale-95"
                 >
                   <DownloadCloud className="w-4 h-4 text-emerald-500 animate-bounce" />
-                  <span>{isEn ? 'Install App' : '安装 ResuCraft 独立应用'}</span>
+                  <span>{isEn ? 'Install App' : '安装 Resume Craft 应用'}</span>
                 </button>
               )}
             </div>

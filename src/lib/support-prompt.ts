@@ -9,6 +9,7 @@ export type SupportPromptDecision = 'supported' | 'skip';
 
 interface SupportPromptState {
   nextPromptAt: number;
+  exportCount: number;
 }
 
 interface ShouldShowSupportPromptOptions {
@@ -16,6 +17,7 @@ interface ShouldShowSupportPromptOptions {
   pathname: string;
   now?: number;
   nextPromptAt?: number | null;
+  exportCount?: number;
 }
 
 export function isOfficialHostedApp(hostname: string, pathname: string) {
@@ -33,8 +35,15 @@ export function shouldShowSupportPrompt({
   pathname,
   now = Date.now(),
   nextPromptAt = null,
+  exportCount = 0,
 }: ShouldShowSupportPromptOptions) {
   if (!isOfficialHostedApp(hostname, pathname)) {
+    return false;
+  }
+
+  // Never interrupt a user's first export. The support prompt becomes eligible
+  // only after they have already tried exporting once.
+  if (exportCount < 1) {
     return false;
   }
 
@@ -49,11 +58,28 @@ function readSupportPromptState(): SupportPromptState | null {
     if (!raw) return null;
 
     const parsed = JSON.parse(raw) as Partial<SupportPromptState>;
-    return typeof parsed.nextPromptAt === 'number'
-      ? { nextPromptAt: parsed.nextPromptAt }
-      : null;
+    if (typeof parsed.nextPromptAt !== 'number') {
+      return null;
+    }
+
+    return {
+      nextPromptAt: parsed.nextPromptAt,
+      // Older saved states predate exportCount. Those users have already seen
+      // the prompt, so treat them as having completed the first export.
+      exportCount: typeof parsed.exportCount === 'number' ? parsed.exportCount : 1,
+    };
   } catch {
     return null;
+  }
+}
+
+function writeSupportPromptState(state: SupportPromptState) {
+  if (typeof window === 'undefined') return;
+
+  try {
+    window.localStorage.setItem(SUPPORT_PROMPT_STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    // Export should never fail because localStorage is unavailable.
   }
 }
 
@@ -61,23 +87,29 @@ export function shouldPromptForSupport() {
   if (typeof window === 'undefined') return false;
 
   const state = readSupportPromptState();
+
+  if (!state) {
+    writeSupportPromptState({
+      nextPromptAt: 0,
+      exportCount: 1,
+    });
+    return false;
+  }
+
   return shouldShowSupportPrompt({
     hostname: window.location.hostname,
     pathname: window.location.pathname,
-    nextPromptAt: state?.nextPromptAt ?? null,
+    nextPromptAt: state.nextPromptAt,
+    exportCount: state.exportCount,
   });
 }
 
 export function markSupportPrompt(decision: SupportPromptDecision) {
   if (typeof window === 'undefined') return;
 
-  try {
-    const nextPromptAt = Date.now() + getSupportPromptCooldown(decision);
-    window.localStorage.setItem(
-      SUPPORT_PROMPT_STORAGE_KEY,
-      JSON.stringify({ nextPromptAt }),
-    );
-  } catch {
-    // Export should never fail because localStorage is unavailable.
-  }
+  const current = readSupportPromptState();
+  writeSupportPromptState({
+    nextPromptAt: Date.now() + getSupportPromptCooldown(decision),
+    exportCount: Math.max(1, current?.exportCount ?? 1),
+  });
 }
