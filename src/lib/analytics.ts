@@ -2,6 +2,11 @@ export const ANALYTICS_EVENTS = [
   'editing_started',
   'pdf_export_success',
   'browser_print_started',
+  'ats_check_completed',
+  'auto_fit_used',
+  'share_created',
+  'pwa_install',
+  'feedback_opened',
 ] as const;
 
 export type AnalyticsEvent = (typeof ANALYTICS_EVENTS)[number];
@@ -15,6 +20,13 @@ declare global {
 
 const OFFICIAL_HOSTNAME = 'kunlong-luo.github.io';
 const APP_PATH_PREFIX = '/resume-craft';
+const SIMPLE_ANALYTICS_SCRIPT_ID = 'simple-analytics';
+const SIMPLE_ANALYTICS_SCRIPT_URL = 'https://scripts.simpleanalyticscdn.com/latest.js';
+const IGNORED_METRICS =
+  'country,session,timeonpage,scrolled,useragent,screensize,viewportsize,language';
+
+const trackedEventsThisPage = new Set<AnalyticsEvent>();
+let analyticsScriptPromise: Promise<void> | null = null;
 
 export function isOfficialAnalyticsContext(hostname: string, pathname: string) {
   return hostname === OFFICIAL_HOSTNAME && (
@@ -30,6 +42,10 @@ export function isDoNotTrackEnabled(
   return value === '1' || value === 'yes';
 }
 
+export function isAllowedAnalyticsEvent(event: string): event is AnalyticsEvent {
+  return (ANALYTICS_EVENTS as readonly string[]).includes(event);
+}
+
 export function getSafeAnalyticsPath(pathname: string, search: string) {
   try {
     const params = new URLSearchParams(search);
@@ -43,35 +59,81 @@ export function getSafeAnalyticsPath(pathname: string, search: string) {
   return pathname;
 }
 
-export function initAnalyticsPageview() {
-  if (typeof window === 'undefined' || typeof document === 'undefined') return;
-  if (!isOfficialAnalyticsContext(window.location.hostname, window.location.pathname)) return;
+function analyticsAllowedInCurrentBrowser() {
+  if (typeof window === 'undefined' || typeof document === 'undefined') return false;
+  if (!isOfficialAnalyticsContext(window.location.hostname, window.location.pathname)) return false;
 
   const nav = navigator as Navigator & { msDoNotTrack?: string };
   const win = window as Window & { doNotTrack?: string | null };
-  if (isDoNotTrackEnabled(nav, win.doNotTrack)) return;
+  return !isDoNotTrackEnabled(nav, win.doNotTrack);
+}
 
-  const send = () => {
-    if (typeof window.sa_pageview !== 'function') return;
-    window.sa_pageview(getSafeAnalyticsPath(window.location.pathname, window.location.search));
-  };
+function ensureAnalyticsScript(): Promise<void> {
+  if (analyticsScriptPromise) return analyticsScriptPromise;
 
-  if (typeof window.sa_pageview === 'function') {
-    send();
-    return;
-  }
+  analyticsScriptPromise = new Promise<void>((resolve, reject) => {
+    if (typeof document === 'undefined') {
+      resolve();
+      return;
+    }
 
-  document.getElementById('simple-analytics')?.addEventListener('load', send, { once: true });
+    const existing = document.getElementById(SIMPLE_ANALYTICS_SCRIPT_ID) as HTMLScriptElement | null;
+    if (existing) {
+      if (typeof window.sa_pageview === 'function' || typeof window.sa_event === 'function') {
+        resolve();
+        return;
+      }
+
+      existing.addEventListener('load', () => resolve(), { once: true });
+      existing.addEventListener('error', () => reject(new Error('Analytics script failed to load')), { once: true });
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.id = SIMPLE_ANALYTICS_SCRIPT_ID;
+    script.async = true;
+    script.src = SIMPLE_ANALYTICS_SCRIPT_URL;
+    script.dataset.autoCollect = 'false';
+    script.dataset.collectDnt = 'false';
+    script.dataset.ignoreMetrics = IGNORED_METRICS;
+    script.referrerPolicy = 'no-referrer';
+    script.addEventListener('load', () => resolve(), { once: true });
+    script.addEventListener('error', () => reject(new Error('Analytics script failed to load')), { once: true });
+
+    document.head.appendChild(script);
+  });
+
+  return analyticsScriptPromise;
+}
+
+export function initAnalyticsPageview() {
+  if (!analyticsAllowedInCurrentBrowser()) return;
+
+  void ensureAnalyticsScript()
+    .then(() => {
+      window.sa_pageview?.(
+        getSafeAnalyticsPath(window.location.pathname, window.location.search),
+      );
+    })
+    .catch(() => {
+      // Analytics must never affect the product experience.
+    });
 }
 
 export function trackAnalyticsEvent(event: AnalyticsEvent) {
-  if (typeof window === 'undefined') return;
-  if (!ANALYTICS_EVENTS.includes(event)) return;
-  if (!isOfficialAnalyticsContext(window.location.hostname, window.location.pathname)) return;
+  if (!isAllowedAnalyticsEvent(event)) return;
+  if (!analyticsAllowedInCurrentBrowser()) return;
 
-  const nav = navigator as Navigator & { msDoNotTrack?: string };
-  const win = window as Window & { doNotTrack?: string | null };
-  if (isDoNotTrackEnabled(nav, win.doNotTrack)) return;
+  // Product events are visit-level signals, not click counters.
+  // Keep deduplication in memory only so it never becomes a persistent identifier.
+  if (trackedEventsThisPage.has(event)) return;
+  trackedEventsThisPage.add(event);
 
-  window.sa_event?.(event);
+  void ensureAnalyticsScript()
+    .then(() => {
+      window.sa_event?.(event);
+    })
+    .catch(() => {
+      // Analytics must never affect the product experience.
+    });
 }
