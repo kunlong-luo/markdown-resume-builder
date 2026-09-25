@@ -7,11 +7,9 @@ import {
   Copy, 
   Trash2, 
   Edit2, 
-  Plus, 
   ExternalLink,
   LayoutTemplate,
-  FilePlus,
-  ArrowRight
+  FilePlus
 } from 'lucide-react';
 import { useResumeStore } from '../../store/useResumeStore';
 import { TEMPLATES } from '../../data';
