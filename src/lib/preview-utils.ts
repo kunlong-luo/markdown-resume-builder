@@ -168,8 +168,6 @@ export function parseResumeHeader(markdown: string) {
       }
 
       const lower = stripped.toLowerCase();
-      const digitsOnly = stripped.replace(/[^\d]/g, '');
-
       // 1. Check if job target / intention line
       const isTargetJob = /^(?:\*\*|\*|)(?:求职方向|求职意向|求职目标|目标岗位|应聘职位|应聘岗位|意向岗位)[:：\s]*/.test(stripped) ||
         (titles.length === 0 && !line.startsWith('- ') && !line.startsWith('* ') && (lower.includes('运营') || lower.includes('工程师') || lower.includes('开发') || lower.includes('架构师') || lower.includes('总监') || lower.includes('经理') || lower.includes('主管') || lower.includes('专员') || lower.includes('设计师') || lower.includes('产品') || lower.includes('developer') || lower.includes('engineer') || lower.includes('manager')));
