@@ -1,8 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
+  decryptSharePayload,
   deserializeShareState,
+  encryptShareState,
   getSharePayloadFromLocation,
+  parseSharePayload,
   serializeShareState,
+  SHARE_PASSWORD_MIN_LENGTH,
 } from '../lib/share-utils';
 import type { ResumeSettings } from '../types';
 
@@ -22,6 +26,19 @@ const settings: ResumeSettings = {
   lang: 'zh',
 };
 
+function decodeOuterEnvelope(encoded: string) {
+  let base64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
+  while (base64.length % 4) base64 += '=';
+
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+
 describe('privacy-preserving share links', () => {
   it('prefers fragment payloads and keeps legacy query links compatible', () => {
     expect(
@@ -33,17 +50,115 @@ describe('privacy-preserving share links', () => {
     ).toBe('legacy');
   });
 
-  it('round-trips share state without requiring a backend', () => {
+  it('round-trips legacy/public share state without requiring a backend', () => {
     const encoded = serializeShareState({
       markdown: '# Candidate\n\nPrivate resume content',
       settings,
-      passwordHash: 'client-side-code',
+      passwordHash: 'legacy-client-side-code',
     });
 
     const decoded = deserializeShareState(encoded);
 
     expect(decoded?.markdown).toBe('# Candidate\n\nPrivate resume content');
     expect(decoded?.settings.themeColor).toBe('indigo');
-    expect(decoded?.passwordHash).toBe('client-side-code');
+    expect(decoded?.passwordHash).toBe('legacy-client-side-code');
+
+    const parsed = parseSharePayload(encoded);
+    expect(parsed?.kind).toBe('plain');
+  });
+
+  it('encrypts protected shares without putting the password or plaintext in the envelope', async () => {
+    const password = 'correct horse battery staple';
+    const markdown = '# Candidate\n\nSecret resume content';
+
+    const encoded = await encryptShareState(
+      {
+        markdown,
+        settings,
+      },
+      password,
+    );
+
+    const envelope = decodeOuterEnvelope(encoded);
+    const serializedEnvelope = JSON.stringify(envelope);
+
+    expect(envelope.v).toBe(2);
+    expect(envelope.a).toBe('A256GCM');
+    expect(envelope.k).toBe('PBKDF2-SHA256');
+    expect(serializedEnvelope).not.toContain(password);
+    expect(serializedEnvelope).not.toContain('Secret resume content');
+
+    const parsed = parseSharePayload(encoded);
+    expect(parsed?.kind).toBe('encrypted');
+
+    if (!parsed || parsed.kind !== 'encrypted') {
+      throw new Error('Expected encrypted share payload');
+    }
+
+    const decrypted = await decryptSharePayload(parsed.payload, password);
+    expect(decrypted?.markdown).toBe(markdown);
+    expect(decrypted?.settings.themeColor).toBe('indigo');
+    expect(decrypted?.passwordHash).toBeUndefined();
+  });
+
+  it('rejects an incorrect password', async () => {
+    const encoded = await encryptShareState(
+      {
+        markdown: '# Candidate',
+        settings,
+      },
+      'a sufficiently strong password',
+    );
+
+    const parsed = parseSharePayload(encoded);
+    if (!parsed || parsed.kind !== 'encrypted') {
+      throw new Error('Expected encrypted share payload');
+    }
+
+    await expect(
+      decryptSharePayload(parsed.payload, 'wrong password value'),
+    ).resolves.toBeNull();
+  });
+
+  it('rejects tampered AES-GCM ciphertext', async () => {
+    const encoded = await encryptShareState(
+      {
+        markdown: '# Candidate',
+        settings,
+      },
+      'another strong password',
+    );
+
+    const parsed = parseSharePayload(encoded);
+    if (!parsed || parsed.kind !== 'encrypted') {
+      throw new Error('Expected encrypted share payload');
+    }
+
+    const original = parsed.payload.ciphertext;
+    const lastChar = original.slice(-1);
+    const tamperedCiphertext =
+      original.slice(0, -1) + (lastChar === 'A' ? 'B' : 'A');
+
+    await expect(
+      decryptSharePayload(
+        {
+          ...parsed.payload,
+          ciphertext: tamperedCiphertext,
+        },
+        'another strong password',
+      ),
+    ).resolves.toBeNull();
+  });
+
+  it('rejects weak encryption passwords instead of silently falling back to plaintext', async () => {
+    await expect(
+      encryptShareState(
+        {
+          markdown: '# Candidate',
+          settings,
+        },
+        'x'.repeat(SHARE_PASSWORD_MIN_LENGTH - 1),
+      ),
+    ).rejects.toThrow();
   });
 });
