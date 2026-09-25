@@ -43,12 +43,12 @@ export function SharedResumePage({ shareState }: SharedResumePageProps) {
             </div>
             <div>
               <h1 className="font-bold text-slate-800 text-lg">
-                {settings.lang === 'en' ? 'Encrypted Resume Portfolio' : '受密码保护的专属简历外链'}
+                {settings.lang === 'en' ? 'Password-Protected Resume' : '受访问密码保护的简历分享'}
               </h1>
               <p className="text-xs text-slate-400 font-medium max-w-[280px] mx-auto mt-1">
                 {settings.lang === 'en' 
-                  ? 'The owner of this resume has enabled secure password protection'
-                  : '该简历的求职者已开启高安全性防泄漏锁，请输入访问密码'}
+                  ? 'The owner of this resume has enabled an access code'
+                  : '该分享已设置访问口令，请输入后查看简历'}
               </p>
             </div>
           </div>
@@ -84,7 +84,7 @@ export function SharedResumePage({ shareState }: SharedResumePageProps) {
 
           <div className="border-t border-slate-100 pt-4 flex items-center justify-center gap-1.5 text-[10px] text-slate-400 font-medium">
             <ShieldCheck className="w-4 h-4 text-emerald-500" />
-            <span>{settings.lang === 'en' ? 'SSL Secure Hashing Encrypted' : '256位端到端安全传输加密'}</span>
+            <span>{settings.lang === 'en' ? 'Client-side access code protection' : '客户端访问口令保护'}</span>
           </div>
         </div>
       </div>
