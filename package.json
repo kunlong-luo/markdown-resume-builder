@@ -14,7 +14,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "clean": "rm -rf dist server.js",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "check:stable-deps": "node scripts/check-stable-dependencies.mjs"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
