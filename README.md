@@ -56,7 +56,7 @@
 |                                         |                                         |
 |                   +---------------------+---------------------+                   |
 |                   |                                           |                   |
-|         [ PDF 下载 / 浏览器打印 ]                    [ H5 分享链接 / QR 码 ]       |
+|         [ ATS PDF / 快速 PDF ]                      [ H5 分享链接 ]              |
 +-----------------------------------------------------------------------------------+
 ```
 
@@ -157,7 +157,7 @@
 | **状态管理** | [Zustand 5](https://github.com/pmndrs/zustand) | 轻量响应式状态，支持 LocalStorage 持久化 |
 | **动效系统** | [Motion 13](https://github.com/framer/motion) | 流畅弹窗、拖拽重排与平滑展开动画 |
 | **Markdown** | `react-markdown` + `remark-gfm` | 标准 GFM 语法高能解析 |
-| **PDF 导出** | 浏览器原生打印 + `html2canvas-pro` + `jspdf` | 直接 PDF 下载 + 系统打印 / Save as PDF 双路径 |
+| **PDF 导出** | 浏览器原生打印 + `html2canvas-pro` + `jspdf` | ATS 友好打印 / Save as PDF + 图片型快速 PDF 双路径 |
 | **图标库** | [Lucide React](https://lucide.dev/) | 矢量现代线条图标 |
 
 ---
@@ -198,12 +198,12 @@ pnpm dev
 
 Resume Craft 提供两条导出路径：
 
-1. **直接下载 PDF（默认）**：点击顶部 **“下载”**，使用 `html2canvas-pro + jsPDF` 在浏览器中生成 PDF 文件。
-2. **浏览器打印 / Save as PDF**：使用 **Ctrl/Cmd + P** 调起原生打印流程，更适合希望使用浏览器打印引擎的场景。
+1. **ATS PDF（默认、推荐）**：点击顶部 **“ATS PDF”**，或使用 **Ctrl/Cmd + P** 调起浏览器原生打印流程，然后选择 **Save as PDF / 另存为 PDF**。浏览器生成的 PDF 在支持的情况下会保留可搜索、可选择的文本，更适合正式投递与 ATS 解析。
+2. **快速 PDF（备用）**：使用 `html2canvas-pro + jsPDF` 将 A4 画布渲染成图片型 PDF，适合快速下载、视觉分享或浏览器打印受限时使用。该路径会把页面内容光栅化，不建议作为 ATS 投递的首选。
 
 撰写时可以配合 **A4 辅助线** 与 **一键压缩贴合** 检查分页。如果使用系统打印窗口（Chrome / Edge / Safari），建议：
 
-* **目标打印机**：选择 `另存为 PDF` (Save as PDF)
+* **目标打印机**：选择 `另存为 PDF` (Save as PDF)，正式投递优先使用这条 ATS PDF 路径
 * **纸张大小**：选择 `A4`
 * **边距**：根据预览结果优先尝试 **`无` (None)**
 * **选项**：需要保留主题背景时勾选 **`背景图形` (Background graphics)**
