@@ -6,7 +6,7 @@ import { Toolbar } from './components/layout/Toolbar';
 import { useResumeStore } from './store/useResumeStore';
 import { useResumeActions } from './hooks/useResumeActions';
 import { ResumeSettings } from './types';
-import { deserializeShareState, getSharePayloadFromLocation } from './lib/share-utils';
+import { getSharePayloadFromLocation, parseSharePayload } from './lib/share-utils';
 import { useToast } from './components/ui/Toast';
 import { smartAutoFit } from './lib/preview-utils';
 import { Edit3, Eye, Printer } from 'lucide-react';
@@ -25,14 +25,14 @@ const SupportProjectModal = lazy(() => import('./components/modals/SupportProjec
 
 export default function App() {
   const [mobileTab, setMobileTab] = useState<'editor' | 'preview'>('editor');
-  const shareState = useMemo(() => {
+  const sharePayload = useMemo(() => {
     try {
       const sharePayload = getSharePayloadFromLocation(
         window.location.search,
         window.location.hash,
       );
       if (sharePayload) {
-        return deserializeShareState(sharePayload);
+        return parseSharePayload(sharePayload);
       }
     } catch (e) {
       console.error('Failed to parse share payload', e);
@@ -40,10 +40,10 @@ export default function App() {
     return null;
   }, []);
 
-  if (shareState) {
+  if (sharePayload) {
     return (
       <Suspense fallback={<div className="h-screen w-screen flex items-center justify-center bg-slate-900 text-white font-bold">Loading...</div>}>
-        <SharedResumePage shareState={shareState} />
+        <SharedResumePage sharePayload={sharePayload} />
       </Suspense>
     );
   }
