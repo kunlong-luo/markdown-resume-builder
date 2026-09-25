@@ -167,21 +167,7 @@ export function createMarkdownComponents({
     em: ({ node, ...props }: any) => <em className="italic text-gray-500 font-normal" {...props} />,
     hr: ({ node, ...props }: any) => <hr className={sizeClasses.hr} {...props} />,
     a: ({ node, children, href, ...props }: any) => {
-      let displayChildren = children;
-      if (href && typeof href === 'string' && href.toLowerCase().includes('github.com')) {
-        const textContent = typeof children === 'string' ? children : '';
-        if (textContent && textContent.toLowerCase().includes('github.com')) {
-          const pathMatch = textContent.match(/github\.com\/?([^\s?#]*)/i);
-          if (pathMatch && pathMatch[1]) {
-            const segments = pathMatch[1].split('/').map(s => s.trim()).filter(Boolean);
-            if (segments.length >= 2) {
-              displayChildren = `${segments[0]}/${segments[1].replace(/\.git$/i, '')}`;
-            } else if (segments.length === 1) {
-              displayChildren = segments[0].replace(/\.git$/i, '');
-            }
-          }
-        }
-      }
+      const displayChildren = children;
       return (
         <a 
           href={href}

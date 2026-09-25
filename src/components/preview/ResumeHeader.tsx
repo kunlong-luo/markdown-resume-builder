@@ -23,6 +23,32 @@ const GitHubIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+function parseWebUrl(value: string): URL | null {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  const hasHttpScheme = /^https?:\/\//i.test(trimmed);
+  if (!hasHttpScheme) {
+    const hostCandidate = trimmed.split(/[/?#]/, 1)[0];
+    if (!hostCandidate.includes('.')) return null;
+  }
+
+  try {
+    const url = new URL(hasHttpScheme ? trimmed : `https://${trimmed}`);
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return null;
+    return url;
+  } catch {
+    return null;
+  }
+}
+
+function hostnameMatches(url: URL | null, domain: string): boolean {
+  if (!url) return false;
+  const hostname = url.hostname.toLowerCase().replace(/\.$/, '');
+  const normalizedDomain = domain.toLowerCase();
+  return hostname === normalizedDomain || hostname.endsWith(`.${normalizedDomain}`);
+}
+
 export const ResumeHeader = React.memo(function ResumeHeader({ headerInfo, theme, lang = 'zh' }: ResumeHeaderProps) {
   const basicInfoItems = useMemo(() => {
     return parseBasicInfoMetadata(headerInfo.experience, lang);
@@ -101,20 +127,24 @@ export const ResumeHeader = React.memo(function ResumeHeader({ headerInfo, theme
               const contactLower = contact.toLowerCase();
               const isEmail = contact.includes('@');
 
-              // Check if contact has markdown link syntax [text](url)
               const mdLinkMatch = contact.match(/\[([^\]]*)\]\(([^)]+)\)/);
               let rawUrl = '';
               if (mdLinkMatch) {
                 rawUrl = mdLinkMatch[2].trim();
               } else {
-                const withoutPrefix = contact.replace(/^(?:GitHub|Gitee|Blog|博客|主页|Website|个人主页|代码仓库)[:：\s]*/i, '').trim();
-                rawUrl = withoutPrefix.replace(/^<|>$/g, '').trim();
+                rawUrl = contact
+                  .replace(/^(?:GitHub|Gitee|LinkedIn|领英|Blog|博客|主页|Website|个人主页|代码仓库)[:：\s]*/i, '')
+                  .replace(/^<|>$/g, '')
+                  .trim();
               }
 
-              // Check if URL or contact contains github.com
-              const hasGithubCom = contactLower.includes('github.com') || rawUrl.toLowerCase().includes('github.com');
-              const isGithub = contactLower.includes('github') || hasGithubCom;
-              const isLinkedin = contactLower.includes('linkedin') || contactLower.includes('领英');
+              const parsedUrl = parseWebUrl(rawUrl);
+              const hasGithubCom = hostnameMatches(parsedUrl, 'github.com');
+              const hasGiteeCom = hostnameMatches(parsedUrl, 'gitee.com');
+              const hasLinkedinCom = hostnameMatches(parsedUrl, 'linkedin.com');
+
+              const isGithubLabel = contactLower.includes('github');
+              const isLinkedinLabel = contactLower.includes('linkedin') || contactLower.includes('领英');
               const isWechat = contactLower.includes('wechat') || contactLower.includes('微信') || contactLower.includes('wx');
               const digitsOnly = contact.replace(/[^\d]/g, '');
               const isPhone = !isEmail && (
@@ -124,29 +154,16 @@ export const ResumeHeader = React.memo(function ResumeHeader({ headerInfo, theme
                 /^\+?[\d\s\-\(\)]{7,20}$/.test(contact.trim()) ||
                 (digitsOnly.length >= 7 && digitsOnly.length <= 15)
               );
-              const isUrl = !isEmail && !isPhone && (
-                Boolean(mdLinkMatch) ||
-                hasGithubCom ||
-                contactLower.includes('http') ||
-                contactLower.includes('gitee.com') ||
-                contactLower.includes('.com') ||
-                contactLower.includes('.org') ||
-                contactLower.includes('.net') ||
-                contactLower.includes('.io') ||
-                contactLower.includes('.cn') ||
-                contactLower.includes('.me') ||
-                contactLower.includes('.dev')
-              );
-              
-              const isAddress = !isEmail && !isPhone && !isGithub && !isLinkedin && !isWechat && (
+              const isUrl = !isEmail && !isPhone && Boolean(parsedUrl);
+              const isAddress = !isEmail && !isPhone && !isWechat && !isGithubLabel && !isLinkedinLabel && (
                 /^(?:地址|住址|常住地|现居地|现住址|籍贯|address|location)[:：\s]*/i.test(contact)
               );
-              
+
               if (isEmail) {
                 icon = <Mail className={`w-3.5 h-3.5 ${theme.iconColor}`} />;
-              } else if (isGithub) {
+              } else if (isGithubLabel || hasGithubCom) {
                 icon = <GitHubIcon className={`w-3.5 h-3.5 ${theme.iconColor}`} />;
-              } else if (isLinkedin) {
+              } else if (isLinkedinLabel || hasLinkedinCom) {
                 icon = <User className={`w-3.5 h-3.5 ${theme.iconColor}`} />;
               } else if (isWechat) {
                 icon = <MessageSquare className={`w-3.5 h-3.5 ${theme.iconColor}`} />;
@@ -154,12 +171,10 @@ export const ResumeHeader = React.memo(function ResumeHeader({ headerInfo, theme
                 icon = <Phone className={`w-3.5 h-3.5 ${theme.iconColor}`} />;
               } else if (isAddress) {
                 icon = <MapPin className={`w-3.5 h-3.5 ${theme.iconColor}`} />;
-              } else if (isUrl) {
-                icon = <Globe className={`w-3.5 h-3.5 ${theme.iconColor}`} />;
               } else {
                 icon = <Globe className={`w-3.5 h-3.5 ${theme.iconColor}`} />;
               }
-              
+
               let href = '';
               let displayText = contact;
 
@@ -176,58 +191,26 @@ export const ResumeHeader = React.memo(function ResumeHeader({ headerInfo, theme
               } else if (isWechat) {
                 const cleanWechat = contact.replace(/^(?:微信|wechat|wx)[:：\s]*/i, '').trim();
                 displayText = cleanWechat || contact;
-              } else if (isLinkedin) {
-                const cleanLinkedin = contact.replace(/^(?:领英|linkedin)[:：\s]*/i, '').trim();
-                if (cleanLinkedin.includes('linkedin.com') || contactLower.includes('http')) {
-                  href = cleanLinkedin.startsWith('http') ? cleanLinkedin : `https://${cleanLinkedin}`;
-                  const handle = cleanLinkedin
-                    .replace(/^https?:\/\/(?:www\.)?/i, '')
-                    .replace(/^linkedin\.com\/(?:in\/)?/i, '')
-                    .replace(/\/$/, '')
-                    .trim();
-                  displayText = handle ? `in/${handle}` : 'LinkedIn';
-                } else {
-                  displayText = cleanLinkedin || contact;
-                }
-              } else if (hasGithubCom) {
-                // Extract full URL for github link
-                const ghUrlMatch = rawUrl.match(/(?:https?:\/\/)?(?:www\.)?github\.com(?:\/[^\s\)\],，。；;'"<>]*)?/i)
-                  || contact.match(/(?:https?:\/\/)?(?:www\.)?github\.com(?:\/[^\s\)\],，。；;'"<>]*)?/i);
-
-                const matchedUrl = ghUrlMatch ? ghUrlMatch[0] : rawUrl;
-                href = matchedUrl.startsWith('http://') || matchedUrl.startsWith('https://')
-                  ? matchedUrl
-                  : `https://${matchedUrl}`;
-
-                if (mdLinkMatch && mdLinkMatch[1]) {
+              } else if (hasLinkedinCom && parsedUrl) {
+                href = parsedUrl.href;
+                const handle = parsedUrl.pathname
+                  .replace(/^\/(?:in\/)?/i, '')
+                  .replace(/\/$/, '')
+                  .trim();
+                displayText = mdLinkMatch?.[1]?.trim() || (handle ? `in/${handle}` : 'LinkedIn');
+              } else if (hasGithubCom && parsedUrl) {
+                href = parsedUrl.href;
+                const cleanHandle = parsedUrl.pathname.replace(/^\//, '').replace(/\/$/, '').trim();
+                displayText = mdLinkMatch?.[1]?.trim() || cleanHandle || 'GitHub';
+              } else if (isUrl && parsedUrl) {
+                href = parsedUrl.href;
+                if (mdLinkMatch?.[1]) {
                   displayText = mdLinkMatch[1].trim();
+                } else if (hasGiteeCom) {
+                  const giteeHandle = parsedUrl.pathname.replace(/^\//, '').replace(/\/$/, '').trim();
+                  displayText = giteeHandle || 'Gitee';
                 } else {
-                  // Clean display: remove protocol, www, and github.com domain
-                  // e.g. https://github.com/username -> username
-                  const cleanHandle = matchedUrl
-                    .replace(/^https?:\/\/(?:www\.)?/i, '')
-                    .replace(/^github\.com\/?/i, '')
-                    .replace(/\/$/, '')
-                    .trim();
-                  displayText = cleanHandle || contact.replace(/^(?:GitHub)[:：\s]*/i, '').trim() || 'GitHub';
-                }
-              } else if (isUrl) {
-                const urlClean = rawUrl || contact.replace(/^(?:GitHub|Gitee|Blog|博客|主页)[:：\s]*/i, '').trim();
-                href = urlClean.startsWith('http') ? urlClean : `https://${urlClean}`;
-                if (mdLinkMatch && mdLinkMatch[1]) {
-                  displayText = mdLinkMatch[1].trim();
-                } else {
-                  const urlLower = urlClean.toLowerCase();
-                  if (urlLower.includes('gitee.com')) {
-                    const giteeHandle = urlClean
-                      .replace(/^https?:\/\/(?:www\.)?/i, '')
-                      .replace(/^gitee\.com\/?/i, '')
-                      .replace(/\/$/, '')
-                      .trim();
-                    displayText = giteeHandle || 'Gitee';
-                  } else {
-                    displayText = urlClean.replace(/^https?:\/\/(?:www\.)?/i, '').replace(/\/$/, '');
-                  }
+                  displayText = `${parsedUrl.hostname}${parsedUrl.pathname}`.replace(/\/$/, '');
                 }
               }
 
