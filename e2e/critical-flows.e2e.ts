@@ -1,24 +1,5 @@
 import { expect, test } from '@playwright/test';
 
-const encryptedShareSettings = {
-  themeColor: 'indigo',
-  customColor: '#4F46E5',
-  themeMode: 'light',
-  fontSize: 'standard',
-  fontFamily: 'sans',
-  margin: 'standard',
-  layoutMode: 'split',
-  h2Style: 'accent-line',
-  topAccentLine: true,
-  lineHeight: 1.6,
-  blockGap: 1,
-  letterSpacing: 0,
-  showPageBreakLine: true,
-  templateLayout: 'single',
-  lang: 'zh',
-  isPrivacyMasked: false,
-};
-
 test.describe('critical resume flows', () => {
   test('persists Markdown edits locally across reloads', async ({ page }) => {
     await page.goto('/');
@@ -112,36 +93,28 @@ test.describe('critical resume flows', () => {
       .toBe(true);
   });
 
-  test('encrypted share rejects a wrong password and decrypts with the correct one', async ({
+  test('generates an encrypted share in the UI, rejects a wrong password, and decrypts with the correct one', async ({
     page,
   }) => {
     await page.goto('/');
 
-    const password = 'e2e-share-password';
-    const payload = await page.evaluate(
-      async ({ password: sharePassword, settings }) => {
-        const modulePath = '/src/lib/share-utils.ts';
-        const shareUtils = await import(modulePath);
+    await page.getByRole('button', { name: '分享', exact: true }).click();
+    await expect(
+      page.getByRole('dialog', { name: '分享简历' }),
+    ).toBeVisible();
 
-        return shareUtils.encryptShareState(
-          {
-            markdown: '# E2E Candidate\n\n## Experience\n- Encrypted share flow',
-            settings,
-          },
-          sharePassword,
-        );
-      },
-      {
-        password,
-        settings: encryptedShareSettings,
-      },
-    );
+    const password = 'E2E-share-password!42';
+    await page.locator('#share-password').fill(password);
+    await page.getByRole('button', { name: '生成链接', exact: true }).click();
 
-    // A share link is normally opened as a fresh document. Navigating from
-    // "/" to only a different hash would be a same-document navigation and
-    // would not remount App's initial share-payload parser.
+    const generatedLink = page.locator('#generated-share-link');
+    await expect(generatedLink).toBeVisible();
+    const shareUrl = await generatedLink.inputValue();
+    expect(shareUrl).toContain('#share=');
+    expect(shareUrl).not.toContain(password);
+
     await page.goto('about:blank');
-    await page.goto(`/#share=${payload}`);
+    await page.goto(shareUrl);
 
     await expect(
       page.getByRole('heading', { name: /加密简历分享|Encrypted Resume Share/ }),
@@ -165,6 +138,5 @@ test.describe('critical resume flows', () => {
         name: /在线简历分享|Online Interactive Portfolio/,
       }),
     ).toBeVisible();
-    await expect(page.getByText('E2E Candidate').first()).toBeVisible();
-  });
+  });;
 });
