@@ -1,3 +1,9 @@
+# Dependency policy:
+# - Track current stable releases only.
+# - Do not intentionally adopt alpha, beta, rc, canary, next, nightly,
+#   dev, experimental, or legacy pre-release channels.
+# - "latest", "stable", and normal stable SemVer releases are allowed.
+# CI enforces the same rule for direct dependencies.
 version: 2
 updates:
   - package-ecosystem: "npm"
