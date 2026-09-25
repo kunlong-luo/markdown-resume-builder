@@ -49,7 +49,22 @@ test.describe('critical resume flows', () => {
   });
 
   test('ATS PDF action reaches the browser print pipeline', async ({ page }) => {
+    await page.addInitScript(() => {
+      window.print = () => {
+        window.top?.postMessage('resume-craft-e2e-print-called', '*');
+      };
+    });
+
     await page.goto('/');
+
+    await page.evaluate(() => {
+      (window as Window & { __e2ePrintCalled?: boolean }).__e2ePrintCalled = false;
+      window.addEventListener('message', (event) => {
+        if (event.data === 'resume-craft-e2e-print-called') {
+          (window as Window & { __e2ePrintCalled?: boolean }).__e2ePrintCalled = true;
+        }
+      });
+    });
 
     const atsButton = page
       .locator('button:visible')
@@ -57,13 +72,17 @@ test.describe('critical resume flows', () => {
       .first();
 
     await expect(atsButton).toBeVisible();
-
-    const printFrameAttached = page.waitForEvent('frameattached', {
-      timeout: 5_000,
-    });
-
     await atsButton.click();
-    await printFrameAttached;
+
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () =>
+            (window as Window & { __e2ePrintCalled?: boolean })
+              .__e2ePrintCalled,
+        ),
+      )
+      .toBe(true);
   });
 
   test('encrypted share rejects a wrong password and decrypts with the correct one', async ({
