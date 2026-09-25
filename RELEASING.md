@@ -16,17 +16,16 @@ The version in `package.json` is the source of truth.
 
 1. Merge all changes that should be included in the release.
 2. Make sure `main` is green.
-3. Update `package.json` to the new stable version in a normal pull request and merge it.
-4. Open **Actions -> Release**.
-5. Choose **Run workflow**.
-6. Select the `main` branch.
-7. Enter the same version as `package.json`, without the leading `v` (for example `2.0.0`).
-8. Run the workflow.
+3. Update only to a new stable version in `package.json` through a normal pull request.
+4. Let the required CI checks pass.
+5. Squash-merge the version bump pull request into `main`.
 
-The release workflow will:
+When GitHub detects that the `package.json` version changed on `main`, the Release workflow runs automatically.
 
+The workflow will:
+
+- ignore `package.json` edits that do not change the version;
 - reject non-stable SemVer versions;
-- confirm the requested version matches `package.json`;
 - enforce the stable dependency policy;
 - install with the frozen pnpm lockfile;
 - run type checking, unit tests, and the production build;
@@ -35,11 +34,9 @@ The release workflow will:
 - generate `SHA256SUMS.txt`;
 - publish a GitHub Release with automatically generated release notes.
 
-## Automation trigger branch
+## Manual fallback
 
-The workflow also accepts an ephemeral branch named `release/vX.Y.Z`. This is intended for trusted automation only.
-
-The workflow verifies that the trigger branch points to the latest `main`, validates the version, creates the annotated tag and release, then deletes the trigger branch automatically.
+If an automatic run needs to be retried, open **Actions -> Release -> Run workflow**, select `main`, and enter the exact stable version already present in `package.json`.
 
 ## Failed releases
 
