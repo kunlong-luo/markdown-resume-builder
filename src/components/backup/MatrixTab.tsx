@@ -331,12 +331,12 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
           <div className="border-t border-slate-200/60 dark:border-slate-700 pt-4 space-y-4 flex-1 flex flex-col justify-end">
             <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider flex items-center gap-2">
               <Share2 className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-              <span>{isEn ? 'Share Link & Password Security' : '加密在线分享'}</span>
+              <span>{isEn ? 'Share Link & Client-side Access Gate' : '链接分享与客户端访问口令'}</span>
             </h4>
 
             <div className="space-y-2">
               <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block">
-                {isEn ? 'Optional Password Challenge (Password Lock)' : '访问密码 (留空为公开访问)'}
+                {isEn ? 'Optional client-side access code (not encryption)' : '客户端访问口令（不是加密，留空为公开访问）'}
               </label>
               <div className="flex gap-1.5 relative">
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">
@@ -371,7 +371,7 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
                   {sharePassword.trim() ? (
                     <>
                       <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
-                      <span className="text-emerald-700 dark:text-emerald-400">{isEn ? 'Password Lock Active!' : '已加密分享'}</span>
+                      <span className="text-emerald-700 dark:text-emerald-400">{isEn ? 'Client-side access gate active' : '已启用客户端访问口令'}</span>
                     </>
                   ) : (
                     <>
@@ -381,24 +381,19 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
                   )}
                 </div>
 
-                {/* QR Code and URL Row */}
-                <div className="flex items-start gap-4">
-                  {/* QR Code using public API */}
-                  <div className="bg-slate-50 dark:bg-slate-700 p-1.5 rounded-xl border border-slate-100 dark:border-slate-600 shadow-inner shrink-0 flex flex-col items-center justify-center gap-1.5 hover:scale-105 transition-transform duration-250">
-                    <img
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=${encodeURIComponent(generatedLink)}`}
-                      alt="HR QR Code"
-                      referrerPolicy="no-referrer"
-                      className="w-[90px] h-[90px] rounded-lg"
-                    />
-                    <span className="text-[9px] text-slate-400 dark:text-slate-300 font-bold uppercase tracking-wider">{isEn ? 'HR SCAN' : 'HR扫码预览'}</span>
+                {/* Privacy-first share link row */}
+                <div className="space-y-3">
+                  <div className="p-3 bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-800/60 rounded-lg text-[10.5px] text-emerald-800 dark:text-emerald-300 leading-relaxed">
+                    {isEn
+                      ? 'Privacy note: the resume payload is stored in the URL fragment, so it is not sent to the hosting server as a request query. QR generation is kept local-only by not calling third-party QR services.'
+                      : '隐私说明：简历分享数据写入 URL fragment，不会作为请求查询参数发送给托管站点；为避免完整分享链接泄露给第三方，当前不调用外部二维码生成服务。'}
                   </div>
 
                   <div className="flex-1 min-w-0 space-y-2.5">
                     <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
                       {isEn 
-                        ? 'Recruiters can scan or open the link to preview your responsive H5 resume instantly on any device and print/save PDF.' 
-                        : 'HR 扫码或打开链接即可免下载在线预览简历，支持保存或直接打印 PDF。'}
+                        ? 'Copy the link and send it only to trusted recipients. The optional access code is a client-side viewing gate, not end-to-end encryption.' 
+                        : '请复制链接并仅发送给可信接收者。可选访问口令只是客户端查看门槛，并非端到端加密。'}
                     </p>
                     <div className="flex gap-1.5">
                       <input
@@ -420,7 +415,7 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
               </div>
             ) : (
               <div className="border border-dashed border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl p-6 text-center text-slate-400 dark:text-slate-500 text-xs">
-                {isEn ? 'Select a resume version on the left, then click "Share" to generate the QR code and HR preview link.' : '选择左侧的一个版本并点击「在线分享」，在此生成 HR 专属链接与二维码。'}
+                {isEn ? 'Select a resume version on the left, then click "Share" to generate a privacy-preserving preview link.' : '选择左侧的一个版本并点击「在线分享」，在此生成隐私友好的预览链接。'}
               </div>
             )}
           </div>

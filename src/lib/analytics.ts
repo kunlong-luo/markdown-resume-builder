@@ -46,10 +46,13 @@ export function isAllowedAnalyticsEvent(event: string): event is AnalyticsEvent 
   return (ANALYTICS_EVENTS as readonly string[]).includes(event);
 }
 
-export function getSafeAnalyticsPath(pathname: string, search: string) {
+export function getSafeAnalyticsPath(pathname: string, search: string, hash: string = '') {
   try {
-    const params = new URLSearchParams(search);
-    if (params.has('share')) {
+    const queryParams = new URLSearchParams(search);
+    const fragment = hash.startsWith('#') ? hash.slice(1) : hash;
+    const fragmentParams = new URLSearchParams(fragment);
+
+    if (queryParams.has('share') || fragmentParams.has('share')) {
       return `${APP_PATH_PREFIX}/shared`;
     }
   } catch {
@@ -112,7 +115,11 @@ export function initAnalyticsPageview() {
   void ensureAnalyticsScript()
     .then(() => {
       window.sa_pageview?.(
-        getSafeAnalyticsPath(window.location.pathname, window.location.search),
+        getSafeAnalyticsPath(
+          window.location.pathname,
+          window.location.search,
+          window.location.hash,
+        ),
       );
     })
     .catch(() => {

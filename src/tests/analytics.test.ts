@@ -25,6 +25,14 @@ describe('privacy-friendly analytics', () => {
     expect(path).toBe('/resume-craft/shared');
     expect(path).not.toContain(payload);
     expect(path).not.toContain('share=');
+
+    const fragmentPath = getSafeAnalyticsPath(
+      '/resume-craft/',
+      '',
+      `#share=${encodeURIComponent(payload)}`,
+    );
+    expect(fragmentPath).toBe('/resume-craft/shared');
+    expect(fragmentPath).not.toContain(payload);
   });
 
   it('keeps normal app paths and ignores ordinary query data', () => {
