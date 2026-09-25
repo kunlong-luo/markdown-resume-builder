@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ExternalLink, FileDown, Heart, Star, X } from 'lucide-react';
+import { ExternalLink, FileDown, Star, X } from 'lucide-react';
 import { SUPPORT_REPO_URL } from '../../lib/support-prompt';
 
 interface SupportProjectModalProps {
@@ -48,7 +48,7 @@ export function SupportProjectModal({
 
   return (
     <div
-      className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/65 backdrop-blur-sm p-4 animate-in fade-in duration-150"
+      className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm animate-in fade-in duration-150"
       role="dialog"
       aria-modal="true"
       aria-labelledby="support-project-title"
@@ -56,72 +56,86 @@ export function SupportProjectModal({
         if (event.target === event.currentTarget) onClose();
       }}
     >
-      <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-2 duration-200">
+      <div className="relative w-full max-w-[420px] overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-2xl shadow-slate-950/20 dark:border-slate-700/80 dark:bg-slate-900 animate-in zoom-in-95 slide-in-from-bottom-2 duration-200">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-indigo-50/90 to-transparent dark:from-indigo-950/30" />
+
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-3 top-3 rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200 transition-colors cursor-pointer"
+          className="absolute right-4 top-4 z-10 rounded-full p-2 text-slate-400 transition-colors hover:bg-white/80 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200 cursor-pointer"
           aria-label={isEn ? 'Close' : '关闭'}
         >
           <X className="h-4 w-4" />
         </button>
 
-        <div className="px-6 pb-6 pt-7">
-          <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-50 text-rose-500 dark:bg-rose-950/40 dark:text-rose-400">
-            <Heart className="h-5 w-5" fill="currentColor" />
+        <div className="relative px-6 pb-6 pt-8 sm:px-7">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-indigo-100 bg-white text-indigo-600 shadow-sm dark:border-indigo-900/60 dark:bg-slate-900 dark:text-indigo-400">
+            <Star className="h-5 w-5" fill="currentColor" />
           </div>
 
-          <h2 id="support-project-title" className="pr-8 text-lg font-black tracking-tight text-slate-900 dark:text-white">
-            {isEn ? 'Enjoying Resume Craft?' : '觉得 Resume Craft 好用吗？'}
-          </h2>
+          <div className="mt-4 text-center">
+            <h2
+              id="support-project-title"
+              className="text-xl font-black tracking-tight text-slate-950 dark:text-white"
+            >
+              {isEn ? 'Enjoying Resume Craft?' : '喜欢 Resume Craft 吗？'}
+            </h2>
 
-          <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-            {isEn
-              ? 'Resume Craft is free and open source. If it helped you, a GitHub Star is a small way to help more people discover the project.'
-              : 'Resume Craft 永久免费开源。如果它帮你省下了排版时间，欢迎在 GitHub 点一个 Star，帮助更多人发现这个项目。'}
-          </p>
+            <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-slate-600 dark:text-slate-300">
+              {isEn
+                ? 'Resume Craft is free and open source. If it has made building your resume easier, a GitHub Star helps support continued improvements and helps more people discover the project.'
+                : 'Resume Craft 是一个免费开源项目。如果它让你更轻松地完成简历，欢迎在 GitHub 点一个 Star，支持项目持续改进，也让更多人发现它。'}
+            </p>
+          </div>
 
-          <div className="mt-4 rounded-xl border border-indigo-100 bg-indigo-50/70 px-4 py-3 text-xs leading-5 text-indigo-700 dark:border-indigo-900/70 dark:bg-indigo-950/30 dark:text-indigo-300">
-            {isEn
-              ? 'No login or verification is required. You can always continue exporting.'
-              : '无需登录，也不会验证你是否 Star。你始终可以直接继续导出。'}
+          <div className="mt-5 flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-left dark:border-slate-700 dark:bg-slate-800/60">
+            <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-slate-500 shadow-sm dark:bg-slate-900 dark:text-slate-300">
+              <FileDown className="h-3.5 w-3.5" />
+            </div>
+            <p className="text-xs leading-5 text-slate-600 dark:text-slate-300">
+              {isEn
+                ? 'A Star is not required to export. You can always continue using Resume Craft.'
+                : 'Star 不是导出条件，你可以随时继续使用 Resume Craft。'}
+            </p>
           </div>
 
           <div className="mt-5 flex flex-col gap-2.5">
             {!visitedGitHub ? (
-              <button
-                type="button"
-                onClick={openGitHub}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-slate-800 active:scale-[0.99] dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100 cursor-pointer"
-              >
-                <Star className="h-4 w-4" />
-                <span>{isEn ? 'Star on GitHub' : '去 GitHub 支持一下'}</span>
-                <ExternalLink className="h-3.5 w-3.5 opacity-70" />
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={openGitHub}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-slate-800 active:scale-[0.99] dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100 cursor-pointer"
+                >
+                  <Star className="h-4 w-4" />
+                  <span>{isEn ? 'Support on GitHub' : '去 GitHub 支持项目'}</span>
+                  <ExternalLink className="h-3.5 w-3.5 opacity-70" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={onSkip}
+                  className="w-full rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200 cursor-pointer"
+                >
+                  {isEn ? 'Continue export' : '继续导出'}
+                </button>
+              </>
             ) : (
               <button
                 type="button"
                 onClick={onContinue}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm shadow-indigo-500/20 transition-all hover:bg-indigo-500 active:scale-[0.99] cursor-pointer"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-bold text-white shadow-sm shadow-indigo-500/20 transition-all hover:bg-indigo-500 active:scale-[0.99] cursor-pointer"
               >
                 <FileDown className="h-4 w-4" />
-                <span>{isEn ? 'Continue export' : '返回后继续导出'}</span>
+                <span>{isEn ? 'Continue export' : '继续导出'}</span>
               </button>
             )}
-
-            <button
-              type="button"
-              onClick={onSkip}
-              className="w-full rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200 cursor-pointer"
-            >
-              {isEn ? 'Not now — export directly' : '暂时不了，直接导出'}
-            </button>
           </div>
 
-          <p className="mt-3 text-center text-[11px] text-slate-400 dark:text-slate-500">
+          <p className="mt-3 text-center text-[11px] leading-5 text-slate-400 dark:text-slate-500">
             {isEn
-              ? 'Choose GitHub support: hide for 30 days · Not now: hide for 7 days'
-              : '访问 GitHub 后 30 天内不再提示 · 暂时不了则 7 天内不再提示'}
+              ? 'After visiting GitHub, we will not show this reminder again for a while.'
+              : '访问 GitHub 后，一段时间内不再提示。'}
           </p>
         </div>
       </div>
