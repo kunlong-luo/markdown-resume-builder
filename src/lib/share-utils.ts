@@ -215,7 +215,7 @@ function parseEncryptedEnvelope(encoded: string): EncryptedSharePayload | null {
       return null;
     }
 
-    return {
+    const payload: EncryptedSharePayload = {
       version: 2,
       algorithm: 'AES-256-GCM',
       kdf: 'PBKDF2-SHA-256',
@@ -223,8 +223,10 @@ function parseEncryptedEnvelope(encoded: string): EncryptedSharePayload | null {
       salt: envelope.s,
       iv: envelope.n,
       ciphertext: envelope.c,
-      lang: isLanguage(envelope.l) ? envelope.l : undefined,
     };
+
+    if (isLanguage(envelope.l)) payload.lang = envelope.l;
+    return payload;
   } catch {
     return null;
   }
@@ -265,12 +267,11 @@ export function deserializeShareState(encoded: string): ShareState | null {
     const state = normalizeShareState(parsed?.m, parsed?.s);
     if (!state) return null;
 
+    if (typeof parsed.p !== 'string') return state;
+
     return {
       ...state,
-      passwordHash:
-        typeof parsed.p === 'string'
-          ? decodeURIComponent(atob(parsed.p))
-          : undefined,
+      passwordHash: decodeURIComponent(atob(parsed.p)),
     };
   } catch (error) {
     console.error('Failed to deserialize share state', error);

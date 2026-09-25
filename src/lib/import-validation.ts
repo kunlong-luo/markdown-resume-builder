@@ -108,17 +108,10 @@ export function normalizeImportedSettings(
 ): ResumeSettings | null {
   if (!isRecord(value)) return null;
 
-  return {
+  const normalized: ResumeSettings = {
     themeColor: isOneOf(value.themeColor, THEME_COLORS)
       ? value.themeColor
       : fallback.themeColor,
-    customColor:
-      typeof value.customColor === 'string' && HEX_COLOR_RE.test(value.customColor)
-        ? value.customColor
-        : fallback.customColor,
-    themeMode: isOneOf(value.themeMode, THEME_MODES)
-      ? value.themeMode
-      : fallback.themeMode,
     fontSize: isOneOf(value.fontSize, FONT_SIZES)
       ? value.fontSize
       : fallback.fontSize,
@@ -145,12 +138,29 @@ export function normalizeImportedSettings(
     templateLayout: isOneOf(value.templateLayout, TEMPLATE_LAYOUTS)
       ? value.templateLayout
       : fallback.templateLayout,
-    lang: isOneOf(value.lang, LANGUAGES) ? value.lang : fallback.lang,
-    isPrivacyMasked:
-      typeof value.isPrivacyMasked === 'boolean'
-        ? value.isPrivacyMasked
-        : fallback.isPrivacyMasked,
   };
+
+  const customColor =
+    typeof value.customColor === 'string' && HEX_COLOR_RE.test(value.customColor)
+      ? value.customColor
+      : fallback.customColor;
+  if (customColor !== undefined) normalized.customColor = customColor;
+
+  const themeMode = isOneOf(value.themeMode, THEME_MODES)
+    ? value.themeMode
+    : fallback.themeMode;
+  if (themeMode !== undefined) normalized.themeMode = themeMode;
+
+  const lang = isOneOf(value.lang, LANGUAGES) ? value.lang : fallback.lang;
+  if (lang !== undefined) normalized.lang = lang;
+
+  const isPrivacyMasked =
+    typeof value.isPrivacyMasked === 'boolean'
+      ? value.isPrivacyMasked
+      : fallback.isPrivacyMasked;
+  if (isPrivacyMasked !== undefined) normalized.isPrivacyMasked = isPrivacyMasked;
+
+  return normalized;
 }
 
 export function normalizeResumeBackup(
@@ -170,15 +180,17 @@ export function normalizeResumeBackup(
   const settings = normalizeImportedSettings(value.settings, fallbackSettings);
   if (!settings) return null;
 
-  return {
+  const backup: ResumeBackupV1 = {
     version: 'markdown-resume-backup-v1',
     markdown: value.markdown,
     settings,
-    exportedAt:
-      typeof value.exportedAt === 'string'
-        ? value.exportedAt.slice(0, MAX_PROFILE_TEXT_LENGTH)
-        : undefined,
   };
+
+  if (typeof value.exportedAt === 'string') {
+    backup.exportedAt = value.exportedAt.slice(0, MAX_PROFILE_TEXT_LENGTH);
+  }
+
+  return backup;
 }
 
 export function normalizeImportedProfile(
@@ -204,17 +216,23 @@ export function normalizeImportedProfile(
 
   const now = new Date().toISOString();
 
-  return {
+  const profile: ResumeProfile = {
     id: value.id.trim().slice(0, MAX_PROFILE_TEXT_LENGTH),
     name: normalizedString(value.name, 'Imported Resume'),
-    targetRole: optionalString(value.targetRole),
     markdown: value.markdown,
     settings,
-    customFileName: optionalString(value.customFileName),
     updatedAt: normalizedString(value.updatedAt, now),
     createdAt: normalizedString(value.createdAt, now),
     isDefault: typeof value.isDefault === 'boolean' ? value.isDefault : false,
   };
+
+  const targetRole = optionalString(value.targetRole);
+  if (targetRole !== undefined) profile.targetRole = targetRole;
+
+  const customFileName = optionalString(value.customFileName);
+  if (customFileName !== undefined) profile.customFileName = customFileName;
+
+  return profile;
 }
 
 export function normalizeImportedProfiles(

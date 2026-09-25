@@ -58,11 +58,12 @@ function reportWriteSuccess(operation: StorageOperation, key?: StorageKey) {
   if (!hasWriteFailure) return;
 
   hasWriteFailure = false;
-  emitStorageHealth({
+  const detail: StorageHealthDetail = {
     status: 'recovered',
     operation,
-    key: key === undefined ? undefined : String(key),
-  });
+  };
+  if (key !== undefined) detail.key = String(key);
+  emitStorageHealth(detail);
 }
 
 function reportWriteFailure(operation: StorageOperation, error: unknown, key?: StorageKey) {
@@ -71,12 +72,13 @@ function reportWriteFailure(operation: StorageOperation, error: unknown, key?: S
 
   if (!shouldNotify) return;
 
-  emitStorageHealth({
+  const detail: StorageHealthDetail = {
     status: 'error',
     operation,
-    key: key === undefined ? undefined : String(key),
     quotaExceeded: isQuotaExceededError(error),
-  });
+  };
+  if (key !== undefined) detail.key = String(key);
+  emitStorageHealth(detail);
 }
 
 export const storage = {

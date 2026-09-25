@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "files": [
+    "src/lib/import-validation.ts",
+    "src/lib/share-utils.ts",
+    "src/lib/storage.ts"
+  ]
+}
