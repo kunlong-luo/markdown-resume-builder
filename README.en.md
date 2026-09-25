@@ -1,8 +1,8 @@
-# 🚀 Resume Craft Pro - Markdown Resume Builder (v2.0.0)
+# 🚀 Resume Craft - Markdown Resume Builder
 
 English | [简体中文](./README.md)
 
-[![Version](https://img.shields.io/badge/version-v2.0.0--PRO-blue?style=flat-square&logo=github)](https://github.com/kunlong-luo/resume-craft)
+[![Latest Release](https://img.shields.io/github/v/release/kunlong-luo/resume-craft?style=flat-square&logo=github)](https://github.com/kunlong-luo/resume-craft/releases/latest)
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Try%20Now-4F46E5?style=flat-square&logo=github)](https://kunlong-luo.github.io/resume-craft/)
 [![CI](https://github.com/kunlong-luo/resume-craft/actions/workflows/ci.yml/badge.svg)](https://github.com/kunlong-luo/resume-craft/actions/workflows/ci.yml)
 [![React](https://img.shields.io/badge/built%20with-React%2019-blueviolet?style=flat-square&logo=react)](https://react.dev/)
@@ -16,7 +16,7 @@ English | [简体中文](./README.md)
 > 
 > 💡 **Tagline**: *"Craft your perfect one-page resume with Markdown."*
 > 
-> Combining the speed of Markdown with the simplicity of structured visual forms, it features 1-Click Auto-Fit, ATS audit matching, bilingual spacing rules, professional color palettes, multi-draft matrices, and password-protected H5 sharing. Say goodbye to Word alignment nightmares and craft job-winning resumes in seconds.
+> Combining the speed of Markdown with structured visual forms, Resume Craft includes 1-Click Auto-Fit, ATS diagnostics, bilingual typography helpers, theme customization, multiple resume profiles, and link sharing with an optional client-side access code.
 
 ---
 
@@ -76,8 +76,8 @@ When creating resumes, candidates frequently suffer from **Word layout nightmare
 * **Version Control**: Clone and maintain tailored resume branches for different roles (e.g., `Frontend Lead`, `Full-Stack Developer`).
 * **Diff Analysis**: View side-by-side diff highlights comparing text changes and keywords between two versions.
 
-### 9. 🔒 Encrypted H5 Link Sharing & Password Lock
-* **Secure Sharing**: Encodes resume data into URL hashes using LZ-String compression and Web Crypto SHA-256 encryption with optional password protection.
+### 9. 🔒 H5 Link Sharing & Optional Access Code
+* **Convenient Sharing**: Resume content is encoded into the share URL and can be gated by an optional client-side access code. The current sharing mechanism is not end-to-end encryption; anyone who receives the complete share URL should be treated as potentially able to read the embedded data.
 
 ### 10. 📐 Section Sorter
 * **Module Reordering**: Automatically detects Markdown section headers (`H2`) and allows moving entire sections up or down with one click.
@@ -88,8 +88,8 @@ When creating resumes, candidates frequently suffer from **Word layout nightmare
 ### 12. 🌐 Full Bilingual Localization
 * **Instant Switch**: Toggle between English (`en`) and Chinese (`zh`) with full UI, template, and diagnostic translation.
 
-### 13. ⚡ PWA & 100% Local Privacy Protection
-* **Privacy First**: Installable as a desktop or mobile PWA. All data is persisted locally in IndexedDB / LocalStorage without telemetry or central server tracking.
+### 13. ⚡ PWA & Local-First Storage
+* **Local First**: Installable as a desktop or mobile PWA. Resume drafts and settings are stored in browser-local storage, and the project does not provide an application backend for persisting resume content. Shared links embed data in the URL, so only share them with trusted recipients.
 
 ---
 
@@ -102,7 +102,7 @@ When creating resumes, candidates frequently suffer from **Word layout nightmare
 │   └── workflows/
 │       ├── ci.yml               # CI build & test check pipeline
 │       ├── deploy.yml           # Deploy main to GitHub Pages
-│       ├── release.yml          # Tag-triggered release & asset publish
+│       ├── release.yml          # Stable release after package version changes
 │       ├── seo-submit.yml       # Optional IndexNow submission after deploy
 │       └── promote.yml          # Cross-post new content (dry-run by default)
 ├── src/
@@ -173,6 +173,7 @@ Open your browser at [http://localhost:3000](http://localhost:3000) to start edi
 | `pnpm lint` | Run TypeScript static type checker |
 | `pnpm test` | Run Vitest unit test suite |
 | `pnpm preview` | Preview production build locally |
+| `pnpm check:stable-deps` | Reject direct dependency pre-releases |
 
 ---
 
@@ -188,6 +189,18 @@ Resume Craft supports both **native vector print** and **high-definition Canvas 
    * **Margins**: **`None`** (*Crucial for 1:1 alignment*)
    * **Options**: Check **`Background graphics`**
    * **Headers and Footers**: **Uncheck**
+
+---
+
+## 🔐 Privacy & Security Boundaries
+
+Resume Craft is local-first, but local-first does not mean that every stored or shared value is cryptographically encrypted.
+
+- Resume drafts, settings, and profiles are primarily stored in browser `localStorage`.
+- The project does not provide an application backend for persisting resume content.
+- Share URLs embed resume data in the URL; the optional access code is currently a client-side viewing gate, not end-to-end encryption.
+- Do not include real resume data, tokens, passwords, or other sensitive information in issues, pull requests, test fixtures, or screenshots.
+- Report security issues through the private process described in [SECURITY.md](SECURITY.md).
 
 ---
 
