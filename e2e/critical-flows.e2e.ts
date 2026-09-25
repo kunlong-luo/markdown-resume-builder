@@ -23,7 +23,7 @@ test.describe('critical resume flows', () => {
   test('persists Markdown edits locally across reloads', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByRole('button', { name: '源码编辑' }).click();
+    await page.getByRole('button', { name: /源码编辑|Markdown/ }).click();
     const editor = page.locator('#markdown-textarea');
     await expect(editor).toBeVisible();
 
@@ -44,7 +44,7 @@ test.describe('critical resume flows', () => {
       .toBe(markdown);
 
     await page.reload();
-    await page.getByRole('button', { name: '源码编辑' }).click();
+    await page.getByRole('button', { name: /源码编辑|Markdown/ }).click();
     await expect(page.locator('#markdown-textarea')).toHaveValue(markdown);
   });
 
@@ -140,22 +140,26 @@ test.describe('critical resume flows', () => {
     await page.goto(`/#share=${payload}`);
 
     await expect(
-      page.getByRole('heading', { name: '加密简历分享' }),
+      page.getByRole('heading', { name: /加密简历分享|Encrypted Resume Share/ }),
     ).toBeVisible();
 
     const passwordInput = page.locator('input[type="password"]');
     await passwordInput.fill('wrong-password');
-    await page.getByRole('button', { name: '解密并查看简历' }).click();
+    await page.getByRole('button', { name: /解密并查看简历|Decrypt & Read Resume/ }).click();
 
     await expect(
-      page.getByText('密码错误，或加密分享链接已被修改'),
+      page.getByText(
+        /密码错误，或加密分享链接已被修改|Incorrect password or the encrypted link has been modified/,
+      ),
     ).toBeVisible();
 
     await passwordInput.fill(password);
-    await page.getByRole('button', { name: '解密并查看简历' }).click();
+    await page.getByRole('button', { name: /解密并查看简历|Decrypt & Read Resume/ }).click();
 
     await expect(
-      page.getByRole('heading', { name: '在线简历分享' }),
+      page.getByRole('heading', {
+        name: /在线简历分享|Online Interactive Portfolio/,
+      }),
     ).toBeVisible();
     await expect(page.getByText('E2E Candidate').first()).toBeVisible();
   });
