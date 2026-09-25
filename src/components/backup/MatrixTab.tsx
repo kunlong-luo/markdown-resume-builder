@@ -310,12 +310,21 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
                   {/* Actions inside matrix item */}
                   <div className="flex items-center gap-1.5 shrink-0 opacity-80 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
                     <button
-                      onClick={() => handleGenerateShare(version)}
-                      className="p-1.5 px-2.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 font-bold text-[10px] flex items-center gap-1.5 transition-all cursor-pointer border border-indigo-100/40 dark:border-indigo-800/40"
+                      onClick={() => void handleGenerateShare(version)}
+                      disabled={isGeneratingShare}
+                      className="p-1.5 px-2.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 font-bold text-[10px] flex items-center gap-1.5 transition-all cursor-pointer border border-indigo-100/40 dark:border-indigo-800/40 disabled:opacity-60 disabled:cursor-not-allowed"
                       title={isEn ? "Generate exclusive share page" : "分享该版本"}
                     >
-                      <Share2 className="w-3 h-3" />
-                      <span>{isEn ? 'Share' : '分享'}</span>
+                      {isGeneratingShare && isSelectedForShare ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <Share2 className="w-3 h-3" />
+                      )}
+                      <span>
+                        {isGeneratingShare && isSelectedForShare
+                          ? (isEn ? 'Encrypting' : '加密中')
+                          : (isEn ? 'Share' : '分享')}
+                      </span>
                     </button>
                     <button
                       onClick={(e) => handleDeleteVersion(version.id, e)}
