@@ -9,7 +9,7 @@ import { ResumeSettings } from './types';
 import { deserializeShareState, getSharePayloadFromLocation } from './lib/share-utils';
 import { useToast } from './components/ui/Toast';
 import { smartAutoFit } from './lib/preview-utils';
-import { Edit3, Eye, FileDown } from 'lucide-react';
+import { Edit3, Eye, Printer } from 'lucide-react';
 import { Tooltip } from './components/ui/Tooltip';
 import { markSupportPrompt, shouldPromptForSupport } from './lib/support-prompt';
 import { trackAnalyticsEvent } from './lib/analytics';
@@ -317,7 +317,7 @@ export default function App() {
         }
       }
 
-      // Cmd/Ctrl + P -> Intercept default browser print and call vector PDF print
+      // Cmd/Ctrl + P -> Intercept default browser print and use the ATS-friendly PDF path
       if (isCmdOrCtrl && !e.shiftKey && (e.key === 'p' || e.key === 'P')) {
         e.preventDefault();
         handleExportVectorPrint();
@@ -459,8 +459,8 @@ export default function App() {
               onClick={handleExportPDF}
               className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full transition-all cursor-pointer active:scale-95"
             >
-              <FileDown className="w-3.5 h-3.5" />
-              <span>{settings.lang === 'en' ? 'Export' : '导出'}</span>
+              <Printer className="w-3.5 h-3.5" />
+              <span>ATS PDF</span>
             </button>
           </div>
         )}
