@@ -98,14 +98,14 @@ test.describe('critical resume flows', () => {
   }) => {
     await page.goto('/');
 
-    await page.getByRole('button', { name: '分享', exact: true }).click();
+    await page.getByRole('button', { name: /^(分享|Share)$/ }).click();
     await expect(
-      page.getByRole('dialog', { name: '分享简历' }),
+      page.getByRole('dialog', { name: /分享简历|Share resume/ }),
     ).toBeVisible();
 
     const password = 'E2E-share-password!42';
     await page.locator('#share-password').fill(password);
-    await page.getByRole('button', { name: '生成链接', exact: true }).click();
+    await page.getByRole('button', { name: /生成链接|Generate link/ }).click();
 
     const generatedLink = page.locator('#generated-share-link');
     await expect(generatedLink).toBeVisible();
