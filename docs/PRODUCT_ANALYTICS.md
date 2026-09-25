@@ -22,7 +22,7 @@ These are non-negotiable:
 
 - Never send resume Markdown, rendered resume text, JD text, names, email addresses, phone numbers, profile names, filenames, or free-form user input.
 - Never send share payloads, access codes, or any URL query/hash values.
-- Analytics paths must use `location.pathname` only. Resume Craft share data can be carried in URL parameters, so the default `location.search` must not be sent.
+- Analytics paths must use `location.pathname` only. New Resume Craft shares keep payloads in `location.hash`, while legacy links may use `location.search`; neither query nor fragment content may be sent.
 - No cookies, advertising identifiers, cross-site identifiers, fingerprinting, or persistent analytics user IDs.
 - No session replay or DOM/text capture.
 - Event names must come from a fixed allowlist in source code; never construct analytics event names from user content.
