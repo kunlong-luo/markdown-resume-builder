@@ -3,7 +3,7 @@ import { ResumeSettings } from '../types';
 export interface ShareState {
   markdown: string;
   settings: ResumeSettings;
-  passwordHash?: string; // Optional simple Base64 password for read-only locking
+  passwordHash?: string; // Legacy field name: optional client-side access code, not a cryptographic hash.
 }
 
 /**
@@ -64,10 +64,32 @@ export function deserializeShareState(encoded: string): ShareState | null {
 }
 
 /**
- * Generates the full outer link for a shared resume.
+ * Reads a share payload from the privacy-preserving URL fragment first,
+ * while keeping legacy ?share= links working.
+ */
+export function getSharePayloadFromLocation(search: string, hash: string): string | null {
+  try {
+    const fragment = hash.startsWith('#') ? hash.slice(1) : hash;
+    const fragmentParams = new URLSearchParams(fragment);
+    const fragmentShare = fragmentParams.get('share');
+    if (fragmentShare) return fragmentShare;
+  } catch {
+    // Fall through to legacy query parsing.
+  }
+
+  try {
+    return new URLSearchParams(search).get('share');
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Generates a share link using the URL fragment.
+ * Fragments are not sent in the HTTP request to the hosting server.
  */
 export function generateShareUrl(state: ShareState): string {
-  const hash = serializeShareState(state);
+  const payload = serializeShareState(state);
   const origin = window.location.origin + window.location.pathname;
-  return `${origin}?share=${hash}`;
+  return `${origin}#share=${payload}`;
 }
