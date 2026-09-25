@@ -325,6 +325,7 @@ export default function App() {
       if (isCmdOrCtrl && e.shiftKey && (e.key === 'f' || e.key === 'F')) {
         e.preventDefault();
         smartAutoFit(settings, updateSetting);
+        trackAnalyticsEvent('auto_fit_used');
         showToast?.({
           title: '已触发一键贴合控页',
           message: '微调行高与边距以压缩适应单页',
