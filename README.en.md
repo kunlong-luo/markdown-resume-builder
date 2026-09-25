@@ -15,7 +15,7 @@ English | [简体中文](./README.md)
 </p>
 
 
-> **Resume Craft** is an elegant, bi-directional synchronous, pixel-perfect A4 online resume editor designed specifically for job seekers.
+> **Resume Craft** is an A4-focused, local-first online resume editor that combines structured forms with Markdown.
 > 
 > 🌐 **Live Demo App**: [https://kunlong-luo.github.io/resume-craft/](https://kunlong-luo.github.io/resume-craft/)
 > 
@@ -45,7 +45,7 @@ When creating resumes, candidates frequently suffer from **Word layout nightmare
 |                                         |                                         |
 |                   +---------------------+---------------------+                   |
 |                   |                                           |                   |
-|         [ Vector PDF / High-Res Canvas ]             [ Encrypted H5 Link / QR ]   |
+|         [ Direct PDF / Browser Print ]               [ H5 Share Link / QR ]   |
 +-----------------------------------------------------------------------------------+
 ```
 
@@ -54,7 +54,7 @@ When creating resumes, candidates frequently suffer from **Word layout nightmare
 ## 🌟 Core Highlights
 
 ### 1. 🔄 Visual Form & Markdown Bi-Directional Sync Engine
-* **Bi-Directional Sync**: Seamlessly edit in either the "Structured Form" or "Markdown Source" with real-time **<16ms canvas re-rendering**.
+* **Bi-Directional Sync**: Seamlessly edit in either the "Structured Form" or "Markdown Source" with real-time updates across the form, Markdown source, and live preview.
 * **Drag & Drop Reordering**: Native grip handles allow mouse drag-and-drop to reorder experiences or skills instantly, updating both Markdown text and live previews.
 
 ### 2. ⚡ 1-Click Auto Fit & A4 Page Boundary Control
@@ -74,8 +74,8 @@ When creating resumes, candidates frequently suffer from **Word layout nightmare
 ### 6. 🎨 Industry Color Palettes & Layout Customization
 * **Custom Styling**: Select from Indigo, Slate, Emerald, and Amber color palettes; customize single/two-column layouts, base font size (13/14/15px), line height, and header line accents.
 
-### 7. 🔤 High-Precision System Font Stack & A4 Scale Consistency
-* **Zero Multi-Device Discrepancies**: Eliminates font face distortion caused by external web font load timeouts with a robust fallback chain (PingFang SC, Microsoft YaHei, Source Han Sans SC). Pair with a standardized 1:1 A4 canvas (`794px × 1123px`) and adaptive viewport zoom engine for 100% exact alignment across editor preview, H5 link sharing, and PDF exports.
+### 7. 🔤 System Font Stack & A4 Layout Consistency
+* **Cross-Platform Consistency**: Uses a robust fallback stack (PingFang SC, Microsoft YaHei, Source Han Sans SC) with a `794px × 1123px` A4 canvas and adaptive viewport scaling to reduce layout differences across browsers and operating systems. Small variations can still occur because local font metrics differ.
 
 ### 8. 💾 Multi-Profile Matrix & Diff Comparison
 * **Version Control**: Clone and maintain tailored resume branches for different roles (e.g., `Frontend Lead`, `Full-Stack Developer`).
@@ -123,7 +123,7 @@ When creating resumes, candidates frequently suffer from **Word layout nightmare
 │   ├── data/                    # Initial templates in EN & ZH
 │   ├── hooks/                   # Custom hooks (A4 measurement, shortcuts)
 │   ├── i18n/                    # Localization dictionaries
-│   ├── lib/                     # AST parsers, Auto-Fit algorithms & Crypto
+│   ├── lib/                     # AST parsers, Auto-Fit, sharing & storage utilities
 │   ├── store/                   # Zustand reactive state store
 │   ├── types.ts                 # TypeScript type definitions
 │   ├── index.css                # Tailwind CSS v4 & theme variables
@@ -146,7 +146,7 @@ When creating resumes, candidates frequently suffer from **Word layout nightmare
 | **State** | [Zustand 5](https://github.com/pmndrs/zustand) | Lightweight reactive state with LocalStorage sync |
 | **Animations** | [Motion 13](https://github.com/framer/motion) | Smooth drag-and-drop & modal transitions |
 | **Markdown** | `react-markdown` + `remark-gfm` | GFM-compliant markdown parsing |
-| **PDF Engine** | Native Print + `html2canvas-pro` + `jspdf` | Vector-crisp PDF output |
+| **PDF Engine** | Browser print + `html2canvas-pro` + `jspdf` | Direct PDF download plus native Save as PDF workflow |
 
 ---
 
@@ -182,18 +182,20 @@ Open your browser at [http://localhost:3000](http://localhost:3000) to start edi
 
 ---
 
-## 📈 High-Quality PDF Export Tips
+## 📈 PDF Download & Print Guide
 
-Resume Craft supports both **native vector print** and **high-definition Canvas rendering**:
+Resume Craft provides two export paths:
 
-1. Enable **A4 Page Line** in the toolbar while editing to check page bounds.
-2. If content spills slightly into page 2, click **1-Click Auto Fit**.
-3. In the system print dialog (Chrome / Edge / Safari):
-   * **Destination**: `Save as PDF`
-   * **Paper Size**: `A4`
-   * **Margins**: **`None`** (*Crucial for 1:1 alignment*)
-   * **Options**: Check **`Background graphics`**
-   * **Headers and Footers**: **Uncheck**
+1. **Direct PDF download (default)**: click **Download** to generate a PDF in the browser with `html2canvas-pro + jsPDF`.
+2. **Browser print / Save as PDF**: press **Ctrl/Cmd + P** to use the native browser print workflow.
+
+While editing, use the **A4 Page Line** and **1-Click Auto Fit** tools to check page boundaries. For the browser print path (Chrome / Edge / Safari), recommended settings are:
+
+* **Destination**: `Save as PDF`
+* **Paper Size**: `A4`
+* **Margins**: try **`None`** first and confirm against the preview
+* **Options**: enable **`Background graphics`** when needed
+* **Headers and Footers**: disable them
 
 ---
 
