@@ -28,6 +28,9 @@ jobs:
         with:
           node-version-file: .node-version
 
+      - name: Enforce stable dependency policy
+        run: node scripts/check-stable-dependencies.mjs
+
       - name: Setup pnpm
         uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
