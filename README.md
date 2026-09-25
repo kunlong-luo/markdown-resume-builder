@@ -4,6 +4,7 @@
 
 [![Version](https://img.shields.io/badge/version-v2.0.0--PRO-blue?style=flat-square&logo=github)](https://github.com/kunlong-luo/resume-craft)
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-%E5%9C%A8%E7%BA%BF%E4%BD%93%E9%AA%8C-4F46E5?style=flat-square&logo=github)](https://kunlong-luo.github.io/resume-craft/)
+[![CI](https://github.com/kunlong-luo/resume-craft/actions/workflows/ci.yml/badge.svg)](https://github.com/kunlong-luo/resume-craft/actions/workflows/ci.yml)
 [![React](https://img.shields.io/badge/built%20with-React%2019-blueviolet?style=flat-square&logo=react)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/bundler-Vite%208-646CFF?style=flat-square&logo=vite)](https://vite.dev/)
 [![TailwindCSS](https://img.shields.io/badge/styling-Tailwind%20v4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
@@ -138,7 +139,7 @@
 | **构建工具** | [Vite 8](https://vite.dev/) | 毫秒级 HMR 与极速生产打包 |
 | **样式引擎** | [Tailwind CSS v4](https://tailwindcss.com/) | 新一代 CSS 变量与极简原子化样式 |
 | **状态管理** | [Zustand 5](https://github.com/pmndrs/zustand) | 轻量响应式状态，支持 LocalStorage 持久化 |
-| **动效系统** | [Motion 12](https://github.com/framer/motion) | 流畅弹窗、拖拽重排与平滑展开动画 |
+| **动效系统** | [Motion 13](https://github.com/framer/motion) | 流畅弹窗、拖拽重排与平滑展开动画 |
 | **Markdown** | `react-markdown` + `remark-gfm` | 标准 GFM 语法高能解析 |
 | **PDF 导出** | 原生 Print 驱动 + `html2canvas-pro` + `jspdf` | 矢量清晰打印与 Canvas 双保险导出 |
 | **图标库** | [Lucide React](https://lucide.dev/) | 矢量现代线条图标 |
@@ -207,6 +208,19 @@ Resume Craft 支持 **原生矢量打印** 与 **高清 Canvas 渲染** 双模�
 <summary><b>Q3: 为什么发布或换电脑后字体依然能保持完全一致？</b></summary>
 <b>答：</b>我们在项目中内置了跨平台的“高保真系统降级字体链”，并使用 1:1 A4 物理像素基准（794px × 1123px）配合 `transform: scale()` 视口适配，确保任何屏幕与操作系统下渲染结果高度一致。
 </details>
+
+---
+
+## 🤝 参与贡献与社区
+
+欢迎提交 Bug、功能建议和代码贡献。在开始之前，请先阅读：
+
+- [贡献指南](CONTRIBUTING.md) — 开发环境、提交规范和 PR 流程
+- [行为准则](CODE_OF_CONDUCT.md) — 社区协作规则
+- [安全策略](SECURITY.md) — 漏洞请通过私密渠道报告，不要公开提交敏感细节
+- [支持说明](SUPPORT.md) — Bug、功能建议和使用问题的处理方式
+
+提交 Pull Request 前，请确保 `pnpm lint`、`pnpm test` 和 `pnpm build` 均通过。
 
 ---
 
