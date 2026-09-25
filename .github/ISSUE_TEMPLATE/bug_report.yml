@@ -1,0 +1,43 @@
+name: Bug report
+description: Report a reproducible problem in Resume Craft
+title: "[Bug]: "
+body:
+  - type: checkboxes
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues and did not find the same problem.
+          required: true
+        - label: I can reproduce this on the latest version or live site.
+          required: true
+  - type: textarea
+    attributes:
+      label: What happened?
+      description: Describe the problem clearly.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Steps to reproduce
+      description: Provide the smallest reliable sequence of steps.
+      placeholder: |
+        1. Open ...
+        2. Click ...
+        3. See ...
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Browser and operating system
+      placeholder: "Chrome 140 / macOS 15"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Additional context
+      description: Screenshots, console output, or other useful context. Remove personal resume data and secrets first.
