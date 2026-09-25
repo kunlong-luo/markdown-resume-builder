@@ -19,6 +19,7 @@ import { ResumeProfile } from '../../types';
 import { NewProfileModal } from '../profile/NewProfileModal';
 import { useConfirm } from '../../context/ConfirmContext';
 import { Tooltip } from '../ui/Tooltip';
+import { normalizeImportedProfiles } from '../../lib/import-validation';
 
 interface ProfilesTabProps {
   lang?: string;
@@ -35,7 +36,8 @@ export function ProfilesTab({ lang, showToast }: ProfilesTabProps) {
     createProfile,
     renameProfile, 
     deleteProfile,
-    importProfiles
+    importProfiles,
+    settings
   } = useResumeStore();
 
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
@@ -130,12 +132,12 @@ export function ProfilesTab({ lang, showToast }: ProfilesTabProps) {
     reader.onload = (event) => {
       try {
         const content = event.target?.result as string;
-        const parsed = JSON.parse(content);
-        if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].markdown) {
+        const parsed = normalizeImportedProfiles(JSON.parse(content), settings);
+        if (parsed) {
           importProfiles(parsed);
           showToast(isEn ? `Imported ${parsed.length} profiles successfully` : `成功导入 ${parsed.length} 份简历档案并自动就绪`);
         } else {
-          showToast(isEn ? 'Invalid profile archive format' : '档案备份文件格式不符合要求', true);
+          showToast(isEn ? 'Invalid or unsupported profile archive' : '档案备份无效、损坏或包含不支持的配置', true);
         }
       } catch (err) {
         showToast(isEn ? 'Failed to parse JSON file' : '解析 JSON 文件失败，请检查文件格式', true);
