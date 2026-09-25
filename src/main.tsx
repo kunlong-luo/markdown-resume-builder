@@ -5,6 +5,7 @@ import { ConfirmProvider } from './context/ConfirmContext.tsx';
 import { ToastProvider } from './components/ui/Toast.tsx';
 import { ErrorBoundary } from './components/ui/ErrorBoundary.tsx';
 import './index.css';
+import { initAnalyticsPageview } from './lib/analytics';
 
 // Suppress benign ResizeObserver loop notification messages that can occur during layout/zoom updates
 if (typeof window !== 'undefined') {
@@ -19,6 +20,8 @@ if (typeof window !== 'undefined') {
     }
   });
 }
+
+initAnalyticsPageview();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
