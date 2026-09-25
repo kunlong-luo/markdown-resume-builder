@@ -1,5 +1,5 @@
 import React, { useState, useRef, useMemo } from 'react';
-import { User, Phone, Mail, Link, Layers, ChevronDown, ChevronUp, X, Code, Globe, Calendar, GraduationCap, Briefcase, MapPin, Activity } from 'lucide-react';
+import { User, Phone, Mail, Link, Layers, ChevronDown, ChevronUp, X, Code, Globe, GraduationCap, Briefcase, MapPin, Activity } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ResumeFormModel } from '../../lib/form-types';
 import { CustomSelect } from '../ui/CustomSelect';
