@@ -1,8 +1,8 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
-import path from 'path';
-import {defineConfig} from 'vite';
+import { resolve } from 'node:path';
+import { defineConfig } from 'vite';
 
 export default defineConfig(() => {
   return {
@@ -17,10 +17,9 @@ export default defineConfig(() => {
           enabled: false
         },
         manifest: {
-          id: '/',
-          name: 'ResuCraft - Markdown Resume Builder Pro',
-          short_name: 'ResuCraft',
-          description: 'A minimalist web application to generate and export beautiful resumes from Markdown.',
+          name: 'Resume Craft - Markdown Resume Builder',
+          short_name: 'Resume Craft',
+          description: 'A local-first Markdown resume builder with live A4 preview, ATS checks, and PDF export.',
           theme_color: '#4F46E5',
           background_color: '#070a13',
           display: 'standalone',
@@ -49,36 +48,6 @@ export default defineConfig(() => {
         },
         workbox: {
           globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
-          runtimeCaching: [
-            {
-              urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'google-fonts-cache',
-                expiration: {
-                  maxEntries: 10,
-                  maxAgeSeconds: 60 * 60 * 24 * 365,
-                },
-                cacheableResponse: {
-                  statuses: [0, 200],
-                },
-              },
-            },
-            {
-              urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'gstatic-fonts-cache',
-                expiration: {
-                  maxEntries: 10,
-                  maxAgeSeconds: 60 * 60 * 24 * 365,
-                },
-                cacheableResponse: {
-                  statuses: [0, 200],
-                },
-              },
-            },
-          ],
         },
       }),
     ],
@@ -111,12 +80,12 @@ export default defineConfig(() => {
     },
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
+        '@': resolve(import.meta.dirname, '.'),
       },
     },
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
-      // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
+      // File watching is disabled to prevent flickering during agent edits.
       hmr: process.env.DISABLE_HMR !== 'true',
       // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
