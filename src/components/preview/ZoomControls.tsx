@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { ZoomIn, ZoomOut, Scissors, Search, Maximize2 } from 'lucide-react';
+import { ZoomIn, ZoomOut, Scissors, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CustomSlider } from '../ui/CustomSlider';
 import { Tooltip } from '../ui/Tooltip';
