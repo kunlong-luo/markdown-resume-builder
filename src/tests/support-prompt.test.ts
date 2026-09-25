@@ -11,6 +11,7 @@ describe('support prompt', () => {
     expect(isOfficialHostedApp('localhost', '/resume-craft/')).toBe(false);
     expect(isOfficialHostedApp('127.0.0.1', '/resume-craft/')).toBe(false);
     expect(isOfficialHostedApp('example.com', '/resume-craft/')).toBe(false);
+    expect(isOfficialHostedApp('kunlong-luo.github.io', '/resume-craft-copy/')).toBe(false);
   });
 
   it('shows when there is no active cooldown', () => {
