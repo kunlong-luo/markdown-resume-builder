@@ -5,7 +5,6 @@ import { Header } from './components/layout/Header';
 import { Toolbar } from './components/layout/Toolbar';
 import { useResumeStore } from './store/useResumeStore';
 import { useResumeActions } from './hooks/useResumeActions';
-import { ResumeSettings } from './types';
 import { getSharePayloadFromLocation, parseSharePayload } from './lib/share-utils';
 import { useToast } from './components/ui/Toast';
 import { smartAutoFit } from './lib/preview-utils';
@@ -52,9 +51,6 @@ export default function App() {
     markdown,
     settings,
     setLastSaved,
-    setMarkdown,
-    setSettings,
-    handleMarkdownChange,
     isHelpLegalOpen,
     setIsHelpLegalOpen,
     setStorageHealth
@@ -214,11 +210,6 @@ export default function App() {
     setIsSupportProjectOpen(false);
   }, []);
 
-  const handleRestoreDraft = (newMarkdown: string, newSettings: ResumeSettings) => {
-    setMarkdown(newMarkdown);
-    setSettings(newSettings);
-    handleMarkdownChange(newMarkdown, true);
-  };
 
   // Automated periodic autosave (every 3 minutes)
   useEffect(() => {
