@@ -1,0 +1,64 @@
+name: Submit SEO URLs
+
+on:
+  workflow_run:
+    workflows: ['Deploy Pages']
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  indexnow:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Submit sitemap URLs to IndexNow
+        env:
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
+          SITEMAP_URL: https://kunlong-luo.github.io/resume-craft/sitemap.xml
+          SITE_HOST: kunlong-luo.github.io
+          KEY_LOCATION_BASE: https://kunlong-luo.github.io/resume-craft
+        run: |
+          if [ -z "$INDEXNOW_KEY" ]; then
+            echo "INDEXNOW_KEY is not configured; skipping IndexNow submission."
+            exit 0
+          fi
+
+          curl --fail --silent --show-error --location "$SITEMAP_URL" --output /tmp/sitemap.xml
+
+          python - <<'PY'
+          import json
+          import os
+          import xml.etree.ElementTree as ET
+
+          root = ET.parse('/tmp/sitemap.xml').getroot()
+          ns = {'sm': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
+          urls = [
+              node.text.strip()
+              for node in root.findall('sm:url/sm:loc', ns)
+              if node.text and node.text.strip()
+          ]
+
+          payload = {
+              'host': os.environ['SITE_HOST'],
+              'key': os.environ['INDEXNOW_KEY'],
+              'keyLocation': f"{os.environ['KEY_LOCATION_BASE']}/{os.environ['INDEXNOW_KEY']}.txt",
+              'urlList': urls,
+          }
+
+          with open('/tmp/indexnow.json', 'w', encoding='utf-8') as fh:
+              json.dump(payload, fh, ensure_ascii=False)
+
+          print(f"Prepared {len(urls)} URL(s) for IndexNow.")
+          PY
+
+          curl --fail --silent --show-error \
+            --request POST \
+            --header 'Content-Type: application/json; charset=utf-8' \
+            --data-binary @/tmp/indexnow.json \
+            https://api.indexnow.org/IndexNow
+
+          echo "IndexNow submission completed."

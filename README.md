@@ -2,7 +2,7 @@
 
 [English](./README.en.md) | 简体中文
 
-[![Version](https://img.shields.io/badge/version-v2.0.0--PRO-blue?style=flat-square&logo=github)](https://github.com/kunlong-luo/markdown-resume-builder)
+[![Version](https://img.shields.io/badge/version-v2.0.0--PRO-blue?style=flat-square&logo=github)](https://github.com/kunlong-luo/resume-craft)
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-%E5%9C%A8%E7%BA%BF%E4%BD%93%E9%AA%8C-4F46E5?style=flat-square&logo=github)](https://kunlong-luo.github.io/resume-craft/)
 [![React](https://img.shields.io/badge/built%20with-React%2019-blueviolet?style=flat-square&logo=react)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/bundler-Vite%208-646CFF?style=flat-square&logo=vite)](https://vite.dev/)
@@ -100,7 +100,10 @@
 │   ├── dependabot.yml           # Dependabot 依赖每周自动巡检
 │   └── workflows/
 │       ├── ci.yml               # GitHub Actions CI 检查与测试
-│       └── release.yml          # Tag 触发自动打包与 GitHub Release
+│       ├── deploy.yml           # main 分支自动部署 GitHub Pages
+│       ├── release.yml          # Tag 触发自动打包与 GitHub Release
+│       ├── seo-submit.yml       # 部署成功后可选提交 IndexNow
+│       └── promote.yml          # 新内容跨平台推广（默认 dry-run）
 ├── src/
 │   ├── assets/                  # 静态资源与矢量图形
 │   ├── components/              # UI 组件分层架构
@@ -146,8 +149,8 @@
 
 ### 1. 克隆项目
 ```bash
-git clone https://github.com/kunlong-luo/markdown-resume-builder.git
-cd markdown-resume-builder
+git clone https://github.com/kunlong-luo/resume-craft.git
+cd resume-craft
 ```
 
 ### 2. 安装依赖
