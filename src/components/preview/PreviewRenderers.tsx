@@ -4,7 +4,6 @@ import { translateSectionTitle } from '../../lib/section-translator';
 
 // Static constants lifted out of render cycle to prevent repeated compilation and memory allocation overhead
 const DATE_REGEX = /(?:(?:19|20)\d{2}[\.\-\/年\s]\d{1,2}\s*月?|(?:19|20)\d{2})\s*(?:[\-—–―~～至到]|--+|\s+)\s*(?:(?:19|20)\d{2}[\.\-\/年\s]\d{1,2}\s*月?|(?:19|20)\d{2}|至今|现在|目前|present|Present|now|current|毕业)/gi;
-const DIVIDER_REGEX = /[　]|[｜|·•]|\s{2,}/;
 const SPLIT_REGEX = /[　]|\s*[|｜·•]\s*|\s{2,}/g;
 
 const ROLE_KEYWORDS = [
@@ -13,11 +12,6 @@ const ROLE_KEYWORDS = [
   'Intern', 'Architect', 'Engineer', 'Developer', 'Lead', 'Manager', 'Consultant'
 ];
 
-const EDU_KEYWORDS = [
-  '大学', '学院', '学校', 'University', 'College', 'School', '学位', '本科', '硕士', '博士', 
-  '大专', '中专', '高中', '初中', '小学', 'Bachelor', 'Master', 'PhD', 'MBA', '教育', '专业', 
-  '学士', '学业', '在校', '主修', 'GPA'
-];
 
 function getChildrenText(children: any): string {
   let text = '';
@@ -65,8 +59,6 @@ function renderStructuralRow(
     if (segments.length > 0) {
       let companyOrProject = segments[0] || '';
       let roleOrTitle = segments[1] || '';
-
-      const isEdu = EDU_KEYWORDS.some(k => textContent.includes(k));
 
       if (segments.length >= 2) {
         const s0IsRole = ROLE_KEYWORDS.some(keyword => segments[0].includes(keyword));
