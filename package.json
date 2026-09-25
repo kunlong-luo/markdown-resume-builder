@@ -17,7 +17,8 @@
     "lint": "eslint \"src/**/*.{ts,tsx}\" vite.config.ts",
     "check:stable-deps": "node scripts/check-stable-dependencies.mjs",
     "typecheck": "node node_modules/@typescript/native/bin/tsc --noEmit",
-    "typecheck:critical": "node node_modules/@typescript/native/bin/tsc -p tsconfig.strict-critical.json --noEmit"
+    "typecheck:critical": "node node_modules/@typescript/native/bin/tsc -p tsconfig.strict-critical.json --noEmit",
+    "lint:fix": "eslint \"src/**/*.{ts,tsx}\" vite.config.ts --fix"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
