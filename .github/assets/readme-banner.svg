@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
-  <title id="title">Resume Craft — Markdown Resume Builder</title>
-  <desc id="desc">Resume Craft project banner showing Markdown editing and live A4 resume preview.</desc>
+  <title id="title">Resume Craft — Local-first Markdown Resume Builder</title>
+  <desc id="desc">Resume Craft, a local-first Markdown resume builder with live A4 preview, ATS checks, and PDF export.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#111c72"/>
@@ -30,7 +30,7 @@
   </g>
 
   <text x="60" y="285" font-family="Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif" font-size="72" font-weight="800" fill="url(#text)">Resume Craft</text>
-  <text x="62" y="338" font-family="Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif" font-size="34" font-weight="700" fill="#d9e0ff">Markdown Resume Builder</text>
+  <text x="62" y="338" font-family="Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif" font-size="27" font-weight="700" fill="#d9e0ff">Local-first Markdown Resume Builder</text>
 
   <g font-family="Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif" font-size="19" font-weight="700" fill="#ffffff">
     <circle cx="83" cy="397" r="23" fill="#5061ff"/><text x="76" y="404">◉</text>

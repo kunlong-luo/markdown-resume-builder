@@ -1,27 +1,36 @@
-# 🚀 Resume Craft - Markdown Resume Builder
+# 🚀 Resume Craft
 
-English | [简体中文](./README.md)
+<h3 align="center">Local-first Markdown Resume Builder</h3>
 
-[![Latest Release](https://img.shields.io/github/v/release/kunlong-luo/resume-craft?style=flat-square&logo=github)](https://github.com/kunlong-luo/resume-craft/releases/latest)
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Try%20Now-4F46E5?style=flat-square&logo=github)](https://kunlong-luo.github.io/resume-craft/)
-[![CI](https://github.com/kunlong-luo/resume-craft/actions/workflows/ci.yml/badge.svg)](https://github.com/kunlong-luo/resume-craft/actions/workflows/ci.yml)
-[![React](https://img.shields.io/badge/built%20with-React%2019-blueviolet?style=flat-square&logo=react)](https://react.dev/)
-[![Vite](https://img.shields.io/badge/bundler-Vite%208-646CFF?style=flat-square&logo=vite)](https://vite.dev/)
-[![TailwindCSS](https://img.shields.io/badge/styling-Tailwind%20v4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
-[![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
+<p align="center">
+  Build and tailor A4 resumes with Markdown, structured forms, ATS checks, and direct PDF export.
+</p>
+
+<p align="center">
+  <a href="https://kunlong-luo.github.io/resume-craft/"><strong>Live Demo</strong></a>
+  ·
+  <a href="./README.md">简体中文</a>
+  ·
+  <a href="https://github.com/kunlong-luo/resume-craft/releases/latest">Latest Release</a>
+</p>
+
+<p align="center">
+  <a href="https://kunlong-luo.github.io/resume-craft/"><img src="https://img.shields.io/badge/Live%20Demo-Try%20Now-4F46E5?style=flat-square&logo=github" alt="Live Demo" /></a>
+  <a href="https://github.com/kunlong-luo/resume-craft/actions/workflows/ci.yml"><img src="https://github.com/kunlong-luo/resume-craft/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://github.com/kunlong-luo/resume-craft/releases/latest"><img src="https://img.shields.io/github/v/release/kunlong-luo/resume-craft?style=flat-square&logo=github" alt="Latest Release" /></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="MIT License" /></a>
+</p>
 
 <p align="center">
   <img src=".github/assets/readme-banner.svg" alt="Resume Craft — Markdown Resume Builder" width="100%" />
 </p>
 
 
-> **Resume Craft** is an A4-focused, local-first online resume editor that combines structured forms with Markdown.
-> 
-> 🌐 **Live Demo App**: [https://kunlong-luo.github.io/resume-craft/](https://kunlong-luo.github.io/resume-craft/)
-> 
-> 💡 **Tagline**: *"Craft your perfect one-page resume with Markdown."*
-> 
-> Combining the speed of Markdown with structured visual forms, Resume Craft includes 1-Click Auto-Fit, ATS diagnostics, bilingual typography helpers, theme customization, multiple resume profiles, and link sharing with an optional client-side access code.
+> **Resume Craft** is for job seekers and developers who want to spend less time fighting Word layouts. It combines Markdown, structured forms, and a live A4 preview in a local-first workflow that works without an account.
+>
+> **Markdown ↔ Form · Live A4 Preview · ATS Checks · Auto Fit · PDF Export · Local-first · PWA**
+>
+> Resume drafts and settings are primarily stored in the browser. ATS checks, layout tools, and PDF generation run on the client, while optional share links provide a lightweight way to send a resume to others.
 
 ---
 
