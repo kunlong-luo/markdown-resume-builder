@@ -1,6 +1,6 @@
 # Privacy-friendly product analytics & feedback plan
 
-> Status: **phase 1 implementation — Simple Analytics is enabled on the official GitHub Pages app with a minimal event allowlist**
+> Status: **validation implementation — Simple Analytics is loaded only after privacy checks and uses a fixed, metadata-free event allowlist**
 
 Resume Craft is local-first. Product measurement should answer a small number of product questions without collecting resume content, job descriptions, contact details, share payloads, or persistent user identifiers.
 
@@ -38,11 +38,13 @@ Phase 1 uses Simple Analytics because it provides aggregate pageviews and explic
 Resume Craft adds stricter application-side rules on top:
 
 - analytics events are hard-coded in `src/lib/analytics.ts`
-- Do Not Track is respected
+- Do Not Track is respected; when DNT is enabled, the analytics script is not loaded at all
+- the Simple Analytics script is injected at runtime only on the official GitHub Pages app after privacy checks pass
 - automatic pageview collection is disabled so the app can normalize shared-resume visits to `/resume-craft/shared`
-- URL query/hash values are never passed to analytics
+- URL query/hash values are never passed to analytics, and the analytics script request uses `referrerPolicy="no-referrer"`
 - browser/device metrics that are not needed for product validation are disabled
-- the first implementation sends only three events: `editing_started`, `pdf_export_success`, and `browser_print_started`
+- product events are deduplicated in memory per page load; no persistent analytics identifier is stored
+- events carry only a fixed event name and never include metadata, scores, filenames, resume/JD content, or other free-form values
 
 GitHub Discussions remains the qualitative feedback channel. A richer tool such as Umami can be reconsidered later only if aggregate evidence shows a genuine need for deeper funnels.
 
@@ -66,8 +68,13 @@ Pageviews are enough for visits. Track only these product events:
 | `editing_started` | User makes the first meaningful edit in a visit | none |
 | `pdf_export_success` | Direct PDF generation finishes successfully | none |
 | `browser_print_started` | Browser print / Save as PDF workflow is opened | none |
+| `ats_check_completed` | A non-empty JD is analyzed locally | none |
+| `auto_fit_used` | User explicitly triggers A4 Auto Fit | none |
+| `share_created` | User generates a resume share link | none |
+| `pwa_install` | Browser reports an accepted PWA installation | none |
+| `feedback_opened` | User opens the GitHub Discussions feedback channel | none |
 
-Additional events such as Import, ATS, Auto Fit, Profile, Share, PWA install, or Feedback should only be added after the first validation cycle demonstrates a concrete decision they would inform.
+Do not add click-by-click telemetry, profile creation events, template names, ATS score buckets, content lengths, or acquisition metadata unless a concrete product decision cannot be made without them.
 
 Do not track every click, every edit, editor focus, character counts, ATS score, resume length, job title, template text, or search terms.
 
@@ -128,6 +135,7 @@ Review only a compact scorecard:
 | `ats_check_completed` | differentiation usage |
 | `auto_fit_used` | A4 pain-point usage |
 | `share_created` | sharing demand |
+| `pwa_install` | install intent / offline-app demand |
 | `feedback_opened` | feedback intent |
 | New Discussions / actionable Issues | qualitative learning |
 | GitHub Stars | open-source interest, not product activation |
@@ -145,7 +153,7 @@ When implementation starts:
 - Add tests proving URLs like `?share=...`, query parameters, hashes, resume text, and JD text are never included in analytics payloads.
 - Keep analytics failures silent and non-blocking.
 - Update the in-app privacy section and README before deployment.
-- Add an easy developer switch to disable analytics locally.
+- Local development and forks are analytics-disabled by hostname gating; no developer identifier or local switch is required.
 
 ## 9. Decision after the validation cycle
 
