@@ -1,3 +1,5 @@
+import { A4_HEIGHT_MM, A4_HEIGHT_PX, A4_WIDTH_MM, A4_WIDTH_PX } from './page-layout';
+
 export interface DirectPDFExportOptions {
   filename?: string;
   onProgress?: (status: string) => void;
@@ -76,6 +78,7 @@ function findSmartSplitY(
   if (inGap) {
     const gapSize = gapBottomY - gapTopY;
     if (gapSize > maxGapSize) {
+      maxGapSize = gapSize;
       bestGapCenterY = Math.floor((gapBottomY + gapTopY) / 2);
     }
   }
@@ -170,8 +173,8 @@ export async function exportDirectPDF(
   exportWrapper.style.position = 'fixed';
   exportWrapper.style.left = '-9999px';
   exportWrapper.style.top = '0px';
-  exportWrapper.style.width = '794px'; // 210mm in standard 96dpi pixels
-  exportWrapper.style.minHeight = '1123px';
+  exportWrapper.style.width = `${A4_WIDTH_MM}mm`;
+  exportWrapper.style.minHeight = `${A4_HEIGHT_MM}mm`;
   exportWrapper.style.zIndex = '-9999';
   exportWrapper.style.opacity = '1';
   exportWrapper.style.visibility = 'visible';
@@ -199,9 +202,10 @@ export async function exportDirectPDF(
   clone.style.position = 'relative';
   clone.style.left = 'auto';
   clone.style.top = 'auto';
-  clone.style.width = '794px';
-  clone.style.maxWidth = '794px';
-  clone.style.minHeight = '1123px'; // 297mm in 96dpi
+  clone.style.width = `${A4_WIDTH_MM}mm`;
+  clone.style.minWidth = `${A4_WIDTH_MM}mm`;
+  clone.style.maxWidth = `${A4_WIDTH_MM}mm`;
+  clone.style.minHeight = `${A4_HEIGHT_MM}mm`;
   clone.style.transform = 'none';
   clone.style.margin = '0 auto';
   clone.style.boxSizing = 'border-box';
@@ -213,8 +217,29 @@ export async function exportDirectPDF(
   clone.style.visibility = 'visible';
   clone.style.display = 'block';
 
+  const stabilizer = document.createElement('style');
+  stabilizer.textContent = `
+    #resume-temp-pdf-export-clone,
+    #resume-temp-pdf-export-clone *,
+    #resume-temp-pdf-export-clone *::before,
+    #resume-temp-pdf-export-clone *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+  `;
+  exportWrapper.appendChild(stabilizer);
   exportWrapper.appendChild(clone);
   document.body.appendChild(exportWrapper);
+
+  const manualBreakOffsets = Array.from(clone.querySelectorAll<HTMLElement>('.print-page-break')).map((el) => {
+    el.style.display = 'block';
+    el.style.height = '0';
+    el.style.margin = '0';
+    el.style.padding = '0';
+    el.style.border = '0';
+    el.style.visibility = 'hidden';
+    return el.offsetTop;
+  });
 
   try {
     onProgress?.('正在加载渲染引擎与排版组件...');
@@ -225,8 +250,8 @@ export async function exportDirectPDF(
 
     onProgress?.('正在生成超清渲染光栅...');
     
-    // Short wait for layout and fonts to settle in DOM
-    await new Promise(r => setTimeout(r, 120));
+    // Let the offscreen A4 clone settle before capture.
+    await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
 
     const canvas = await html2canvas(clone, {
       scale: 2.2, // 2.2x scale provides razor-sharp text
@@ -236,8 +261,8 @@ export async function exportDirectPDF(
       logging: false,
       scrollX: 0,
       scrollY: 0,
-      windowWidth: 1200,
-      windowHeight: Math.max(1200, clone.scrollHeight || 1123),
+      windowWidth: Math.ceil(A4_WIDTH_PX),
+      windowHeight: Math.max(Math.ceil(A4_HEIGHT_PX), clone.scrollHeight || Math.ceil(A4_HEIGHT_PX)),
     });
 
     onProgress?.('正在进行 A4 智能防截断分页排版...');
@@ -248,12 +273,18 @@ export async function exportDirectPDF(
       compress: true
     });
 
-    const pageWidth = 210;
-    const pageHeight = 297;
+    const pageWidth = A4_WIDTH_MM;
+    const pageHeight = A4_HEIGHT_MM;
 
     // Calculate canvas page slice height in canvas pixels (A4 aspect ratio: 297 / 210)
     const idealPageCanvasHeight = Math.floor(canvas.width * (pageHeight / pageWidth));
     const mainCtx = canvas.getContext('2d', { willReadFrequently: true });
+
+    const canvasScale = canvas.width / Math.max(1, clone.scrollWidth);
+    const manualBreakCanvasY = manualBreakOffsets
+      .map((offset) => Math.round(offset * canvasScale))
+      .filter((offset) => offset > 0 && offset < canvas.height)
+      .sort((a, b) => a - b);
 
     let currentY = 0;
     let pageCount = 0;
@@ -267,11 +298,15 @@ export async function exportDirectPDF(
       pageCount++;
       onProgress?.(`正在渲染第 ${pageCount} 页 PDF (智能避让文字)...`);
 
-      let splitY = currentY + idealPageCanvasHeight;
-      if (splitY < canvas.height && mainCtx) {
+      let splitY = Math.min(canvas.height, currentY + idealPageCanvasHeight);
+      const nextManualBreak = manualBreakCanvasY.find(
+        (offset) => offset > currentY + 2 && offset <= splitY
+      );
+
+      if (nextManualBreak) {
+        splitY = nextManualBreak;
+      } else if (splitY < canvas.height && mainCtx) {
         splitY = findSmartSplitY(mainCtx, canvas.width, canvas.height, currentY, idealPageCanvasHeight);
-      } else {
-        splitY = Math.min(canvas.height, splitY);
       }
 
       const sliceHeight = splitY - currentY;

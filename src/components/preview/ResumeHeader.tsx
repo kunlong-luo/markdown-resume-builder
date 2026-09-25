@@ -77,7 +77,7 @@ export const ResumeHeader = React.memo(function ResumeHeader({ headerInfo, theme
 
   return (
     <div className="border-b border-gray-200/80 pb-5 mb-5">
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-5">
+      <div className="flex flex-row items-start justify-between gap-5">
         <div className="flex-1 min-w-0 space-y-2">
           {/* Candidate Name */}
           <h1 className="text-3xl font-black text-gray-900 tracking-tight">
@@ -100,7 +100,7 @@ export const ResumeHeader = React.memo(function ResumeHeader({ headerInfo, theme
 
           {/* Structured Basic Information Bar (个人核心基础信息条 - Zero-Pill 去药丸化排版) */}
           {basicInfoItems.length > 0 && (
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11.5px] sm:text-[12px] text-gray-650 font-medium pt-0.5">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[12px] text-gray-650 font-medium pt-0.5">
               {basicInfoItems.map((item, idx) => (
                 <React.Fragment key={item.key || idx}>
                   {idx > 0 && (
@@ -120,7 +120,7 @@ export const ResumeHeader = React.memo(function ResumeHeader({ headerInfo, theme
         
         {/* Contacts - Vertically Aligned */}
         {headerInfo.contacts.length > 0 && (
-          <div className="flex flex-col items-start gap-1.5 text-[11.5px] text-gray-600 font-medium sm:ml-auto sm:self-start shrink-0 min-w-0 sm:pt-1">
+          <div className="flex flex-col items-start gap-1.5 text-[11.5px] text-gray-600 font-medium ml-auto self-start shrink-0 min-w-0 pt-1">
 
             {headerInfo.contacts.map((contact, idx) => {
               let icon = null;
@@ -215,7 +215,7 @@ export const ResumeHeader = React.memo(function ResumeHeader({ headerInfo, theme
               }
 
               return (
-                <div key={idx} className="flex items-center gap-2 hover:text-gray-950 transition-colors w-full sm:w-auto">
+                <div key={idx} className="flex items-center gap-2 hover:text-gray-950 transition-colors w-auto">
                   <span className="w-4 h-4 flex items-center justify-center shrink-0">
                     {icon}
                   </span>

@@ -83,12 +83,12 @@ function renderStructuralRow(
         <div className="flex flex-row items-baseline justify-between gap-4 border-b border-gray-100/70 pb-1.5 mt-5 mb-2 break-inside-avoid break-after-avoid w-full">
           <div className="flex flex-wrap items-baseline gap-x-2.5">
             {companyOrProject && (
-              <span className="font-bold text-gray-950 tracking-tight text-[13.5px] sm:text-[14px]">
+              <span className="font-bold text-gray-950 tracking-tight text-[14px]">
                 {companyOrProject}
               </span>
             )}
             
-            <div className="flex flex-wrap items-center gap-2 text-gray-650 font-medium text-[12.5px] sm:text-[13px]">
+            <div className="flex flex-wrap items-center gap-2 text-gray-650 font-medium text-[13px]">
               {roleOrTitle && (
                 <>
                   <span className="text-gray-300 select-none text-[10px]">•</span>
@@ -106,7 +106,7 @@ function renderStructuralRow(
           </div>
 
           {datePart && (
-            <span className="text-gray-500 font-semibold font-mono whitespace-nowrap ml-auto tabular-nums text-[12px] sm:text-[12.5px]">
+            <span className="text-gray-500 font-semibold font-mono whitespace-nowrap ml-auto tabular-nums text-[12.5px]">
               {datePart}
             </span>
           )}

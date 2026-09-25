@@ -367,7 +367,6 @@
     width: 210mm !important;
     min-height: 297mm !important;
     margin: 0 auto !important;
-    padding: 15mm !important; /* Lock print padding to standard */
     box-shadow: none !important;
     border: none !important;
     outline: none !important;
@@ -395,7 +394,7 @@
     break-after: avoid !important;
   }
   
-  li, p, .resume-wrapper {
+  li, p {
     page-break-inside: avoid;
     break-inside: avoid !important;
   }
