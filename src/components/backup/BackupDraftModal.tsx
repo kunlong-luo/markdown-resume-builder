@@ -9,6 +9,7 @@ import { MatrixTab } from './MatrixTab';
 import { useConfirm } from '../../context/ConfirmContext';
 import { useResumeStore } from '../../store/useResumeStore';
 import { storage, STORAGE_KEYS } from '../../lib/storage';
+import { normalizeResumeBackup } from '../../lib/import-validation';
 
 export function BackupDraftModal() {
   const {
@@ -195,10 +196,10 @@ export function BackupDraftModal() {
     reader.onload = async (e) => {
       try {
         const text = e.target?.result as string;
-        const parsed = JSON.parse(text);
+        const parsed = normalizeResumeBackup(JSON.parse(text), settings);
 
-        if (parsed.version !== "markdown-resume-backup-v1" || !parsed.markdown || !parsed.settings) {
-          showToast(isEn ? 'Invalid resume backup file' : '非有效的简历备份文件，请检查文件格式是否正确', true);
+        if (!parsed) {
+          showToast(isEn ? 'Invalid or unsupported resume backup file' : '备份文件无效、损坏或包含不支持的配置', true);
           return;
         }
 
