@@ -216,6 +216,7 @@ Resume Craft is local-first, but local-first does not mean that every stored or 
 
 - Resume drafts, settings, and profiles are primarily stored in browser `localStorage`.
 - The project does not provide an application backend for persisting resume content.
+- The product uses Simple Analytics for a few anonymous aggregate signals (such as editing started and successful PDF export). It respects Do Not Track and does not send resume, JD, contact, share-payload, or access-code content; session replay and fingerprinting are not used.
 - Share URLs embed resume data in the URL; the optional access code is currently a client-side viewing gate, not end-to-end encryption.
 - Do not include real resume data, tokens, passwords, or other sensitive information in issues, pull requests, test fixtures, or screenshots.
 - Report security issues through the private process described in [SECURITY.md](SECURITY.md).

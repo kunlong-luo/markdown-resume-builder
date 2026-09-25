@@ -2,6 +2,7 @@ import React from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { useResumeStore } from '../store/useResumeStore';
 import { exportDirectPDF } from '../lib/pdf-export';
+import { trackAnalyticsEvent } from '../lib/analytics';
 
 interface UseResumeActionsProps {
   contentRef: React.RefObject<HTMLDivElement | null>;
@@ -67,6 +68,7 @@ export function useResumeActions({ contentRef }: UseResumeActionsProps) {
           setPdfExportProgress(status);
         }
       });
+      trackAnalyticsEvent('pdf_export_success');
     } catch (err) {
       console.error('Direct PDF export error:', err);
       // If direct capture fails, fall back to print
@@ -92,6 +94,7 @@ export function useResumeActions({ contentRef }: UseResumeActionsProps) {
       }, 6000);
 
       try {
+        trackAnalyticsEvent('browser_print_started');
         handlePrint();
       } catch (err) {
         setIsExportingPDF(false);

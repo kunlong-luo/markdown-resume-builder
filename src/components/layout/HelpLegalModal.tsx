@@ -281,8 +281,8 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
                     </h4>
                     <p className="text-slate-500 dark:text-slate-400 text-[11px] mt-0.5">
                       {isEn
-                        ? 'The current app does not integrate tracking cookies, session-replay analytics, or browser fingerprinting.'
-                        : '当前版本未集成追踪 Cookie、会话回放分析或浏览器指纹识别；如未来引入匿名统计，应同步更新隐私说明。'}
+                        ? 'Resume Craft uses Simple Analytics for coarse aggregate product metrics. It does not use tracking cookies, session replay, or browser fingerprinting, and no resume, JD, contact, share payload, or access-code content is sent as analytics data.'
+                        : 'Resume Craft 使用 Simple Analytics 统计少量聚合产品指标；不使用追踪 Cookie、会话回放或浏览器指纹，也不会把简历、JD、联系方式、分享内容或访问口令作为统计数据发送。'}
                     </p>
                   </div>
                 </div>

@@ -1,6 +1,6 @@
 # Privacy-friendly product analytics & feedback plan
 
-> Status: **design only — analytics is not enabled yet**
+> Status: **phase 1 implementation — Simple Analytics is enabled on the official GitHub Pages app with a minimal event allowlist**
 
 Resume Craft is local-first. Product measurement should answer a small number of product questions without collecting resume content, job descriptions, contact details, share payloads, or persistent user identifiers.
 
@@ -31,13 +31,20 @@ These are non-negotiable:
 
 ## 3. Recommended phase-1 stack
 
-### Anonymous product signals: GoatCounter
+### Anonymous product signals: Simple Analytics
 
-Recommended for the first validation cycle because its documented privacy model is intentionally minimal: no cookies/localStorage-based tracker ID, no stored IP addresses, and no stored full User-Agent. It also supports explicit JavaScript events.
+Phase 1 uses Simple Analytics because it provides aggregate pageviews and explicit custom events without cookies, localStorage-based visitor IDs, IP storage, or browser fingerprinting.
 
-Use it only for coarse aggregate counts. Do not send custom user data.
+Resume Craft adds stricter application-side rules on top:
 
-A self-hosted Umami instance is a reasonable later alternative if Resume Craft eventually needs richer funnels and reporting, but phase 1 does not need that complexity.
+- analytics events are hard-coded in `src/lib/analytics.ts`
+- Do Not Track is respected
+- automatic pageview collection is disabled so the app can normalize shared-resume visits to `/resume-craft/shared`
+- URL query/hash values are never passed to analytics
+- browser/device metrics that are not needed for product validation are disabled
+- the first implementation sends only three events: `editing_started`, `pdf_export_success`, and `browser_print_started`
+
+GitHub Discussions remains the qualitative feedback channel. A richer tool such as Umami can be reconsidered later only if aggregate evidence shows a genuine need for deeper funnels.
 
 ### Qualitative feedback: GitHub Discussions
 
@@ -57,15 +64,10 @@ Pageviews are enough for visits. Track only these product events:
 | Event | Meaning | Allowed data |
 | --- | --- | --- |
 | `editing_started` | User makes the first meaningful edit in a visit | none |
-| `import_used` | Raw text import is used | none |
-| `ats_check_completed` | ATS analysis completes | none |
-| `auto_fit_used` | Auto Fit runs | none |
-| `profile_created` | A resume profile is created/cloned | none |
 | `pdf_export_success` | Direct PDF generation finishes successfully | none |
-| `browser_print_started` | Ctrl/Cmd+P print workflow is opened | none |
-| `share_created` | A share link is generated | none |
-| `pwa_install_accepted` | PWA install is accepted when detectable | none |
-| `feedback_opened` | User opens the feedback/Discussions link | none |
+| `browser_print_started` | Browser print / Save as PDF workflow is opened | none |
+
+Additional events such as Import, ATS, Auto Fit, Profile, Share, PWA install, or Feedback should only be added after the first validation cycle demonstrates a concrete decision they would inform.
 
 Do not track every click, every edit, editor focus, character counts, ATS score, resume length, job title, template text, or search terms.
 
