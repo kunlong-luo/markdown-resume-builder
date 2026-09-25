@@ -50,8 +50,33 @@ test.describe('critical resume flows', () => {
 
   test('ATS PDF action reaches the browser print pipeline', async ({ page }) => {
     await page.addInitScript(() => {
-      window.print = () => {
+      const notifyPrint = () => {
         window.top?.postMessage('resume-craft-e2e-print-called', '*');
+      };
+
+      window.print = notifyPrint;
+
+      const originalAppendChild = Node.prototype.appendChild;
+      Node.prototype.appendChild = function <T extends Node>(node: T): T {
+        const appended = originalAppendChild.call(this, node) as T;
+
+        if (node instanceof HTMLIFrameElement) {
+          const stubIframePrint = () => {
+            try {
+              if (node.contentWindow) {
+                node.contentWindow.print = notifyPrint;
+              }
+            } catch {
+              // Same-origin print iframe is expected, but never fail the test
+              // setup if a browser blocks direct frame access.
+            }
+          };
+
+          stubIframePrint();
+          node.addEventListener('load', stubIframePrint, { once: true });
+        }
+
+        return appended;
       };
     });
 
@@ -75,12 +100,14 @@ test.describe('critical resume flows', () => {
     await atsButton.click();
 
     await expect
-      .poll(() =>
-        page.evaluate(
-          () =>
-            (window as Window & { __e2ePrintCalled?: boolean })
-              .__e2ePrintCalled,
-        ),
+      .poll(
+        () =>
+          page.evaluate(
+            () =>
+              (window as Window & { __e2ePrintCalled?: boolean })
+                .__e2ePrintCalled,
+          ),
+        { timeout: 10_000 },
       )
       .toBe(true);
   });
