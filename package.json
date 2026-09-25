@@ -14,10 +14,10 @@
     "preview": "vite preview",
     "test": "vitest run",
     "clean": "rm -rf dist server.js",
-    "lint": "pnpm run typecheck",
+    "lint": "eslint \"src/**/*.{ts,tsx}\" vite.config.ts",
     "check:stable-deps": "node scripts/check-stable-dependencies.mjs",
-    "typecheck": "tsc --noEmit",
-    "typecheck:critical": "tsc -p tsconfig.strict-critical.json --noEmit"
+    "typecheck": "node node_modules/@typescript/native/bin/tsc --noEmit",
+    "typecheck:critical": "node node_modules/@typescript/native/bin/tsc -p tsconfig.strict-critical.json --noEmit"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
@@ -41,9 +41,13 @@
     "esbuild": "^0.28.2",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.23.15",
-    "typescript": "~7.0.2",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
     "vite": "^8.3.0",
     "vite-plugin-pwa": "^1.3.0",
-    "vitest": "^5.0.1"
+    "vitest": "^5.0.1",
+    "@eslint/js": "^10.0.1",
+    "@typescript/native": "npm:typescript@~7.0.2",
+    "eslint": "^10.11.0",
+    "typescript-eslint": "^8.70.1"
   }
 }
