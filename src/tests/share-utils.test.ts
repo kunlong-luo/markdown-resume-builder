@@ -67,6 +67,36 @@ describe('privacy-preserving share links', () => {
     expect(parsed?.kind).toBe('plain');
   });
 
+  it('sanitizes malformed legacy settings instead of trusting URL payload types', () => {
+    const malformedSettings = {
+      ...settings,
+      themeColor: 'not-a-theme',
+      fontFamily: 'unknown-font',
+      lineHeight: 999,
+      blockGap: -20,
+      letterSpacing: 9,
+      customColor: 'javascript:alert(1)',
+    } as unknown as ResumeSettings;
+
+    const encoded = serializeShareState({
+      markdown: '# Candidate',
+      settings: malformedSettings,
+    });
+
+    const decoded = deserializeShareState(encoded);
+
+    expect(decoded?.settings.themeColor).toBe('indigo');
+    expect(decoded?.settings.fontFamily).toBe('sans');
+    expect(decoded?.settings.lineHeight).toBe(2.5);
+    expect(decoded?.settings.blockGap).toBe(0);
+    expect(decoded?.settings.letterSpacing).toBe(2);
+    expect(decoded?.settings.customColor).toBe('#4F46E5');
+  });
+
+  it('rejects oversized share payloads before decoding them', () => {
+    expect(parseSharePayload('A'.repeat(3_000_001))).toBeNull();
+  });
+
   it('encrypts protected shares without putting the password or plaintext in the envelope', async () => {
     const password = 'correct horse battery staple';
     const markdown = '# Candidate\n\nSecret resume content';
@@ -99,6 +129,35 @@ describe('privacy-preserving share links', () => {
     expect(decrypted?.markdown).toBe(markdown);
     expect(decrypted?.settings.themeColor).toBe('indigo');
     expect(decrypted?.passwordHash).toBeUndefined();
+  });
+
+  it('normalizes settings before encrypting protected shares', async () => {
+    const malformedSettings = {
+      ...settings,
+      themeColor: 'invalid-theme',
+      margin: 'impossible-margin',
+      lineHeight: 42,
+    } as unknown as ResumeSettings;
+
+    const password = 'validation password';
+    const encoded = await encryptShareState(
+      {
+        markdown: '# Candidate',
+        settings: malformedSettings,
+      },
+      password,
+    );
+
+    const parsed = parseSharePayload(encoded);
+    if (!parsed || parsed.kind !== 'encrypted') {
+      throw new Error('Expected encrypted share payload');
+    }
+
+    const decrypted = await decryptSharePayload(parsed.payload, password);
+
+    expect(decrypted?.settings.themeColor).toBe('indigo');
+    expect(decrypted?.settings.margin).toBe('standard');
+    expect(decrypted?.settings.lineHeight).toBe(2.5);
   });
 
   it('rejects an incorrect password', async () => {

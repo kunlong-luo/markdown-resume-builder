@@ -1,4 +1,5 @@
 import type { Language, ResumeSettings } from '../types';
+import { normalizeImportedSettings } from './import-validation';
 
 export interface ShareState {
   markdown: string;
@@ -33,6 +34,9 @@ const SHARE_ENCRYPTION_VERSION = 2;
 const SHARE_ENCRYPTION_AAD = 'resume-craft-share-v2';
 const SHARE_SALT_BYTES = 16;
 const SHARE_IV_BYTES = 12;
+const SHARE_MAX_MARKDOWN_LENGTH = 2_000_000;
+const SHARE_MAX_ENCODED_LENGTH = 3_000_000;
+const SHARE_MAX_CIPHERTEXT_LENGTH = 2_800_000;
 
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();
@@ -129,7 +133,56 @@ function isLanguage(value: unknown): value is Language {
   return value === 'zh' || value === 'en';
 }
 
+function getShareFallbackSettings(lang: Language = 'zh'): ResumeSettings {
+  return {
+    themeColor: 'indigo',
+    customColor: '#4F46E5',
+    themeMode: 'light',
+    fontSize: 'standard',
+    fontFamily: 'sans',
+    margin: 'standard',
+    layoutMode: 'split',
+    h2Style: 'accent-line',
+    topAccentLine: true,
+    lineHeight: 1.6,
+    blockGap: 1,
+    letterSpacing: 0,
+    showPageBreakLine: true,
+    templateLayout: 'single',
+    lang,
+    isPrivacyMasked: false,
+  };
+}
+
+function normalizeShareState(
+  markdown: unknown,
+  settings: unknown,
+  langHint?: Language,
+): ShareState | null {
+  if (
+    typeof markdown !== 'string' ||
+    markdown.length === 0 ||
+    markdown.length > SHARE_MAX_MARKDOWN_LENGTH
+  ) {
+    return null;
+  }
+
+  const normalizedSettings = normalizeImportedSettings(
+    settings,
+    getShareFallbackSettings(langHint),
+  );
+
+  if (!normalizedSettings) return null;
+
+  return {
+    markdown,
+    settings: normalizedSettings,
+  };
+}
+
 function parseEncryptedEnvelope(encoded: string): EncryptedSharePayload | null {
+  if (!encoded || encoded.length > SHARE_MAX_ENCODED_LENGTH) return null;
+
   try {
     const parsed = decodeJsonBase64Url(encoded);
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
@@ -148,7 +201,9 @@ function parseEncryptedEnvelope(encoded: string): EncryptedSharePayload | null {
       envelope.i > 1_000_000 ||
       typeof envelope.s !== 'string' ||
       typeof envelope.n !== 'string' ||
-      typeof envelope.c !== 'string'
+      typeof envelope.c !== 'string' ||
+      envelope.c.length === 0 ||
+      envelope.c.length > SHARE_MAX_CIPHERTEXT_LENGTH
     ) {
       return null;
     }
@@ -198,7 +253,7 @@ export function serializeShareState(state: ShareState): string {
  * Decodes legacy/public share state from a URI-safe Base64 payload.
  */
 export function deserializeShareState(encoded: string): ShareState | null {
-  if (!encoded) return null;
+  if (!encoded || encoded.length > SHARE_MAX_ENCODED_LENGTH) return null;
 
   try {
     const parsed = decodeJsonBase64Url(encoded) as {
@@ -207,18 +262,11 @@ export function deserializeShareState(encoded: string): ShareState | null {
       p?: unknown;
     };
 
-    if (
-      typeof parsed?.m !== 'string' ||
-      !parsed.s ||
-      typeof parsed.s !== 'object' ||
-      Array.isArray(parsed.s)
-    ) {
-      return null;
-    }
+    const state = normalizeShareState(parsed?.m, parsed?.s);
+    if (!state) return null;
 
     return {
-      markdown: parsed.m,
-      settings: parsed.s as ResumeSettings,
+      ...state,
       passwordHash:
         typeof parsed.p === 'string'
           ? decodeURIComponent(atob(parsed.p))
@@ -261,10 +309,20 @@ export async function encryptShareState(
     SHARE_PBKDF2_ITERATIONS,
   );
 
+  const normalizedState = normalizeShareState(
+    state.markdown,
+    state.settings,
+    state.settings.lang,
+  );
+
+  if (!normalizedState) {
+    throw new Error('Invalid share state');
+  }
+
   const plaintext = textEncoder.encode(
     JSON.stringify({
-      m: state.markdown,
-      s: state.settings,
+      m: normalizedState.markdown,
+      s: normalizedState.settings,
     }),
   );
 
@@ -349,19 +407,7 @@ export async function decryptSharePayload(
       s?: unknown;
     };
 
-    if (
-      typeof parsed?.m !== 'string' ||
-      !parsed.s ||
-      typeof parsed.s !== 'object' ||
-      Array.isArray(parsed.s)
-    ) {
-      return null;
-    }
-
-    return {
-      markdown: parsed.m,
-      settings: parsed.s as ResumeSettings,
-    };
+    return normalizeShareState(parsed?.m, parsed?.s, payload.lang);
   } catch {
     return null;
   }
