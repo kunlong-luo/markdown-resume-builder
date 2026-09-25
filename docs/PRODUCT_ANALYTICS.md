@@ -38,9 +38,10 @@ Phase 1 uses Simple Analytics because it provides aggregate pageviews and explic
 Resume Craft adds stricter application-side rules on top:
 
 - analytics events are hard-coded in `src/lib/analytics.ts`
-- Do Not Track is respected
+- Do Not Track is respected; `data-collect-dnt` is explicitly disabled and the application wrapper also checks DNT before sending pageviews or events
 - automatic pageview collection is disabled so the app can normalize shared-resume visits to `/resume-craft/shared`
 - URL query/hash values are never passed to analytics
+- the no-JavaScript pixel uses a fixed official hostname/path and `referrerpolicy="no-referrer"`, so share/query payloads are not exposed through the request referrer
 - browser/device metrics that are not needed for product validation are disabled
 - the first implementation sends only three events: `editing_started`, `pdf_export_success`, and `browser_print_started`
 
