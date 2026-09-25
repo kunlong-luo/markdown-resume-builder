@@ -49,6 +49,15 @@ Recommended branch names:
 
 Recommended commit prefixes follow Conventional Commits where practical: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, and `chore:`.
 
+## Dependency update policy
+
+Resume Craft tracks stable dependency releases only.
+
+- Prefer the newest stable release available when upgrading a dependency.
+- Stable SemVer releases and the npm `latest` / `stable` channels are allowed.
+- Do not use pre-release channels such as `alpha`, `beta`, `rc`, `canary`, `next`, `nightly`, `dev`, `experimental`, or `legacy`.
+- CI runs `pnpm check:stable-deps` and rejects direct dependency specs that violate this policy.
+
 ## UI changes
 
 For visible UI changes, include a short description and screenshots when they help reviewers understand the result. Keep Chinese and English UI copy aligned when a feature is bilingual.
