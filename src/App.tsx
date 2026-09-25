@@ -422,7 +422,7 @@ export default function App() {
               }`}
             >
               <Edit3 className="w-3.5 h-3.5" />
-              <span>编辑 Markdown</span>
+              <span>{settings.lang === 'en' ? 'Edit' : '编辑 Markdown'}</span>
             </button>
 
             <button
@@ -434,7 +434,7 @@ export default function App() {
               }`}
             >
               <Eye className="w-3.5 h-3.5" />
-              <span>A4 预览</span>
+              <span>{settings.lang === 'en' ? 'A4 Preview' : 'A4 预览'}</span>
             </button>
 
             <div className="w-px h-4 bg-slate-700 mx-0.5" />
@@ -444,7 +444,7 @@ export default function App() {
               className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full transition-all cursor-pointer active:scale-95"
             >
               <FileDown className="w-3.5 h-3.5" />
-              <span>导出</span>
+              <span>{settings.lang === 'en' ? 'Export' : '导出'}</span>
             </button>
           </div>
         )}
