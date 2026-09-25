@@ -194,6 +194,11 @@ export default function App() {
     continuePendingExport();
   }, [continuePendingExport]);
 
+  const handleCloseSupportPrompt = useCallback(() => {
+    pendingExportActionRef.current = null;
+    setIsSupportProjectOpen(false);
+  }, []);
+
   const handleRestoreDraft = (newMarkdown: string, newSettings: ResumeSettings) => {
     setMarkdown(newMarkdown);
     setSettings(newSettings);
@@ -451,10 +456,7 @@ export default function App() {
           <SupportProjectModal
             isOpen={isSupportProjectOpen}
             lang={settings.lang}
-            onClose={() => {
-              pendingExportActionRef.current = null;
-              setIsSupportProjectOpen(false);
-            }}
+            onClose={handleCloseSupportPrompt}
             onSupportClick={handleSupportProject}
             onContinue={continuePendingExport}
             onSkip={handleSkipSupport}
