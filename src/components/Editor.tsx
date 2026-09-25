@@ -11,6 +11,7 @@ import { useConfirm } from '../context/ConfirmContext';
 import { DEFAULT_MARKDOWN } from '../data';
 
 import { autoFormatAndCleanResume } from '../lib/resume-auto-fixer';
+import { getWordCount } from '../lib/word-count';
 import { Tooltip } from './ui';
 
 function highlightInline(text: string): string {
@@ -242,6 +243,7 @@ export const Editor = React.memo(function Editor() {
 
   // Stats calculation and markdown highlighting memoization
   const charCount = useMemo(() => value.length, [value]);
+  const wordCount = useMemo(() => getWordCount(value), [value]);
   const lineCount = useMemo(() => value.split('\n').length, [value]);
   // Estimate page logic (uses actual measured page count if available from preview, otherwise estimates based on length)
   const highlightedHtml = useMemo(() => highlightMarkdown(deferredValue) + '\n', [deferredValue]);
