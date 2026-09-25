@@ -11,12 +11,12 @@ permissions:
 jobs:
   crosspost:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Preview cross-posts
-        uses: tgagor/action-crosspost@v1
+        uses: tgagor/action-crosspost@e77c2d8265863cfebb60bcdc325779df0daeaac4 # v1
         with:
-          # Keep this true until the first run looks correct.
           dry-run: true
           feed-url: https://kunlong-luo.github.io/resume-craft/sitemap.xml
           since: '7'

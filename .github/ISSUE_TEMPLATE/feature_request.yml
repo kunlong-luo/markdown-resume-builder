@@ -1,0 +1,30 @@
+name: Feature request
+description: Suggest an improvement for Resume Craft
+title: "[Feature]: "
+body:
+  - type: checkboxes
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues and did not find the same request.
+          required: true
+  - type: textarea
+    attributes:
+      label: Problem or use case
+      description: What problem would this solve?
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Proposed solution
+      description: Describe the behavior or workflow you would like.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Alternatives considered
+      description: Optional alternatives or workarounds you have tried.
+  - type: textarea
+    attributes:
+      label: Additional context
+      description: Mockups, examples, or references that help explain the request.
