@@ -10,6 +10,11 @@
 [![TailwindCSS](https://img.shields.io/badge/styling-Tailwind%20v4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
 
+<p align="center">
+  <img src=".github/assets/readme-banner.svg" alt="Resume Craft — Markdown Resume Builder" width="100%" />
+</p>
+
+
 > **Resume Craft (简匠简历)** 是一款专为求职者打造的高颜值、双向同步、完美 A4 控页的在线 Markdown 简历编辑器。
 > 
 > 🌐 **在线体验地址**：[https://kunlong-luo.github.io/resume-craft/](https://kunlong-luo.github.io/resume-craft/)

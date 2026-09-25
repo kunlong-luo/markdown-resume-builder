@@ -10,6 +10,11 @@ English | [简体中文](./README.md)
 [![TailwindCSS](https://img.shields.io/badge/styling-Tailwind%20v4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
 
+<p align="center">
+  <img src=".github/assets/readme-banner.svg" alt="Resume Craft — Markdown Resume Builder" width="100%" />
+</p>
+
+
 > **Resume Craft** is an elegant, bi-directional synchronous, pixel-perfect A4 online resume editor designed specifically for job seekers.
 > 
 > 🌐 **Live Demo App**: [https://kunlong-luo.github.io/resume-craft/](https://kunlong-luo.github.io/resume-craft/)
