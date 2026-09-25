@@ -18,7 +18,9 @@
     "check:stable-deps": "node scripts/check-stable-dependencies.mjs",
     "typecheck": "node node_modules/@typescript/native/bin/tsc --noEmit",
     "typecheck:critical": "node node_modules/@typescript/native/bin/tsc -p tsconfig.strict-critical.json --noEmit",
-    "lint:fix": "eslint \"src/**/*.{ts,tsx}\" vite.config.ts --fix"
+    "lint:fix": "eslint \"src/**/*.{ts,tsx}\" vite.config.ts --fix",
+    "e2e": "playwright test",
+    "e2e:headed": "playwright test --headed"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
@@ -49,6 +51,7 @@
     "@eslint/js": "^10.0.1",
     "@typescript/native": "npm:typescript@~7.0.2",
     "eslint": "^10.11.0",
-    "typescript-eslint": "^8.70.1"
+    "typescript-eslint": "^8.70.1",
+    "@playwright/test": "1.63.0"
   }
 }
