@@ -66,7 +66,11 @@ function reportWriteSuccess(operation: StorageOperation, key?: StorageKey) {
 }
 
 function reportWriteFailure(operation: StorageOperation, error: unknown, key?: StorageKey) {
+  const shouldNotify = !hasWriteFailure;
   hasWriteFailure = true;
+
+  if (!shouldNotify) return;
+
   emitStorageHealth({
     status: 'error',
     operation,
