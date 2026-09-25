@@ -236,9 +236,10 @@ Resume Craft 采用本地优先架构，但“本地优先”不等于“所有�
 
 - 编辑中的简历、设置和档案主要保存在浏览器 `localStorage` 中。
 - 项目本身不提供用于持久化简历内容的应用后端。
-- 产品使用 Simple Analytics 统计少量匿名聚合指标（例如开始编辑、PDF 导出成功）；尊重 Do Not Track，不发送简历、JD、联系方式、分享参数或访问口令，且不启用会话回放/指纹识别。
+- 产品使用 Simple Analytics 统计少量匿名聚合指标（开始编辑、导出、ATS 匹配、Auto Fit、分享、PWA 安装与反馈入口）；事件只有固定事件名，不附带 metadata。尊重 Do Not Track，开启 DNT 时不会加载统计脚本；不发送简历、JD、联系方式、文件名、分享参数或访问口令，也不启用会话回放/指纹识别。
 - 分享链接会把简历内容编码进 URL；访问口令目前是客户端查看门槛，不是端到端加密。
 - 不要在 Issue、PR、测试数据或截图中提交真实简历、访问令牌、密码或其他敏感信息。
+- 产品建议与使用反馈可前往 [GitHub Discussions](https://github.com/kunlong-luo/resume-craft/discussions)；不会自动附带任何简历内容。
 - 安全问题请按照 [SECURITY.md](SECURITY.md) 的私密报告流程处理。
 
 ---
