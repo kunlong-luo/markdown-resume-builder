@@ -1,5 +1,5 @@
 import React from 'react';
-import { School, Calendar, BookOpen, Plus, Trash2, Award, Book, ArrowUp, ArrowDown, GraduationCap, GripVertical } from 'lucide-react';
+import { Plus, Trash2, ArrowUp, ArrowDown, GripVertical } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FormSection, FormItem } from '../../lib/form-types';
 import { SectionHeader } from './SectionHeader';
