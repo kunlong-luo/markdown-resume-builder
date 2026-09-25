@@ -12,6 +12,7 @@ import { smartAutoFit } from './lib/preview-utils';
 import { Edit3, Eye, FileDown } from 'lucide-react';
 import { Tooltip } from './components/ui/Tooltip';
 import { markSupportPrompt, shouldPromptForSupport } from './lib/support-prompt';
+import { trackAnalyticsEvent } from './lib/analytics';
 
 // Performance optimization: Lazy load heavy secondary modals and non-critical tools
 const ResumeChecker = lazy(() => import('./components/resume-checker/ResumeChecker').then(m => ({ default: m.ResumeChecker })));
@@ -59,6 +60,18 @@ export default function App() {
   const containerRef = useRef<HTMLElement>(null);
   const pendingExportActionRef = useRef<(() => void | Promise<void>) | null>(null);
   const [isSupportProjectOpen, setIsSupportProjectOpen] = useState(false);
+
+  const initialMarkdownRef = useRef(markdown);
+  const hasTrackedEditingRef = useRef(false);
+
+  useEffect(() => {
+    if (hasTrackedEditingRef.current) return;
+    if (markdown === initialMarkdownRef.current) return;
+
+    hasTrackedEditingRef.current = true;
+    trackAnalyticsEvent('editing_started');
+  }, [markdown]);
+
 
   // Resizable split ratio (percentage for editor width)
   const [splitRatio, setSplitRatio] = useState<number>(() => {
