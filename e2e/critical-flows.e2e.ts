@@ -137,6 +137,10 @@ test.describe('critical resume flows', () => {
       },
     );
 
+    // A share link is normally opened as a fresh document. Navigating from
+    // "/" to only a different hash would be a same-document navigation and
+    // would not remount App's initial share-payload parser.
+    await page.goto('about:blank');
     await page.goto(`/#share=${payload}`);
 
     await expect(
