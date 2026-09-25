@@ -3,6 +3,7 @@ import { DEFAULT_MARKDOWN, TEMPLATES } from '../data';
 import { ResumeSettings, ResumeProfile } from '../types';
 import { storage, STORAGE_KEYS } from '../lib/storage';
 import { translateMarkdownContent } from '../lib/section-translator';
+import { migrateStoredMarkdown } from '../lib/markdown-migrations';
 
 interface ResumeState {
   // States
@@ -71,51 +72,14 @@ let isUndoRedoAction = false;
 // Helper to initialize markdown
 const getInitialMarkdown = (): string => {
   const saved = storage.getString(STORAGE_KEYS.MARKDOWN);
-  let md = saved || DEFAULT_MARKDOWN;
-  
-  // Discard any old stored resumes containing real-world experiences to respect privacy
-  if (md.includes('陆云腾') || md.includes('极光智云') || md.includes('苏州瀚海星空') || md.includes('天拓云创') || md.includes('微云传动')) {
-    md = DEFAULT_MARKDOWN;
-    storage.set(STORAGE_KEYS.MARKDOWN, DEFAULT_MARKDOWN);
-  }
-  
-  // Migration: Remove redundant "GitHub：" prefix before github URLs
-  md = md.replace(/GitHub[：:]\s*(https?:\/\/|github\.com\/)/gi, (_match, p1) => {
-    return p1.startsWith('http') ? p1 : `https://${p1}`;
-  });
+  const original = saved || DEFAULT_MARKDOWN;
+  const migrated = migrateStoredMarkdown(original);
 
-  // Migration: Rename "教育经历" to "教育背景" to match the new convention and avoid duplicates
-  if (md.includes('## 教育经历')) {
-    md = md.replace(/## 教育经历/g, '## 教育背景');
+  if (migrated !== original) {
+    storage.set(STORAGE_KEYS.MARKDOWN, migrated);
   }
-  
-  // De-duplicate "教育背景" sections if they appear multiple times
-  const sections = md.split('\n## ');
-  const seenEdu = new Set();
-  const cleanSections = [];
-  
-  for (let i = 0; i < sections.length; i++) {
-    const section = sections[i];
-    if (i === 0 && !section.startsWith('## ')) {
-      cleanSections.push(section);
-      continue;
-    }
-    
-    const title = section.split('\n')[0].trim();
-    const isEdu = title.includes('教育') || title.includes('学校') || title.toLowerCase().includes('education');
-    
-    if (isEdu) {
-      if (seenEdu.has(title)) {
-        continue;
-      }
-      seenEdu.add(title);
-    }
-    
-    cleanSections.push(i === 0 ? section : '## ' + section);
-  }
-  
-  md = cleanSections.join('\n').replace(/\n{3,}/g, '\n\n');
-  return md;
+
+  return migrated;
 };
 
 // Helper to initialize currentTemplateId
@@ -125,8 +89,6 @@ const getInitialTemplateId = (initialMarkdown: string): string => {
 };
 
 // Helper to initialize and migrate settings
-const CURRENT_SETTINGS_SCHEMA_VERSION = 2;
-
 const sanitizeSettings = (raw: Partial<ResumeSettings> | null, defaultSettings: ResumeSettings): ResumeSettings => {
   if (!raw || typeof raw !== 'object') return defaultSettings;
 
@@ -198,23 +160,15 @@ const getInitialProfiles = (
   const savedActiveId = storage.getString(STORAGE_KEYS.ACTIVE_PROFILE_ID, '');
 
   if (savedProfiles && Array.isArray(savedProfiles) && savedProfiles.length > 0) {
-    // Migration & Sanitization for each profile
+    // Apply only deterministic, content-preserving migrations.
     const migratedProfiles = savedProfiles.map(p => {
-      let md = typeof p.markdown === 'string' 
-        ? p.markdown.replace(/GitHub[：:]\s*(https?:\/\/|github\.com\/)/gi, (_match, p1) => {
-            return p1.startsWith('http') ? p1 : `https://${p1}`;
-          }) 
+      const markdown = typeof p.markdown === 'string'
+        ? migrateStoredMarkdown(p.markdown)
         : defaultMd;
-      
-      // If profile is English and still contains default Chinese resume, migrate to English template
-      if (p.id === 'profile_english' && (md.includes('钟晨杰') || md.includes('## 个人优势'))) {
-        const engTpl = TEMPLATES.find(t => t.id === 'english')?.content;
-        if (engTpl) md = engTpl;
-      }
 
       return {
         ...p,
-        markdown: md,
+        markdown,
         settings: sanitizeSettings(p.settings, defaultSettings),
         name: p.name || '未命名简历草稿',
         updatedAt: p.updatedAt || new Date().toISOString(),
