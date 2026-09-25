@@ -1,5 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Copy, RotateCcw, Check } from 'lucide-react';
+import { storage, STORAGE_KEYS } from '../../lib/storage';
 
 interface Props {
   children: ReactNode;
@@ -29,16 +30,16 @@ export class ErrorBoundary extends Component<Props, State> {
     this.setState({ errorInfo });
   }
 
-  private handleCopyBackup = () => {
+  private handleCopyBackup = async () => {
     try {
-      const savedMarkdown = localStorage.getItem('resume-markdown') || '';
+      const savedMarkdown = storage.getString(STORAGE_KEYS.MARKDOWN);
       if (savedMarkdown) {
-        navigator.clipboard.writeText(savedMarkdown);
+        await navigator.clipboard.writeText(savedMarkdown);
         this.setState({ copied: true });
         setTimeout(() => this.setState({ copied: false }), 2000);
       }
-    } catch (e) {
-      console.error('Failed to copy backup:', e);
+    } catch (error) {
+      console.error('Failed to copy backup:', error);
     }
   };
 
@@ -47,14 +48,9 @@ export class ErrorBoundary extends Component<Props, State> {
   };
 
   private handleReset = () => {
-    if (window.confirm('确定要清空本地缓存并重置简历吗？建议先备份当前简历文本。')) {
-      try {
-        localStorage.removeItem('resume-markdown');
-        localStorage.removeItem('resume-settings');
-        window.location.reload();
-      } catch (e) {
-        window.location.reload();
-      }
+    if (window.confirm('确定要清空 Resume Craft 的本地简历数据并重置吗？建议先备份当前简历文本。')) {
+      storage.clearAllResumeData();
+      window.location.reload();
     }
   };
 
@@ -70,7 +66,7 @@ export class ErrorBoundary extends Component<Props, State> {
               </div>
               <div>
                 <h1 className="text-lg font-extrabold text-white">遇到未预期的运行时异常</h1>
-                <p className="text-xs text-slate-400 mt-0.5">应用已被安全屏障拦截，您的简历源码已被妥善保存在本地缓存中。</p>
+                <p className="text-xs text-slate-400 mt-0.5">应用已停止异常渲染。若浏览器本地存储仍可读取，可先复制 Markdown 备份再重试。</p>
               </div>
             </div>
 
@@ -112,7 +108,7 @@ export class ErrorBoundary extends Component<Props, State> {
                   className="text-xs text-slate-400 hover:text-slate-200 underline inline-flex items-center gap-1.5 cursor-pointer transition-colors"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
-                  <span>重置所有本地数据并全新恢复</span>
+                  <span>重置 Resume Craft 本地简历数据</span>
                 </button>
               </div>
             </div>
