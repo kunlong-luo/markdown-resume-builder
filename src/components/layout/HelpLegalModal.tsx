@@ -154,7 +154,7 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
                 </h3>
                 <p className="text-slate-600 dark:text-slate-300">
                   {isEn
-                    ? 'Resume Craft combines visual form editing with standard Markdown power for 100% pixel-perfect A4 printing.'
+                    ? 'Resume Craft combines visual form editing with Markdown in an A4-focused preview, PDF, and print workflow.'
                     : 'Resume Craft (简匠) 支持可视表单（Form Mode）与原生 Markdown 模式无缝双向同步，专为 A4 标准简历排版设计。'}
                 </p>
               </div>
@@ -203,20 +203,20 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
                   </div>
                   <p className="text-slate-500 dark:text-slate-400">
                     {isEn
-                      ? 'Click "Smart Paste" in top bar to paste messy text from Word/PDF/job boards directly into structured Markdown.'
-                      : '点击顶部「智能粘贴」，可直接粘贴来自 Word/网页/旧简历的杂乱纯文本，本地算法自动提取并规整为 Markdown。'}
+                      ? 'Click "Import" in the top bar to paste raw text from Word, PDF, or job boards and convert it into structured Markdown.'
+                      : '点击顶部「导入」，可粘贴来自 Word、网页或旧简历的杂乱纯文本，并由本地算法规整为 Markdown。'}
                   </p>
                 </div>
 
                 <div className="p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 rounded-xl space-y-1.5">
                   <div className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
                     <Laptop className="w-3.5 h-3.5 text-blue-500" />
-                    <span>{isEn ? 'Compact Icon Mode' : '精简图标模式 (Photoshop Mode)'}</span>
+                    <span>{isEn ? 'PDF Export & Print' : 'PDF 下载与打印'}</span>
                   </div>
                   <p className="text-slate-500 dark:text-slate-400">
                     {isEn
-                      ? 'Toggle the Compact Mode button in Header to collapse text labels into sleek icon controls with hover tooltips.'
-                      : '点击顶部「精简模式」可将按钮折叠为纯图标展示，悬停即显提示，极致释放编辑视野。'}
+                      ? 'Use Download for direct PDF export, or press Ctrl/Cmd + P for the browser print / Save as PDF workflow.'
+                      : '点击顶部「下载」可直接生成 PDF；也可以使用 Ctrl/Cmd + P 打开浏览器打印 / 另存为 PDF 流程。'}
                   </p>
                 </div>
               </div>
@@ -235,12 +235,12 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
               <div className="p-3.5 bg-emerald-50/60 dark:bg-emerald-950/40 border border-emerald-200/70 dark:border-emerald-800/60 rounded-xl space-y-1">
                 <h3 className="font-bold text-emerald-900 dark:text-emerald-300 flex items-center gap-1.5 text-xs">
                   <Shield className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                  {isEn ? '100% Local Browser Privacy Guarantee' : '100% 本地浏览器存储与数据安全承诺'}
+                  {isEn ? 'Local-First Privacy Model' : '本地优先的数据与隐私模型'}
                 </h3>
                 <p className="text-emerald-800/90 dark:text-emerald-300/90">
                   {isEn
-                    ? 'Your personal resume data never leaves your computer. No user tracking, no database uploads, no advertisement profiling.'
-                    : '本应用完全运行在您的前端浏览器本地，不设中央数据收集服务器，绝对保障求职隐私安全。'}
+                    ? 'Resume drafts and settings stay in browser-local storage unless you explicitly create a share link. The app has no backend for persisting resume content.'
+                    : '简历草稿与设置默认保存在浏览器本地；只有在您主动创建分享链接时，分享内容才会编码进 URL。应用本身不提供用于持久化简历内容的后端。'}
                 </p>
               </div>
 
@@ -249,12 +249,12 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
                   <Lock className="w-4 h-4 text-indigo-500 mt-0.5 shrink-0" />
                   <div>
                     <h4 className="font-bold text-slate-800 dark:text-slate-200">
-                      {isEn ? 'Local Storage Persistence' : '数据零上传与 localStorage'}
+                      {isEn ? 'Browser-Local Storage' : '浏览器本地存储'}
                     </h4>
                     <p className="text-slate-500 dark:text-slate-400 text-[11px] mt-0.5">
                       {isEn
-                        ? 'All draft history, backup versions, and custom settings are stored strictly in your browser IndexedDB / localStorage.'
-                        : '您的简历草稿、多版本备份与排版参数仅保存在您本机的浏览器缓存中。断网状态下亦可正常使用与导出。'}
+                        ? 'Draft history, backup versions, and settings are primarily stored in browser localStorage.'
+                        : '您的简历草稿、多版本备份与排版参数主要保存在浏览器 localStorage 中；请将设备、浏览器账户与本地备份视为敏感数据环境。'}
                     </p>
                   </div>
                 </div>
@@ -277,12 +277,12 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
                   <Scale className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
                   <div>
                     <h4 className="font-bold text-slate-800 dark:text-slate-200">
-                      {isEn ? 'GDPR & Privacy Compliance' : '合规与法律边界声明'}
+                      {isEn ? 'Tracking & Analytics' : '追踪与分析边界'}
                     </h4>
                     <p className="text-slate-500 dark:text-slate-400 text-[11px] mt-0.5">
                       {isEn
-                        ? 'This tool does not collect user tracking cookies, analytics session replay, or fingerprinting identifiers.'
-                        : '本平台不收集追踪 Cookie，不记录用户行为打点，符合 GDPR 与个人信息保护相关法规要求。'}
+                        ? 'The current app does not integrate tracking cookies, session-replay analytics, or browser fingerprinting.'
+                        : '当前版本未集成追踪 Cookie、会话回放分析或浏览器指纹识别；如未来引入匿名统计，应同步更新隐私说明。'}
                     </p>
                   </div>
                 </div>
@@ -311,8 +311,8 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
                 </div>
                 <p className="text-slate-500 dark:text-slate-400 text-[11px]">
                   {isEn
-                    ? 'An open-source, pixel-perfect A4 Markdown resume builder designed for developers, designers, and job seekers.'
-                    : '一款专为开发者、设计师与求职者打造的高质感、像素级 A4 Markdown 简历编辑器项目。'}
+                    ? 'An open-source, A4-focused Markdown resume builder designed for developers, designers, and job seekers.'
+                    : '一款专为开发者、设计师与求职者打造的开源 A4 Markdown 简历编辑器。'}
                 </p>
               </div>
 
