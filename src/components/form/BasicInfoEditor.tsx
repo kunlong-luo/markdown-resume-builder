@@ -422,7 +422,7 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
                           const tLower = (model.social || '').toLowerCase();
                           if (tLower.includes('github')) return <GitHubIcon className="w-4 h-4 text-slate-800 dark:text-slate-200" />;
                           if (tLower.includes('linkedin')) return <Globe className="w-4 h-4 text-sky-600" />;
-                          if (tLower.includes('twitter') || tLower.includes('x.com')) return <Globe className="w-4 h-4 text-blue-400" />;
+                          if (tLower.includes('twitter') || /^(?:https?:\/\/)?(?:www\.)?x\.com(?:\/|$)/i.test((model.social || '').trim())) return <Globe className="w-4 h-4 text-blue-400" />;
                           if (tLower.includes('zhihu') || tLower.includes('juejin')) return <Code className="w-4 h-4 text-blue-600" />;
                           if (tLower.includes('blog') || tLower.includes('web') || tLower.includes('http')) return <Globe className="w-4 h-4 text-indigo-500" />;
                           return <Link className="w-4 h-4" />;
