@@ -4,18 +4,20 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: Stable release version (for example 2.0.0)
+        description: Stable release version (for example 2.0.1)
         required: true
         type: string
   push:
     branches:
-      - 'release/v*'
+      - main
+    paths:
+      - package.json
 
 permissions:
   contents: write
 
 concurrency:
-  group: release-${{ github.ref }}
+  group: release
   cancel-in-progress: false
 
 jobs:
@@ -35,13 +37,16 @@ jobs:
         with:
           node-version-file: .node-version
 
-      - name: Validate release version
+      - name: Resolve release version
         id: version
         shell: bash
         env:
           INPUT_VERSION: ${{ inputs.version }}
+          BEFORE_SHA: ${{ github.event.before }}
         run: |
           set -euo pipefail
+
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
 
           if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
             if [ "${GITHUB_REF}" != "refs/heads/main" ]; then
@@ -49,62 +54,79 @@ jobs:
               exit 1
             fi
             VERSION="${INPUT_VERSION}"
-            TAG="v${VERSION}"
+            SHOULD_RELEASE=true
           else
-            TAG="${GITHUB_REF_NAME#release/}"
-            VERSION="${TAG#v}"
+            VERSION="${PACKAGE_VERSION}"
 
-            git fetch origin main
-            MAIN_SHA="$(git rev-parse origin/main)"
-            if [ "${GITHUB_SHA}" != "${MAIN_SHA}" ]; then
-              echo "Release trigger branch must point to the latest main commit."
-              echo "trigger: ${GITHUB_SHA}"
-              echo "main:    ${MAIN_SHA}"
+            if [ -z "${BEFORE_SHA}" ] || printf '%s' "${BEFORE_SHA}" | grep -Eq '^0+$'; then
+              PREVIOUS_VERSION=""
+            else
+              PREVIOUS_VERSION="$(git show "${BEFORE_SHA}:package.json" 2>/dev/null | node -e "let d=''; process.stdin.on('data',c=>d+=c); process.stdin.on('end',()=>console.log(JSON.parse(d).version))" || true)"
+            fi
+
+            if [ "${PREVIOUS_VERSION}" = "${VERSION}" ]; then
+              echo "package.json changed without a version bump; no release is needed."
+              SHOULD_RELEASE=false
+            else
+              echo "Detected version change: ${PREVIOUS_VERSION:-unknown} -> ${VERSION}"
+              SHOULD_RELEASE=true
+            fi
+          fi
+
+          TAG="v${VERSION}"
+
+          if [ "${SHOULD_RELEASE}" = "true" ]; then
+            if ! printf '%s' "${VERSION}" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+              echo "Release versions must be stable SemVer only, for example 2.0.1."
+              echo "Pre-release versions such as alpha, beta, rc, canary, next, or nightly are not allowed."
+              exit 1
+            fi
+
+            if [ "${PACKAGE_VERSION}" != "${VERSION}" ]; then
+              echo "package.json version (${PACKAGE_VERSION}) does not match release version (${VERSION})."
               exit 1
             fi
           fi
 
-          if ! printf '%s' "${VERSION}" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "Release versions must be stable SemVer only, for example 2.0.0."
-            echo "Pre-release versions such as alpha, beta, rc, canary, next, or nightly are not allowed."
-            exit 1
-          fi
-
-          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
-          if [ "${PACKAGE_VERSION}" != "${VERSION}" ]; then
-            echo "package.json version (${PACKAGE_VERSION}) does not match release version (${VERSION})."
-            exit 1
-          fi
-
           echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
           echo "tag=${TAG}" >> "${GITHUB_OUTPUT}"
+          echo "should_release=${SHOULD_RELEASE}" >> "${GITHUB_OUTPUT}"
 
       - name: Enforce stable dependency policy
+        if: steps.version.outputs.should_release == 'true'
         run: node scripts/check-stable-dependencies.mjs
 
       - name: Setup pnpm
+        if: steps.version.outputs.should_release == 'true'
         uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
           version: 11.27.1
 
       - name: Install dependencies
+        if: steps.version.outputs.should_release == 'true'
         run: pnpm install --frozen-lockfile
 
       - name: Typecheck / Lint
+        if: steps.version.outputs.should_release == 'true'
         run: pnpm run lint
 
       - name: Run tests
+        if: steps.version.outputs.should_release == 'true'
         run: pnpm run test
 
       - name: Build production assets
+        if: steps.version.outputs.should_release == 'true'
         run: pnpm run build
 
       - name: Create release tag
+        if: steps.version.outputs.should_release == 'true'
         shell: bash
         env:
           TAG: ${{ steps.version.outputs.tag }}
         run: |
           set -euo pipefail
+
+          git fetch --tags --force
 
           if git rev-parse "${TAG}" >/dev/null 2>&1; then
             TAG_SHA="$(git rev-list -n 1 "${TAG}")"
@@ -121,6 +143,7 @@ jobs:
           fi
 
       - name: Package release assets
+        if: steps.version.outputs.should_release == 'true'
         shell: bash
         env:
           VERSION: ${{ steps.version.outputs.version }}
@@ -134,6 +157,7 @@ jobs:
           sha256sum             "resume-craft-${VERSION}.zip"             "resume-craft-${VERSION}.tar.gz"             > SHA256SUMS.txt
 
       - name: Publish GitHub Release
+        if: steps.version.outputs.should_release == 'true'
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -154,8 +178,3 @@ jobs:
           else
             gh release create "${TAG}" "${ASSETS[@]}"               --verify-tag               --title "Resume Craft ${TAG}"               --generate-notes               --latest
           fi
-
-      - name: Delete release trigger branch
-        if: github.event_name == 'push' && startsWith(github.ref_name, 'release/v')
-        shell: bash
-        run: git push origin --delete "${GITHUB_REF_NAME}"
