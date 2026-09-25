@@ -35,18 +35,11 @@ The release workflow will:
 - generate `SHA256SUMS.txt`;
 - publish a GitHub Release with automatically generated release notes.
 
-## Alternative: publish by tag
+## Automation trigger branch
 
-Maintainers may also create and push an annotated stable tag manually:
+The workflow also accepts an ephemeral branch named `release/vX.Y.Z`. This is intended for trusted automation only.
 
-```bash
-git checkout main
-git pull --ff-only
-git tag -a v2.0.0 -m "Resume Craft v2.0.0"
-git push origin v2.0.0
-```
-
-The same release workflow will validate the tag against `package.json` and publish the release.
+The workflow verifies that the trigger branch points to the latest `main`, validates the version, creates the annotated tag and release, then deletes the trigger branch automatically.
 
 ## Failed releases
 
