@@ -2,7 +2,7 @@
 
 English | [简体中文](./README.md)
 
-[![Version](https://img.shields.io/badge/version-v2.0.0--PRO-blue?style=flat-square&logo=github)](https://github.com/kunlong-luo/markdown-resume-builder)
+[![Version](https://img.shields.io/badge/version-v2.0.0--PRO-blue?style=flat-square&logo=github)](https://github.com/kunlong-luo/resume-craft)
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Try%20Now-4F46E5?style=flat-square&logo=github)](https://kunlong-luo.github.io/resume-craft/)
 [![React](https://img.shields.io/badge/built%20with-React%2019-blueviolet?style=flat-square&logo=react)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/bundler-Vite%208-646CFF?style=flat-square&logo=vite)](https://vite.dev/)
@@ -100,7 +100,10 @@ When creating resumes, candidates frequently suffer from **Word layout nightmare
 │   ├── dependabot.yml           # Dependabot automated weekly checks
 │   └── workflows/
 │       ├── ci.yml               # CI build & test check pipeline
-│       └── release.yml          # Tag-triggered release & asset publish
+│       ├── deploy.yml           # Deploy main to GitHub Pages
+│       ├── release.yml          # Tag-triggered release & asset publish
+│       ├── seo-submit.yml       # Optional IndexNow submission after deploy
+│       └── promote.yml          # Cross-post new content (dry-run by default)
 ├── src/
 │   ├── assets/                  # Icons & static media assets
 │   ├── components/              # Layered UI component architecture
@@ -145,8 +148,8 @@ When creating resumes, candidates frequently suffer from **Word layout nightmare
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/kunlong-luo/markdown-resume-builder.git
-cd markdown-resume-builder
+git clone https://github.com/kunlong-luo/resume-craft.git
+cd resume-craft
 ```
 
 ### 2. Install Dependencies
