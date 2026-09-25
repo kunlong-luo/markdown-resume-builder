@@ -27,6 +27,7 @@ import { ThemeMode } from '../../types';
 import { ProfileDropdown } from '../profile/ProfileDropdown';
 import { Tooltip } from '../ui';
 import { usePWAInstall } from '../../hooks/usePWAInstall';
+import { trackAnalyticsEvent } from '../../lib/analytics';
 
 const RawTextImportModal = React.lazy(() => import('../modals/RawTextImportModal').then(m => ({ default: m.RawTextImportModal })));
 
@@ -74,6 +75,13 @@ export function Header({
       handleExportDirectPDF();
     } else {
       handleExportPDF();
+    }
+  };
+
+  const handleInstallApp = async () => {
+    const installed = await triggerInstall();
+    if (installed) {
+      trackAnalyticsEvent('pwa_install');
     }
   };
 
@@ -264,7 +272,7 @@ export function Header({
           {isInstallable && (
             <Tooltip content={isEn ? 'Install as Desktop / Mobile App' : '安装为桌面或手机独立应用'} side="bottom">
               <button
-                onClick={triggerInstall}
+                onClick={handleInstallApp}
                 className="flex items-center gap-1 px-2.5 py-1.5 bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold rounded-lg cursor-pointer whitespace-nowrap shrink-0 transition-all active:scale-95"
               >
                 <DownloadCloud className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
@@ -400,7 +408,7 @@ export function Header({
 
               {isInstallable && (
                 <button
-                  onClick={() => { triggerInstall(); setIsMobileMenuOpen(false); }}
+                  onClick={() => { void handleInstallApp(); setIsMobileMenuOpen(false); }}
                   className="col-span-2 flex items-center justify-center gap-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-bold transition-all active:scale-95"
                 >
                   <DownloadCloud className="w-4 h-4 text-emerald-500 animate-bounce" />

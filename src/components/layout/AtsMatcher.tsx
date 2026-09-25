@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Target, Highlighter, CheckCircle, AlertTriangle, Info, FileText, RefreshCw, Layers } from 'lucide-react';
 import { useResumeStore } from '../../store/useResumeStore';
 import { extractKeywordsFromJd, analyzeResumeMatch } from '../../lib/ats-utils';
+import { trackAnalyticsEvent } from '../../lib/analytics';
 
 export function AtsMatcher() {
   const { markdown, atsKeywords, setAtsKeywords, jdText, setJdText, settings } = useResumeStore();
@@ -54,6 +55,7 @@ Requirements:
     
     const keywords = extractKeywordsFromJd(text);
     setAtsKeywords(keywords);
+    trackAnalyticsEvent('ats_check_completed');
   };
 
   const handleClear = () => {
@@ -281,8 +283,8 @@ Requirements:
           </span>
           <p className="leading-relaxed">
             {isEn
-              ? 'Unlike external online parsers, our system tokenizes your JD completely locally. No personal contact details or experience are uploaded to remote servers, providing 100% security.'
-              : '匹配分析完全在本地浏览器运行。所有招聘需求与简历内容不上传服务器，保护您的求职隐私与数据安全。'}
+              ? 'ATS matching runs locally in your browser. Resume and JD content are not sent to a remote ATS parsing service.'
+              : 'ATS 匹配分析在本地浏览器运行，简历与 JD 正文不会发送到远程 ATS 解析服务。'}
           </p>
         </div>
       )}

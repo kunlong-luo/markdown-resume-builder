@@ -13,6 +13,7 @@ import { ResumeHeader } from './ResumeHeader';
 import { ZoomControls } from './ZoomControls';
 import { useA4Measurement } from '../../hooks/useA4Measurement';
 import { getPaperMarginMm } from '../../lib/page-layout';
+import { trackAnalyticsEvent } from '../../lib/analytics';
 
 interface PreviewProps {
   overrideMarkdown?: string;
@@ -102,6 +103,7 @@ export const Preview = React.memo(forwardRef<HTMLDivElement, PreviewProps>(({ ov
     if (!onChangeSettings) return;
     setTargetPageLimit(1);
     setIsAutoFitting(true);
+    trackAnalyticsEvent('auto_fit_used');
   };
   
   const cleaned = useMemo(() => cleanMarkdown(markdown), [markdown]);
