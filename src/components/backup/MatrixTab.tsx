@@ -1,9 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
-  Folder, FolderOpen, GitCompare, Share2, Lock, Eye, EyeOff, Copy, Check, Trash2, Plus, Shield, ShieldCheck
+  Folder, FolderOpen, GitCompare, Share2, Lock, Eye, EyeOff, Copy, Check, Trash2, Plus, Shield, ShieldCheck, Loader2
 } from 'lucide-react';
 import { ResumeSettings, ResumeDraft } from '../../types';
-import { generateShareUrl, ShareState } from '../../lib/share-utils';
+import {
+  generateShareUrl,
+  SHARE_PASSWORD_MAX_LENGTH,
+  SHARE_PASSWORD_MIN_LENGTH,
+  type ShareState,
+} from '../../lib/share-utils';
 import { splitMarkdownIntoSections } from '../../lib/markdown-utils';
 import { CustomSelect } from '../ui/CustomSelect';
 import { storage, STORAGE_KEYS } from '../../lib/storage';
@@ -35,6 +40,7 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
   const [showPassword, setShowPassword] = useState(false);
   const [generatedLink, setGeneratedLink] = useState('');
   const [copied, setCopied] = useState(false);
+  const [isGeneratingShare, setIsGeneratingShare] = useState(false);
 
   // Load from storage
   useEffect(() => {
@@ -153,16 +159,48 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
   }, [compareWithId, currentMarkdown, matrixVersions]);
 
   // 5. Generate Share Logic
-  const handleGenerateShare = (version: ResumeDraft) => {
+  const handleGenerateShare = async (version: ResumeDraft) => {
+    const password = sharePassword.trim();
+
+    if (
+      password &&
+      (password.length < SHARE_PASSWORD_MIN_LENGTH ||
+        password.length > SHARE_PASSWORD_MAX_LENGTH)
+    ) {
+      setGeneratedLink('');
+      showToast(
+        isEn
+          ? `Encrypted share passwords must be ${SHARE_PASSWORD_MIN_LENGTH}-${SHARE_PASSWORD_MAX_LENGTH} characters`
+          : `加密分享密码需要 ${SHARE_PASSWORD_MIN_LENGTH}-${SHARE_PASSWORD_MAX_LENGTH} 个字符`,
+        true,
+      );
+      return;
+    }
+
     setSelectedVersionIdForShare(version.id);
-    const state: ShareState = {
-      markdown: version.markdown,
-      settings: version.settings,
-      passwordHash: sharePassword.trim() || undefined
-    };
-    const url = generateShareUrl(state);
-    setGeneratedLink(url);
-    trackAnalyticsEvent('share_created');
+    setGeneratedLink('');
+    setCopied(false);
+    setIsGeneratingShare(true);
+
+    try {
+      const state: ShareState = {
+        markdown: version.markdown,
+        settings: version.settings,
+      };
+      const url = await generateShareUrl(state, password || undefined);
+      setGeneratedLink(url);
+      trackAnalyticsEvent('share_created');
+    } catch (error) {
+      console.error('Failed to generate share link', error);
+      showToast(
+        isEn
+          ? 'Failed to generate the share link in this browser'
+          : '当前浏览器无法生成分享链接，请重试',
+        true,
+      );
+    } finally {
+      setIsGeneratingShare(false);
+    }
   };
 
   const copyToClipboard = () => {
@@ -331,12 +369,12 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
           <div className="border-t border-slate-200/60 dark:border-slate-700 pt-4 space-y-4 flex-1 flex flex-col justify-end">
             <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider flex items-center gap-2">
               <Share2 className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-              <span>{isEn ? 'Share Link & Client-side Access Gate' : '链接分享与客户端访问口令'}</span>
+              <span>{isEn ? 'Share Link & Optional Encryption' : '链接分享与可选加密'}</span>
             </h4>
 
             <div className="space-y-2">
               <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block">
-                {isEn ? 'Optional client-side access code (not encryption)' : '客户端访问口令（不是加密，留空为公开访问）'}
+                {isEn ? 'Optional encryption password (leave empty for public access)' : '可选加密密码（留空为公开访问）'}
               </label>
               <div className="flex gap-1.5 relative">
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">
@@ -344,14 +382,12 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
                 </div>
                 <input
                   type={showPassword ? "text" : "password"}
-                  placeholder={isEn ? "Leave empty for public access" : "输入 4-12 位访问密码"}
+                  placeholder={isEn ? `Leave empty, or use ${SHARE_PASSWORD_MIN_LENGTH}-${SHARE_PASSWORD_MAX_LENGTH} chars` : `留空公开分享，或输入 ${SHARE_PASSWORD_MIN_LENGTH}-${SHARE_PASSWORD_MAX_LENGTH} 位密码`}
                   value={sharePassword}
                   onChange={(e) => {
                     setSharePassword(e.target.value);
-                    if (selectedVersionIdForShare) {
-                      const ver = matrixVersions.find(v => v.id === selectedVersionIdForShare);
-                      if (ver) handleGenerateShare(ver);
-                    }
+                    setGeneratedLink('');
+                    setCopied(false);
                   }}
                   className="flex-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 rounded-lg pl-9 pr-9 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
                 />
@@ -371,7 +407,7 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
                   {sharePassword.trim() ? (
                     <>
                       <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
-                      <span className="text-emerald-700 dark:text-emerald-400">{isEn ? 'Client-side access gate active' : '已启用客户端访问口令'}</span>
+                      <span className="text-emerald-700 dark:text-emerald-400">{isEn ? 'AES-256-GCM encryption active' : '已启用 AES-256-GCM 加密'}</span>
                     </>
                   ) : (
                     <>
@@ -392,8 +428,12 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
                   <div className="flex-1 min-w-0 space-y-2.5">
                     <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
                       {isEn 
-                        ? 'Copy the link and send it only to trusted recipients. The optional access code is a client-side viewing gate, not end-to-end encryption.' 
-                        : '请复制链接并仅发送给可信接收者。可选访问口令只是客户端查看门槛，并非端到端加密。'}
+                        ? (sharePassword.trim()
+                          ? 'Send the encrypted link and password through separate channels when practical. Anyone with both can decrypt the resume.'
+                          : 'This public link contains readable resume data in the URL fragment. Send it only to trusted recipients.')
+                        : (sharePassword.trim()
+                          ? '建议尽量通过不同渠道发送加密链接和密码；任何同时获得两者的人都可以解密简历。'
+                          : '公开链接的 URL fragment 中包含可读取的简历数据，请仅发送给可信接收者。')}
                     </p>
                     <div className="flex gap-1.5">
                       <input
