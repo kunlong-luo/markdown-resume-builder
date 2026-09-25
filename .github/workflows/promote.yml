@@ -1,0 +1,49 @@
+name: Promote New Content
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  crosspost:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Preview cross-posts
+        uses: tgagor/action-crosspost@v1
+        with:
+          # Keep this true until the first run looks correct.
+          dry-run: true
+          feed-url: https://kunlong-luo.github.io/resume-craft/sitemap.xml
+          since: '7'
+          since-unit: days
+          limit: '3'
+          failure-strategy: continue
+          lastmod-required: error
+          filter-urls: |
+            /templates/
+            /examples/
+            /guides/
+          message: |
+            {description}
+            {url}
+
+            #resume #markdown #opensource {tags}
+
+          # Add only the networks you actually want to use, then switch
+          # dry-run to false. Store every credential in GitHub Actions Secrets.
+          #
+          # bluesky-host: bsky.social
+          # bluesky-identifier: ${{ secrets.BLUESKY_IDENTIFIER }}
+          # bluesky-password: ${{ secrets.BLUESKY_PASSWORD }}
+          #
+          # mastodon-host: mastodon.social
+          # mastodon-access-token: ${{ secrets.MASTODON_ACCESS_TOKEN }}
+          #
+          # devto-api-key: ${{ secrets.DEVTO_API_KEY }}
+          #
+          # discord-webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
