@@ -1,31 +1,90 @@
-import React, { useState, useRef } from 'react';
-import { Lock, FileText, Printer, Check, ShieldCheck, HelpCircle } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import {
+  Check,
+  FileText,
+  Loader2,
+  Lock,
+  Printer,
+  ShieldCheck,
+} from 'lucide-react';
 import { Preview } from '../preview/Preview';
-import { ShareState } from '../../lib/share-utils';
+import {
+  decryptSharePayload,
+  SHARE_PASSWORD_MIN_LENGTH,
+  type ParsedSharePayload,
+  type ShareState,
+} from '../../lib/share-utils';
 
 interface SharedResumePageProps {
-  shareState: ShareState;
+  sharePayload: ParsedSharePayload;
 }
 
-export function SharedResumePage({ shareState }: SharedResumePageProps) {
-  const { markdown, settings, passwordHash } = shareState;
-  
-  // If there's a password hash, we demand validation
-  const isLocked = !!passwordHash;
-  const [unlocked, setUnlocked] = useState(!isLocked);
+export function SharedResumePage({ sharePayload }: SharedResumePageProps) {
+  const encryptedPayload =
+    sharePayload.kind === 'encrypted' ? sharePayload.payload : null;
+  const initialState =
+    sharePayload.kind === 'plain' ? sharePayload.state : null;
+  const legacyAccessCode =
+    sharePayload.kind === 'plain' ? sharePayload.state.passwordHash : undefined;
+
+  const [resolvedState, setResolvedState] = useState<ShareState | null>(
+    initialState,
+  );
+  const [unlocked, setUnlocked] = useState(
+    sharePayload.kind === 'plain' && !legacyAccessCode,
+  );
   const [passwordInput, setPasswordInput] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const [isDecrypting, setIsDecrypting] = useState(false);
 
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const handleUnlock = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (passwordInput.trim() === passwordHash) {
-      setUnlocked(true);
-      setErrorMsg('');
-    } else {
-      setErrorMsg(settings.lang === 'en' ? 'Incorrect access password' : '访问密码错误，请重试');
+  const lang =
+    resolvedState?.settings.lang ??
+    encryptedPayload?.lang ??
+    (sharePayload.kind === 'plain' ? sharePayload.state.settings.lang : 'zh');
+  const isEn = lang === 'en';
+  const isEncrypted = sharePayload.kind === 'encrypted';
+
+  const handleUnlock = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setErrorMsg('');
+
+    if (isEncrypted && encryptedPayload) {
+      setIsDecrypting(true);
+      try {
+        const decrypted = await decryptSharePayload(
+          encryptedPayload,
+          passwordInput,
+        );
+
+        if (!decrypted) {
+          setErrorMsg(
+            isEn
+              ? 'Incorrect password or the encrypted link has been modified'
+              : '密码错误，或加密分享链接已被修改',
+          );
+          return;
+        }
+
+        setResolvedState(decrypted);
+        setUnlocked(true);
+        setPasswordInput('');
+      } finally {
+        setIsDecrypting(false);
+      }
+      return;
     }
+
+    if (legacyAccessCode && passwordInput.trim() === legacyAccessCode) {
+      setUnlocked(true);
+      setPasswordInput('');
+      return;
+    }
+
+    setErrorMsg(
+      isEn ? 'Incorrect legacy access code' : '旧版访问口令错误，请重试',
+    );
   };
 
   const triggerPrint = () => {
@@ -36,19 +95,28 @@ export function SharedResumePage({ shareState }: SharedResumePageProps) {
     return (
       <div className="min-h-screen bg-[#f8fafc] flex flex-col items-center justify-center p-4 selection:bg-indigo-500 selection:text-white">
         <div className="w-full max-w-md bg-white border border-slate-100 rounded-3xl shadow-xl shadow-slate-100/40 p-8 space-y-6 animate-in fade-in zoom-in-95 duration-300">
-          
           <div className="flex flex-col items-center text-center space-y-3">
             <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 border border-indigo-100 shadow-inner">
               <Lock className="w-5 h-5" />
             </div>
             <div>
               <h1 className="font-bold text-slate-800 text-lg">
-                {settings.lang === 'en' ? 'Password-Protected Resume' : '受访问密码保护的简历分享'}
+                {isEncrypted
+                  ? isEn
+                    ? 'Encrypted Resume Share'
+                    : '加密简历分享'
+                  : isEn
+                    ? 'Legacy Protected Resume'
+                    : '旧版口令保护简历'}
               </h1>
-              <p className="text-xs text-slate-400 font-medium max-w-[280px] mx-auto mt-1">
-                {settings.lang === 'en' 
-                  ? 'The owner of this resume has enabled an access code'
-                  : '该分享已设置访问口令，请输入后查看简历'}
+              <p className="text-xs text-slate-400 font-medium max-w-[310px] mx-auto mt-1 leading-relaxed">
+                {isEncrypted
+                  ? isEn
+                    ? 'This resume is encrypted in the link. Enter the password to decrypt it locally in your browser.'
+                    : '简历内容已在分享链接中加密。请输入密码，在浏览器本地完成解密后查看。'
+                  : isEn
+                    ? 'This older share link uses a client-side access gate and remains supported for compatibility.'
+                    : '这是旧版客户端访问口令链接，为兼容历史分享仍可继续打开。'}
               </p>
             </div>
           </div>
@@ -56,17 +124,26 @@ export function SharedResumePage({ shareState }: SharedResumePageProps) {
           <form onSubmit={handleUnlock} className="space-y-4">
             <div className="space-y-1.5">
               <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                {settings.lang === 'en' ? 'Access Code / Password' : '请输入招聘官访问密码'}
+                {isEn ? 'Share password' : '分享密码'}
               </label>
               <input
                 type="password"
                 placeholder="••••••••"
                 value={passwordInput}
-                onChange={(e) => setPasswordInput(e.target.value)}
+                onChange={(event) => setPasswordInput(event.target.value)}
+                minLength={isEncrypted ? SHARE_PASSWORD_MIN_LENGTH : undefined}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono text-center tracking-widest text-slate-800 font-bold"
                 required
                 autoFocus
+                autoComplete="current-password"
               />
+              {isEncrypted && (
+                <p className="text-[10px] text-slate-400 text-center">
+                  {isEn
+                    ? `At least ${SHARE_PASSWORD_MIN_LENGTH} characters`
+                    : `至少 ${SHARE_PASSWORD_MIN_LENGTH} 个字符`}
+                </p>
+              )}
               {errorMsg && (
                 <p className="text-[10px] text-rose-500 font-bold text-center animate-shake mt-1">
                   {errorMsg}
@@ -76,25 +153,51 @@ export function SharedResumePage({ shareState }: SharedResumePageProps) {
 
             <button
               type="submit"
-              className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white text-xs font-bold rounded-xl transition-all shadow-sm shadow-indigo-600/10 cursor-pointer"
+              disabled={isDecrypting}
+              className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white text-xs font-bold rounded-xl transition-all shadow-sm shadow-indigo-600/10 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {settings.lang === 'en' ? 'Unlock & Read Resume' : '验证密码并查看简历'}
+              {isDecrypting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+              <span>
+                {isDecrypting
+                  ? isEn
+                    ? 'Decrypting locally...'
+                    : '正在本地解密...'
+                  : isEncrypted
+                    ? isEn
+                      ? 'Decrypt & Read Resume'
+                      : '解密并查看简历'
+                    : isEn
+                      ? 'Unlock Legacy Share'
+                      : '验证旧版口令'}
+              </span>
             </button>
           </form>
 
-          <div className="border-t border-slate-100 pt-4 flex items-center justify-center gap-1.5 text-[10px] text-slate-400 font-medium">
-            <ShieldCheck className="w-4 h-4 text-emerald-500" />
-            <span>{settings.lang === 'en' ? 'Client-side access code protection' : '客户端访问口令保护'}</span>
+          <div className="border-t border-slate-100 pt-4 flex items-center justify-center gap-1.5 text-[10px] text-slate-400 font-medium text-center">
+            <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
+            <span>
+              {isEncrypted
+                ? isEn
+                  ? 'AES-256-GCM · PBKDF2 · password is not stored in the link'
+                  : 'AES-256-GCM · PBKDF2 · 密码不会写入分享链接'
+                : isEn
+                  ? 'Legacy client-side access gate'
+                  : '旧版客户端访问门槛'}
+            </span>
           </div>
         </div>
       </div>
     );
   }
 
-  // Unlocked: Render full responsive visual resume!
+  if (!resolvedState) {
+    return null;
+  }
+
+  const { markdown, settings } = resolvedState;
+
   return (
     <div className="min-h-screen bg-[#f8fafc] flex flex-col selection:bg-indigo-500 selection:text-white">
-      {/* Dynamic Navigation Header (Print Hidden) */}
       <header className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-slate-200/60 z-50 px-4 md:px-8 py-3.5 flex items-center justify-between print:hidden">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white shrink-0 font-bold text-sm shadow-sm shadow-indigo-600/25">
@@ -102,33 +205,39 @@ export function SharedResumePage({ shareState }: SharedResumePageProps) {
           </div>
           <div>
             <h2 className="font-bold text-slate-800 text-xs md:text-sm">
-              {settings.lang === 'en' ? 'Online Interactive Portfolio' : '在线简历分享'}
+              {settings.lang === 'en'
+                ? 'Online Interactive Portfolio'
+                : '在线简历分享'}
             </h2>
             <p className="text-[10px] text-slate-400 font-medium hidden sm:block">
-              {settings.lang === 'en' 
-                ? 'Mobile-responsive view · Ready to print / save as PDF' 
+              {settings.lang === 'en'
+                ? 'Mobile-responsive view · Ready to print / save as PDF'
                 : '全平台自适应 · 随时可打印或导出为 PDF'}
             </p>
           </div>
         </div>
 
-        {/* Action Controls */}
         <div className="flex items-center gap-2">
           <button
             onClick={triggerPrint}
             className="flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-bold rounded-lg shadow-sm shadow-indigo-600/10 transition-all cursor-pointer"
-            title={settings.lang === 'en' ? 'Print or Save PDF' : '保存本地 / 打印 PDF'}
+            title={
+              settings.lang === 'en'
+                ? 'Print or Save PDF'
+                : '保存本地 / 打印 PDF'
+            }
           >
             <Printer className="w-3.5 h-3.5" />
-            <span>{settings.lang === 'en' ? 'Print / Export PDF' : '导出 PDF'}</span>
+            <span>
+              {settings.lang === 'en' ? 'Print / Export PDF' : '导出 PDF'}
+            </span>
           </button>
         </div>
       </header>
 
-      {/* Main Content Stage */}
       <main className="flex-1 flex justify-center py-4 md:py-8 px-2 overflow-x-hidden">
         <div className="w-full max-w-4xl flex justify-center relative">
-          <Preview 
+          <Preview
             ref={contentRef}
             overrideMarkdown={markdown}
             overrideSettings={settings}
@@ -136,13 +245,12 @@ export function SharedResumePage({ shareState }: SharedResumePageProps) {
         </div>
       </main>
 
-      {/* Floating Info Banner for recruiters */}
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-slate-900/90 backdrop-blur-sm text-white text-[10px] md:text-xs px-4 py-2.5 rounded-full shadow-lg flex items-center gap-2 z-40 print:hidden font-medium border border-slate-800/50">
         <Check className="w-4 h-4 text-emerald-400 shrink-0" />
         <span>
           {settings.lang === 'en'
-            ? 'Desktop users: Click "Print / Export PDF" to save perfect single-page layout.'
-            : '提示：招聘官可直接点击上方按钮或使用快捷键 Ctrl+P 获得极致排版的 A4 面纸质/PDF 档案。'}
+            ? 'Desktop users: Click "Print / Export PDF" to save the A4 layout.'
+            : '提示：招聘官可点击上方按钮或使用 Ctrl+P 保存 A4 PDF。'}
         </span>
       </div>
     </div>
