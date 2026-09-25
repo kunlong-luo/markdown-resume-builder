@@ -37,6 +37,12 @@ const SHARE_IV_BYTES = 12;
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();
 
+function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
+  const copy = new Uint8Array(bytes.byteLength);
+  copy.set(bytes);
+  return copy.buffer;
+}
+
 function bytesToBase64Url(bytes: Uint8Array): string {
   let binary = '';
   const chunkSize = 0x8000;
@@ -96,7 +102,7 @@ async function deriveShareKey(
   const webCrypto = getWebCrypto();
   const keyMaterial = await webCrypto.subtle.importKey(
     'raw',
-    textEncoder.encode(password),
+    toArrayBuffer(textEncoder.encode(password)),
     'PBKDF2',
     false,
     ['deriveKey'],
@@ -106,7 +112,7 @@ async function deriveShareKey(
     {
       name: 'PBKDF2',
       hash: 'SHA-256',
-      salt,
+      salt: toArrayBuffer(salt),
       iterations,
     },
     keyMaterial,
@@ -265,12 +271,12 @@ export async function encryptShareState(
   const ciphertext = await webCrypto.subtle.encrypt(
     {
       name: 'AES-GCM',
-      iv,
-      additionalData: textEncoder.encode(SHARE_ENCRYPTION_AAD),
+      iv: toArrayBuffer(iv),
+      additionalData: toArrayBuffer(textEncoder.encode(SHARE_ENCRYPTION_AAD)),
       tagLength: 128,
     },
     key,
-    plaintext,
+    toArrayBuffer(plaintext),
   );
 
   return encodeJsonBase64Url({
@@ -330,12 +336,12 @@ export async function decryptSharePayload(
     const plaintext = await webCrypto.subtle.decrypt(
       {
         name: 'AES-GCM',
-        iv,
-        additionalData: textEncoder.encode(SHARE_ENCRYPTION_AAD),
+        iv: toArrayBuffer(iv),
+        additionalData: toArrayBuffer(textEncoder.encode(SHARE_ENCRYPTION_AAD)),
         tagLength: 128,
       },
       key,
-      ciphertext,
+      toArrayBuffer(ciphertext),
     );
 
     const parsed = JSON.parse(textDecoder.decode(plaintext)) as {
