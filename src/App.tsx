@@ -6,7 +6,7 @@ import { Toolbar } from './components/layout/Toolbar';
 import { useResumeStore } from './store/useResumeStore';
 import { useResumeActions } from './hooks/useResumeActions';
 import { ResumeSettings } from './types';
-import { deserializeShareState } from './lib/share-utils';
+import { deserializeShareState, getSharePayloadFromLocation } from './lib/share-utils';
 import { useToast } from './components/ui/Toast';
 import { smartAutoFit } from './lib/preview-utils';
 import { Edit3, Eye, FileDown } from 'lucide-react';
@@ -26,13 +26,15 @@ export default function App() {
   const [mobileTab, setMobileTab] = useState<'editor' | 'preview'>('editor');
   const shareState = useMemo(() => {
     try {
-      const urlParams = new URLSearchParams(window.location.search);
-      const shareHash = urlParams.get('share');
-      if (shareHash) {
-        return deserializeShareState(shareHash);
+      const sharePayload = getSharePayloadFromLocation(
+        window.location.search,
+        window.location.hash,
+      );
+      if (sharePayload) {
+        return deserializeShareState(sharePayload);
       }
     } catch (e) {
-      console.error('Failed to parse share parameter', e);
+      console.error('Failed to parse share payload', e);
     }
     return null;
   }, []);
