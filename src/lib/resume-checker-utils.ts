@@ -204,7 +204,7 @@ export function analyzeResume(
 
   // 6. Page split control
   const pureContent = markdown
-    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/<!--[\s\S]*?-->/g, ' ')
     .replace(/[#*`_~>[\]()-]/g, '')
     .replace(/\s+/g, '')
     .trim();
