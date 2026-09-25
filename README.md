@@ -1,8 +1,8 @@
-# 🚀 Resume Craft · 简匠简历 Pro (v2.0.0)
+# 🚀 Resume Craft · 简匠简历
 
 [English](./README.en.md) | 简体中文
 
-[![Version](https://img.shields.io/badge/version-v2.0.0--PRO-blue?style=flat-square&logo=github)](https://github.com/kunlong-luo/resume-craft)
+[![Latest Release](https://img.shields.io/github/v/release/kunlong-luo/resume-craft?style=flat-square&logo=github)](https://github.com/kunlong-luo/resume-craft/releases/latest)
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-%E5%9C%A8%E7%BA%BF%E4%BD%93%E9%AA%8C-4F46E5?style=flat-square&logo=github)](https://kunlong-luo.github.io/resume-craft/)
 [![CI](https://github.com/kunlong-luo/resume-craft/actions/workflows/ci.yml/badge.svg)](https://github.com/kunlong-luo/resume-craft/actions/workflows/ci.yml)
 [![React](https://img.shields.io/badge/built%20with-React%2019-blueviolet?style=flat-square&logo=react)](https://react.dev/)
@@ -16,7 +16,7 @@
 > 
 > 💡 **核心口号**：*“用 Markdown 匠造完美的一页纸简历 | Craft your perfect one-page resume with Markdown.”*
 > 
-> 它融合了 Markdown 的极客书写效率与可视化表单的易用性，支持中英双语，提供强大的 ATS 智能诊断、一键压缩贴合（1-Click Auto Fit）、自动中英空格微调、行业专属色盘、多档案草稿矩阵与 H5 密保分享，助你告别排版地狱，秒出大厂级气质的高清简历。
+> 它融合了 Markdown 的高效书写与可视化表单的易用性，支持中英双语，并提供 ATS 诊断、一键压缩贴合（1-Click Auto Fit）、中英排版优化、主题定制、多档案管理与带可选访问口令的链接分享。
 
 ---
 
@@ -76,8 +76,8 @@
 * **一职一简历**：快速克隆创建特定岗位版本（如 `前端开发版`、`全栈工程师版`）。
 * **Diff 差异对比**：提供左右侧两版本模块级差异对比面板，清晰高亮文本修改与关键字调整。
 
-### 9. 🔒 专属 H5 外链分享与独立访问密码锁
-* **加密分享**：使用 LZ-String 压缩算法与 Web Crypto SHA-256 加密生成 H5 分享链接，可设置访问密码保护隐私；提供 HR 扫码预览专用高清二维码。
+### 9. 🔒 H5 外链分享与可选访问口令
+* **便捷分享**：简历内容会编码进分享 URL，可设置客户端访问口令作为查看门槛，并提供二维码预览。当前分享机制不是端到端加密；任何拿到完整分享链接的人都应被视为可能读取其中的数据。
 
 ### 10. 📐 板块位置极速排序 (Section Sorter)
 * **模块重排**：自动识别 Markdown 中的二级标题板块，支持拖拽或一键上下平移整个章节，无须手动繁琐剪切粘贴。
@@ -88,8 +88,8 @@
 ### 12. 🌐 全局中英双语国际化 (Bilingual Localization)
 * **极速切换**：一键无缝切换中文（zh）与英文（en），不仅界面文案，内置简历模版与诊断提示亦全面中英适配。
 
-### 13. ⚡ PWA 离线运行与 100% 本地隐私保护
-* **隐私安全**：支持安装至桌面与移动端，所有数据纯前端存储于本地 IndexedDB / LocalStorage，不设中央数据收集服务器，100% 保护个人隐私。
+### 13. ⚡ PWA 离线运行与本地优先数据存储
+* **本地优先**：支持安装至桌面与移动端。编辑中的简历与设置保存在浏览器本地存储中，项目本身不提供用于保存简历内容的应用后端。使用分享链接时，分享内容会包含在 URL 中，因此请仅分享给可信接收者。
 
 ---
 
@@ -102,7 +102,7 @@
 │   └── workflows/
 │       ├── ci.yml               # GitHub Actions CI 检查与测试
 │       ├── deploy.yml           # main 分支自动部署 GitHub Pages
-│       ├── release.yml          # Tag 触发自动打包与 GitHub Release
+│       ├── release.yml          # package.json 版本变更后自动发布稳定版
 │       ├── seo-submit.yml       # 部署成功后可选提交 IndexNow
 │       └── promote.yml          # 新内容跨平台推广（默认 dry-run）
 ├── src/
@@ -174,6 +174,7 @@ pnpm dev
 | `pnpm lint` | 运行 TypeScript 全量静态类型检查 |
 | `pnpm test` | 执行 Vitest 自动化单元测试 |
 | `pnpm preview` | 预览本地生产打包结果 |
+| `pnpm check:stable-deps` | 检查直接依赖是否全部为稳定版本 |
 
 ---
 
@@ -196,18 +197,30 @@ Resume Craft 支持 **原生矢量打印** 与 **高清 Canvas 渲染** 双模�
 
 <details>
 <summary><b>Q1: 我的个人简历数据会被上传到后端服务器吗？</b></summary>
-<b>答：</b>绝对不会。Resume Craft 是一个 100% 纯前端架构的离线应用，所有草稿、个人数据均直接加密存储在您本地浏览器的 IndexedDB 和 LocalStorage 中。
+<b>答：</b>编辑器本身没有用于保存简历内容的应用后端；当前草稿与设置主要保存在浏览器 `localStorage` 中，并非加密存储。请把浏览器账户、设备和本地备份视为敏感数据环境。
 </details>
 
 <details>
-<summary><b>Q2: 生成的 H5 密保分享链接安全性如何？</b></summary>
-<b>答：</b>分享链接使用了 LZ-String 紧凑压缩算法，将简历数据编码在哈希片段中；若设置了密码，内容会通过 Web Crypto API (SHA-256) 在本地加密后再打包，未经授权无法解密读取。
+<summary><b>Q2: 生成的 H5 分享链接安全性如何？</b></summary>
+<b>答：</b>当前实现会把简历数据编码到分享 URL 中，并可设置客户端访问口令。该口令是查看门槛，不等同于密码学加密；拿到完整链接的人应被视为可能访问其中的数据。请不要通过分享链接传递不必要的敏感信息。
 </details>
 
 <details>
 <summary><b>Q3: 为什么发布或换电脑后字体依然能保持完全一致？</b></summary>
 <b>答：</b>我们在项目中内置了跨平台的“高保真系统降级字体链”，并使用 1:1 A4 物理像素基准（794px × 1123px）配合 `transform: scale()` 视口适配，确保任何屏幕与操作系统下渲染结果高度一致。
 </details>
+
+---
+
+## 🔐 隐私与安全边界
+
+Resume Craft 采用本地优先架构，但“本地优先”不等于“所有数据都经过加密”。
+
+- 编辑中的简历、设置和档案主要保存在浏览器 `localStorage` 中。
+- 项目本身不提供用于持久化简历内容的应用后端。
+- 分享链接会把简历内容编码进 URL；访问口令目前是客户端查看门槛，不是端到端加密。
+- 不要在 Issue、PR、测试数据或截图中提交真实简历、访问令牌、密码或其他敏感信息。
+- 安全问题请按照 [SECURITY.md](SECURITY.md) 的私密报告流程处理。
 
 ---
 
