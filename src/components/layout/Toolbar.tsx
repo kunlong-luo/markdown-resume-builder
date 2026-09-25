@@ -8,6 +8,7 @@ import { LanguageToggle } from '../toolbar/LanguageToggle';
 import { ToolbarSelectors } from '../toolbar/ToolbarSelectors';
 import { LayoutModeToggle } from '../toolbar/LayoutModeToggle';
 import { AestheticsDrawer } from '../toolbar/AestheticsDrawer';
+import { trackAnalyticsEvent } from '../../lib/analytics';
 
 export function Toolbar() {
   const {
@@ -69,6 +70,7 @@ export function Toolbar() {
           <button
             onClick={() => {
               smartAutoFit(settings, (key, val) => updateSetting(key, val));
+              trackAnalyticsEvent('auto_fit_used');
             }}
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-bold border border-amber-200 dark:border-amber-900/60 bg-amber-50/70 hover:bg-amber-100 dark:bg-amber-950/40 dark:hover:bg-amber-900/60 text-amber-700 dark:text-amber-300 shadow-2xs transition-all cursor-pointer shrink-0 active:translate-y-px"
           >
