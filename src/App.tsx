@@ -11,6 +11,7 @@ import { useToast } from './components/ui/Toast';
 import { smartAutoFit } from './lib/preview-utils';
 import { Edit3, Eye, FileDown } from 'lucide-react';
 import { Tooltip } from './components/ui/Tooltip';
+import { markSupportPrompt, shouldPromptForSupport } from './lib/support-prompt';
 
 // Performance optimization: Lazy load heavy secondary modals and non-critical tools
 const ResumeChecker = lazy(() => import('./components/resume-checker/ResumeChecker').then(m => ({ default: m.ResumeChecker })));
@@ -18,6 +19,7 @@ const IframeWarningModal = lazy(() => import('./components/IframeWarningModal').
 const BackupDraftModal = lazy(() => import('./components/backup/BackupDraftModal').then(m => ({ default: m.BackupDraftModal })));
 const HelpLegalModal = lazy(() => import('./components/layout/HelpLegalModal').then(m => ({ default: m.HelpLegalModal })));
 const SharedResumePage = lazy(() => import('./components/share/SharedResumePage').then(m => ({ default: m.SharedResumePage })));
+const SupportProjectModal = lazy(() => import('./components/modals/SupportProjectModal').then(m => ({ default: m.SupportProjectModal })));
 
 export default function App() {
   const [mobileTab, setMobileTab] = useState<'editor' | 'preview'>('editor');
@@ -55,6 +57,8 @@ export default function App() {
 
   const contentRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLElement>(null);
+  const pendingExportActionRef = useRef<(() => void | Promise<void>) | null>(null);
+  const [isSupportProjectOpen, setIsSupportProjectOpen] = useState(false);
 
   // Resizable split ratio (percentage for editor width)
   const [splitRatio, setSplitRatio] = useState<number>(() => {
@@ -140,14 +144,60 @@ export default function App() {
   }, [isDragging, splitRatio]);
 
   const {
-    handleExportPDF,
-    handleExportDirectPDF,
-    handleExportVectorPrint,
+    handleExportPDF: exportPDFNow,
+    handleExportDirectPDF: exportDirectPDFNow,
+    handleExportVectorPrint: exportVectorPrintNow,
     handleExportMarkdown,
     handleImportMarkdown
   } = useResumeActions({
     contentRef
   });
+
+  const runExportWithSupportPrompt = useCallback((action: () => void | Promise<void>) => {
+    if (!shouldPromptForSupport()) {
+      void action();
+      return;
+    }
+
+    pendingExportActionRef.current = action;
+    setIsSupportProjectOpen(true);
+  }, []);
+
+  const handleExportPDF = useCallback(() => {
+    runExportWithSupportPrompt(exportPDFNow);
+  }, [exportPDFNow, runExportWithSupportPrompt]);
+
+  const handleExportDirectPDF = useCallback(() => {
+    runExportWithSupportPrompt(exportDirectPDFNow);
+  }, [exportDirectPDFNow, runExportWithSupportPrompt]);
+
+  const handleExportVectorPrint = useCallback(() => {
+    runExportWithSupportPrompt(exportVectorPrintNow);
+  }, [exportVectorPrintNow, runExportWithSupportPrompt]);
+
+  const continuePendingExport = useCallback(() => {
+    const action = pendingExportActionRef.current;
+    pendingExportActionRef.current = null;
+    setIsSupportProjectOpen(false);
+
+    if (action) {
+      void action();
+    }
+  }, []);
+
+  const handleSupportProject = useCallback(() => {
+    markSupportPrompt('supported');
+  }, []);
+
+  const handleSkipSupport = useCallback(() => {
+    markSupportPrompt('skip');
+    continuePendingExport();
+  }, [continuePendingExport]);
+
+  const handleCloseSupportPrompt = useCallback(() => {
+    pendingExportActionRef.current = null;
+    setIsSupportProjectOpen(false);
+  }, []);
 
   const handleRestoreDraft = (newMarkdown: string, newSettings: ResumeSettings) => {
     setMarkdown(newMarkdown);
@@ -403,6 +453,14 @@ export default function App() {
           <IframeWarningModal />
           <BackupDraftModal />
           <HelpLegalModal isOpen={isHelpLegalOpen} onClose={() => setIsHelpLegalOpen(false)} />
+          <SupportProjectModal
+            isOpen={isSupportProjectOpen}
+            lang={settings.lang}
+            onClose={handleCloseSupportPrompt}
+            onSupportClick={handleSupportProject}
+            onContinue={continuePendingExport}
+            onSkip={handleSkipSupport}
+          />
         </Suspense>
       </div>
     </div>
