@@ -24,7 +24,6 @@ interface SectionHeaderProps {
 export function SectionHeader({
   title,
   subtitle,
-  type,
   isExpanded,
   isFirst,
   isLast,
@@ -33,7 +32,6 @@ export function SectionHeader({
   onApplySpacing,
   onMove,
   onDelete,
-  onTypeChange,
   lang = 'zh'
 }: SectionHeaderProps) {
   const activeLang = (lang === 'en' ? 'en' : 'zh') as 'zh' | 'en';
