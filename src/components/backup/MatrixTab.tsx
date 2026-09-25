@@ -7,6 +7,7 @@ import { generateShareUrl, ShareState } from '../../lib/share-utils';
 import { splitMarkdownIntoSections } from '../../lib/markdown-utils';
 import { CustomSelect } from '../ui/CustomSelect';
 import { storage, STORAGE_KEYS } from '../../lib/storage';
+import { trackAnalyticsEvent } from '../../lib/analytics';
 
 interface MatrixTabProps {
   currentMarkdown: string;
@@ -161,6 +162,7 @@ export function MatrixTab({ currentMarkdown, currentSettings, onRestore, lang, s
     };
     const url = generateShareUrl(state);
     setGeneratedLink(url);
+    trackAnalyticsEvent('share_created');
   };
 
   const copyToClipboard = () => {
