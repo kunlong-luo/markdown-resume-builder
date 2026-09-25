@@ -45,6 +45,9 @@ jobs:
       - name: Strict critical boundaries
         run: pnpm run typecheck:critical
 
+      - name: ESLint
+        run: pnpm run lint
+
       - name: Run unit tests
         run: pnpm run test
 
