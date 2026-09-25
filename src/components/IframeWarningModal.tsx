@@ -3,6 +3,7 @@ import { X, ExternalLink, HelpCircle, FileDown, AlertCircle, Printer, Check, Zap
 import { motion, AnimatePresence } from 'motion/react';
 import { useResumeStore } from '../store/useResumeStore';
 import { exportDirectPDF } from '../lib/pdf-export';
+import { trackAnalyticsEvent } from '../lib/analytics';
 
 export function IframeWarningModal() {
   const {
@@ -49,6 +50,7 @@ export function IframeWarningModal() {
           filename: `${getExportTitle()}_${isEn ? 'resume' : '简历'}.pdf`,
           onProgress: (status) => setPdfExportProgress(status)
         });
+        trackAnalyticsEvent('pdf_export_success');
       }
     } catch (e) {
       console.error('Direct download error from modal:', e);
@@ -87,7 +89,7 @@ export function IframeWarningModal() {
               <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
                 <AlertCircle className="w-5 h-5 text-amber-500 animate-bounce" />
                 <h3 className="font-bold text-slate-800 dark:text-slate-100 text-base">
-                  {isEn ? 'PDF Export Security Advisory' : 'PDF 导出说明'}
+                  {isEn ? 'ATS PDF Export Guide' : 'ATS PDF 导出说明'}
                 </h3>
               </div>
               <button
@@ -102,16 +104,16 @@ export function IframeWarningModal() {
             <div className="p-6 space-y-4">
               <div className="bg-amber-50/50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900/40 rounded-xl p-4 text-xs text-amber-800 dark:text-amber-200 leading-relaxed space-y-1">
                 <p className="font-bold flex items-center gap-1">
-                  ⚠️ {isEn ? 'Why cannot download directly?' : '为什么无法直接下载？'}
+                  ⚠️ {isEn ? 'Why does ATS PDF open a print flow?' : '为什么 ATS PDF 会打开打印流程？'}
                 </p>
                 <p className="text-justify">
                   {isEn ? (
                     <>
-                      You are currently in the <strong>AI Studio sandbox iframe preview</strong>. Due to modern browser security guidelines (cross-origin and sandbox constraints), nested iframes cannot directly trigger the browser print engine or file downloading actions.
+                      You are currently in the <strong>AI Studio sandbox iframe preview</strong>. The recommended ATS PDF path uses the browser print engine so text can remain searchable/selectable where the browser supports it. Sandboxed iframes may block that print flow.
                     </>
                   ) : (
                     <>
-                      当前处于 <strong>iframe 预览沙箱环境</strong> 中。受现代浏览器安全策略（同源及沙箱限制）影响，嵌套的 iframe 无法直接调起系统的打印引擎和另存为 PDF 功能。
+                      当前处于 <strong>iframe 预览沙箱环境</strong> 中。推荐的 ATS PDF 会使用浏览器打印引擎，以尽量保留可搜索、可选择的文本；沙箱 iframe 可能会拦截这条打印流程。
                     </>
                   )}
                 </p>
@@ -147,11 +149,11 @@ export function IframeWarningModal() {
                     <p className="leading-relaxed">
                       {isEn ? (
                         <>
-                          On the newly opened standalone page, click the <strong className="text-slate-800 dark:text-slate-100">"Export PDF"</strong> button. Select <strong>"Save as PDF"</strong> in the browser print panel.
+                          On the newly opened standalone page, click <strong className="text-slate-800 dark:text-slate-100">"ATS PDF"</strong>, then select <strong>"Save as PDF"</strong> in the browser print panel.
                         </>
                       ) : (
                         <>
-                          在新页面中，点击 <strong className="text-slate-800 dark:text-slate-100">“Export PDF”</strong> 按钮，在浏览器打印预览面板中选择 <strong>「另存为 PDF」</strong> 即可保存。
+                          在新页面中点击 <strong className="text-slate-800 dark:text-slate-100">“ATS PDF”</strong>，然后在浏览器打印预览面板中选择 <strong>「另存为 PDF」</strong>。
                         </>
                       )}
                     </p>
@@ -164,7 +166,7 @@ export function IframeWarningModal() {
                 <div className="flex items-center gap-2">
                   <Printer className="w-3.5 h-3.5 text-blue-500 shrink-0" />
                   <span>
-                    {isEn ? 'Supports pixel-perfect HD vector A4 PDF printing' : '支持无损 A4 纸张排版与打印'}
+                    {isEn ? 'Recommended for searchable text and ATS submission' : '推荐用于保留可搜索文本与 ATS 投递'}
                   </span>
                 </div>
                 <span className="text-[10px] font-semibold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded-full">
@@ -186,14 +188,14 @@ export function IframeWarningModal() {
                 className="w-full sm:w-auto px-4 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white text-xs font-bold rounded-lg transition-all shadow-md shadow-indigo-600/20 flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <FileDown className="w-3.5 h-3.5" />
-                <span>{isEn ? 'Direct Download (Here)' : '在当前窗口直接下载'}</span>
+                <span>{isEn ? 'Quick PDF (image-based)' : '快速 PDF（图片型）'}</span>
               </button>
               <button
                 onClick={onOpenNewTab}
                 className="w-full sm:w-auto px-4 py-2 bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 active:scale-[0.98] text-white text-xs font-bold rounded-lg transition-all shadow-md shadow-slate-900/15 flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
-                <span>{isEn ? 'Open New Tab (Vector Print)' : '新标签页打开 (矢量打印)'}</span>
+                <span>{isEn ? 'Open New Tab for ATS PDF' : '新标签页打开 ATS PDF'}</span>
               </button>
             </div>
           </motion.div>
