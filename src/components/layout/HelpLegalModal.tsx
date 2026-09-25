@@ -240,8 +240,8 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
                 </h3>
                 <p className="text-emerald-800/90 dark:text-emerald-300/90">
                   {isEn
-                    ? 'Resume drafts and settings stay in browser-local storage unless you explicitly create a share link. The app has no backend for persisting resume content.'
-                    : '简历草稿与设置默认保存在浏览器本地；只有在您主动创建分享链接时，分享内容才会编码进 URL。应用本身不提供用于持久化简历内容的后端。'}
+                    ? 'Resume drafts and settings stay in browser-local storage unless you explicitly create a share link. New share links keep their payload in the URL fragment so it is not sent to the hosting server as a request query. The app has no backend for persisting resume content.'
+                    : '简历草稿与设置默认保存在浏览器本地；主动创建的新分享链接会把内容放在 URL fragment 中，不会作为请求查询参数发送给托管站点。应用本身不提供用于持久化简历内容的后端。'}
                 </p>
               </div>
 
