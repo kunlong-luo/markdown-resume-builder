@@ -4,6 +4,7 @@ English | [简体中文](./README.md)
 
 [![Version](https://img.shields.io/badge/version-v2.0.0--PRO-blue?style=flat-square&logo=github)](https://github.com/kunlong-luo/resume-craft)
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Try%20Now-4F46E5?style=flat-square&logo=github)](https://kunlong-luo.github.io/resume-craft/)
+[![CI](https://github.com/kunlong-luo/resume-craft/actions/workflows/ci.yml/badge.svg)](https://github.com/kunlong-luo/resume-craft/actions/workflows/ci.yml)
 [![React](https://img.shields.io/badge/built%20with-React%2019-blueviolet?style=flat-square&logo=react)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/bundler-Vite%208-646CFF?style=flat-square&logo=vite)](https://vite.dev/)
 [![TailwindCSS](https://img.shields.io/badge/styling-Tailwind%20v4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
@@ -138,7 +139,7 @@ When creating resumes, candidates frequently suffer from **Word layout nightmare
 | **Bundler** | [Vite 8](https://vite.dev/) | Instant HMR & fast production builds |
 | **Styling** | [Tailwind CSS v4](https://tailwindcss.com/) | Atomic styling with modern CSS variables |
 | **State** | [Zustand 5](https://github.com/pmndrs/zustand) | Lightweight reactive state with LocalStorage sync |
-| **Animations** | [Motion 12](https://github.com/framer/motion) | Smooth drag-and-drop & modal transitions |
+| **Animations** | [Motion 13](https://github.com/framer/motion) | Smooth drag-and-drop & modal transitions |
 | **Markdown** | `react-markdown` + `remark-gfm` | GFM-compliant markdown parsing |
 | **PDF Engine** | Native Print + `html2canvas-pro` + `jspdf` | Vector-crisp PDF output |
 
@@ -187,6 +188,19 @@ Resume Craft supports both **native vector print** and **high-definition Canvas 
    * **Margins**: **`None`** (*Crucial for 1:1 alignment*)
    * **Options**: Check **`Background graphics`**
    * **Headers and Footers**: **Uncheck**
+
+---
+
+## 🤝 Contributing & Community
+
+Bug reports, feature ideas, and code contributions are welcome. Before contributing, please read:
+
+- [Contributing Guide](CONTRIBUTING.md) — development setup, commit conventions, and pull request workflow
+- [Code of Conduct](CODE_OF_CONDUCT.md) — community expectations
+- [Security Policy](SECURITY.md) — report vulnerabilities privately; do not publish sensitive details
+- [Support](SUPPORT.md) — where to ask for help or report problems
+
+Before opening a pull request, make sure `pnpm lint`, `pnpm test`, and `pnpm build` all pass.
 
 ---
 
