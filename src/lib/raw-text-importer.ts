@@ -134,8 +134,6 @@ export function parseRawTextToResumeMarkdown(rawText: string): string {
   // Render parsed sections
   for (const sec of sections) {
     markdown += `## ${sec.title}\n\n`;
-    let inSubItem = false;
-
     for (let i = 0; i < sec.lines.length; i++) {
       const line = sec.lines[i];
 
@@ -145,7 +143,6 @@ export function parseRawTextToResumeMarkdown(rawText: string): string {
 
       if (isHeaderLine) {
         markdown += `### ${line.replace(/^###?\s*/, '')}\n`;
-        inSubItem = true;
       } else {
         const cleanedBullet = line.replace(/^[•⁃－—–·●▪■◆\-\*\+]\s*/, '').replace(/^\d+[\.\、]\s*/, '');
         if (cleanedBullet.trim()) {

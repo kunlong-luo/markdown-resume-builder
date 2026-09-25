@@ -1,12 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import {
   isTimeString,
-  cleanPart,
   splitItemTitle,
   formatPhoneNumber,
   parseContactString,
-  classifySubsequentLines,
-  getSectionCategory,
   parseExperienceField,
   serializeExperienceField,
   parseMarkdownToForm,

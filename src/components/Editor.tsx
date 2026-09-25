@@ -1,12 +1,11 @@
 import React, { useState, useRef, useEffect, useMemo, useDeferredValue } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  Edit3, Copy, RotateCcw, Check, Bold, Italic, Link, List, ListOrdered, Table, Minus, Heading1, Heading2, Code, Info, Scissors, Undo, Redo,
-  Type, Layers, Award, Phone, GraduationCap, ChevronDown, Briefcase, Sliders, ChevronsUp, ChevronsDown, Wand2, FolderKanban, User
+  Edit3, Copy, RotateCcw, Check, Bold, Italic, Link, List, ListOrdered, Table, Minus, Heading1, Heading2, Code, Scissors, Undo, Redo,
+  Layers, GraduationCap, ChevronDown, Briefcase, Sliders, ChevronsUp, ChevronsDown, Wand2, FolderKanban, User
 } from 'lucide-react';
 import { FormEditor } from './form/FormEditor';
 import { SectionSorter } from './layout/SectionSorter';
-import { ResumeSettings } from '../types';
 import { useResumeStore } from '../store/useResumeStore';
 import { useConfirm } from '../context/ConfirmContext';
 import { DEFAULT_MARKDOWN } from '../data';
@@ -111,7 +110,6 @@ export const Editor = React.memo(function Editor() {
     historyIndex,
     history,
     settings,
-    measuredPageCount
   } = useResumeStore();
 
   const deferredValue = useDeferredValue(value);
@@ -214,7 +212,6 @@ export const Editor = React.memo(function Editor() {
     }, 0);
   };
 
-  const [spaced, setSpaced] = useState(false);
   const [cleanFeedback, setCleanFeedback] = useState<string | null>(null);
   const [isSnippetsDropdownOpen, setIsSnippetsDropdownOpen] = useState(false);
 
@@ -231,32 +228,24 @@ export const Editor = React.memo(function Editor() {
     }
 
     onChange(autoCleanResult.cleanedMarkdown, true);
-    setSpaced(true);
     setCleanFeedback(
       settings.lang === 'en' 
         ? `Cleaned ${autoCleanResult.fixesCount} items!` 
         : `已一键规范化 ${autoCleanResult.fixesCount} 处格式！`
     );
     setTimeout(() => {
-      setSpaced(false);
       setCleanFeedback(null);
     }, 2500);
   };
 
   const handleAutoSpacing = handleAutoClean;
 
-  const insertStarTemplate = () => {
-    const starTemplate = `\n### **项目经历标题 (符合 STAR 原则描述)**\n- **[Situation 业务背景]**：面对...（描述背景，例如：原有支付网关在并发1W时延迟高、高频卡顿，导致核心下单率降低了15%）\n- **[Task 核心任务]**：作为重构技术负责人，我的目标是主导核心链路重构，将端到端支付耗时降低50%并支撑双十一大促\n- **[Action 关键行动]**：为了达成这一目标，我主导并实施了以下关键方案：\n  1. **架构重构**：使用 React Concurrent Features 与 Suspense 异步组件，大幅减少首屏体积 30% 并实现页面瞬时渲染\n  2. **高并发处理**：引入 Redis 集群缓存高频商品，并利用 Kafka 消息队列进行削峰填谷，彻底平抑了流量浪涌\n  3. **SQL性能优化**：针对全表扫描的查询建立联合索引，优化复杂多表 Join，实现慢查询占比降低 85%\n- **[Result 实际产出]**：项目上线后，首屏耗时由 2.5s 骤降至 0.7s，下单成功率由 83% 提升至 99.8%，有效承载双十一大促且无线上故障\n`;
-    
-    insertMarkdown(starTemplate);
-  };
 
   // Stats calculation and markdown highlighting memoization
   const charCount = useMemo(() => value.length, [value]);
   const wordCount = useMemo(() => getWordCount(value), [value]);
   const lineCount = useMemo(() => value.split('\n').length, [value]);
   // Estimate page logic (uses actual measured page count if available from preview, otherwise estimates based on length)
-  const estPages = useMemo(() => measuredPageCount || Math.max(1, Math.ceil(charCount / 2400)), [measuredPageCount, charCount]);
   const highlightedHtml = useMemo(() => highlightMarkdown(deferredValue) + '\n', [deferredValue]);
 
   return (

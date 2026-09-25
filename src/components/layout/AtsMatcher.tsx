@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Target, Highlighter, CheckCircle, AlertTriangle, Info, FileText, RefreshCw, Layers } from 'lucide-react';
+import { Target, Highlighter, CheckCircle, AlertTriangle, Info, FileText, RefreshCw } from 'lucide-react';
 import { useResumeStore } from '../../store/useResumeStore';
 import { extractKeywordsFromJd, analyzeResumeMatch } from '../../lib/ats-utils';
 import { trackAnalyticsEvent } from '../../lib/analytics';

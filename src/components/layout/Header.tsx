@@ -1,6 +1,5 @@
-import React, { useMemo, useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
-  FileText, 
   ClipboardCheck, 
   Database, 
   Upload, 
@@ -11,19 +10,12 @@ import {
   Sun, 
   Laptop, 
   HelpCircle, 
-  Maximize2, 
-  Minimize2,
-  ClipboardPaste,
   DownloadCloud,
   Menu,
   X,
-  Globe,
-  Settings,
-  CheckCircle2,
   Printer
 } from 'lucide-react';
 import { useResumeStore } from '../../store/useResumeStore';
-import { getWordCount } from '../../lib/word-count';
 import { ThemeMode } from '../../types';
 import { ProfileDropdown } from '../profile/ProfileDropdown';
 import { Tooltip } from '../ui';
@@ -48,7 +40,6 @@ export function Header({
   handleExportVectorPrint,
 }: HeaderProps) {
   const {
-    markdown,
     lastSaved,
     isSaving,
     saveStatus,
@@ -68,8 +59,6 @@ export function Header({
   const lang = settings.lang || 'zh';
   const isEn = lang === 'en';
   const themeMode: ThemeMode = settings.themeMode || 'light';
-  const wordCount = useMemo(() => getWordCount(markdown), [markdown]);
-
   const [isRawTextModalOpen, setIsRawTextModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { isInstallable, triggerInstall } = usePWAInstall();

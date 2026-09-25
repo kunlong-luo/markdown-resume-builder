@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, ExternalLink, HelpCircle, FileDown, AlertCircle, Printer, Check, Zap } from 'lucide-react';
+import { X, ExternalLink, FileDown, AlertCircle, Printer } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useResumeStore } from '../store/useResumeStore';
 import { exportDirectPDF } from '../lib/pdf-export';

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { 
   Layers, 
   Check, 
@@ -6,20 +6,14 @@ import {
   Copy, 
   Trash2, 
   Edit2, 
-  Download, 
-  Upload, 
-  FileText, 
   GitCompare, 
-  ExternalLink,
-  Calendar,
-  Tag
+  Calendar
 } from 'lucide-react';
 import { useResumeStore } from '../../store/useResumeStore';
 import { ResumeProfile } from '../../types';
 import { NewProfileModal } from '../profile/NewProfileModal';
 import { useConfirm } from '../../context/ConfirmContext';
 import { Tooltip } from '../ui/Tooltip';
-import { normalizeImportedProfiles } from '../../lib/import-validation';
 
 interface ProfilesTabProps {
   lang?: string;
@@ -35,9 +29,7 @@ export function ProfilesTab({ lang, showToast }: ProfilesTabProps) {
     duplicateProfile, 
     createProfile,
     renameProfile, 
-    deleteProfile,
-    importProfiles,
-    settings
+    deleteProfile
   } = useResumeStore();
 
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
@@ -48,14 +40,7 @@ export function ProfilesTab({ lang, showToast }: ProfilesTabProps) {
   // Comparison modal state
   const [compareTargetId, setCompareTargetId] = useState<string | null>(null);
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   const activeProfile = profiles.find(p => p.id === activeProfileId) || profiles[0];
-
-  const handleFastDuplicate = () => {
-    const dup = duplicateProfile(activeProfileId);
-    showToast(isEn ? `Duplicated as "${dup.name}"` : `已一键复制副本「${dup.name}」并自动切换`);
-  };
 
   const handleFastBlank = () => {
     const count = profiles.length + 1;
@@ -107,45 +92,6 @@ export function ProfilesTab({ lang, showToast }: ProfilesTabProps) {
     showToast(isEn ? `Duplicated as "${dup.name}"` : `已创建副本「${dup.name}」并自动切换`);
   };
 
-  // Export all profiles as JSON file
-  const handleExportAll = () => {
-    try {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(profiles, null, 2));
-      const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", `resume_profiles_backup_${new Date().toISOString().slice(0, 10)}.json`);
-      document.body.appendChild(downloadAnchor);
-      downloadAnchor.click();
-      downloadAnchor.remove();
-      showToast(isEn ? 'All profiles exported successfully' : '所有简历档案已打包导出为 JSON 文件');
-    } catch (e) {
-      showToast(isEn ? 'Export failed' : '导出失败', true);
-    }
-  };
-
-  // Import profiles from JSON file
-  const handleImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const content = event.target?.result as string;
-        const parsed = normalizeImportedProfiles(JSON.parse(content), settings);
-        if (parsed) {
-          importProfiles(parsed);
-          showToast(isEn ? `Imported ${parsed.length} profiles successfully` : `成功导入 ${parsed.length} 份简历档案并自动就绪`);
-        } else {
-          showToast(isEn ? 'Invalid or unsupported profile archive' : '档案备份无效、损坏或包含不支持的配置', true);
-        }
-      } catch (err) {
-        showToast(isEn ? 'Failed to parse JSON file' : '解析 JSON 文件失败，请检查文件格式', true);
-      }
-    };
-    reader.readAsText(file);
-    if (fileInputRef.current) fileInputRef.current.value = '';
-  };
 
   const compareTarget = profiles.find(p => p.id === compareTargetId);
 

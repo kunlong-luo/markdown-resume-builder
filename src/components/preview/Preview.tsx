@@ -5,7 +5,7 @@ import { ResumeSettings } from '../../types';
 import { useResumeStore } from '../../store/useResumeStore';
 import { 
   THEME_MAP, FONT_FAMILY_CLASSES, parseResumeHeader, cleanMarkdown, 
-  parseH2Sections, smartAutoFit, getSizeClasses
+  parseH2Sections, getSizeClasses
 } from '../../lib/preview-utils';
 import { createMarkdownComponents } from './PreviewRenderers';
 import { HeightGuard } from './HeightGuard';

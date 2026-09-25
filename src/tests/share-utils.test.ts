@@ -194,9 +194,9 @@ describe('privacy-preserving share links', () => {
     }
 
     const original = parsed.payload.ciphertext;
-    const lastChar = original.slice(-1);
+    const firstChar = original[0];
     const tamperedCiphertext =
-      original.slice(0, -1) + (lastChar === 'A' ? 'B' : 'A');
+      (firstChar === 'A' ? 'B' : 'A') + original.slice(1);
 
     await expect(
       decryptSharePayload(

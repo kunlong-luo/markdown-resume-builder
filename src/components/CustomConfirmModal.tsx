@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, AlertTriangle, Info, HelpCircle } from 'lucide-react';
+import { X, AlertTriangle, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface CustomConfirmModalProps {

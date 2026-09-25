@@ -14,7 +14,6 @@ import {
   FileText, 
   ExternalLink,
   Laptop,
-  Flame,
   Shield,
   Code
 } from 'lucide-react';

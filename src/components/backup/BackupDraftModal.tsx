@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Database, History, FileJson, AlertCircle, Folder, Layers } from 'lucide-react';
+import { X, Database, History, FileJson, AlertCircle, Layers } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ResumeSettings, ResumeDraft } from '../../types';
 import { ProfilesTab } from './ProfilesTab';
 import { DraftsTab } from './DraftsTab';
 import { BackupTab } from './BackupTab';
-import { MatrixTab } from './MatrixTab';
 import { useConfirm } from '../../context/ConfirmContext';
 import { useResumeStore } from '../../store/useResumeStore';
 import { storage, STORAGE_KEYS } from '../../lib/storage';
