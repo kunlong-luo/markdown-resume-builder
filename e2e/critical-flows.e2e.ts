@@ -138,5 +138,5 @@ test.describe('critical resume flows', () => {
         name: /在线简历分享|Online Interactive Portfolio/,
       }),
     ).toBeVisible();
-  });;
+  });
 });
