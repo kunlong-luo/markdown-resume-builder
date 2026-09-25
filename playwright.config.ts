@@ -4,6 +4,8 @@ export default defineConfig({
   testDir: './e2e',
   testMatch: '**/*.e2e.ts',
   fullyParallel: false,
+  timeout: 20_000,
+  globalTimeout: process.env.CI ? 180_000 : 0,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   workers: process.env.CI ? 1 : undefined,
@@ -26,7 +28,7 @@ export default defineConfig({
     command: 'pnpm run dev',
     url: 'http://127.0.0.1:3000',
     reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
+    timeout: 60_000,
     env: {
       DISABLE_HMR: 'true',
     },
