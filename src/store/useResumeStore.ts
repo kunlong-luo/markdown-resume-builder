@@ -380,6 +380,8 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
     storage.set(STORAGE_KEYS.SETTINGS, target.settings);
     if (target.customFileName !== undefined) {
       storage.set(STORAGE_KEYS.CUSTOM_FILE_NAME, target.customFileName);
+    } else {
+      storage.remove(STORAGE_KEYS.CUSTOM_FILE_NAME);
     }
 
     // 3. Switch active state
@@ -480,6 +482,8 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
       storage.set(STORAGE_KEYS.SETTINGS, nextActive.settings);
       if (nextActive.customFileName !== undefined) {
         storage.set(STORAGE_KEYS.CUSTOM_FILE_NAME, nextActive.customFileName);
+      } else {
+        storage.remove(STORAGE_KEYS.CUSTOM_FILE_NAME);
       }
       set({ 
         profiles: updated,
@@ -496,9 +500,32 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
 
   importProfiles: (importedProfiles: ResumeProfile[]) => {
     if (!Array.isArray(importedProfiles) || importedProfiles.length === 0) return;
+
+    const nextActive = importedProfiles[0];
     storage.set(STORAGE_KEYS.PROFILES, importedProfiles);
-    set({ profiles: importedProfiles });
-    get().switchProfile(importedProfiles[0].id);
+    storage.set(STORAGE_KEYS.ACTIVE_PROFILE_ID, nextActive.id);
+    storage.set(STORAGE_KEYS.MARKDOWN, nextActive.markdown);
+    storage.set(STORAGE_KEYS.SETTINGS, nextActive.settings);
+
+    if (nextActive.customFileName !== undefined) {
+      storage.set(STORAGE_KEYS.CUSTOM_FILE_NAME, nextActive.customFileName);
+    } else {
+      storage.remove(STORAGE_KEYS.CUSTOM_FILE_NAME);
+    }
+
+    set({
+      profiles: importedProfiles,
+      activeProfileId: nextActive.id,
+      markdown: nextActive.markdown,
+      settings: nextActive.settings,
+      customFileName: nextActive.customFileName || '',
+      history: [nextActive.markdown],
+      historyIndex: 0,
+      currentTemplateId: getInitialTemplateId(nextActive.markdown),
+      lastSaved: new Date().toLocaleTimeString(),
+      isSaving: false,
+      saveStatus: 'saved',
+    });
   },
 
   // Complex operations
@@ -575,24 +602,20 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
   handleUndo: () => {
     const { historyIndex, history } = get();
     if (historyIndex > 0) {
-      isUndoRedoAction = true;
       const prevIndex = historyIndex - 1;
-      set({
-        historyIndex: prevIndex,
-        markdown: history[prevIndex]
-      });
+      isUndoRedoAction = true;
+      get().handleMarkdownChange(history[prevIndex], true);
+      set({ historyIndex: prevIndex });
     }
   },
 
   handleRedo: () => {
     const { historyIndex, history } = get();
     if (historyIndex < history.length - 1) {
-      isUndoRedoAction = true;
       const nextIndex = historyIndex + 1;
-      set({
-        historyIndex: nextIndex,
-        markdown: history[nextIndex]
-      });
+      isUndoRedoAction = true;
+      get().handleMarkdownChange(history[nextIndex], true);
+      set({ historyIndex: nextIndex });
     }
   },
 
