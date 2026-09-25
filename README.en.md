@@ -1,4 +1,4 @@
-# 🚀 Resume Craft
+<h1 align="center">🚀 Resume Craft</h1>
 
 <h3 align="center">Local-first Markdown Resume Builder</h3>
 
@@ -10,6 +10,8 @@
   <a href="https://kunlong-luo.github.io/resume-craft/"><strong>Live Demo</strong></a>
   ·
   <a href="./README.md">简体中文</a>
+  ·
+  <a href="https://github.com/kunlong-luo/resume-craft/discussions">Feedback / Discussions</a>
   ·
   <a href="https://github.com/kunlong-luo/resume-craft/releases/latest">Latest Release</a>
 </p>
