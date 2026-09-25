@@ -52,6 +52,8 @@ export function Header({
     lastSaved,
     isSaving,
     saveStatus,
+    storageStatus,
+    storageErrorIsQuota,
     isCheckerOpen,
     isExportingPDF,
     pdfExportProgress,
@@ -203,8 +205,24 @@ export function Header({
           {/* Multi-Profile Archive Selector */}
           <ProfileDropdown lang={settings.lang} />
 
-          {/* Real-time 3-Stage Save Status Indicator */}
-          {saveStatus === 'editing' ? (
+          {/* Real-time save and storage health indicator */}
+          {storageStatus === 'error' ? (
+            <Tooltip
+              content={storageErrorIsQuota
+                ? (isEn
+                  ? 'Local storage is full. Export a JSON backup and free browser storage before continuing.'
+                  : '浏览器本地存储空间不足。请先导出 JSON 备份并清理浏览器存储空间。')
+                : (isEn
+                  ? 'The browser rejected local storage writes. Export a JSON backup before closing this page.'
+                  : '浏览器拒绝写入本地存储。关闭页面前请先导出 JSON 备份。')}
+              side="bottom"
+            >
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200/70 dark:border-rose-800/70 rounded-lg text-[11px] font-semibold shadow-2xs whitespace-nowrap cursor-default">
+                <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
+                <span>{isEn ? 'Save failed' : '保存失败'}</span>
+              </div>
+            </Tooltip>
+          ) : saveStatus === 'editing' ? (
             <Tooltip
               content={isEn ? 'Editing document...' : '正在实时编辑简历内容...'}
               side="bottom"

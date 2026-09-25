@@ -13,6 +13,7 @@ import { Edit3, Eye, Printer } from 'lucide-react';
 import { Tooltip } from './components/ui/Tooltip';
 import { markSupportPrompt, shouldPromptForSupport } from './lib/support-prompt';
 import { trackAnalyticsEvent } from './lib/analytics';
+import { storage, STORAGE_HEALTH_EVENT, STORAGE_KEYS, type StorageHealthDetail } from './lib/storage';
 
 // Performance optimization: Lazy load heavy secondary modals and non-critical tools
 const ResumeChecker = lazy(() => import('./components/resume-checker/ResumeChecker').then(m => ({ default: m.ResumeChecker })));
@@ -55,7 +56,8 @@ export default function App() {
     setSettings,
     handleMarkdownChange,
     isHelpLegalOpen,
-    setIsHelpLegalOpen
+    setIsHelpLegalOpen,
+    setStorageHealth
   } = useResumeStore();
 
   const contentRef = useRef<HTMLDivElement>(null);
@@ -78,7 +80,7 @@ export default function App() {
   // Resizable split ratio (percentage for editor width)
   const [splitRatio, setSplitRatio] = useState<number>(() => {
     try {
-      const saved = localStorage.getItem('resume-split-ratio');
+      const saved = storage.getString('resume-split-ratio');
       if (saved) {
         const parsed = parseFloat(saved);
         if (parsed >= 25 && parsed <= 75) return parsed;
@@ -140,9 +142,7 @@ export default function App() {
     const handleEnd = () => {
       if (rafId !== null) cancelAnimationFrame(rafId);
       setIsDragging(false);
-      try {
-        localStorage.setItem('resume-split-ratio', String(splitRatio));
-      } catch (e) {}
+      storage.set('resume-split-ratio', String(splitRatio));
     };
 
     window.addEventListener('mousemove', handleMouseMove);
@@ -220,24 +220,11 @@ export default function App() {
     handleMarkdownChange(newMarkdown, true);
   };
 
-  // Debounce saving markdown to localStorage to prevent layout blocking on every keypress
-  useEffect(() => {
-    const saveTimer = setTimeout(() => {
-      localStorage.setItem('resume-markdown', markdown);
-      const now = new Date();
-      const pad = (num: number) => String(num).padStart(2, '0');
-      setLastSaved(`${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`);
-    }, 1000);
-
-    return () => clearTimeout(saveTimer);
-  }, [markdown, setLastSaved]);
-
   // Automated periodic autosave (every 3 minutes)
   useEffect(() => {
     const interval = setInterval(() => {
       try {
-        const currentDraftsRaw = localStorage.getItem('resume-drafts');
-        const currentDrafts = currentDraftsRaw ? JSON.parse(currentDraftsRaw) : [];
+        const currentDrafts = storage.get<any[]>(STORAGE_KEYS.DRAFTS, []);
         const hasDuplicate = currentDrafts.some((d: any) => d.markdown === markdown);
         if (hasDuplicate) return;
 
@@ -254,7 +241,7 @@ export default function App() {
         const otherDrafts = currentDrafts.filter((d: any) => !d.isAutoSave);
         const autoDrafts = currentDrafts.filter((d: any) => d.isAutoSave);
         const updatedAutoDrafts = [newAutoDraft, ...autoDrafts].slice(0, 5);
-        localStorage.setItem('resume-drafts', JSON.stringify([...updatedAutoDrafts, ...otherDrafts]));
+        storage.set(STORAGE_KEYS.DRAFTS, [...updatedAutoDrafts, ...otherDrafts]);
       } catch (e) {}
     }, 180000);
 
@@ -275,9 +262,6 @@ export default function App() {
       if (typeof document !== 'undefined') {
         document.documentElement.classList.toggle('dark', isDark);
       }
-      try {
-        localStorage.setItem('resume_theme_mode', mode);
-      } catch (e) {}
     };
 
     applyTheme();
@@ -293,6 +277,43 @@ export default function App() {
   const { showToast } = useToast() || {};
   const { updateSetting } = useResumeStore();
 
+  useEffect(() => {
+    const handleStorageHealth = (event: Event) => {
+      const detail = (event as CustomEvent<StorageHealthDetail>).detail;
+      if (!detail) return;
+
+      if (detail.status === 'recovered') {
+        setStorageHealth('ok');
+        showToast?.({
+          title: settings.lang === 'en' ? 'Local saving restored' : '本地保存已恢复',
+          message: settings.lang === 'en'
+            ? 'Resume changes can be saved to this browser again.'
+            : '浏览器本地存储已恢复，可以继续自动保存简历修改。',
+          type: 'success',
+          duration: 3500,
+        });
+        return;
+      }
+
+      setStorageHealth('error', detail.quotaExceeded === true);
+      showToast?.({
+        title: settings.lang === 'en' ? 'Local save failed' : '本地保存失败',
+        message: detail.quotaExceeded
+          ? (settings.lang === 'en'
+            ? 'Browser storage is full. Export a JSON backup before closing this page, then free storage space.'
+            : '浏览器本地存储空间不足。关闭页面前请先导出 JSON 备份，再清理存储空间。')
+          : (settings.lang === 'en'
+            ? 'The browser rejected a local storage write. Export a JSON backup before closing this page.'
+            : '浏览器拒绝写入本地存储。关闭页面前请先导出 JSON 备份。'),
+        type: 'error',
+        duration: 8000,
+      });
+    };
+
+    window.addEventListener(STORAGE_HEALTH_EVENT, handleStorageHealth);
+    return () => window.removeEventListener(STORAGE_HEALTH_EVENT, handleStorageHealth);
+  }, [setStorageHealth, settings.lang, showToast]);
+
   // Global Keyboard Shortcuts (Cmd/Ctrl + S, Cmd/Ctrl + P, Cmd/Ctrl + Shift + F)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -301,19 +322,19 @@ export default function App() {
       // Cmd/Ctrl + S -> Manual Save trigger Toast
       if (isCmdOrCtrl && (e.key === 's' || e.key === 'S')) {
         e.preventDefault();
-        try {
-          localStorage.setItem('resume-markdown', markdown);
+        const saved = storage.set(STORAGE_KEYS.MARKDOWN, markdown);
+        if (saved) {
           const now = new Date();
           const pad = (num: number) => String(num).padStart(2, '0');
           setLastSaved(`${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`);
           showToast?.({
-            title: '简历草稿已手动保存',
-            message: '核心内容已实时写入浏览器持久化存储',
+            title: settings.lang === 'en' ? 'Resume saved locally' : '简历草稿已手动保存',
+            message: settings.lang === 'en'
+              ? 'The current resume content was written to browser storage.'
+              : '核心内容已写入浏览器本地存储。',
             type: 'success',
             duration: 2500,
           });
-        } catch (err) {
-          console.error(err);
         }
       }
 

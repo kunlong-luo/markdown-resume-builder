@@ -17,7 +17,67 @@ export const STORAGE_KEYS = {
   CHECKER_STATE: 'resume-checker-state',
 } as const;
 
+export const STORAGE_HEALTH_EVENT = 'resume-craft:storage-health';
+
 export type StorageKey = typeof STORAGE_KEYS[keyof typeof STORAGE_KEYS] | string;
+export type StorageOperation = 'set' | 'remove' | 'clear';
+
+export interface StorageHealthDetail {
+  status: 'error' | 'recovered';
+  operation: StorageOperation;
+  key?: string;
+  quotaExceeded?: boolean;
+}
+
+let hasWriteFailure = false;
+
+export function isQuotaExceededError(error: unknown): boolean {
+  if (!(error instanceof DOMException)) return false;
+
+  return (
+    error.name === 'QuotaExceededError' ||
+    error.name === 'NS_ERROR_DOM_QUOTA_REACHED' ||
+    error.code === 22 ||
+    error.code === 1014
+  );
+}
+
+function emitStorageHealth(detail: StorageHealthDetail) {
+  if (
+    typeof window === 'undefined' ||
+    typeof window.dispatchEvent !== 'function' ||
+    typeof CustomEvent === 'undefined'
+  ) {
+    return;
+  }
+
+  window.dispatchEvent(new CustomEvent<StorageHealthDetail>(STORAGE_HEALTH_EVENT, { detail }));
+}
+
+function reportWriteSuccess(operation: StorageOperation, key?: StorageKey) {
+  if (!hasWriteFailure) return;
+
+  hasWriteFailure = false;
+  emitStorageHealth({
+    status: 'recovered',
+    operation,
+    key: key === undefined ? undefined : String(key),
+  });
+}
+
+function reportWriteFailure(operation: StorageOperation, error: unknown, key?: StorageKey) {
+  const shouldNotify = !hasWriteFailure;
+  hasWriteFailure = true;
+
+  if (!shouldNotify) return;
+
+  emitStorageHealth({
+    status: 'error',
+    operation,
+    key: key === undefined ? undefined : String(key),
+    quotaExceeded: isQuotaExceededError(error),
+  });
+}
 
 export const storage = {
   /**
@@ -34,8 +94,8 @@ export const storage = {
         // If it's a raw string (not JSON)
         return item as unknown as T;
       }
-    } catch (e) {
-      console.warn(`[storage] Error reading key "${key}":`, e);
+    } catch (error) {
+      console.warn(`[storage] Error reading key "${key}":`, error);
       return fallback;
     }
   },
@@ -48,7 +108,8 @@ export const storage = {
     try {
       const item = localStorage.getItem(key);
       return item !== null ? item : fallback;
-    } catch {
+    } catch (error) {
+      console.warn(`[storage] Error reading string key "${key}":`, error);
       return fallback;
     }
   },
@@ -64,9 +125,12 @@ export const storage = {
       } else {
         localStorage.setItem(key, JSON.stringify(value));
       }
+
+      reportWriteSuccess('set', key);
       return true;
-    } catch (e) {
-      console.error(`[storage] Error setting key "${key}":`, e);
+    } catch (error) {
+      console.error(`[storage] Error setting key "${key}":`, error);
+      reportWriteFailure('set', error, key);
       return false;
     }
   },
@@ -78,9 +142,11 @@ export const storage = {
     if (typeof window === 'undefined') return false;
     try {
       localStorage.removeItem(key);
+      reportWriteSuccess('remove', key);
       return true;
-    } catch (e) {
-      console.warn(`[storage] Error removing key "${key}":`, e);
+    } catch (error) {
+      console.warn(`[storage] Error removing key "${key}":`, error);
+      reportWriteFailure('remove', error, key);
       return false;
     }
   },
@@ -91,10 +157,12 @@ export const storage = {
   clearAllResumeData(): boolean {
     if (typeof window === 'undefined') return false;
     try {
-      Object.values(STORAGE_KEYS).forEach((k) => localStorage.removeItem(k));
+      Object.values(STORAGE_KEYS).forEach((key) => localStorage.removeItem(key));
+      reportWriteSuccess('clear');
       return true;
-    } catch (e) {
-      console.error('[storage] Error clearing resume data:', e);
+    } catch (error) {
+      console.error('[storage] Error clearing resume data:', error);
+      reportWriteFailure('clear', error);
       return false;
     }
   }

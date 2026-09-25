@@ -13,6 +13,8 @@ interface ResumeState {
   lastSaved: string;
   isSaving: boolean;
   saveStatus: 'saved' | 'editing' | 'saving';
+  storageStatus: 'ok' | 'error';
+  storageErrorIsQuota: boolean;
   history: string[];
   historyIndex: number;
   customFileName: string;
@@ -36,6 +38,7 @@ interface ResumeState {
   setSettings: (settings: ResumeSettings) => void;
   setCurrentTemplateId: (id: string) => void;
   setLastSaved: (lastSaved: string) => void;
+  setStorageHealth: (status: 'ok' | 'error', isQuotaExceeded?: boolean) => void;
   setCustomFileName: (name: string) => void;
   setIsCheckerOpen: (open: boolean) => void;
   setIsIframeModalOpen: (open: boolean) => void;
@@ -240,6 +243,8 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
   lastSaved: new Date().toLocaleTimeString(),
   isSaving: false,
   saveStatus: 'saved',
+  storageStatus: 'ok',
+  storageErrorIsQuota: false,
   history: [activeProfile.markdown],
   historyIndex: 0,
   customFileName: activeProfile.customFileName || '',
@@ -283,6 +288,10 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
   },
   setCurrentTemplateId: (currentTemplateId) => set({ currentTemplateId }),
   setLastSaved: (lastSaved) => set({ lastSaved }),
+  setStorageHealth: (storageStatus, storageErrorIsQuota = false) => set({
+    storageStatus,
+    storageErrorIsQuota,
+  }),
   setCustomFileName: (customFileName) => {
     const { profiles, activeProfileId } = get();
     const updatedProfiles = profiles.map(p =>
