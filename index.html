@@ -40,6 +40,12 @@
     }
     </script>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234F46E5'%3E%3Cpath d='M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z'/%3E%3C/svg%3E" />
+    <script>
+      window.sa_event = window.sa_event || function () {
+        var args = Array.prototype.slice.call(arguments);
+        window.sa_event.q ? window.sa_event.q.push(args) : window.sa_event.q = [args];
+      };
+    </script>
     <meta name="theme-color" content="#4F46E5" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -82,6 +88,14 @@
         }
       </style>
     </div>
+    <!-- Simple Analytics - privacy-first analytics -->
+    <script
+      id="simple-analytics"
+      async
+      data-auto-collect="false"
+      data-ignore-metrics="country,session,timeonpage,scrolled,useragent,screensize,viewportsize,language"
+      src="https://scripts.simpleanalyticscdn.com/latest.js"
+    ></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
