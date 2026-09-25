@@ -86,7 +86,7 @@ When creating resumes, candidates frequently suffer from **Word layout nightmare
 * **Custom Styling**: Select from Indigo, Slate, Emerald, and Amber color palettes; customize single/two-column layouts, base font size (13/14/15px), line height, and header line accents.
 
 ### 7. 🔤 System Font Stack & A4 Layout Consistency
-* **Cross-Platform Consistency**: Uses a robust fallback stack (PingFang SC, Microsoft YaHei, Source Han Sans SC) with a `794px × 1123px` A4 canvas and adaptive viewport scaling to reduce layout differences across browsers and operating systems. Small variations can still occur because local font metrics differ.
+* **No external font requests**: The UI and resume canvas use system font stacks (for example PingFang SC, Microsoft YaHei, and Source Han Sans SC) instead of Google Fonts CDN. This removes a third-party request, reduces render blocking, and prevents font-network failures from affecting preview/PDF rendering. Small cross-platform metric differences can still occur.
 
 ### 8. 💾 Multi-Profile Matrix & Diff Comparison
 * **Version Control**: Clone and maintain tailored resume branches for different roles (e.g., `Frontend Lead`, `Full-Stack Developer`).
@@ -216,6 +216,7 @@ Resume Craft is local-first, but local-first does not mean that every stored or 
 
 - Resume drafts, settings, and profiles are primarily stored in browser `localStorage`.
 - The project does not provide an application backend for persisting resume content.
+- Fonts use local system stacks and are not loaded from third-party font CDNs such as Google Fonts.
 - The product uses Simple Analytics for a small set of anonymous aggregate signals (editing, export, ATS matching, Auto Fit, sharing, PWA installation, and feedback intent). Events contain only a fixed event name and no metadata. Do Not Track is respected and the analytics script is not loaded when DNT is enabled; resume, JD, contact, filename, share-payload, and access-code content are never sent, and session replay/fingerprinting are not used.
 - New share URLs embed resume data in the URL fragment so it is not sent to the hosting server as a request query; legacy `?share=` links remain compatible. The optional access code is a client-side viewing gate, not end-to-end encryption.
 - Do not include real resume data, tokens, passwords, or other sensitive information in issues, pull requests, test fixtures, or screenshots.

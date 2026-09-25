@@ -282,8 +282,8 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
                     </h4>
                     <p className="text-slate-500 dark:text-slate-400 text-[11px] mt-0.5">
                       {isEn
-                        ? 'Resume Craft uses Simple Analytics for coarse aggregate product metrics with a fixed event allowlist and no event metadata. It does not use tracking cookies, session replay, or browser fingerprinting. Resume, JD, contact, filenames, share payloads, access codes, and URL query/hash values are never sent as analytics data. If Do Not Track is enabled, the analytics script is not loaded.'
-                        : 'Resume Craft 使用 Simple Analytics 统计少量聚合产品指标，仅允许固定事件名且不附带事件 metadata；不使用追踪 Cookie、会话回放或浏览器指纹，也不会发送简历、JD、联系方式、文件名、分享内容、访问口令或 URL 查询/哈希参数。若浏览器开启 Do Not Track，统计脚本不会加载。'}
+                        ? 'Resume Craft uses Simple Analytics for coarse aggregate product metrics with a fixed event allowlist and no event metadata. It does not use tracking cookies, session replay, or browser fingerprinting. Resume, JD, contact, filenames, share payloads, access codes, and URL query/hash values are never sent as analytics data. If Do Not Track is enabled, the analytics script is not loaded. Fonts use local system stacks and are not fetched from third-party font CDNs.'
+                        : 'Resume Craft 使用 Simple Analytics 统计少量聚合产品指标，仅允许固定事件名且不附带事件 metadata；不使用追踪 Cookie、会话回放或浏览器指纹，也不会发送简历、JD、联系方式、文件名、分享内容、访问口令或 URL 查询/哈希参数。若浏览器开启 Do Not Track，统计脚本不会加载。字体使用本机系统字体栈，不从第三方字体 CDN 拉取。'}
                     </p>
                   </div>
                 </div>
