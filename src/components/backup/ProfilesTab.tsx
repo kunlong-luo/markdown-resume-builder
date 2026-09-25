@@ -42,11 +42,6 @@ export function ProfilesTab({ lang, showToast }: ProfilesTabProps) {
 
   const activeProfile = profiles.find(p => p.id === activeProfileId) || profiles[0];
 
-  const handleFastDuplicate = () => {
-    const dup = duplicateProfile(activeProfileId);
-    showToast(isEn ? `Duplicated as "${dup.name}"` : `已一键复制副本「${dup.name}」并自动切换`);
-  };
-
   const handleFastBlank = () => {
     const count = profiles.length + 1;
     const blankMd = `# 姓名\n求职岗位 ｜ 138-0000-0000 ｜ email@example.com\n\n## 个人优势\n- 掌握核心专业技能与工程实践，具备扎实的专业基础与快速学习能力\n\n## 工作经历\n### 科技企业 · 岗位名称  *2022.06 — 至今*\n- **核心业务贡献**：负责核心系统研发与架构优化，主导关键指标达成\n\n## 教育背景\n### 知名大学 · 本科 ｜ 计算机专业  *2018.09 — 2022.06*\n`;
