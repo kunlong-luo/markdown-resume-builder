@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ExternalLink, FileDown, Github, Heart, X } from 'lucide-react';
+import { ExternalLink, FileDown, Heart, Star, X } from 'lucide-react';
 import { SUPPORT_REPO_URL } from '../../lib/support-prompt';
 
 interface SupportProjectModalProps {
@@ -94,7 +94,7 @@ export function SupportProjectModal({
                 onClick={openGitHub}
                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-slate-800 active:scale-[0.99] dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100 cursor-pointer"
               >
-                <Github className="h-4 w-4" />
+                <Star className="h-4 w-4" />
                 <span>{isEn ? 'Star on GitHub' : '去 GitHub 支持一下'}</span>
                 <ExternalLink className="h-3.5 w-3.5 opacity-70" />
               </button>
