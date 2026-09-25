@@ -19,7 +19,9 @@ interface ShouldShowSupportPromptOptions {
 }
 
 export function isOfficialHostedApp(hostname: string, pathname: string) {
-  return hostname === 'kunlong-luo.github.io' && pathname.startsWith('/resume-craft');
+  return hostname === 'kunlong-luo.github.io' && (
+    pathname === '/resume-craft' || pathname.startsWith('/resume-craft/')
+  );
 }
 
 export function getSupportPromptCooldown(decision: SupportPromptDecision) {
