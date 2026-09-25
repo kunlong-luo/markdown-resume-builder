@@ -88,17 +88,6 @@ export function SupportProjectModal({
             </p>
           </div>
 
-          <div className="mt-5 flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-left dark:border-slate-700 dark:bg-slate-800/60">
-            <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-slate-500 shadow-sm dark:bg-slate-900 dark:text-slate-300">
-              <FileDown className="h-3.5 w-3.5" />
-            </div>
-            <p className="text-xs leading-5 text-slate-600 dark:text-slate-300">
-              {isEn
-                ? 'A Star is not required to export. You can always continue using Resume Craft.'
-                : 'Star 不是导出条件，你可以随时继续使用 Resume Craft。'}
-            </p>
-          </div>
-
           <div className="mt-5 flex flex-col gap-2.5">
             {!visitedGitHub ? (
               <>
