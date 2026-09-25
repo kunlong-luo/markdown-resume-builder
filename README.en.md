@@ -56,7 +56,7 @@ When creating resumes, candidates frequently suffer from **Word layout nightmare
 |                                         |                                         |
 |                   +---------------------+---------------------+                   |
 |                   |                                           |                   |
-|         [ Direct PDF / Browser Print ]               [ H5 Share Link / QR ]   |
+|         [ Direct PDF / Browser Print ]               [ H5 Share Link ]   |
 +-----------------------------------------------------------------------------------+
 ```
 
@@ -93,7 +93,7 @@ When creating resumes, candidates frequently suffer from **Word layout nightmare
 * **Diff Analysis**: View side-by-side diff highlights comparing text changes and keywords between two versions.
 
 ### 9. 🔒 H5 Link Sharing & Optional Access Code
-* **Convenient Sharing**: Resume content is encoded into the share URL and can be gated by an optional client-side access code. The current sharing mechanism is not end-to-end encryption; anyone who receives the complete share URL should be treated as potentially able to read the embedded data.
+* **Convenient Sharing**: New share links place the resume payload in the URL fragment (`#share=...`), so it is not sent to the hosting server as a request query. The optional access code is only a client-side viewing gate, not end-to-end encryption.
 
 ### 10. 📐 Section Sorter
 * **Module Reordering**: Automatically detects Markdown section headers (`H2`) and allows moving entire sections up or down with one click.
@@ -105,7 +105,7 @@ When creating resumes, candidates frequently suffer from **Word layout nightmare
 * **Instant Switch**: Toggle between English (`en`) and Chinese (`zh`) with full UI, template, and diagnostic translation.
 
 ### 13. ⚡ PWA & Local-First Storage
-* **Local First**: Installable as a desktop or mobile PWA. Resume drafts and settings are stored in browser-local storage, and the project does not provide an application backend for persisting resume content. Shared links embed data in the URL, so only share them with trusted recipients.
+* **Local First**: Installable as a desktop or mobile PWA. Resume drafts and settings are stored in browser-local storage, and the project does not provide an application backend for persisting resume content. New share links keep their payload in the URL fragment; only share them with trusted recipients.
 
 ---
 
@@ -217,7 +217,7 @@ Resume Craft is local-first, but local-first does not mean that every stored or 
 - Resume drafts, settings, and profiles are primarily stored in browser `localStorage`.
 - The project does not provide an application backend for persisting resume content.
 - The product uses Simple Analytics for a small set of anonymous aggregate signals (editing, export, ATS matching, Auto Fit, sharing, PWA installation, and feedback intent). Events contain only a fixed event name and no metadata. Do Not Track is respected and the analytics script is not loaded when DNT is enabled; resume, JD, contact, filename, share-payload, and access-code content are never sent, and session replay/fingerprinting are not used.
-- Share URLs embed resume data in the URL; the optional access code is currently a client-side viewing gate, not end-to-end encryption.
+- New share URLs embed resume data in the URL fragment so it is not sent to the hosting server as a request query; legacy `?share=` links remain compatible. The optional access code is a client-side viewing gate, not end-to-end encryption.
 - Do not include real resume data, tokens, passwords, or other sensitive information in issues, pull requests, test fixtures, or screenshots.
 - Product feedback and ideas can go to [GitHub Discussions](https://github.com/kunlong-luo/resume-craft/discussions); no resume content is attached automatically.
 - Report security issues through the private process described in [SECURITY.md](SECURITY.md).
