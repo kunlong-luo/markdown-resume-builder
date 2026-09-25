@@ -19,6 +19,7 @@ import {
   Code
 } from 'lucide-react';
 import { useResumeStore } from '../../store/useResumeStore';
+import { trackAnalyticsEvent } from '../../lib/analytics';
 
 function GithubIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
@@ -281,8 +282,8 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
                     </h4>
                     <p className="text-slate-500 dark:text-slate-400 text-[11px] mt-0.5">
                       {isEn
-                        ? 'Resume Craft uses Simple Analytics for coarse aggregate product metrics. It does not use tracking cookies, session replay, or browser fingerprinting, and no resume, JD, contact, share payload, or access-code content is sent as analytics data.'
-                        : 'Resume Craft 使用 Simple Analytics 统计少量聚合产品指标；不使用追踪 Cookie、会话回放或浏览器指纹，也不会把简历、JD、联系方式、分享内容或访问口令作为统计数据发送。'}
+                        ? 'Resume Craft uses Simple Analytics for coarse aggregate product metrics with a fixed event allowlist and no event metadata. It does not use tracking cookies, session replay, or browser fingerprinting. Resume, JD, contact, filenames, share payloads, access codes, and URL query/hash values are never sent as analytics data. If Do Not Track is enabled, the analytics script is not loaded.'
+                        : 'Resume Craft 使用 Simple Analytics 统计少量聚合产品指标，仅允许固定事件名且不附带事件 metadata；不使用追踪 Cookie、会话回放或浏览器指纹，也不会发送简历、JD、联系方式、文件名、分享内容、访问口令或 URL 查询/哈希参数。若浏览器开启 Do Not Track，统计脚本不会加载。'}
                     </p>
                   </div>
                 </div>
@@ -345,12 +346,24 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
           <span className="text-slate-400 dark:text-slate-500 font-mono text-[10px]">
             Resume Craft · 简匠 v2.0.0 • Powered by React 19 & Vite
           </span>
-          <button
-            onClick={onClose}
-            className="px-4 py-1.5 tactile-btn-primary tactile-btn-primary-hover text-white font-bold rounded-lg cursor-pointer"
-          >
-            {isEn ? 'Got it' : '我知道了'}
-          </button>
+          <div className="flex items-center gap-2">
+            <a
+              href="https://github.com/kunlong-luo/resume-craft/discussions"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackAnalyticsEvent('feedback_opened')}
+              className="px-3 py-1.5 text-indigo-600 dark:text-indigo-400 font-bold hover:underline inline-flex items-center gap-1"
+            >
+              <span>{isEn ? 'Feedback' : '反馈'}</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+            <button
+              onClick={onClose}
+              className="px-4 py-1.5 tactile-btn-primary tactile-btn-primary-hover text-white font-bold rounded-lg cursor-pointer"
+            >
+              {isEn ? 'Got it' : '我知道了'}
+            </button>
+          </div>
         </div>
       </div>
     </div>
