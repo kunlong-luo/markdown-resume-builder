@@ -1,0 +1,45 @@
+name: Refresh pnpm Lockfile
+
+on:
+  push:
+    branches:
+      - feat/github-support-export-prompt
+
+permissions:
+  contents: write
+
+jobs:
+  refresh-lockfile:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/github-support-export-prompt
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.12.0
+
+      - name: Refresh lockfile
+        run: pnpm install --lockfile-only --no-frozen-lockfile
+
+      - name: Commit refreshed lockfile
+        run: |
+          if git diff --quiet -- pnpm-lock.yaml; then
+            echo "Lockfile is already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pnpm-lock.yaml
+          git commit -m "chore: sync pnpm lockfile"
+          git push origin HEAD:feat/github-support-export-prompt
