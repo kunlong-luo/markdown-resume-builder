@@ -14,12 +14,23 @@ describe('support prompt', () => {
     expect(isOfficialHostedApp('kunlong-luo.github.io', '/resume-craft-copy/')).toBe(false);
   });
 
-  it('shows when there is no active cooldown', () => {
+  it('does not interrupt the first export', () => {
     expect(shouldShowSupportPrompt({
       hostname: 'kunlong-luo.github.io',
       pathname: '/resume-craft/',
       now: 1_000,
       nextPromptAt: null,
+      exportCount: 0,
+    })).toBe(false);
+  });
+
+  it('shows after the first export when there is no active cooldown', () => {
+    expect(shouldShowSupportPrompt({
+      hostname: 'kunlong-luo.github.io',
+      pathname: '/resume-craft/',
+      now: 1_000,
+      nextPromptAt: null,
+      exportCount: 1,
     })).toBe(true);
 
     expect(shouldShowSupportPrompt({
@@ -27,6 +38,7 @@ describe('support prompt', () => {
       pathname: '/resume-craft/',
       now: 1_000,
       nextPromptAt: 2_000,
+      exportCount: 1,
     })).toBe(false);
 
     expect(shouldShowSupportPrompt({
@@ -34,6 +46,7 @@ describe('support prompt', () => {
       pathname: '/resume-craft/',
       now: 2_000,
       nextPromptAt: 2_000,
+      exportCount: 1,
     })).toBe(true);
   });
 
