@@ -12,6 +12,7 @@ import { HeightGuard } from './HeightGuard';
 import { ResumeHeader } from './ResumeHeader';
 import { ZoomControls } from './ZoomControls';
 import { useA4Measurement } from '../../hooks/useA4Measurement';
+import { getPaperMarginMm } from '../../lib/page-layout';
 
 interface PreviewProps {
   overrideMarkdown?: string;
@@ -111,11 +112,7 @@ export const Preview = React.memo(forwardRef<HTMLDivElement, PreviewProps>(({ ov
     return createMarkdownComponents({ headerInfo, sizeClasses, theme, settings });
   }, [headerInfo, sizeClasses, theme, settings]);
 
-  const marginClasses = {
-    compact: 'p-[10mm] sm:p-[12mm] print:p-[12mm]',
-    standard: 'p-[15mm] sm:p-[18mm] print:p-[18mm]',
-    relaxed: 'p-[20mm] sm:p-[25mm] print:p-[25mm]',
-  }[settings.margin];
+  const pagePaddingMm = getPaperMarginMm(settings.margin);
 
   // Memoized Inner Resume Content
   const resumeInnerContent = useMemo(() => {
@@ -220,15 +217,15 @@ export const Preview = React.memo(forwardRef<HTMLDivElement, PreviewProps>(({ ov
             }
 
             return (
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-6 print:grid-cols-12 print:gap-6 mt-4">
-                <div className="md:col-span-4 print:col-span-4 md:border-r md:border-gray-150 print:border-r print:border-gray-150 md:pr-5 print:pr-5 flex flex-col gap-4">
+              <div className="grid grid-cols-12 gap-6 mt-4">
+                <div className="col-span-4 border-r border-gray-150 pr-5 flex flex-col gap-4">
                   {sidebarSections.map((sec, i) => (
                     <div key={`side-${i}`} className="break-inside-avoid">
                       <Markdown remarkPlugins={[remarkGfm]} components={markdownComponents}>{sec.rawTitleLine ? `${sec.rawTitleLine}\n\n${sec.content}` : sec.content}</Markdown>
                     </div>
                   ))}
                 </div>
-                <div className="md:col-span-8 print:col-span-8 flex flex-col gap-4 pl-1">
+                <div className="col-span-8 flex flex-col gap-4 pl-1">
                   {mainSections.map((sec, i) => (
                     <div key={`main-${i}`} className="break-inside-avoid">
                       <Markdown remarkPlugins={[remarkGfm]} components={markdownComponents}>{sec.rawTitleLine ? `${sec.rawTitleLine}\n\n${sec.content}` : sec.content}</Markdown>
@@ -247,7 +244,7 @@ export const Preview = React.memo(forwardRef<HTMLDivElement, PreviewProps>(({ ov
                 {sections.map((sec, i) => (
                   <div 
                     key={`card-${i}`} 
-                    className="p-3.5 sm:p-4 rounded-xl bg-slate-50/70 border border-slate-200/70 shadow-[0_1px_3px_rgba(0,0,0,0.02)] break-inside-avoid"
+                    className="p-4 rounded-xl bg-slate-50/70 border border-slate-200/70 shadow-[0_1px_3px_rgba(0,0,0,0.02)] break-inside-avoid"
                   >
                     <Markdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
                       {sec.rawTitleLine ? `${sec.rawTitleLine}\n\n${sec.content}` : sec.content}
@@ -345,8 +342,9 @@ export const Preview = React.memo(forwardRef<HTMLDivElement, PreviewProps>(({ ov
               top: 0,
               left: '50%',
               transform: `translateX(-50%) scale(${calculatedZoom})`,
+              padding: `${pagePaddingMm}mm`,
             }}
-            className={`bg-white resume-content w-[210mm] min-w-[210mm] max-w-[210mm] min-h-[297mm] h-fit mx-auto print:shadow-none print:ring-0 print:m-0 print:w-full relative origin-top transition-all duration-300 print:relative print:left-auto print:top-auto print:transform-none print:max-w-full print:w-full ${fontClass} ${marginClasses} ${
+            className={`bg-white resume-content w-[210mm] min-w-[210mm] max-w-[210mm] min-h-[297mm] h-fit mx-auto print:shadow-none print:ring-0 print:m-0 print:w-full relative origin-top transition-all duration-300 print:relative print:left-auto print:top-auto print:transform-none print:max-w-full print:w-full ${fontClass} ${
               metrics.isOver 
                 ? 'shadow-[0_4px_24px_rgba(244,63,94,0.08),0_16px_40px_-6px_rgba(15,23,42,0.12),0_0_0_1.5px_rgba(244,63,94,0.4)] ring-1 ring-rose-400/30' 
                 : 'shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02),0_12px_28px_-4px_rgba(15,23,42,0.06),0_24px_60px_-12px_rgba(15,23,42,0.08),0_0_0_1px_rgba(15,23,42,0.04)] ring-1 ring-black/5'
