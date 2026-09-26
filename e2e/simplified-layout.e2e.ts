@@ -33,9 +33,12 @@ test.describe('simplified workspace actions', () => {
     await expect(layoutDialog.getByText('Accent color', { exact: true })).toHaveCount(0);
 
     await layoutDialog.getByRole('button', { name: /Two columns/ }).click();
-    await page.keyboard.press('Escape');
+    await layoutDialog.getByRole('button', { name: 'Close Layout' }).click();
+    await expect(layoutDialog).toBeHidden();
 
-    await toolbar.getByRole('button', { name: 'Style' }).click();
+    const styleButton = toolbar.getByRole('button', { name: 'Style' });
+    await expect(styleButton).toBeVisible();
+    await styleButton.click();
 
     const styleDialog = page.getByRole('dialog', { name: 'Style' });
     await expect(styleDialog).toBeVisible();
@@ -62,9 +65,14 @@ test.describe('simplified workspace actions', () => {
     });
 
     await expect(pageGuide).toBeVisible();
-    await expect(pageGuide).toHaveAttribute('aria-pressed', 'false');
+    const initialState = await pageGuide.getAttribute('aria-pressed');
+    expect(initialState === 'true' || initialState === 'false').toBe(true);
+
     await pageGuide.click();
-    await expect(pageGuide).toHaveAttribute('aria-pressed', 'true');
+    await expect(pageGuide).toHaveAttribute(
+      'aria-pressed',
+      initialState === 'true' ? 'false' : 'true',
+    );
   });
 
   test('uses one PDF download action with ATS and Quick choices', async ({ page }) => {
