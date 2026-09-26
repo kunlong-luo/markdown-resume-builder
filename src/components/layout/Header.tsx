@@ -293,7 +293,14 @@ export function Header({
             </button>
           </Tooltip>
 
-          <Tooltip content={isEn ? 'ATS resume check' : 'ATS 简历检查'} side="bottom">
+          <Tooltip
+            content={
+              isEn
+                ? 'Check structure, wording, and ATS readability'
+                : '检查简历结构、表达和 ATS 可读性'
+            }
+            side="bottom"
+          >
             <button
               type="button"
               onClick={() => setIsCheckerOpen(!isCheckerOpen)}
@@ -304,7 +311,7 @@ export function Header({
               }`}
             >
               <ClipboardCheck className="w-3.5 h-3.5 text-indigo-500" />
-              <span>{isEn ? 'Check' : '检查'}</span>
+              <span>{isEn ? 'Resume Check' : '简历检查'}</span>
             </button>
           </Tooltip>
 
@@ -358,7 +365,7 @@ export function Header({
                 className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/70 text-slate-800 dark:text-slate-200 text-xs font-bold transition-all active:scale-95"
               >
                 <ClipboardCheck className="w-4 h-4 text-indigo-500" />
-                <span>{isEn ? 'Check' : '简历检查'}</span>
+                <span>{isEn ? 'Resume Check' : '简历检查'}</span>
               </button>
 
               <button
