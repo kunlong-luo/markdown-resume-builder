@@ -72,8 +72,11 @@ When creating resumes, candidates frequently suffer from **Word layout nightmare
 * **Eliminate Page Spills**: Say goodbye to 1.1-page awkward overflows. The lightning button dynamically adjusts margins, line height, and section padding to fit everything onto a pristine 1-page document.
 * **Page Boundary Indicators**: Displays A4 physical page bounds and fold lines for layout accuracy.
 
-### 3. ✨ Smart Raw Text Importer
-* **One-Click Parsing**: Paste raw text from job portals or old documents. Local lightweight parsing algorithms automatically extract contact info, work history, and skills into clean Markdown.
+### 3. ✨ Local PDF / File / Raw Text Import
+* **Local PDF extraction**: Select a PDF with a text layer and PDF.js extracts the text entirely in the browser; the file is not uploaded to a Resume Craft server.
+* **Machine-readability check**: Before import, the app summarizes text extraction quality plus detected email, phone, and common section headings as an ATS-readability proxy. It is not a guarantee or score from any specific ATS.
+* **Smart normalization**: Extracted PDF text, `.txt` files, and pasted raw text are locally converted into editable Markdown with contact, experience, and skills structure.
+* **Current limits**: Image-only/scanned PDFs are not OCR'd yet. Password-protected PDFs or files without a usable text layer are rejected with a fallback suggestion.
 
 ### 4. 🎯 ATS Job Matching & Smart Audit System
 * **JD Keyword Matching**: Paste target Job Descriptions to analyze match percentage and highlight missing keywords.
@@ -157,7 +160,7 @@ When creating resumes, candidates frequently suffer from **Word layout nightmare
 | **State** | [Zustand 5](https://github.com/pmndrs/zustand) | Lightweight reactive state with LocalStorage sync |
 | **Animations** | [Motion 13](https://github.com/framer/motion) | Smooth drag-and-drop & modal transitions |
 | **Markdown** | `react-markdown` + `remark-gfm` | GFM-compliant markdown parsing |
-| **PDF Engine** | Browser print + `html2canvas-pro` + `jspdf` | ATS-friendly Save as PDF plus image-based Quick PDF fallback |
+| **PDF Import / Export** | `pdfjs-dist` + browser print + `html2canvas-pro` + `jspdf` | Local text extraction and readability feedback plus ATS-friendly Save as PDF and image-based Quick PDF fallback |
 
 ---
 

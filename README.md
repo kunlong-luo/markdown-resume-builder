@@ -72,8 +72,11 @@
 * **消除溢出**：拒绝“1.1 页”尴尬断层！闪电按钮自动级联微调页边距（Margin）、字体行高（Line Height）与段落间距（Spacing），将溢出内容平滑贴合至整齐 1 页纸内。
 * **物理辅助刻度**：提供 A4 标准尺寸边界线与物理折页指示线，直观掌控纸张空间。
 
-### 3. ✨ 杂乱纯文本智能导入（Smart Raw Text Importer）
-* **一键识别**：直接粘贴来自招聘网站（BOSS/猎聘）、旧 Word 或 PDF 的杂乱纯文本，本地轻量算法自动识别姓名、联系方式、工作经历与技能模块并规整为标准 Markdown。
+### 3. ✨ PDF / 文件 / 纯文本本地导入
+* **PDF 本地提取**：可直接选择带文本层的 PDF，使用 PDF.js 在浏览器本地提取文字；文件不会上传到 Resume Craft 服务器。
+* **机器可读性检查**：导入 PDF 前会展示文本提取质量、邮箱/电话与常见章节识别情况，作为 ATS 可读性的代理参考；它不代表任何具体 ATS 的最终评分或通过保证。
+* **智能规整**：PDF 提取文本、`.txt` 与直接粘贴的杂乱文本会由本地轻量算法识别姓名、联系方式、工作经历与技能模块，并规整为可继续编辑的 Markdown。
+* **边界说明**：扫描件 / 纯图片 PDF 暂不做 OCR；带密码保护或缺少可用文本层的 PDF 会提示改用其他导出版本或纯文本粘贴。
 
 ### 4. 🎯 ATS 岗位匹配与智能诊断系统
 * **JD 契合度匹配**：粘贴目标岗位 Job Description，算法智能对比核心匹配度关键词，突出显示核心技能短板。
@@ -157,7 +160,7 @@
 | **状态管理** | [Zustand 5](https://github.com/pmndrs/zustand) | 轻量响应式状态，支持 LocalStorage 持久化 |
 | **动效系统** | [Motion 13](https://github.com/framer/motion) | 流畅弹窗、拖拽重排与平滑展开动画 |
 | **Markdown** | `react-markdown` + `remark-gfm` | 标准 GFM 语法高能解析 |
-| **PDF 导出** | 浏览器原生打印 + `html2canvas-pro` + `jspdf` | ATS 友好打印 / Save as PDF + 图片型快速 PDF 双路径 |
+| **PDF 导入 / 导出** | `pdfjs-dist` + 浏览器原生打印 + `html2canvas-pro` + `jspdf` | 本地文本提取与机器可读性检查；ATS 友好打印 / Save as PDF + 图片型快速 PDF 双路径 |
 | **图标库** | [Lucide React](https://lucide.dev/) | 矢量现代线条图标 |
 
 ---

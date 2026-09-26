@@ -230,12 +230,12 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
                 <div className="p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 rounded-xl space-y-1.5">
                   <div className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
                     <Wand2 className="w-3.5 h-3.5 text-indigo-500" />
-                    <span>{isEn ? 'Smart Raw Text Paste' : '智能纯文本一键导入'}</span>
+                    <span>{isEn ? 'Local PDF & Text Import' : 'PDF / 文本本地导入'}</span>
                   </div>
                   <p className="text-slate-500 dark:text-slate-400">
                     {isEn
-                      ? 'Click "Import" in the top bar to paste raw text from Word, PDF, or job boards and convert it into structured Markdown.'
-                      : '点击顶部「导入」，可粘贴来自 Word、网页或旧简历的杂乱纯文本，并由本地算法规整为 Markdown。'}
+                      ? 'Click "Import" to extract text from a text-based PDF locally, upload Markdown/text/JSON, or paste raw resume text. PDF readability feedback is a text-extraction proxy, not an ATS guarantee.'
+                      : '点击顶部「导入」，可在浏览器本地提取带文本层 PDF 的内容，也可上传 Markdown / 文本 / JSON 或粘贴旧简历文本。PDF 可读性提示只反映文本提取效果，不代表 ATS 通过保证。'}
                   </p>
                 </div>
 

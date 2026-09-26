@@ -1,8 +1,14 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { FileInput, Wand2, Clipboard, Check, X, Upload, FileText, ScanText, Trash2, ArrowRight, FileCode2 } from 'lucide-react';
+import { AlertTriangle, ArrowRight, Check, Clipboard, FileCode2, FileInput, FileText, Loader2, ScanText, ShieldCheck, Trash2, Upload, Wand2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { parseRawTextToResumeMarkdown } from '../../lib/raw-text-importer';
+import {
+  extractResumeTextFromPdf,
+  MAX_PDF_FILE_SIZE,
+  PdfImportError,
+  type PdfExtractionResult,
+} from '../../lib/pdf-import';
 
 interface RawTextImportModalProps {
   isOpen: boolean;
@@ -17,7 +23,8 @@ interface LoadedFileInfo {
   size: number;
   lines: number;
   content: string;
-  type: 'md' | 'txt' | 'json';
+  type: 'md' | 'txt' | 'json' | 'pdf';
+  pdf?: PdfExtractionResult;
 }
 
 export function RawTextImportModal({ isOpen, onClose, onImport, lang = 'zh' }: RawTextImportModalProps) {
@@ -26,6 +33,8 @@ export function RawTextImportModal({ isOpen, onClose, onImport, lang = 'zh' }: R
   const [copiedSuccess, setCopiedSuccess] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState<LoadedFileInfo | null>(null);
+  const [isParsingPdf, setIsParsingPdf] = useState(false);
+  const [fileError, setFileError] = useState('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -82,9 +91,12 @@ export function RawTextImportModal({ isOpen, onClose, onImport, lang = 'zh' }: R
   useEffect(() => {
     if (isOpen) {
       setIsDragging(false);
+      setFileError('');
     } else {
       setSelectedFile(null);
       setRawText('');
+      setIsParsingPdf(false);
+      setFileError('');
     }
   }, [isOpen]);
 
@@ -135,17 +147,76 @@ export function RawTextImportModal({ isOpen, onClose, onImport, lang = 'zh' }: R
     });
   };
 
-  const handleFileDropOrSelect = useCallback((file: File) => {
+  const getPdfErrorMessage = (error: unknown) => {
+    if (!(error instanceof PdfImportError)) {
+      return isEn
+        ? 'This PDF could not be parsed locally in your browser.'
+        : '当前浏览器无法在本地解析这个 PDF。';
+    }
+
+    switch (error.code) {
+      case 'too-large':
+        return isEn
+          ? `PDF must be smaller than ${Math.round(MAX_PDF_FILE_SIZE / 1024 / 1024)} MB.`
+          : `PDF 文件需小于 ${Math.round(MAX_PDF_FILE_SIZE / 1024 / 1024)} MB。`;
+      case 'encrypted':
+        return isEn
+          ? 'Password-protected PDFs are not supported yet.'
+          : '暂不支持带密码保护的 PDF。';
+      case 'no-text':
+        return isEn
+          ? 'No usable text layer was found. This may be a scanned/image-only PDF.'
+          : '没有检测到可用文本层；这可能是一份扫描件或纯图片 PDF。';
+      case 'invalid-pdf':
+        return isEn
+          ? 'The selected file is not a valid PDF.'
+          : '所选文件不是有效的 PDF。';
+      default:
+        return isEn
+          ? 'The PDF could not be parsed locally. Try another export or paste the text instead.'
+          : 'PDF 本地解析失败。可以尝试重新导出 PDF，或改用纯文本粘贴。';
+    }
+  };
+
+  const handleFileDropOrSelect = async (file: File) => {
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const content = event.target?.result as string;
-      if (typeof content === 'string') {
-        processFileContent(file.name, content);
+
+    setFileError('');
+    const fileName = file.name.toLowerCase();
+    const isPdf = fileName.endsWith('.pdf') || file.type === 'application/pdf';
+
+    if (isPdf) {
+      setSelectedFile(null);
+      setIsParsingPdf(true);
+      try {
+        const result = await extractResumeTextFromPdf(file);
+        setSelectedFile({
+          name: file.name,
+          size: file.size,
+          lines: result.text.split('\n').length,
+          content: result.text,
+          type: 'pdf',
+          pdf: result,
+        });
+      } catch (error) {
+        setFileError(getPdfErrorMessage(error));
+      } finally {
+        setIsParsingPdf(false);
       }
-    };
-    reader.readAsText(file);
-  }, []);
+      return;
+    }
+
+    try {
+      const content = await file.text();
+      processFileContent(file.name, content);
+    } catch {
+      setFileError(
+        isEn
+          ? 'The selected file could not be read.'
+          : '无法读取所选文件。',
+      );
+    }
+  };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -168,14 +239,14 @@ export function RawTextImportModal({ isOpen, onClose, onImport, lang = 'zh' }: R
     const files = e.dataTransfer.files;
     if (files && files.length > 0) {
       const file = files[0];
-      handleFileDropOrSelect(file);
-      if (activeTab === 'text') {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const content = event.target?.result as string;
+      void handleFileDropOrSelect(file);
+      const isPdf =
+        file.name.toLowerCase().endsWith('.pdf') ||
+        file.type === 'application/pdf';
+      if (activeTab === 'text' && !isPdf) {
+        void file.text().then((content) => {
           if (content) setRawText(content);
-        };
-        reader.readAsText(file);
+        });
       }
     }
   };
@@ -190,8 +261,7 @@ export function RawTextImportModal({ isOpen, onClose, onImport, lang = 'zh' }: R
 
   const handleExecuteFileImport = () => {
     if (!selectedFile) return;
-    if (selectedFile.type === 'txt') {
-      // If it's raw txt, run smart parse
+    if (selectedFile.type === 'txt' || selectedFile.type === 'pdf') {
       const generatedMarkdown = parseRawTextToResumeMarkdown(selectedFile.content);
       onImport(generatedMarkdown);
     } else {
@@ -243,7 +313,7 @@ export function RawTextImportModal({ isOpen, onClose, onImport, lang = 'zh' }: R
                   {isEn ? 'Drop file to import' : '释放鼠标即可立即解析文件'}
                 </p>
                 <p className="text-xs text-indigo-200 mt-1">
-                  {isEn ? 'Supports .md, .txt, .json' : '支持 .md、.txt、.json 格式'}
+                  {isEn ? 'Supports .pdf, .md, .txt, .json' : '支持 .pdf、.md、.txt、.json 格式'}
                 </p>
               </div>
             )}
@@ -262,7 +332,7 @@ export function RawTextImportModal({ isOpen, onClose, onImport, lang = 'zh' }: R
                     </span>
                   </h3>
                   <p className="text-xs text-slate-400 dark:text-slate-400 mt-0.5">
-                    {isEn ? 'Drop files or paste raw text from anywhere' : '支持拖拽本地文件或粘贴任意格式旧简历文本'}
+                    {isEn ? 'Import PDF/files locally or paste raw text' : '支持本地解析 PDF / 文件，或粘贴任意旧简历文本'}
                   </p>
                 </div>
               </div>
@@ -310,7 +380,19 @@ export function RawTextImportModal({ isOpen, onClose, onImport, lang = 'zh' }: R
             <div className="p-5 overflow-y-auto max-h-[60vh]">
               {activeTab === 'file' ? (
                 <div>
-                  {!selectedFile ? (
+                  {isParsingPdf ? (
+                    <div className="rounded-2xl border border-indigo-200 dark:border-indigo-800 bg-indigo-50/60 dark:bg-indigo-950/30 p-8 text-center">
+                      <Loader2 className="w-8 h-8 mx-auto animate-spin text-indigo-600 dark:text-indigo-400" />
+                      <p className="mt-3 text-sm font-bold text-slate-800 dark:text-slate-100">
+                        {isEn ? 'Reading PDF text locally…' : '正在本地读取 PDF 文本…'}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                        {isEn
+                          ? 'Nothing is uploaded. Large PDFs may take a little longer.'
+                          : '文件不会上传；页数较多的 PDF 解析会稍慢。'}
+                      </p>
+                    </div>
+                  ) : !selectedFile ? (
                     <div
                       onClick={() => fileInputRef.current?.click()}
                       className="border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-indigo-500 dark:hover:border-indigo-500 rounded-2xl p-8 text-center cursor-pointer transition-all duration-200 bg-slate-50/50 dark:bg-slate-850/40 hover:bg-indigo-50/20 dark:hover:bg-indigo-950/20 group"
@@ -322,7 +404,7 @@ export function RawTextImportModal({ isOpen, onClose, onImport, lang = 'zh' }: R
                         {isEn ? 'Click to browse or drop file here' : '点击选择文件 或 直接拖拽到此处'}
                       </h4>
                       <p className="text-xs text-slate-400 dark:text-slate-400 mb-4 max-w-xs mx-auto">
-                        {isEn ? 'Supports Markdown (.md), Plain Text (.txt), or JSON (.json)' : '支持 .md 源码、.txt 纯文本、或 .json 备份文件'}
+                        {isEn ? 'Supports PDF, Markdown, Plain Text, or JSON — processed locally' : '支持 PDF、Markdown、纯文本或 JSON；文件均在浏览器本地处理'}
                       </p>
                       <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-sm shadow-indigo-600/20 transition-all">
                         <FileCode2 className="w-3.5 h-3.5" />
@@ -342,6 +424,9 @@ export function RawTextImportModal({ isOpen, onClose, onImport, lang = 'zh' }: R
                             </p>
                             <p className="text-[11px] text-slate-400">
                               {(selectedFile.size / 1024).toFixed(1)} KB · {selectedFile.lines} {isEn ? 'lines' : '行内容'}
+                              {selectedFile.type === 'pdf' && selectedFile.pdf
+                                ? ` · ${selectedFile.pdf.pageCount} ${isEn ? 'pages' : '页'}`
+                                : ''}
                             </p>
                           </div>
                         </div>
@@ -354,6 +439,56 @@ export function RawTextImportModal({ isOpen, onClose, onImport, lang = 'zh' }: R
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
+
+                      {selectedFile.type === 'pdf' && selectedFile.pdf && (
+                        <div
+                          role="status"
+                          className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3.5"
+                        >
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-2">
+                              {selectedFile.pdf.parseability.level === 'good' ? (
+                                <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                              ) : (
+                                <AlertTriangle className="w-4 h-4 text-amber-500" />
+                              )}
+                              <span className="text-xs font-bold text-slate-800 dark:text-slate-100">
+                                {isEn ? 'PDF machine-readability' : 'PDF 机器可读性'}
+                              </span>
+                            </div>
+                            <span className="text-xs font-black text-indigo-600 dark:text-indigo-400">
+                              {selectedFile.pdf.parseability.score}/100
+                            </span>
+                          </div>
+
+                          <p className="mt-1.5 text-[10px] leading-relaxed text-slate-500 dark:text-slate-400">
+                            {isEn
+                              ? 'This checks text extractability as an ATS proxy; it does not guarantee how a specific ATS will score the resume.'
+                              : '这里检查的是文本能否被机器稳定提取，只作为 ATS 可读性的参考，不代表任何具体 ATS 的最终评分。'}
+                          </p>
+
+                          <div className="mt-2.5 grid grid-cols-3 gap-1.5 text-center">
+                            <div className="rounded-lg bg-slate-50 dark:bg-slate-800 px-2 py-1.5">
+                              <div className="text-[9px] text-slate-400">{isEn ? 'Email' : '邮箱'}</div>
+                              <div className="text-[10px] font-bold text-slate-700 dark:text-slate-200">
+                                {selectedFile.pdf.parseability.emailFound ? (isEn ? 'Found' : '已识别') : (isEn ? 'Review' : '需检查')}
+                              </div>
+                            </div>
+                            <div className="rounded-lg bg-slate-50 dark:bg-slate-800 px-2 py-1.5">
+                              <div className="text-[9px] text-slate-400">{isEn ? 'Phone' : '电话'}</div>
+                              <div className="text-[10px] font-bold text-slate-700 dark:text-slate-200">
+                                {selectedFile.pdf.parseability.phoneFound ? (isEn ? 'Found' : '已识别') : (isEn ? 'Review' : '需检查')}
+                              </div>
+                            </div>
+                            <div className="rounded-lg bg-slate-50 dark:bg-slate-800 px-2 py-1.5">
+                              <div className="text-[9px] text-slate-400">{isEn ? 'Sections' : '章节'}</div>
+                              <div className="text-[10px] font-bold text-slate-700 dark:text-slate-200">
+                                {selectedFile.pdf.parseability.sectionHeadings.length}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
                       {/* Content Preview */}
                       <div className="bg-white dark:bg-slate-900 rounded-xl p-3 border border-slate-200/60 dark:border-slate-800 font-mono text-[11px] leading-relaxed text-slate-600 dark:text-slate-300 max-h-32 overflow-hidden relative">
@@ -368,10 +503,11 @@ export function RawTextImportModal({ isOpen, onClose, onImport, lang = 'zh' }: R
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept=".md,.markdown,.txt,.json"
+                    accept=".pdf,.md,.markdown,.txt,.json,application/pdf"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
-                      if (file) handleFileDropOrSelect(file);
+                      if (file) void handleFileDropOrSelect(file);
+                      e.currentTarget.value = '';
                     }}
                     className="hidden"
                   />
@@ -422,6 +558,12 @@ export function RawTextImportModal({ isOpen, onClose, onImport, lang = 'zh' }: R
               )}
             </div>
 
+            {fileError && (
+              <div role="alert" className="mx-5 mb-3 rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/30 px-3 py-2.5 text-xs font-semibold text-rose-700 dark:text-rose-300">
+                {fileError}
+              </div>
+            )}
+
             {/* Footer Actions */}
             <div className="flex items-center justify-between px-5 py-3.5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-850/70">
               <span className="text-[11px] text-slate-400 hidden sm:inline">
@@ -439,7 +581,7 @@ export function RawTextImportModal({ isOpen, onClose, onImport, lang = 'zh' }: R
                   <button
                     type="button"
                     onClick={handleExecuteFileImport}
-                    disabled={!selectedFile}
+                    disabled={!selectedFile || isParsingPdf}
                     className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg shadow-sm shadow-indigo-600/20 transition-all active:scale-[0.98] cursor-pointer"
                   >
                     <span>{isEn ? 'Import This File' : '确认导入'}</span>
