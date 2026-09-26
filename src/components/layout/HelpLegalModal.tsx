@@ -159,6 +159,27 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
                 </p>
               </div>
 
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  window.dispatchEvent(new CustomEvent('resume-craft:start-onboarding'));
+                }}
+                className="w-full flex items-center justify-between gap-3 rounded-xl border border-indigo-200 dark:border-indigo-800 bg-indigo-50/60 dark:bg-indigo-950/40 px-3.5 py-3 text-left hover:border-indigo-400 transition-colors"
+              >
+                <div>
+                  <div className="text-xs font-bold text-indigo-800 dark:text-indigo-300">
+                    {isEn ? 'Run the getting-started tour again' : '重新查看新手引导'}
+                  </div>
+                  <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                    {isEn
+                      ? 'Review the editor, toolbar, and starting options at any time.'
+                      : '随时重新查看编辑区、工具栏和开始方式的三步指引。'}
+                  </div>
+                </div>
+                <Wand2 className="w-4 h-4 text-indigo-500 shrink-0" />
+              </button>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 rounded-xl space-y-1.5">
                   <div className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
