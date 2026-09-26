@@ -44,6 +44,12 @@ export function useDialogFocus({
     (focusable[0] ?? dialog).focus();
 
     const handleKeyDown = (event: KeyboardEvent) => {
+      const modalDialogs = Array.from(
+        document.querySelectorAll<HTMLElement>('[role="dialog"][aria-modal="true"]'),
+      );
+      const topmostDialog = modalDialogs[modalDialogs.length - 1];
+      if (topmostDialog && topmostDialog !== dialog) return;
+
       if (event.key === 'Escape') {
         event.preventDefault();
         onCloseRef.current();
