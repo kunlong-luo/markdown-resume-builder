@@ -42,8 +42,8 @@ export function OnboardingTour({ isOpen, onClose }: OnboardingTourProps) {
       {
         title: isEn ? 'Step 2 · Adjust layout and tools here' : '第二步 · 在这里调整排版与工具',
         body: isEn
-          ? 'Use the toolbar for templates, one-click Auto Fit, Typography, and view controls.'
-          : '顶部工具栏现在集中为模板库、智能单页、排版和视图控制。',
+          ? 'Use the toolbar for templates, one-click Auto Fit, Layout, Style, and view controls.'
+          : '顶部工具栏集中为模板库、智能单页、排版、样式和视图控制。',
       },
       {
         title: isEn ? 'Step 3 · How would you like to start?' : '第三步 · 你想从哪里开始？',
@@ -402,7 +402,7 @@ export function OnboardingTour({ isOpen, onClose }: OnboardingTourProps) {
                     {isEn ? 'Import an existing resume' : '导入已有简历'}
                   </div>
                   <div className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
-                    {isEn ? 'Import Markdown, text, or JSON.' : '支持 Markdown、纯文本和 JSON。'}
+                    {isEn ? 'Import PDF, Markdown, text, or JSON.' : '支持 PDF、Markdown、纯文本和 JSON。'}
                   </div>
                 </div>
                 <Upload className="w-4 h-4 text-indigo-500" />

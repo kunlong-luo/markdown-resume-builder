@@ -11,7 +11,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test.describe('simplified workspace actions', () => {
-  test('keeps formatting choices inside one Typography entry', async ({ page }) => {
+  test('separates layout controls from visual style controls', async ({ page }) => {
     await page.goto('/');
 
     const toolbar = page.locator('#resume-main-toolbar');
@@ -19,19 +19,61 @@ test.describe('simplified workspace actions', () => {
     await expect(
       toolbar.getByRole('button', { name: 'Open template library' }),
     ).toBeVisible();
-    await expect(toolbar.getByRole('button', { name: 'Typography' })).toBeVisible();
+    await expect(toolbar.getByRole('button', { name: 'Layout' })).toBeVisible();
+    await expect(toolbar.getByRole('button', { name: 'Style' })).toBeVisible();
     await expect(toolbar.getByRole('button', { name: 'Fit 1 Page' })).toBeVisible();
 
-    // Preset / layout / title-style selectors should no longer occupy
-    // separate first-level toolbar slots.
-    await expect(toolbar.locator('button[aria-haspopup="listbox"]')).toHaveCount(0);
+    await toolbar.getByRole('button', { name: 'Layout' }).click();
 
-    await toolbar.getByRole('button', { name: 'Typography' }).click();
+    const layoutDialog = page.getByRole('dialog', { name: 'Layout' });
+    await expect(layoutDialog).toBeVisible();
+    await expect(layoutDialog.getByText('Page layout', { exact: true })).toBeVisible();
+    await expect(layoutDialog.getByText('Typography', { exact: true })).toBeVisible();
+    await expect(layoutDialog.getByText('Spacing', { exact: true })).toBeVisible();
+    await expect(layoutDialog.getByText('Accent color', { exact: true })).toHaveCount(0);
 
-    await expect(page.getByText('Style preset', { exact: true })).toBeVisible();
-    await expect(page.getByText('Page layout', { exact: true })).toBeVisible();
-    await expect(page.getByText('Title Style', { exact: true })).toBeVisible();
-    await expect(page.getByText('File Name:', { exact: true })).toBeVisible();
+    await layoutDialog.getByRole('button', { name: /Two columns/ }).click();
+    await layoutDialog.getByRole('button', { name: 'Close Layout' }).click();
+    await expect(layoutDialog).toBeHidden();
+
+    const styleButton = toolbar.getByRole('button', { name: 'Style' });
+    await expect(styleButton).toBeVisible();
+    await styleButton.click();
+
+    const styleDialog = page.getByRole('dialog', { name: 'Style' });
+    await expect(styleDialog).toBeVisible();
+    await expect(styleDialog.getByText('Visual themes', { exact: true })).toBeVisible();
+    await expect(styleDialog.getByText('Accent color', { exact: true })).toBeVisible();
+    await expect(styleDialog.getByText('Section title style', { exact: true })).toBeVisible();
+    await expect(styleDialog.getByText('Page layout', { exact: true })).toHaveCount(0);
+
+    await styleDialog.getByRole('button', { name: 'Tech & Internet' }).click();
+    await styleDialog.getByRole('button', { name: 'Close Style' }).click();
+    await expect(styleDialog).toBeHidden();
+
+    await toolbar.getByRole('button', { name: 'Layout' }).click();
+    await expect(
+      page.getByRole('dialog', { name: 'Layout' }).getByRole('button', { name: /Two columns/ }),
+    ).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  test('keeps page break guide with view controls', async ({ page }) => {
+    await page.goto('/');
+
+    const toolbar = page.locator('#resume-main-toolbar');
+    const pageGuide = toolbar.getByRole('button', {
+      name: 'Toggle page break guide',
+    });
+
+    await expect(pageGuide).toBeVisible();
+    const initialState = await pageGuide.getAttribute('aria-pressed');
+    expect(initialState === 'true' || initialState === 'false').toBe(true);
+
+    await pageGuide.click();
+    await expect(pageGuide).toHaveAttribute(
+      'aria-pressed',
+      initialState === 'true' ? 'false' : 'true',
+    );
   });
 
   test('uses one PDF download action with ATS and Quick choices', async ({ page }) => {
@@ -51,6 +93,7 @@ test.describe('simplified workspace actions', () => {
       .getByRole('button', { name: 'Choose PDF export mode' })
       .click();
 
+    await expect(page.getByText('PDF file name', { exact: true })).toBeVisible();
     await expect(
       page.getByRole('button', { name: /ATS PDF · Recommended/ }),
     ).toBeVisible();
