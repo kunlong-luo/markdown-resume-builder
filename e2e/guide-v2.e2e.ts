@@ -5,7 +5,7 @@ test.beforeEach(async ({ page }) => {
     window.localStorage.setItem('resume-onboarding-v1-complete', '1');
     window.localStorage.setItem(
       'resume-settings',
-      JSON.stringify({ lang: 'en' }),
+      JSON.stringify({ lang: 'en', showPageBreakLine: false }),
     );
   });
 });
@@ -39,7 +39,8 @@ test.describe('task-oriented user guide', () => {
       'Adjust layout',
       'Polish the visual style',
       'Check page count',
-      'Final check, download, and back up',
+      'Final check and download',
+      'Back up and share safely',
     ]) {
       await expect(guide.getByText(step, { exact: true })).toBeVisible();
     }
@@ -74,7 +75,7 @@ test.describe('task-oriented user guide', () => {
     await expect(importDialog).toBeHidden();
 
     guide = await openGuide(page);
-    await guide.getByRole('button', { name: 'Open Resume Check' }).click();
+    await guide.getByRole('button', { name: 'Open Resume Check' }).first().click();
 
     await expect(
       page.getByRole('dialog', { name: 'Resume Check' }),
@@ -98,5 +99,47 @@ test.describe('task-oriented user guide', () => {
     await expect(
       page.getByRole('dialog', { name: 'Style' }),
     ).toBeVisible();
+  });
+
+  test('connects page-count, download, backup, and share steps to the real tools', async ({
+    page,
+  }) => {
+    await page.goto('/');
+
+    let guide = await openGuide(page);
+    await guide.getByRole('button', { name: 'Show A4 page lines' }).click();
+    await expect(guide).toBeHidden();
+    await expect
+      .poll(async () => {
+        const raw = await page.evaluate(() =>
+          window.localStorage.getItem('resume-settings'),
+        );
+        return raw ? JSON.parse(raw).showPageBreakLine : null;
+      })
+      .toBe(true);
+
+    guide = await openGuide(page);
+    await guide.getByRole('button', { name: 'Choose PDF download' }).click();
+    await expect(guide).toBeHidden();
+    await expect(
+      page
+        .locator('button:visible')
+        .filter({ hasText: 'ATS PDF · Recommended' })
+        .first(),
+    ).toBeVisible();
+
+    await page.keyboard.press('Escape');
+    guide = await openGuide(page);
+    await guide.getByRole('button', { name: 'Open versions & backup' }).click();
+    await expect(
+      page.getByRole('dialog', { name: 'Versions & Backup' }),
+    ).toBeVisible();
+    await page
+      .getByRole('button', { name: 'Close versions and backup dialog' })
+      .click();
+
+    guide = await openGuide(page);
+    await guide.getByRole('button', { name: 'Share resume' }).click();
+    await expect(page.getByRole('dialog', { name: 'Share resume' })).toBeVisible();
   });
 });
