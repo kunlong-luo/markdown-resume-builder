@@ -70,7 +70,10 @@ test.describe('first-run onboarding', () => {
     });
     await page.goto('/');
 
-    await page.getByRole('button', { name: /^(Guide|指南)$/ }).click();
+    await page.getByRole('button', { name: /More actions|更多操作/ }).click();
+    await page
+      .getByRole('button', { name: /Guide & privacy|指南与隐私/ })
+      .click();
 
     await expect(
       page.getByRole('heading', { name: /User Guide|使用指南/ }),
@@ -149,7 +152,10 @@ test.describe('first-run onboarding', () => {
     });
     await page.goto('/');
 
-    await page.getByRole('button', { name: /^(Guide|指南)$/ }).click();
+    await page.getByRole('button', { name: /More actions|更多操作/ }).click();
+    await page
+      .getByRole('button', { name: /Guide & privacy|指南与隐私/ })
+      .click();
     await page
       .getByRole('button', {
         name: /Run the getting-started tour again|重新查看新手引导/,
