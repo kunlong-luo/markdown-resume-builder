@@ -48,7 +48,7 @@ test.describe('simplified workspace actions', () => {
     await expect(styleDialog.getByText('Page layout', { exact: true })).toHaveCount(0);
 
     await styleDialog.getByRole('button', { name: 'Tech & Internet' }).click();
-    await page.keyboard.press('Escape');
+    await styleDialog.getByRole('button', { name: 'Close Style' }).click();
     await expect(styleDialog).toBeHidden();
 
     await toolbar.getByRole('button', { name: 'Layout' }).click();
