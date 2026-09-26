@@ -186,7 +186,7 @@ export function ShareResumeModal({ isOpen, onClose }: ShareResumeModalProps) {
     >
       <div
         ref={dialogRef}
-        className="w-full max-w-lg rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl overflow-hidden"
+        className="flex max-h-[calc(100dvh-2rem)] w-full max-w-lg flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-900"
       >
         <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-start justify-between gap-4">
           <div>
@@ -217,7 +217,7 @@ export function ShareResumeModal({ isOpen, onClose }: ShareResumeModalProps) {
           </button>
         </div>
 
-        <div className="p-6 space-y-5">
+        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-6">
           <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-2xl">
             <button
               type="button"
