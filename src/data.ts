@@ -1,3 +1,5 @@
+export const BLANK_MARKDOWN = '';
+
 export const STARTER_MARKDOWN = `# 你的姓名
 
 ## 个人简介
