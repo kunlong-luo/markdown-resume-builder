@@ -1,5 +1,11 @@
 import { expect, test } from '@playwright/test';
 
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    window.localStorage.setItem('resume-onboarding-v1-complete', '1');
+  });
+});
+
 test.describe('keyboard accessibility', () => {
   test('share dialog traps focus context and restores trigger focus on Escape', async ({
     page,

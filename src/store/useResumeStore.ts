@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { DEFAULT_MARKDOWN, TEMPLATES } from '../data';
+import { STARTER_MARKDOWN, STARTER_MARKDOWN_EN, TEMPLATES } from '../data';
 import { ResumeSettings, ResumeProfile } from '../types';
 import { storage, STORAGE_KEYS } from '../lib/storage';
 import { translateMarkdownContent } from '../lib/section-translator';
@@ -75,7 +75,21 @@ let isUndoRedoAction = false;
 // Helper to initialize markdown
 const getInitialMarkdown = (): string => {
   const saved = storage.getString(STORAGE_KEYS.MARKDOWN);
-  const original = saved || DEFAULT_MARKDOWN;
+  const savedProfiles = storage.get<ResumeProfile[] | null>(STORAGE_KEYS.PROFILES, null);
+  const isFirstVisit = !saved && (!savedProfiles || savedProfiles.length === 0);
+
+  if (isFirstVisit) {
+    storage.set(STORAGE_KEYS.ONBOARDING_FIRST_VISIT, '1');
+  } else {
+    storage.remove(STORAGE_KEYS.ONBOARDING_FIRST_VISIT);
+  }
+
+  const browserLanguage =
+    typeof navigator !== 'undefined' &&
+    (navigator.language || '').toLowerCase().startsWith('zh')
+      ? 'zh'
+      : 'en';
+  const original = saved || (browserLanguage === 'zh' ? STARTER_MARKDOWN : STARTER_MARKDOWN_EN);
   const migrated = migrateStoredMarkdown(original);
 
   if (migrated !== original) {
@@ -88,7 +102,7 @@ const getInitialMarkdown = (): string => {
 // Helper to initialize currentTemplateId
 const getInitialTemplateId = (initialMarkdown: string): string => {
   const match = TEMPLATES.find(t => t.content === initialMarkdown);
-  return match ? match.id : 'ai_backend';
+  return match ? match.id : 'custom';
 };
 
 // Helper to initialize and migrate settings
@@ -187,8 +201,8 @@ const getInitialProfiles = (
   const now = new Date().toISOString();
   const defaultProfile: ResumeProfile = {
     id: 'profile_default',
-    name: '默认简历',
-    targetRole: '通用全能版',
+    name: defaultSettings.lang === 'en' ? 'Starter Resume' : '起始简历',
+    targetRole: defaultSettings.lang === 'en' ? 'General' : '通用版',
     markdown: defaultMd,
     settings: defaultSettings,
     customFileName: storage.getString(STORAGE_KEYS.CUSTOM_FILE_NAME, ''),
@@ -196,6 +210,13 @@ const getInitialProfiles = (
     createdAt: now,
     isDefault: true
   };
+
+  if (storage.getString(STORAGE_KEYS.ONBOARDING_FIRST_VISIT) === '1') {
+    const firstVisitProfiles = [defaultProfile];
+    storage.set(STORAGE_KEYS.PROFILES, firstVisitProfiles);
+    storage.set(STORAGE_KEYS.ACTIVE_PROFILE_ID, defaultProfile.id);
+    return { profiles: firstVisitProfiles, activeId: defaultProfile.id };
+  }
 
   const frontendTemplate = TEMPLATES.find(t => t.id === 'frontend')?.content || defaultMd.replace('AI后端开发工程师', '资深前端工程师');
   const frontendProfile: ResumeProfile = {

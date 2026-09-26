@@ -21,6 +21,7 @@ const BackupDraftModal = lazy(() => import('./components/backup/BackupDraftModal
 const HelpLegalModal = lazy(() => import('./components/layout/HelpLegalModal').then(m => ({ default: m.HelpLegalModal })));
 const SharedResumePage = lazy(() => import('./components/share/SharedResumePage').then(m => ({ default: m.SharedResumePage })));
 const SupportProjectModal = lazy(() => import('./components/modals/SupportProjectModal').then(m => ({ default: m.SupportProjectModal })));
+const OnboardingTour = lazy(() => import('./components/onboarding/OnboardingTour').then(m => ({ default: m.OnboardingTour })));
 
 export default function App() {
   const [mobileTab, setMobileTab] = useState<'editor' | 'preview'>('editor');
@@ -60,6 +61,19 @@ export default function App() {
   const containerRef = useRef<HTMLElement>(null);
   const pendingExportActionRef = useRef<(() => void | Promise<void>) | null>(null);
   const [isSupportProjectOpen, setIsSupportProjectOpen] = useState(false);
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(() => {
+    return (
+      storage.getString(STORAGE_KEYS.ONBOARDING_FIRST_VISIT) === '1' &&
+      storage.getString(STORAGE_KEYS.ONBOARDING_COMPLETE) !== '1'
+    );
+  });
+
+  useEffect(() => {
+    const startOnboarding = () => setIsOnboardingOpen(true);
+    window.addEventListener('resume-craft:start-onboarding', startOnboarding);
+    return () => window.removeEventListener('resume-craft:start-onboarding', startOnboarding);
+  }, []);
+
 
   const initialMarkdownRef = useRef(markdown);
   const hasTrackedEditingRef = useRef(false);
@@ -489,6 +503,11 @@ export default function App() {
             onContinue={continuePendingExport}
             onSkip={handleSkipSupport}
           />
+          <OnboardingTour
+            isOpen={isOnboardingOpen}
+            onClose={() => setIsOnboardingOpen(false)}
+          />
+
         </Suspense>
       </div>
     </div>

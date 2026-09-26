@@ -1,3 +1,33 @@
+export const STARTER_MARKDOWN = `# 你的姓名
+
+## 个人简介
+
+在这里开始填写你的简历内容。
+
+## 工作经历
+
+- 添加你的工作经历、项目成果和关键数据。
+
+## 教育背景
+
+- 添加学校、专业与时间。
+`;
+
+export const STARTER_MARKDOWN_EN = `# Your Name
+
+## Summary
+
+Start writing your resume here.
+
+## Experience
+
+- Add your experience, projects, and measurable results.
+
+## Education
+
+- Add your school, degree, and dates.
+`;
+
 export const DEFAULT_MARKDOWN = `# 钟晨杰
 AI后端开发工程师 ｜ 智能体网关架构 ｜ 分布式系统研发
 139 0000 1111 · chenjie_zhong@fake-email.com · https://github.com/chenjie-ai-backend
