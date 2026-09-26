@@ -343,6 +343,7 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
                 <button
                   type="button"
                   onClick={() => openGuideTool('resume-craft:start-onboarding')}
+                  aria-label={isEn ? 'Run the getting-started tour again' : '重新查看新手引导'}
                   className="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/50 px-3.5 py-3 text-left hover:border-indigo-300 transition-colors"
                 >
                   <div>
