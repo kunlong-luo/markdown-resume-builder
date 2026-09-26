@@ -10,11 +10,10 @@ test.describe('product state flows', () => {
   test('imports a Markdown file through the real import UI', async ({ page }) => {
     await page.goto('/');
 
-    const importButton = page
-      .locator('button:visible')
-      .filter({ hasText: /^(Import|导入)$/ })
-      .first();
-    await importButton.click();
+    await page.getByRole('button', { name: /More actions|更多操作/ }).click();
+    await page
+      .getByRole('button', { name: /Import resume|导入简历/ })
+      .click();
 
     await expect(
       page.getByRole('heading', { name: /Import Resume|导入简历/ }),
@@ -48,10 +47,9 @@ test.describe('product state flows', () => {
   test('persists dark theme across reloads', async ({ page }) => {
     await page.goto('/');
 
-    const themeButton = page
-      .locator('button:visible')
-      .filter({ hasText: /^(Light|浅色)$/ })
-      .first();
+    const themeButton = page.getByRole('button', {
+      name: /Theme: Light|主题: 浅色/,
+    }).first();
 
     await expect(themeButton).toBeVisible();
     await themeButton.click();
