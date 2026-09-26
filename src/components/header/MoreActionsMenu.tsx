@@ -1,12 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Database, Download, DownloadCloud, HelpCircle, MoreHorizontal, Upload } from 'lucide-react';
+import { Download, DownloadCloud, HelpCircle, MoreHorizontal, Upload } from 'lucide-react';
 
 interface MoreActionsMenuProps {
   isEn: boolean;
   isInstallable: boolean;
   onImport: () => void;
   onExportMarkdown: () => void;
-  onOpenVersions: () => void;
   onOpenGuide: () => void;
   onInstall: () => void;
 }
@@ -16,7 +15,6 @@ export function MoreActionsMenu({
   isInstallable,
   onImport,
   onExportMarkdown,
-  onOpenVersions,
   onOpenGuide,
   onInstall,
 }: MoreActionsMenuProps) {
@@ -69,10 +67,6 @@ export function MoreActionsMenu({
           <button type="button" onClick={action(onExportMarkdown)} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
             <Download className="h-4 w-4 text-slate-500" />
             {isEn ? 'Export Markdown' : '导出 Markdown'}
-          </button>
-          <button type="button" onClick={action(onOpenVersions)} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
-            <Database className="h-4 w-4 text-indigo-500" />
-            {isEn ? 'Versions & backup' : '版本与备份'}
           </button>
           <button type="button" onClick={action(onOpenGuide)} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
             <HelpCircle className="h-4 w-4 text-indigo-500" />
