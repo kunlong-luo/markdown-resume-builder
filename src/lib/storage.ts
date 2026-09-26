@@ -15,6 +15,7 @@ export const STORAGE_KEYS = {
   JD_TEXT: 'resume-jd-text',
   CUSTOM_FILE_NAME: 'resume-custom-filename',
   CHECKER_STATE: 'resume-checker-state',
+  PHONE_REGIONS: 'resume-phone-regions',
   ONBOARDING_FIRST_VISIT: 'resume-onboarding-first-visit',
   ONBOARDING_COMPLETE: 'resume-onboarding-v1-complete',
 } as const;
