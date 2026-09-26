@@ -21,6 +21,7 @@ interface ResumeState {
   isCheckerOpen: boolean;
   isIframeModalOpen: boolean;
   isBackupHubOpen: boolean;
+  backupHubTab: 'profiles' | 'drafts' | 'backup';
   isHelpLegalOpen: boolean;
   isExportingPDF: boolean;
   pdfExportProgress: string | null;
@@ -43,6 +44,7 @@ interface ResumeState {
   setIsCheckerOpen: (open: boolean) => void;
   setIsIframeModalOpen: (open: boolean) => void;
   setIsBackupHubOpen: (open: boolean) => void;
+  setBackupHubTab: (tab: 'profiles' | 'drafts' | 'backup') => void;
   setIsHelpLegalOpen: (open: boolean) => void;
   setIsExportingPDF: (isExporting: boolean) => void;
   setPdfExportProgress: (progress: string | null) => void;
@@ -273,6 +275,7 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
   isCheckerOpen: false,
   isIframeModalOpen: false,
   isBackupHubOpen: false,
+  backupHubTab: 'profiles',
   isHelpLegalOpen: false,
   isExportingPDF: false,
   pdfExportProgress: null,
@@ -328,6 +331,7 @@ export const useResumeStore = create<ResumeState>((set, get) => ({
   setIsCheckerOpen: (isCheckerOpen) => set({ isCheckerOpen }),
   setIsIframeModalOpen: (isIframeModalOpen) => set({ isIframeModalOpen }),
   setIsBackupHubOpen: (isBackupHubOpen) => set({ isBackupHubOpen }),
+  setBackupHubTab: (backupHubTab) => set({ backupHubTab }),
   setIsHelpLegalOpen: (isHelpLegalOpen) => set({ isHelpLegalOpen }),
   setIsExportingPDF: (isExportingPDF) => set({ isExportingPDF }),
   setPdfExportProgress: (pdfExportProgress) => set({ pdfExportProgress }),
