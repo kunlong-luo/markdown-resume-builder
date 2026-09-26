@@ -111,10 +111,27 @@ export function Header({
     // Cycle between light -> dark -> system
     const nextMode: ThemeMode = themeMode === 'light' ? 'dark' : themeMode === 'dark' ? 'system' : 'light';
 
-    // High-performance View Transitions API for ultra-smooth radial wave transition
+    const syncThemeClass = () => {
+      if (typeof document === 'undefined') return;
+      const shouldUseDark =
+        nextMode === 'dark' ||
+        (nextMode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      document.documentElement.classList.toggle('dark', shouldUseDark);
+    };
+
+    const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+    const usesWebKitEngine =
+      /AppleWebKit/i.test(userAgent) &&
+      !/(Chrome|Chromium|Edg\/|OPR\/)/i.test(userAgent);
+
+    // WebKit currently exposes View Transitions in environments where the
+    // transition lifecycle can stall and leave temporary root classes behind.
+    // Prefer a reliable instant theme switch there; keep the radial transition
+    // for engines with a stable implementation.
     if (
       typeof document !== 'undefined' &&
       'startViewTransition' in document &&
+      !usesWebKitEngine &&
       !window.matchMedia('(prefers-reduced-motion: reduce)').matches
     ) {
       const x = e?.clientX ?? window.innerWidth / 2;
@@ -123,35 +140,63 @@ export function Header({
         Math.max(x, window.innerWidth - x),
         Math.max(y, window.innerHeight - y)
       );
+      const root = document.documentElement;
+      const cleanupTransitionClass = () => {
+        root.classList.remove('view-transition-active');
+      };
 
       // Disable CSS element transitions during view transition capture to prevent double-rendering lag
-      document.documentElement.classList.add('view-transition-active');
+      root.classList.add('view-transition-active');
 
-      const transition = (document as any).startViewTransition(() => {
+      try {
+        const transition = (document as any).startViewTransition(() => {
+          // Apply the visible theme synchronously. React state remains the source of truth,
+          // but the DOM must not wait on a browser-specific View Transition lifecycle.
+          syncThemeClass();
+          updateSetting('themeMode', nextMode);
+        });
+
+        // WebKit can expose startViewTransition while failing to finish the custom animation
+        // lifecycle reliably. Always clean up through the native transition lifecycle as well.
+        void Promise.resolve(transition.finished)
+          .catch(() => undefined)
+          .finally(cleanupTransitionClass);
+
+        void Promise.resolve(transition.ready)
+          .then(() => {
+            const clipPath = [
+              `circle(0px at ${x}px ${y}px)`,
+              `circle(${endRadius}px at ${x}px ${y}px)`
+            ];
+            const animation = root.animate(
+              {
+                clipPath: clipPath
+              },
+              {
+                duration: 420,
+                easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+                pseudoElement: '::view-transition-new(root)'
+              }
+            );
+
+            void animation.finished
+              .catch(() => undefined)
+              .finally(cleanupTransitionClass);
+          })
+          .catch(cleanupTransitionClass);
+
+        // Last-resort guard for partially implemented browser transitions.
+        window.setTimeout(() => {
+          syncThemeClass();
+          cleanupTransitionClass();
+        }, 1000);
+      } catch {
+        syncThemeClass();
+        cleanupTransitionClass();
         updateSetting('themeMode', nextMode);
-      });
-
-      transition.ready.then(() => {
-        const clipPath = [
-          `circle(0px at ${x}px ${y}px)`,
-          `circle(${endRadius}px at ${x}px ${y}px)`
-        ];
-        const animation = document.documentElement.animate(
-          {
-            clipPath: clipPath
-          },
-          {
-            duration: 420,
-            easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
-            pseudoElement: '::view-transition-new(root)'
-          }
-        );
-
-        animation.onfinish = () => {
-          document.documentElement.classList.remove('view-transition-active');
-        };
-      });
+      }
     } else {
+      syncThemeClass();
       updateSetting('themeMode', nextMode);
     }
   };
