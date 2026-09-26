@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { DEFAULT_MARKDOWN, STARTER_MARKDOWN, STARTER_MARKDOWN_EN, TEMPLATES } from '../data';
+import { STARTER_MARKDOWN, STARTER_MARKDOWN_EN, TEMPLATES } from '../data';
 import { ResumeSettings, ResumeProfile } from '../types';
 import { storage, STORAGE_KEYS } from '../lib/storage';
 import { translateMarkdownContent } from '../lib/section-translator';
