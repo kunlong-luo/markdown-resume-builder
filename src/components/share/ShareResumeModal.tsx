@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Check,
@@ -17,6 +17,7 @@ import {
   SHARE_PASSWORD_MIN_LENGTH,
 } from '../../lib/share-utils';
 import { trackAnalyticsEvent } from '../../lib/analytics';
+import { useDialogFocus } from '../../hooks/useDialogFocus';
 
 interface ShareResumeModalProps {
   isOpen: boolean;
@@ -53,54 +54,6 @@ export function ShareResumeModal({ isOpen, onClose }: ShareResumeModalProps) {
   const passwordValid =
     password.trim().length >= SHARE_PASSWORD_MIN_LENGTH &&
     password.trim().length <= SHARE_PASSWORD_MAX_LENGTH;
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const previouslyFocused = document.activeElement as HTMLElement | null;
-    const dialog = dialogRef.current;
-    const firstFocusable = dialog?.querySelector<HTMLElement>(
-      'button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-    );
-    firstFocusable?.focus();
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        onClose();
-        return;
-      }
-
-      if (event.key !== 'Tab' || !dialog) return;
-
-      const focusable = Array.from(
-        dialog.querySelectorAll<HTMLElement>(
-          'button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-        ),
-      ).filter((element) => !element.hasAttribute('hidden'));
-
-      if (focusable.length === 0) return;
-
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      previouslyFocused?.focus();
-    };
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
 
   const invalidateGeneratedLink = () => {
     if (shareUrl) setShareUrl('');
@@ -171,21 +124,31 @@ export function ShareResumeModal({ isOpen, onClose }: ShareResumeModalProps) {
     setShareUrl('');
     setError('');
     setCopied(false);
+    setIsGenerating(false);
     onClose();
   };
+
+  useDialogFocus({
+    isOpen,
+    dialogRef,
+    onClose: closeAndResetTransientState,
+  });
+
+  if (!isOpen || typeof document === 'undefined') return null;
 
   return createPortal(
     <div
       className="fixed inset-0 z-[100] bg-slate-950/55 backdrop-blur-sm p-4 flex items-center justify-center"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="share-resume-title"
       onMouseDown={(event) => {
         if (event.currentTarget === event.target) closeAndResetTransientState();
       }}
     >
       <div
         ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="share-resume-title"
+        tabIndex={-1}
         className="flex max-h-[calc(100dvh-2rem)] w-full max-w-lg flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-900"
       >
         <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-start justify-between gap-4">
