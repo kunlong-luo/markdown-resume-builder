@@ -91,4 +91,12 @@ describe('international phone utilities', () => {
       'NZ',
     ]);
   });
+  it('does not guess a country for a bare local phone candidate', () => {
+    const found = findPhoneCandidate('Contact: 2125551234');
+
+    expect(found?.raw).toBe('2125551234');
+    expect(found?.country).toBeUndefined();
+    expect(found?.isInternational).toBe(false);
+  });
+
 });
