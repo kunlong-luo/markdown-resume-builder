@@ -5,6 +5,7 @@ import { TEMPLATES } from '../../data';
 import { useResumeStore } from '../../store/useResumeStore';
 import { useConfirm } from '../../context/ConfirmContext';
 import { CustomSelect, SelectOption } from '../ui/CustomSelect';
+import { getTemplatePresentation } from '../../lib/template-presentation';
 import {
   MASTER_PRESETS,
   TOOLBAR_TRANSLATIONS,
@@ -13,9 +14,13 @@ import {
 
 interface ToolbarSelectorsProps {
   onOpenAesthetics: () => void;
+  onOpenTemplateCenter: () => void;
 }
 
-export function ToolbarSelectors({ onOpenAesthetics }: ToolbarSelectorsProps) {
+export function ToolbarSelectors({
+  onOpenAesthetics,
+  onOpenTemplateCenter,
+}: ToolbarSelectorsProps) {
   const {
     settings,
     updateSetting,
@@ -50,7 +55,9 @@ export function ToolbarSelectors({ onOpenAesthetics }: ToolbarSelectorsProps) {
     if (tmpl) {
       const confirmed = await confirm({
         title: t.confirmLoadTemplateTitle,
-        message: t.confirmLoadTemplateMsg(tmpl.name),
+        message: t.confirmLoadTemplateMsg(
+          getTemplatePresentation(tmpl, isEn ? 'en' : 'zh').name,
+        ),
         confirmText: t.confirmBtn,
         cancelText: t.cancelBtn,
         type: 'warning'
@@ -73,18 +80,15 @@ export function ToolbarSelectors({ onOpenAesthetics }: ToolbarSelectorsProps) {
   ];
 
   const templateOptions: SelectOption[] = [
-    { value: 'custom', label: isEn ? 'Custom / Starter' : '自定义 / 起始简历', disabled: true },
-    ...TEMPLATES.map(tmpl => {
-    let name = tmpl.name;
-    if (isEn) {
-      if (tmpl.id === 'ai_backend') name = 'AI Backend Developer';
-      if (tmpl.id === 'frontend') name = 'AI Frontend Developer';
-      if (tmpl.id === 'pm_lead') name = 'Technical PM / Director';
-      if (tmpl.id === 'operations') name = 'Product Operations';
-      if (tmpl.id === 'campus') name = 'Campus Graduate';
-    }
-      return { value: tmpl.id, label: name };
-    }),
+    {
+      value: 'custom',
+      label: isEn ? 'Custom / Starter' : '自定义 / 起始简历',
+      disabled: true,
+    },
+    ...TEMPLATES.map((tmpl) => ({
+      value: tmpl.id,
+      label: getTemplatePresentation(tmpl, isEn ? 'en' : 'zh').name,
+    })),
   ];
 
   const layoutOptions: SelectOption[] = [
@@ -117,7 +121,7 @@ export function ToolbarSelectors({ onOpenAesthetics }: ToolbarSelectorsProps) {
         />
       </div>
 
-      {/* Template Selector */}
+      {/* Template Selector + Visual Library */}
       <div className="flex items-center gap-1.5 pr-2.5 border-r border-slate-200/90 dark:border-slate-800 shrink-0">
         <LayoutGrid className="w-3.5 h-3.5 text-indigo-500 shrink-0 pointer-events-none" />
         <CustomSelect
@@ -127,6 +131,14 @@ export function ToolbarSelectors({ onOpenAesthetics }: ToolbarSelectorsProps) {
           size="xs"
           triggerClassName="bg-white dark:bg-slate-800 border-slate-200/90 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-[11px] h-7 rounded-lg hover:border-slate-300 dark:hover:border-slate-600 shadow-2xs"
         />
+        <button
+          type="button"
+          onClick={onOpenTemplateCenter}
+          aria-label={isEn ? 'Open template library' : '打开模板库'}
+          className="h-7 rounded-lg border border-indigo-200/80 bg-indigo-50/80 px-2 text-[10px] font-black text-indigo-700 transition hover:bg-indigo-100 dark:border-indigo-800/70 dark:bg-indigo-950/50 dark:text-indigo-300 dark:hover:bg-indigo-900/60"
+        >
+          {isEn ? 'Templates' : '模板库'}
+        </button>
       </div>
 
       {/* Template Column Layout Selector */}

@@ -8,6 +8,7 @@ import { LanguageToggle } from '../toolbar/LanguageToggle';
 import { ToolbarSelectors } from '../toolbar/ToolbarSelectors';
 import { LayoutModeToggle } from '../toolbar/LayoutModeToggle';
 import { AestheticsDrawer } from '../toolbar/AestheticsDrawer';
+import { TemplateCenterModal } from '../templates/TemplateCenterModal';
 import { trackAnalyticsEvent } from '../../lib/analytics';
 
 export function Toolbar() {
@@ -23,6 +24,7 @@ export function Toolbar() {
   const t = isEn ? TOOLBAR_TRANSLATIONS.en : TOOLBAR_TRANSLATIONS.zh;
 
   const [isAestheticsOpen, setIsAestheticsOpen] = useState(false);
+  const [isTemplateCenterOpen, setIsTemplateCenterOpen] = useState(false);
   const aestheticsTriggerRef = useRef<HTMLButtonElement>(null);
 
   const getExportTitle = () => {
@@ -46,7 +48,10 @@ export function Toolbar() {
       {/* Left Area: Language + Preset + Template + Column Layout + Title Style */}
       <div className="flex items-center gap-1.5 sm:gap-2.5 text-xs overflow-x-auto scrollbar-none flex-nowrap min-w-0 shrink py-0.5">
         <LanguageToggle />
-        <ToolbarSelectors onOpenAesthetics={() => setIsAestheticsOpen(true)} />
+        <ToolbarSelectors
+          onOpenAesthetics={() => setIsAestheticsOpen(true)}
+          onOpenTemplateCenter={() => setIsTemplateCenterOpen(true)}
+        />
       </div>
 
       {/* Right Area: File Name + 1-Click AutoFit + Aesthetics Panel Trigger + Layout Mode Toggle */}
@@ -113,6 +118,11 @@ export function Toolbar() {
           onClose={() => setIsAestheticsOpen(false)}
           triggerRef={aestheticsTriggerRef}
           exportTitle={exportTitle}
+        />
+
+        <TemplateCenterModal
+          isOpen={isTemplateCenterOpen}
+          onClose={() => setIsTemplateCenterOpen(false)}
         />
       </div>
     </div>
