@@ -139,7 +139,6 @@ export const TOOLBAR_TRANSLATIONS = {
   zh: {
     presetLabel: '风格预设',
     layoutLabel: '版面结构',
-    templatePrefix: '模版：',
     layoutSingle: '单栏标准',
     layoutDouble: '双栏现代',
     layoutAcademic: '学术 LaTeX',
@@ -186,16 +185,11 @@ export const TOOLBAR_TRANSLATIONS = {
     customStyle: '自定义样式',
     compactPreset: '紧凑单页',
     normalPreset: '标准舒适',
-    spaciousPreset: '宽松大气',
-    confirmLoadTemplateTitle: '确认加载模板',
-    confirmLoadTemplateMsg: (name: string) => `确认加载「${name}」模版吗？您当前的修改将被覆盖。`,
-    confirmBtn: '确认加载',
-    cancelBtn: '取消'
+    spaciousPreset: '宽松大气'
   },
   en: {
     presetLabel: 'Presets',
     layoutLabel: 'Layout',
-    templatePrefix: 'Template: ',
     layoutSingle: 'Single Col',
     layoutDouble: 'Two Cols',
     layoutAcademic: 'Academic LaTeX',
@@ -242,11 +236,7 @@ export const TOOLBAR_TRANSLATIONS = {
     customStyle: 'Custom Style',
     compactPreset: 'Compact',
     normalPreset: 'Normal',
-    spaciousPreset: 'Spacious',
-    confirmLoadTemplateTitle: 'Load Template',
-    confirmLoadTemplateMsg: (name: string) => `Are you sure you want to load the template "${name}"? Your current changes will be overwritten.`,
-    confirmBtn: 'Load',
-    cancelBtn: 'Cancel'
+    spaciousPreset: 'Spacious'
   }
 };
 

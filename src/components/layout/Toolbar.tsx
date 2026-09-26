@@ -45,7 +45,7 @@ export function Toolbar() {
 
   return (
     <div id="resume-main-toolbar" className="flex items-center justify-between px-2.5 sm:px-6 py-1.5 sm:py-2 bg-white/80 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/90 relative z-20 gap-2 sm:gap-3 shadow-[0_1px_2px_rgba(15,23,42,0.02)] dark:shadow-[0_2px_8px_rgba(0,0,0,0.3)] w-full transition-colors duration-200">
-      {/* Left Area: Language + Preset + Template + Column Layout + Title Style */}
+      {/* Left Area: Language + Preset + Template Library + Column Layout + Title Style */}
       <div className="flex items-center gap-1.5 sm:gap-2.5 text-xs overflow-x-auto scrollbar-none flex-nowrap min-w-0 shrink py-0.5">
         <LanguageToggle />
         <ToolbarSelectors
