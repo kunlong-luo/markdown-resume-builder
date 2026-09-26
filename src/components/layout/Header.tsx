@@ -52,6 +52,7 @@ export function Header({
     pdfExportProgress,
     setIsCheckerOpen,
     setIsBackupHubOpen,
+    setBackupHubTab,
     setIsHelpLegalOpen,
     handleMarkdownChange,
     settings,
@@ -203,7 +204,7 @@ export function Header({
 
           <div className="w-px h-5 bg-slate-200/90 dark:bg-slate-800 mx-1 shrink-0" />
 
-          {/* Multi-Profile Archive Selector */}
+          {/* Current resume version switcher */}
           <ProfileDropdown lang={settings.lang} />
 
           {/* Real-time save and storage health indicator */}
@@ -328,7 +329,10 @@ export function Header({
             isInstallable={isInstallable}
             onImport={() => setIsRawTextModalOpen(true)}
             onExportMarkdown={handleExportMarkdown}
-            onOpenVersions={() => setIsBackupHubOpen(true)}
+            onOpenBackup={() => {
+              setBackupHubTab('drafts');
+              setIsBackupHubOpen(true);
+            }}
             onOpenGuide={() => setIsHelpLegalOpen(true)}
             onInstall={() => {
               void handleInstallApp();
@@ -369,11 +373,11 @@ export function Header({
               </button>
 
               <button
-                onClick={() => { setIsBackupHubOpen(true); setIsMobileMenuOpen(false); }}
+                onClick={() => { setBackupHubTab('drafts'); setIsBackupHubOpen(true); setIsMobileMenuOpen(false); }}
                 className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/70 text-slate-800 dark:text-slate-200 text-xs font-bold transition-all active:scale-95"
               >
                 <Database className="w-4 h-4 text-indigo-500" />
-                <span>{isEn ? 'Versions' : '版本管理'}</span>
+                <span>{isEn ? 'Backup' : '备份恢复'}</span>
               </button>
 
               <button
