@@ -35,7 +35,7 @@ test.describe('template center', () => {
   test('keeps resume management separate from template selection', async ({ page }) => {
     await page.goto('/');
 
-    await page.locator('button[aria-controls="resume-profile-panel"]').click();
+    await page.locator('button[aria-controls="resume-profile-panel"]:visible').first().click();
 
     const profilePanel = page.locator('#resume-profile-panel');
     await expect(profilePanel).toBeVisible();
