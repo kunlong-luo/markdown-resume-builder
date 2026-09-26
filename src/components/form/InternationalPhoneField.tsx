@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Phone } from 'lucide-react';
 import type { CountryCode } from 'libphonenumber-js/min';
+import { useResumeStore } from '../../store/useResumeStore';
+import { storage, STORAGE_KEYS } from '../../lib/storage';
 import {
   formatPhoneDraft,
   getPhoneRegionOptions,
@@ -9,6 +11,25 @@ import {
   reformatPhoneForCountry,
   type PhoneRegionCode,
 } from '../../lib/phone-utils';
+
+function getSavedRegion(profileId: string): PhoneRegionCode {
+  const saved = storage.get<Record<string, PhoneRegionCode>>(
+    STORAGE_KEYS.PHONE_REGIONS,
+    {},
+  );
+  return saved[profileId] || '';
+}
+
+function saveRegion(profileId: string, nextRegion: PhoneRegionCode) {
+  const saved = storage.get<Record<string, PhoneRegionCode>>(
+    STORAGE_KEYS.PHONE_REGIONS,
+    {},
+  );
+  storage.set(STORAGE_KEYS.PHONE_REGIONS, {
+    ...saved,
+    [profileId]: nextRegion,
+  });
+}
 
 interface InternationalPhoneFieldProps {
   value: string;
@@ -25,15 +46,30 @@ export function InternationalPhoneField({
   label,
   placeholder,
 }: InternationalPhoneFieldProps) {
+  const activeProfileId = useResumeStore((state) => state.activeProfileId);
   const detectedRegion = inferPhoneRegion(value);
-  const [region, setRegion] = useState<PhoneRegionCode>(detectedRegion);
+  const [region, setRegion] = useState<PhoneRegionCode>(
+    detectedRegion || getSavedRegion(activeProfileId),
+  );
+
+  useEffect(() => {
+    const detected = inferPhoneRegion(value);
+    if (detected) {
+      setRegion(detected);
+      saveRegion(activeProfileId, detected);
+      return;
+    }
+
+    setRegion(getSavedRegion(activeProfileId));
+  }, [activeProfileId]);
 
   useEffect(() => {
     const detected = inferPhoneRegion(value);
     if (detected && detected !== region) {
       setRegion(detected);
+      saveRegion(activeProfileId, detected);
     }
-  }, [region, value]);
+  }, [activeProfileId, region, value]);
 
   const options = useMemo(() => getPhoneRegionOptions(lang), [lang]);
   const popular = options.filter((option) => option.priority);
@@ -42,6 +78,7 @@ export function InternationalPhoneField({
   const handleRegionChange = (next: string) => {
     const nextRegion = next as PhoneRegionCode;
     setRegion(nextRegion);
+    saveRegion(activeProfileId, nextRegion);
 
     if (nextRegion && value.trim()) {
       onChange(reformatPhoneForCountry(value, nextRegion as CountryCode));
@@ -53,7 +90,10 @@ export function InternationalPhoneField({
     onChange(formatted);
 
     const detected = inferPhoneRegion(formatted);
-    if (detected) setRegion(detected);
+    if (detected) {
+      setRegion(detected);
+      saveRegion(activeProfileId, detected);
+    }
   };
 
   const handleBlur = () => {
