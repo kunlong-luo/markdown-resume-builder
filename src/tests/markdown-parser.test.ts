@@ -10,6 +10,7 @@ import {
   parseFormToMarkdown
 } from '../lib/markdown-parser';
 import { parseBasicInfoMetadata } from '../lib/preview-utils';
+import { TEMPLATES } from '../data';
 
 describe('markdown-parser', () => {
   describe('isTimeString', () => {
@@ -123,6 +124,43 @@ describe('markdown-parser', () => {
       expect(generatedMd).toContain('字节跳动');
       expect(generatedMd).toContain('## 教育背景');
       expect(generatedMd).toContain('浙江大学');
+    });
+  });
+
+  describe('project field normalization', () => {
+    it('extracts a legacy project-role line into the structured role field', () => {
+      const legacyMd = `# 张三
+后端工程师
+
+## 代表项目
+
+### Ares 智能体服务路由网关系统　*2025.02 — 至今*
+- **项目角色：** 独立架构师与全栈设计人
+- **技术选型：** Spring Cloud Alibaba, Spring AI, pgvector
+- **核心贡献：**
+  - 从零研发高并发智能体编排与 API 路由系统。
+`;
+
+      const form = parseMarkdownToForm(legacyMd);
+      const projectSection = form.sections.find(section => section.title === '代表项目');
+      const project = projectSection?.items[0];
+
+      expect(project?.org).toBe('Ares 智能体服务路由网关系统');
+      expect(project?.role).toBe('独立架构师与全栈设计人');
+      expect(project?.content).not.toContain('项目角色');
+      expect(project?.content).toContain('技术选型');
+
+      const generatedMd = parseFormToMarkdown(form);
+      expect(generatedMd).toContain(
+        '### Ares 智能体服务路由网关系统 ｜ 独立架构师与全栈设计人 ｜ *2025.02 — 至今*',
+      );
+      expect(generatedMd).not.toContain('- **项目角色：**');
+    });
+
+    it('keeps built-in template project roles out of the description body', () => {
+      for (const template of TEMPLATES) {
+        expect(template.content).not.toMatch(/^- \*\*项目角色[：:]\*\*/m);
+      }
     });
   });
 

@@ -668,6 +668,27 @@ export function parseMarkdownToForm(md: string): ResumeFormModel {
             }
           }
           item.content = remainingLines.join('\n').trim();
+        } else if (category === 'project') {
+          const lines = content.split('\n');
+          const remainingLines: string[] = [];
+
+          for (const line of lines) {
+            const t = line.trim();
+            const projectRoleMatch = t.match(
+              /^[-*+]\s+\*\*(?:项目角色|Project Role)\s*[:：]?\*\*\s*[:：]?\s*(.+)$/i,
+            );
+
+            if (projectRoleMatch) {
+              if (!item.role?.trim()) {
+                item.role = projectRoleMatch[1].trim();
+              }
+              continue;
+            }
+
+            remainingLines.push(line);
+          }
+
+          item.content = remainingLines.join('\n').trim();
         } else {
           item.content = content;
         }
