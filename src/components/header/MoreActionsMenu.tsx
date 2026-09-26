@@ -29,7 +29,10 @@ export function MoreActionsMenu({
       if (!rootRef.current?.contains(event.target as Node)) setIsOpen(false);
     };
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setIsOpen(false);
+      if (event.key === 'Escape') {
+        setIsOpen(false);
+        rootRef.current?.querySelector<HTMLElement>('button')?.focus();
+      }
     };
     document.addEventListener('mousedown', onPointerDown);
     document.addEventListener('keydown', onKeyDown);
