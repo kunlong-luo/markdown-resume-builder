@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { X, ExternalLink, FileDown, AlertCircle, Printer } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useResumeStore } from '../store/useResumeStore';
 import { exportDirectPDF } from '../lib/pdf-export';
 import { trackAnalyticsEvent } from '../lib/analytics';
+import { useDialogFocus } from '../hooks/useDialogFocus';
 
 export function IframeWarningModal() {
   const {
@@ -18,6 +19,8 @@ export function IframeWarningModal() {
 
   const isEn = settings.lang === 'en';
   const onClose = () => setIsIframeModalOpen(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useDialogFocus({ isOpen, dialogRef, onClose });
 
   const getExportTitle = () => {
     if (customFileName.trim()) {
@@ -75,6 +78,11 @@ export function IframeWarningModal() {
 
           {/* Modal Content */}
           <motion.div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="iframe-warning-title"
+            tabIndex={-1}
             initial={{ opacity: 0, scale: 0.94, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.94, y: 15 }}
@@ -88,12 +96,13 @@ export function IframeWarningModal() {
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
                 <AlertCircle className="w-5 h-5 text-amber-500 animate-bounce" />
-                <h3 className="font-bold text-slate-800 dark:text-slate-100 text-base">
+                <h3 id="iframe-warning-title" className="font-bold text-slate-800 dark:text-slate-100 text-base">
                   {isEn ? 'ATS PDF Export Guide' : 'ATS PDF 导出说明'}
                 </h3>
               </div>
               <button
                 onClick={onClose}
+                aria-label={isEn ? 'Close ATS PDF guide dialog' : '关闭 ATS PDF 导出说明弹窗'}
                 className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
