@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { X, AlertTriangle, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useDialogFocus } from '../hooks/useDialogFocus';
 
 interface CustomConfirmModalProps {
   isOpen: boolean;
@@ -23,6 +24,9 @@ export function CustomConfirmModal({
   cancelText = '取消',
   type = 'warning'
 }: CustomConfirmModalProps) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useDialogFocus({ isOpen, dialogRef, onClose });
+
   // Theme styling based on type
   const theme = {
     warning: {
@@ -60,6 +64,12 @@ export function CustomConfirmModal({
 
           {/* Modal Card */}
           <motion.div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="custom-confirm-title"
+            aria-describedby="custom-confirm-message"
+            tabIndex={-1}
             initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
@@ -75,12 +85,13 @@ export function CustomConfirmModal({
                 <div className={`p-1.5 rounded-lg ${theme.iconBg}`}>
                   {theme.icon}
                 </div>
-                <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm sm:text-base leading-none">
+                <h3 id="custom-confirm-title" className="font-bold text-slate-800 dark:text-slate-100 text-sm sm:text-base leading-none">
                   {title}
                 </h3>
               </div>
               <button
                 onClick={onClose}
+                aria-label={cancelText}
                 className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
@@ -89,7 +100,7 @@ export function CustomConfirmModal({
 
             {/* Content Body */}
             <div className="px-6 py-5">
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 text-justify leading-relaxed whitespace-pre-line">
+              <p id="custom-confirm-message" className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 text-justify leading-relaxed whitespace-pre-line">
                 {message}
               </p>
             </div>

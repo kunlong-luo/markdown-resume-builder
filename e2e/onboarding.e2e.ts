@@ -194,4 +194,45 @@ test.describe('first-run onboarding', () => {
       .toBe('# Existing Resume\n\nKeep this content.');
   });
 
+  test('can start completely blank and preserve the blank resume across reload', async ({
+    page,
+  }) => {
+    await page.goto('/');
+
+    await page.getByRole('button', { name: /Next|下一步/ }).click();
+    await page.getByRole('button', { name: /Next|下一步/ }).click();
+
+    await page
+      .getByRole('button', {
+        name: /Start completely blank|从完全空白简历开始/,
+      })
+      .click();
+
+    await expect(
+      page.getByRole('dialog', {
+        name: /Getting started tour|新手引导/,
+      }),
+    ).toBeHidden();
+
+    await expect
+      .poll(() =>
+        page.evaluate(() => window.localStorage.getItem('resume-markdown')),
+      )
+      .toBe('');
+
+    await page.reload();
+
+    await expect
+      .poll(() =>
+        page.evaluate(() => window.localStorage.getItem('resume-markdown')),
+      )
+      .toBe('');
+
+    await expect(
+      page.getByRole('dialog', {
+        name: /Getting started tour|新手引导/,
+      }),
+    ).toHaveCount(0);
+  });
+
 });

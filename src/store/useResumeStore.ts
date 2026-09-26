@@ -74,9 +74,10 @@ let isUndoRedoAction = false;
 
 // Helper to initialize markdown
 const getInitialMarkdown = (): string => {
-  const saved = storage.getString(STORAGE_KEYS.MARKDOWN);
+  const saved = storage.get<string | null>(STORAGE_KEYS.MARKDOWN, null);
   const savedProfiles = storage.get<ResumeProfile[] | null>(STORAGE_KEYS.PROFILES, null);
-  const isFirstVisit = !saved && (!savedProfiles || savedProfiles.length === 0);
+  const hasSavedMarkdown = saved !== null;
+  const isFirstVisit = !hasSavedMarkdown && (!savedProfiles || savedProfiles.length === 0);
 
   if (isFirstVisit) {
     storage.set(STORAGE_KEYS.ONBOARDING_FIRST_VISIT, '1');
@@ -89,7 +90,7 @@ const getInitialMarkdown = (): string => {
     (navigator.language || '').toLowerCase().startsWith('zh')
       ? 'zh'
       : 'en';
-  const original = saved || (browserLanguage === 'zh' ? STARTER_MARKDOWN : STARTER_MARKDOWN_EN);
+  const original = saved ?? (browserLanguage === 'zh' ? STARTER_MARKDOWN : STARTER_MARKDOWN_EN);
   const migrated = migrateStoredMarkdown(original);
 
   if (migrated !== original) {

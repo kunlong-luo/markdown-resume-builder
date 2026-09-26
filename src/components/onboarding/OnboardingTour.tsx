@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight, FileText, MousePointer2, Sparkles, Upload, X } from 'lucide-react';
-import { STARTER_MARKDOWN, STARTER_MARKDOWN_EN, TEMPLATES } from '../../data';
+import { ArrowLeft, ArrowRight, FilePlus2, FileText, MousePointer2, Sparkles, Upload, X } from 'lucide-react';
+import { BLANK_MARKDOWN, STARTER_MARKDOWN, STARTER_MARKDOWN_EN, TEMPLATES } from '../../data';
 import { storage, STORAGE_KEYS } from '../../lib/storage';
 import { useResumeStore } from '../../store/useResumeStore';
 
@@ -27,7 +27,7 @@ export function OnboardingTour({ isOpen, onClose }: OnboardingTourProps) {
   const isEn = settings.lang === 'en';
   const [step, setStep] = useState(0);
   const [targetRect, setTargetRect] = useState<Rect | null>(null);
-  const [pendingReplacement, setPendingReplacement] = useState<'example' | 'starter' | null>(null);
+  const [pendingReplacement, setPendingReplacement] = useState<'example' | 'starter' | 'blank' | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -48,8 +48,8 @@ export function OnboardingTour({ isOpen, onClose }: OnboardingTourProps) {
       {
         title: isEn ? 'Step 3 · How would you like to start?' : '第三步 · 你想从哪里开始？',
         body: isEn
-          ? 'Load the full example resume, keep the lightweight starter, or import an existing resume.'
-          : '你可以加载完整示例简历、保留当前轻量起始内容，或者导入已有简历。',
+          ? 'Choose a full example, a guided starter, a completely blank resume, or import an existing one.'
+          : '你可以选择完整示例、带基础结构的起始简历、完全空白简历，或者导入已有简历。',
       },
     ],
     [isEn],
@@ -168,6 +168,12 @@ export function OnboardingTour({ isOpen, onClose }: OnboardingTourProps) {
     complete();
   };
 
+  const applyBlank = () => {
+    setCurrentTemplateId('custom');
+    handleMarkdownChange(BLANK_MARKDOWN, true);
+    complete();
+  };
+
   const loadExample = () => {
     if (isFirstRun) {
       applyExample();
@@ -182,6 +188,24 @@ export function OnboardingTour({ isOpen, onClose }: OnboardingTourProps) {
       return;
     }
     setPendingReplacement('starter');
+  };
+
+  const startBlank = () => {
+    if (isFirstRun) {
+      applyBlank();
+      return;
+    }
+    setPendingReplacement('blank');
+  };
+
+  const applyPendingReplacement = () => {
+    if (pendingReplacement === 'example') {
+      applyExample();
+    } else if (pendingReplacement === 'starter') {
+      applyStarter();
+    } else if (pendingReplacement === 'blank') {
+      applyBlank();
+    }
   };
 
   const importExisting = () => {
@@ -309,7 +333,7 @@ export function OnboardingTour({ isOpen, onClose }: OnboardingTourProps) {
                 </button>
                 <button
                   type="button"
-                  onClick={pendingReplacement === 'example' ? applyExample : applyStarter}
+                  onClick={applyPendingReplacement}
                   className="rounded-xl bg-amber-600 px-3 py-2 text-[11px] font-bold text-white hover:bg-amber-500"
                 >
                   {isEn ? 'Replace resume' : '确认替换'}
@@ -345,11 +369,27 @@ export function OnboardingTour({ isOpen, onClose }: OnboardingTourProps) {
                 className="rounded-2xl border border-slate-200 dark:border-slate-700 p-3.5 text-left transition hover:border-slate-400"
               >
                 <div className="text-xs font-black text-slate-800 dark:text-slate-200">
-                  {isEn ? 'Start with a simple resume' : '从简单简历开始'}
+                  {isEn ? 'Start with a guided structure' : '从基础结构开始'}
                 </div>
                 <div className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
-                  {isEn ? 'Keep only a few starter sections and fill them yourself.' : '保留姓名、简介、经历、教育等基础结构，由你自己填写。'}
+                  {isEn ? 'Keep a few starter sections and fill them yourself.' : '保留姓名、简介、经历、教育等基础结构，由你自己填写。'}
                 </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={startBlank}
+                className="flex items-center justify-between rounded-2xl border border-slate-200 dark:border-slate-700 p-3.5 text-left transition hover:border-slate-400"
+              >
+                <div>
+                  <div className="text-xs font-black text-slate-800 dark:text-slate-200">
+                    {isEn ? 'Start completely blank' : '从完全空白简历开始'}
+                  </div>
+                  <div className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+                    {isEn ? 'Clear all resume content and build it from scratch.' : '清空所有简历内容，从零开始填写。'}
+                  </div>
+                </div>
+                <FilePlus2 className="w-4 h-4 text-slate-400" />
               </button>
 
               <button

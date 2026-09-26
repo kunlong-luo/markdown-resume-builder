@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { SpellCheck, ClipboardCheck, X, Type, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { analyzeResume } from '../../lib/resume-checker-utils';
@@ -7,6 +7,7 @@ import { ScoreDisplay } from './ScoreDisplay';
 import { DiagnosticList } from './DiagnosticList';
 import { useResumeStore } from '../../store/useResumeStore';
 import { WEAK_WORDS_CONFIG, type WeakWordConfig } from '../../data/weak-words-config';
+import { useDialogFocus } from '../../hooks/useDialogFocus';
 
 interface ResumeCheckerProps {
   markdown?: string;
@@ -23,6 +24,8 @@ export function ResumeChecker(props: ResumeCheckerProps = {}) {
   const isOpen = props.isOpen ?? store.isCheckerOpen;
   const onClose = props.onClose ?? (() => store.setIsCheckerOpen(false));
   const lang = props.lang ?? store.settings.lang;
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useDialogFocus({ isOpen, dialogRef, onClose });
 
   const [activeTab, setActiveTab] = useState<'diagnostics' | 'verbs'>('diagnostics');
 
@@ -110,6 +113,11 @@ export function ResumeChecker(props: ResumeCheckerProps = {}) {
             className="fixed inset-0 bg-slate-950/50 backdrop-blur-[2px] z-40 sm:hidden cursor-pointer"
           />
           <motion.div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="resume-checker-title"
+            tabIndex={-1}
             initial={{ opacity: 0, x: '100%' }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: '100%' }}
@@ -120,12 +128,13 @@ export function ResumeChecker(props: ResumeCheckerProps = {}) {
           <div className="flex items-center justify-between px-5 py-4 bg-slate-50 dark:bg-slate-850 border-b border-slate-200/80 dark:border-slate-800">
             <div className="flex items-center gap-2">
               <ClipboardCheck className="w-4.5 h-4.5 text-indigo-600 dark:text-indigo-400" />
-              <h2 className="text-sm font-bold text-slate-800 dark:text-slate-100 tracking-tight">
+              <h2 id="resume-checker-title" className="text-sm font-bold text-slate-800 dark:text-slate-100 tracking-tight">
                 {isEn ? 'Resume Diagnostic' : '简历诊断'}
               </h2>
             </div>
-            <button 
+            <button
               onClick={onClose}
+              aria-label={isEn ? 'Close resume diagnostic dialog' : '关闭简历诊断弹窗'}
               className="p-1 hover:bg-slate-200/60 dark:hover:bg-slate-800 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
             >
               <X className="w-4 h-4" />

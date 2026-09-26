@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ExternalLink, FileDown, Star, X } from 'lucide-react';
 import { SUPPORT_REPO_URL } from '../../lib/support-prompt';
+import { useDialogFocus } from '../../hooks/useDialogFocus';
 
 interface SupportProjectModalProps {
   isOpen: boolean;
@@ -22,21 +23,14 @@ export function SupportProjectModal({
   const [visitedGitHub, setVisitedGitHub] = useState(false);
   const isEn = lang === 'en';
 
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useDialogFocus({ isOpen, dialogRef, onClose });
+
   useEffect(() => {
     if (!isOpen) {
       setVisitedGitHub(false);
-      return;
     }
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -49,14 +43,18 @@ export function SupportProjectModal({
   return (
     <div
       className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm animate-in fade-in duration-150"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="support-project-title"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
     >
-      <div className="relative w-full max-w-[420px] overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-2xl shadow-slate-950/20 dark:border-slate-700/80 dark:bg-slate-900 animate-in zoom-in-95 slide-in-from-bottom-2 duration-200">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="support-project-title"
+        tabIndex={-1}
+        className="relative w-full max-w-[420px] overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-2xl shadow-slate-950/20 dark:border-slate-700/80 dark:bg-slate-900 animate-in zoom-in-95 slide-in-from-bottom-2 duration-200"
+      >
         <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-indigo-50/90 to-transparent dark:from-indigo-950/30" />
 
         <button
