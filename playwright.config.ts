@@ -5,7 +5,7 @@ export default defineConfig({
   testMatch: '**/*.e2e.ts',
   fullyParallel: false,
   timeout: 20_000,
-  globalTimeout: process.env.CI ? 480_000 : 0,
+  // Chromium, Firefox, and WebKit run sequentially in CI; WebKit can push the full suite beyond 8 minutes.\n  globalTimeout: process.env.CI ? 720_000 : 0,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   workers: process.env.CI ? 1 : undefined,
