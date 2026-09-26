@@ -34,7 +34,7 @@ test.describe('international contact phone', () => {
       )
       .toContain('+44 20 7946 0958');
 
-    await page.getByRole('button', { name: /^(Check|检查)$/ }).click();
+    await page.getByRole('button', { name: /^(Resume Check|简历检查)$/ }).click();
 
     const checker = page.getByRole('dialog', {
       name: /Resume Check|简历检查/,
