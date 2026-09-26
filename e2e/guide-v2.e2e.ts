@@ -124,7 +124,7 @@ test.describe('task-oriented user guide', () => {
     await expect(
       page
         .locator('button:visible')
-        .filter({ hasText: 'ATS PDF · Recommended' })
+        .filter({ hasText: 'ATS PDF' })
         .first(),
     ).toBeVisible();
 
