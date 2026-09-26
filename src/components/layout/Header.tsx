@@ -68,9 +68,16 @@ export function Header({
 
   useEffect(() => {
     const openImport = () => setIsRawTextModalOpen(true);
+    const openResumeCheck = () => setIsCheckerOpen(true);
+
     window.addEventListener('resume-craft:open-import', openImport);
-    return () => window.removeEventListener('resume-craft:open-import', openImport);
-  }, []);
+    window.addEventListener('resume-craft:open-resume-check', openResumeCheck);
+
+    return () => {
+      window.removeEventListener('resume-craft:open-import', openImport);
+      window.removeEventListener('resume-craft:open-resume-check', openResumeCheck);
+    };
+  }, [setIsCheckerOpen]);
 
 
   const handleTriggerExport = () => {
