@@ -335,7 +335,6 @@ export function Header({
             isInstallable={isInstallable}
             onImport={() => setIsRawTextModalOpen(true)}
             onExportMarkdown={handleExportMarkdown}
-            onOpenVersions={() => setIsBackupHubOpen(true)}
             onOpenGuide={() => setIsHelpLegalOpen(true)}
             onInstall={() => {
               void handleInstallApp();
@@ -380,7 +379,7 @@ export function Header({
                 className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/70 text-slate-800 dark:text-slate-200 text-xs font-bold transition-all active:scale-95"
               >
                 <Database className="w-4 h-4 text-indigo-500" />
-                <span>{isEn ? 'Versions' : '版本管理'}</span>
+                <span>{isEn ? 'Resume management' : '简历管理'}</span>
               </button>
 
               <button
