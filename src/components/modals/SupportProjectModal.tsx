@@ -43,15 +43,15 @@ export function SupportProjectModal({
   return (
     <div
       className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm animate-in fade-in duration-150"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="support-project-title"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
     >
       <div
         ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="support-project-title"
         tabIndex={-1}
         className="relative w-full max-w-[420px] overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-2xl shadow-slate-950/20 dark:border-slate-700/80 dark:bg-slate-900 animate-in zoom-in-95 slide-in-from-bottom-2 duration-200"
       >
