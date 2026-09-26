@@ -22,6 +22,9 @@ test.describe('simplified workspace actions', () => {
     await expect(toolbar.getByRole('button', { name: 'Layout' })).toBeVisible();
     await expect(toolbar.getByRole('button', { name: 'Style' })).toBeVisible();
     await expect(toolbar.getByRole('button', { name: 'Fit 1 Page' })).toBeVisible();
+    await expect(toolbar.getByRole('button', { name: 'Edit' })).toBeVisible();
+    await expect(toolbar.getByRole('button', { name: 'Split' })).toBeVisible();
+    await expect(toolbar.getByRole('button', { name: 'Preview' })).toBeVisible();
 
     await toolbar.getByRole('button', { name: 'Layout' }).click();
 
@@ -155,5 +158,12 @@ test.describe('simplified workspace actions', () => {
     await expect(
       profilePanel.getByRole('button', { name: 'Manage resumes' }),
     ).toBeVisible();
+    await profilePanel.getByRole('button', { name: 'Manage resumes' }).click();
+
+    const management = page.getByRole('dialog', { name: 'Resume Management' });
+    await expect(management).toBeVisible();
+    await expect(management.getByRole('button', { name: 'Resumes' })).toBeVisible();
+    await expect(management.getByRole('button', { name: /Drafts \(\d+\)/ })).toBeVisible();
+    await expect(management.getByRole('button', { name: 'Backup' })).toBeVisible();
   });
 });
