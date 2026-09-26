@@ -135,7 +135,7 @@ test.describe('task-oriented user guide', () => {
       page.getByRole('dialog', { name: 'Resume Management' }),
     ).toBeVisible();
     await page
-      .getByRole('button', { name: 'Close versions and backup dialog' })
+      .getByRole('button', { name: 'Close resume management dialog' })
       .click();
 
     guide = await openGuide(page);
