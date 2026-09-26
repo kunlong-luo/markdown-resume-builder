@@ -44,11 +44,15 @@ export function useDialogFocus({
     (focusable[0] ?? dialog).focus();
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      const modalDialogs = Array.from(
-        document.querySelectorAll<HTMLElement>('[role="dialog"][aria-modal="true"]'),
-      );
-      const topmostDialog = modalDialogs[modalDialogs.length - 1];
-      if (topmostDialog && topmostDialog !== dialog) return;
+      const activeElement = document.activeElement;
+      const dialogOwnsFocus =
+        activeElement === dialog ||
+        (activeElement instanceof Node && dialog.contains(activeElement));
+
+      // Only the dialog that currently owns keyboard focus should handle
+      // Escape/Tab. This is more reliable than DOM order when animated
+      // dialogs briefly overlap during exit transitions.
+      if (!dialogOwnsFocus) return;
 
       if (event.key === 'Escape') {
         event.preventDefault();
