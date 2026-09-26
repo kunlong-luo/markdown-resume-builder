@@ -79,7 +79,7 @@ test.describe('product state flows', () => {
 
     const fastCopy = page
       .locator('button:visible')
-      .filter({ hasText: /^(Copy|复制)$/ })
+      .filter({ hasText: /^(Copy current|复制当前)$/ })
       .first();
     await fastCopy.click();
 
