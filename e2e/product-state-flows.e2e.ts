@@ -1,5 +1,11 @@
 import { expect, test } from '@playwright/test';
 
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    window.localStorage.setItem('resume-onboarding-v1-complete', '1');
+  });
+});
+
 test.describe('product state flows', () => {
   test('imports a Markdown file through the real import UI', async ({ page }) => {
     await page.goto('/');
