@@ -43,17 +43,22 @@ export function Toolbar() {
       setIsLayoutOpen(false);
       setIsStyleOpen(true);
     };
+    const showPageLines = () => {
+      updateSetting('showPageBreakLine', true);
+    };
 
     window.addEventListener('resume-craft:open-template-center', openTemplateCenter);
     window.addEventListener('resume-craft:open-layout', openLayout);
     window.addEventListener('resume-craft:open-style', openStyle);
+    window.addEventListener('resume-craft:show-page-lines', showPageLines);
 
     return () => {
       window.removeEventListener('resume-craft:open-template-center', openTemplateCenter);
       window.removeEventListener('resume-craft:open-layout', openLayout);
       window.removeEventListener('resume-craft:open-style', openStyle);
+      window.removeEventListener('resume-craft:show-page-lines', showPageLines);
     };
-  }, []);
+  }, [updateSetting]);
 
   return (
     <div id="resume-main-toolbar" className="flex items-center justify-between px-2.5 sm:px-6 py-1.5 sm:py-2 bg-white/80 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/90 relative z-20 gap-2 sm:gap-3 shadow-[0_1px_2px_rgba(15,23,42,0.02)] dark:shadow-[0_2px_8px_rgba(0,0,0,0.3)] w-full transition-colors duration-200">
