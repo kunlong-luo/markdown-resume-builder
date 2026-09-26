@@ -17,6 +17,8 @@ export function BackupDraftModal() {
     settings,
     isBackupHubOpen: isOpen,
     setIsBackupHubOpen,
+    backupHubTab: activeTab,
+    setBackupHubTab: setActiveTab,
     setMarkdown,
     setSettings,
     handleMarkdownChange
@@ -31,7 +33,6 @@ export function BackupDraftModal() {
   };
 
   const { confirm } = useConfirm();
-  const [activeTab, setActiveTab] = useState<'profiles' | 'drafts' | 'backup'>('profiles');
   const [drafts, setDrafts] = useState<ResumeDraft[]>([]);
   const [newDraftTitle, setNewDraftTitle] = useState('');
   const [editingDraftId, setEditingDraftId] = useState<string | null>(null);
@@ -282,12 +283,12 @@ export function BackupDraftModal() {
                 </div>
                 <div>
                   <h3 id="backup-hub-title" className="font-bold text-slate-900 dark:text-slate-100 text-xs sm:text-sm tracking-tight flex items-center gap-2">
-                    {settings.lang === 'en' ? 'Versions & Backup' : '版本中心'}
+                    {settings.lang === 'en' ? 'Resume Center' : '简历中心'}
                   </h3>
                   <p id="backup-hub-description" className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1 sm:line-clamp-none">
                     {settings.lang === 'en' 
-                      ? 'Manage target-job versions, local drafts, and JSON backups.'
-                      : '管理多岗位简历版本、历史草稿及数据备份。'}
+                      ? 'Manage resume versions, draft snapshots, and backup recovery.'
+                      : '管理简历版本、草稿快照与备份恢复。'}
                   </p>
                 </div>
               </div>
@@ -305,9 +306,9 @@ export function BackupDraftModal() {
               <div className="flex p-1 bg-slate-200/60 dark:bg-slate-800 rounded-xl gap-1 shrink-0">
                 {(
                   [
-                    { id: 'profiles', icon: Layers, label: settings.lang === 'en' ? 'Profiles & Job Versions' : '简历档案库' },
+                    { id: 'profiles', icon: Layers, label: settings.lang === 'en' ? 'Resume Versions' : '简历版本' },
                     { id: 'drafts', icon: History, label: settings.lang === 'en' ? `Draft Snapshots (${drafts.length})` : `历史草稿 (${drafts.length})` },
-                    { id: 'backup', icon: FileJson, label: settings.lang === 'en' ? 'JSON Backup' : '备份导出' }
+                    { id: 'backup', icon: FileJson, label: settings.lang === 'en' ? 'Backup & Restore' : '备份恢复' }
                   ] as const
                 ).map((tab) => {
                   const Icon = tab.icon;
@@ -315,7 +316,7 @@ export function BackupDraftModal() {
                   return (
                     <button
                       key={tab.id}
-                      onClick={() => setActiveTab(tab.id as any)}
+                      onClick={() => setActiveTab(tab.id)}
                       className={`relative flex items-center gap-1.5 py-1 sm:py-1.5 px-2.5 sm:px-4 text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0 whitespace-nowrap z-10 ${
                         isActive
                           ? 'text-indigo-600 dark:text-indigo-300'
@@ -400,7 +401,7 @@ export function BackupDraftModal() {
                 onClick={onClose}
                 className="px-5 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-lg transition-all cursor-pointer shadow-sm active:scale-98"
               >
-                {settings.lang === 'en' ? 'Close Hub' : '关闭 Hub'}
+                {settings.lang === 'en' ? 'Close' : '关闭'}
               </button>
             </div>
           </motion.div>
