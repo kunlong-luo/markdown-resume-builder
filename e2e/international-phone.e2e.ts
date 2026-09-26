@@ -45,6 +45,25 @@ test.describe('international contact phone', () => {
     ).toBeVisible();
   });
 
+  test('remembers the selected region before a phone number is complete', async ({
+    page,
+  }) => {
+    await page.goto('/');
+
+    const country = page.getByLabel('Country or region');
+    await country.selectOption('AU');
+    await expect(country).toHaveValue('AU');
+
+    await page.reload();
+
+    await expect(page.getByLabel('Country or region')).toHaveValue('AU');
+    await expect
+      .poll(() =>
+        page.evaluate(() => window.localStorage.getItem('resume-phone-regions') || ''),
+      )
+      .toContain('AU');
+  });
+
   test('detects the region when a full international number is pasted', async ({
     page,
   }) => {
