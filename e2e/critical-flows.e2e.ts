@@ -1,5 +1,11 @@
 import { expect, test } from '@playwright/test';
 
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    window.localStorage.setItem('resume-onboarding-v1-complete', '1');
+  });
+});
+
 test.describe('critical resume flows', () => {
   test('persists Markdown edits locally across reloads', async ({ page }) => {
     await page.goto('/');
