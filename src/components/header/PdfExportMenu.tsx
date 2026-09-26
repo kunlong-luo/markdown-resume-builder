@@ -4,7 +4,7 @@ import { ChevronDown, FileDown, Loader2, Printer } from 'lucide-react';
 interface PdfExportMenuProps {
   isEn: boolean;
   isExporting: boolean;
-  progress?: string;
+  progress?: string | null;
   onExportAts: () => void;
   onExportQuick?: () => void;
   compact?: boolean;
