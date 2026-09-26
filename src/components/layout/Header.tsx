@@ -69,15 +69,21 @@ export function Header({
   useEffect(() => {
     const openImport = () => setIsRawTextModalOpen(true);
     const openResumeCheck = () => setIsCheckerOpen(true);
+    const openBackup = () => setIsBackupHubOpen(true);
+    const openShare = () => setIsShareModalOpen(true);
 
     window.addEventListener('resume-craft:open-import', openImport);
     window.addEventListener('resume-craft:open-resume-check', openResumeCheck);
+    window.addEventListener('resume-craft:open-backup', openBackup);
+    window.addEventListener('resume-craft:open-share', openShare);
 
     return () => {
       window.removeEventListener('resume-craft:open-import', openImport);
       window.removeEventListener('resume-craft:open-resume-check', openResumeCheck);
+      window.removeEventListener('resume-craft:open-backup', openBackup);
+      window.removeEventListener('resume-craft:open-share', openShare);
     };
-  }, [setIsCheckerOpen]);
+  }, [setIsBackupHubOpen, setIsCheckerOpen]);
 
 
   const handleTriggerExport = () => {
