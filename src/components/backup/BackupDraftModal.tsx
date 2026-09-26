@@ -9,6 +9,7 @@ import { useConfirm } from '../../context/ConfirmContext';
 import { useResumeStore } from '../../store/useResumeStore';
 import { storage, STORAGE_KEYS } from '../../lib/storage';
 import { normalizeResumeBackup } from '../../lib/import-validation';
+import { useDialogFocus } from '../../hooks/useDialogFocus';
 
 export function BackupDraftModal() {
   const {
@@ -39,6 +40,8 @@ export function BackupDraftModal() {
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [importDragActive, setImportDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useDialogFocus({ isOpen, dialogRef, onClose });
 
   useEffect(() => {
     if (isOpen) {
@@ -256,6 +259,12 @@ export function BackupDraftModal() {
           />
 
           <motion.div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="backup-hub-title"
+            aria-describedby="backup-hub-description"
+            tabIndex={-1}
             initial={{ opacity: 0, scale: 0.96, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 12 }}
@@ -272,10 +281,10 @@ export function BackupDraftModal() {
                   <Database className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-900 dark:text-slate-100 text-xs sm:text-sm tracking-tight flex items-center gap-2">
+                  <h3 id="backup-hub-title" className="font-bold text-slate-900 dark:text-slate-100 text-xs sm:text-sm tracking-tight flex items-center gap-2">
                     {settings.lang === 'en' ? 'Versions & Backup' : '版本中心'}
                   </h3>
-                  <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1 sm:line-clamp-none">
+                  <p id="backup-hub-description" className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1 sm:line-clamp-none">
                     {settings.lang === 'en' 
                       ? 'Manage target-job versions, local drafts, and JSON backups.'
                       : '管理多岗位简历版本、历史草稿及数据备份。'}
@@ -284,6 +293,7 @@ export function BackupDraftModal() {
               </div>
               <button
                 onClick={onClose}
+                aria-label={settings.lang === 'en' ? 'Close versions and backup dialog' : '关闭版本中心弹窗'}
                 className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-all cursor-pointer shrink-0"
               >
                 <X className="w-4 h-4" />
@@ -335,6 +345,8 @@ export function BackupDraftModal() {
                   initial={{ opacity: 0, y: -8, scale: 0.98 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                  role={errorMessage ? 'alert' : 'status'}
+                  aria-live={errorMessage ? 'assertive' : 'polite'}
                   className={`absolute top-[125px] left-6 right-6 z-20 p-3.5 rounded-xl text-xs flex items-center gap-2.5 shadow-md border backdrop-blur-md ${
                     errorMessage 
                       ? 'bg-rose-50/95 dark:bg-rose-950/95 border-rose-100 dark:border-rose-900 text-rose-800 dark:text-rose-200' 
