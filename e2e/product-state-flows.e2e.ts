@@ -74,7 +74,7 @@ test.describe('product state flows', () => {
 
     const profileTrigger = page
       .locator('button:visible')
-      .filter({ hasText: /默认简历|Default/ })
+      .filter({ hasText: /起始简历|Starter Resume|默认简历|Default/ })
       .first();
     await expect(profileTrigger).toBeVisible();
     await profileTrigger.click();
