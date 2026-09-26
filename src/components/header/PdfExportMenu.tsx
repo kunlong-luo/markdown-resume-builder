@@ -1,5 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import { ChevronDown, FileDown, Loader2, Printer } from 'lucide-react';
+import { useResumeStore } from '../../store/useResumeStore';
 
 interface PdfExportMenuProps {
   isEn: boolean;
@@ -20,6 +21,8 @@ export function PdfExportMenu({
 }: PdfExportMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  const fileNameId = useId();
+  const { customFileName, setCustomFileName } = useResumeStore();
 
   useEffect(() => {
     if (!isOpen) return;
@@ -76,7 +79,23 @@ export function PdfExportMenu({
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full z-[100] mt-2 w-64 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-xl dark:border-slate-700 dark:bg-slate-900">
+        <div className="absolute right-0 top-full z-[100] mt-2 w-72 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-xl dark:border-slate-700 dark:bg-slate-900">
+          <div className="mb-1 rounded-xl bg-slate-50 p-2.5 dark:bg-slate-800/70">
+            <label htmlFor={fileNameId} className="block text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">
+              {isEn ? 'PDF file name' : 'PDF 文件名'}
+            </label>
+            <div className="mt-1.5 flex items-center rounded-lg border border-slate-200 bg-white px-2.5 dark:border-slate-700 dark:bg-slate-900">
+              <input
+                id={fileNameId}
+                type="text"
+                value={customFileName}
+                onChange={(event) => setCustomFileName(event.target.value)}
+                placeholder={isEn ? 'resume' : '简历'}
+                className="min-w-0 flex-1 bg-transparent py-1.5 text-xs font-medium text-slate-700 outline-none placeholder:text-slate-300 dark:text-slate-200 dark:placeholder:text-slate-600"
+              />
+              <span className="text-[10px] font-bold text-slate-400">.pdf</span>
+            </div>
+          </div>
           <button
             type="button"
             onClick={() => {
