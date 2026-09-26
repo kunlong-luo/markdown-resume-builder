@@ -29,6 +29,7 @@
     "jspdf": "^4.2.1",
     "lucide-react": "^1.47.0",
     "motion": "^13.4.0",
+    "pdfjs-dist": "^6.3.289",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-markdown": "^10.1.0",
