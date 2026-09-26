@@ -11,6 +11,27 @@ test.beforeEach(async ({ page }) => {
 });
 
 test.describe('template center', () => {
+  test('exposes one template library entry and removes the legacy template selector', async ({ page }) => {
+    await page.goto('/');
+
+    const toolbar = page.locator('#resume-main-toolbar');
+    await expect(
+      toolbar.getByRole('button', { name: /Open template library|打开模板库/ }),
+    ).toHaveCount(1);
+
+    await expect(
+      toolbar.locator(
+        'button[aria-haspopup="listbox"][title="Custom / Starter"]',
+      ),
+    ).toHaveCount(0);
+
+    await expect(
+      toolbar.locator(
+        'button[aria-haspopup="listbox"][title="AI Backend Developer"]',
+      ),
+    ).toHaveCount(0);
+  });
+
   test('previews a template without changing the active resume', async ({ page }) => {
     await page.goto('/');
 
