@@ -139,7 +139,7 @@ export function TemplateCenterModal({ isOpen, onClose }: TemplateCenterModalProp
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[140] flex items-center justify-center p-3 sm:p-5">
+    <div className="fixed inset-0 z-[90] flex items-center justify-center p-3 sm:p-5">
       <button
         type="button"
         className="absolute inset-0 cursor-default bg-slate-950/65 backdrop-blur-sm"
