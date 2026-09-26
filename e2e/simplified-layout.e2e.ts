@@ -139,9 +139,21 @@ test.describe('simplified workspace actions', () => {
     ).toBeVisible();
     await expect(
       page.getByRole('button', { name: 'Versions & backup' }),
-    ).toBeVisible();
+    ).toHaveCount(0);
     await expect(
       page.getByRole('button', { name: 'Guide & privacy' }),
+    ).toBeVisible();
+
+    await page.keyboard.press('Escape');
+
+    const profileTrigger = page
+      .locator('button[aria-controls="resume-profile-panel"]:visible')
+      .first();
+    await profileTrigger.click();
+
+    const profilePanel = page.locator('#resume-profile-panel');
+    await expect(
+      profilePanel.getByRole('button', { name: 'Manage resumes' }),
     ).toBeVisible();
   });
 });
