@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Check,
@@ -17,7 +17,6 @@ import {
   SHARE_PASSWORD_MIN_LENGTH,
 } from '../../lib/share-utils';
 import { trackAnalyticsEvent } from '../../lib/analytics';
-import { useDialogFocus } from '../../hooks/useDialogFocus';
 
 interface ShareResumeModalProps {
   isOpen: boolean;
@@ -128,11 +127,60 @@ export function ShareResumeModal({ isOpen, onClose }: ShareResumeModalProps) {
     onClose();
   };
 
-  useDialogFocus({
-    isOpen,
-    dialogRef,
-    onClose: closeAndResetTransientState,
-  });
+  const closeRef = useRef(closeAndResetTransientState);
+  closeRef.current = closeAndResetTransientState;
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const dialog = dialogRef.current;
+    const focusableSelector =
+      'button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+    dialog?.querySelector<HTMLElement>(focusableSelector)?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeRef.current();
+        return;
+      }
+
+      if (event.key !== 'Tab' || !dialog) return;
+
+      const focusable = Array.from(
+        dialog.querySelectorAll<HTMLElement>(focusableSelector),
+      ).filter(
+        (element) =>
+          !element.hasAttribute('hidden') &&
+          element.getAttribute('aria-hidden') !== 'true',
+      );
+
+      if (focusable.length === 0) {
+        event.preventDefault();
+        dialog.focus();
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      if (previouslyFocused?.isConnected) previouslyFocused.focus();
+    };
+  }, [isOpen]);
 
   if (!isOpen || typeof document === 'undefined') return null;
 
