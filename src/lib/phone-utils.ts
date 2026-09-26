@@ -235,14 +235,23 @@ export function findPhoneCandidate(text: string): PhoneAnalysis | null {
     [];
 
   for (const candidate of candidates) {
-    const international = analyzePhoneNumber(candidate);
-    if (international.isValid || international.isPossible) {
-      return international;
+    if (candidate.trim().startsWith('+')) {
+      const international = analyzePhoneNumber(candidate);
+      if (international.isValid || international.isPossible) {
+        return international;
+      }
+      continue;
     }
 
-    for (const fallbackCountry of ['CN', 'US', 'GB', 'AU', 'SG'] as CountryCode[]) {
-      const fallback = analyzePhoneNumber(candidate, fallbackCountry);
-      if (fallback.isValid) return fallback;
+    const digits = candidate.replace(/\D/g, '');
+    if (digits.length >= 7 && digits.length <= 15) {
+      return {
+        raw: candidate.trim(),
+        display: candidate.trim(),
+        isValid: false,
+        isPossible: true,
+        isInternational: false,
+      };
     }
   }
 
