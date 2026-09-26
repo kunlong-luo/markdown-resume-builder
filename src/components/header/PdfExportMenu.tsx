@@ -53,9 +53,11 @@ export function PdfExportMenu({
         <span>
           {isExporting
             ? progress || (isEn ? 'Exporting…' : '生成中…')
-            : isEn
-              ? 'Download PDF'
-              : '下载 PDF'}
+            : compact
+              ? 'PDF'
+              : isEn
+                ? 'Download PDF'
+                : '下载 PDF'}
         </span>
       </button>
 
@@ -64,6 +66,7 @@ export function PdfExportMenu({
         onClick={() => setIsOpen((value) => !value)}
         disabled={isExporting}
         aria-label={isEn ? 'Choose PDF export mode' : '选择 PDF 下载方式'}
+        aria-haspopup="menu"
         aria-expanded={isOpen}
         className="flex items-center justify-center rounded-r-xl border-l border-white/20 bg-blue-600 px-2 text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-75"
       >
@@ -71,7 +74,7 @@ export function PdfExportMenu({
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full z-[100] mt-2 w-64 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-xl dark:border-slate-700 dark:bg-slate-900">
+        <div role="menu" className="absolute right-0 top-full z-[100] mt-2 w-64 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-xl dark:border-slate-700 dark:bg-slate-900">
           <button
             type="button"
             onClick={() => {
