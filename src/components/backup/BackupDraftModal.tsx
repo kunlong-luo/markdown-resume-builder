@@ -282,18 +282,18 @@ export function BackupDraftModal() {
                 </div>
                 <div>
                   <h3 id="backup-hub-title" className="font-bold text-slate-900 dark:text-slate-100 text-xs sm:text-sm tracking-tight flex items-center gap-2">
-                    {settings.lang === 'en' ? 'Versions & Backup' : '版本中心'}
+                    {settings.lang === 'en' ? 'Resume Management' : '简历管理'}
                   </h3>
                   <p id="backup-hub-description" className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1 sm:line-clamp-none">
                     {settings.lang === 'en' 
-                      ? 'Manage target-job versions, local drafts, and JSON backups.'
-                      : '管理多岗位简历版本、历史草稿及数据备份。'}
+                      ? 'Manage resumes, drafts, and backups.'
+                      : '管理简历、草稿和备份。'}
                   </p>
                 </div>
               </div>
               <button
                 onClick={onClose}
-                aria-label={settings.lang === 'en' ? 'Close versions and backup dialog' : '关闭版本中心弹窗'}
+                aria-label={settings.lang === 'en' ? 'Close resume management dialog' : '关闭简历管理弹窗'}
                 className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-all cursor-pointer shrink-0"
               >
                 <X className="w-4 h-4" />
@@ -305,9 +305,9 @@ export function BackupDraftModal() {
               <div className="flex p-1 bg-slate-200/60 dark:bg-slate-800 rounded-xl gap-1 shrink-0">
                 {(
                   [
-                    { id: 'profiles', icon: Layers, label: settings.lang === 'en' ? 'Profiles & Job Versions' : '简历档案库' },
-                    { id: 'drafts', icon: History, label: settings.lang === 'en' ? `Draft Snapshots (${drafts.length})` : `历史草稿 (${drafts.length})` },
-                    { id: 'backup', icon: FileJson, label: settings.lang === 'en' ? 'JSON Backup' : '备份导出' }
+                    { id: 'profiles', icon: Layers, label: settings.lang === 'en' ? 'Resumes' : '简历' },
+                    { id: 'drafts', icon: History, label: settings.lang === 'en' ? `Drafts (${drafts.length})` : `草稿 (${drafts.length})` },
+                    { id: 'backup', icon: FileJson, label: settings.lang === 'en' ? 'Backup' : '备份' }
                   ] as const
                 ).map((tab) => {
                   const Icon = tab.icon;

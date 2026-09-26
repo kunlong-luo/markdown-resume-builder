@@ -22,6 +22,9 @@ test.describe('simplified workspace actions', () => {
     await expect(toolbar.getByRole('button', { name: 'Layout' })).toBeVisible();
     await expect(toolbar.getByRole('button', { name: 'Style' })).toBeVisible();
     await expect(toolbar.getByRole('button', { name: 'Fit 1 Page' })).toBeVisible();
+    await expect(toolbar.getByRole('button', { name: 'Edit' })).toBeVisible();
+    await expect(toolbar.getByRole('button', { name: 'Split' })).toBeVisible();
+    await expect(toolbar.getByRole('button', { name: 'Preview' })).toBeVisible();
 
     await toolbar.getByRole('button', { name: 'Layout' }).click();
 
@@ -139,9 +142,28 @@ test.describe('simplified workspace actions', () => {
     ).toBeVisible();
     await expect(
       page.getByRole('button', { name: 'Versions & backup' }),
-    ).toBeVisible();
+    ).toHaveCount(0);
     await expect(
       page.getByRole('button', { name: 'Guide & privacy' }),
     ).toBeVisible();
+
+    await page.keyboard.press('Escape');
+
+    const profileTrigger = page
+      .locator('button[aria-controls="resume-profile-panel"]:visible')
+      .first();
+    await profileTrigger.click();
+
+    const profilePanel = page.locator('#resume-profile-panel');
+    await expect(
+      profilePanel.getByRole('button', { name: 'Manage resumes' }),
+    ).toBeVisible();
+    await profilePanel.getByRole('button', { name: 'Manage resumes' }).click();
+
+    const management = page.getByRole('dialog', { name: 'Resume Management' });
+    await expect(management).toBeVisible();
+    await expect(management.getByRole('button', { name: 'Resumes' })).toBeVisible();
+    await expect(management.getByRole('button', { name: /Drafts \(\d+\)/ })).toBeVisible();
+    await expect(management.getByRole('button', { name: 'Backup' })).toBeVisible();
   });
 });

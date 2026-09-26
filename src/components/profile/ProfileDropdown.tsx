@@ -170,7 +170,7 @@ export function ProfileDropdown({ lang, isCompact }: ProfileDropdownProps) {
                 }}
                 className="text-[11px] font-bold text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center gap-0.5 transition-colors cursor-pointer"
               >
-                <span>{isEn ? 'Manage all' : '管理全部'}</span>
+                <span>{isEn ? 'Manage resumes' : '管理简历'}</span>
                 <ExternalLink className="w-2.5 h-2.5" />
               </button>
             </div>
