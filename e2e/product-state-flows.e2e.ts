@@ -55,6 +55,7 @@ test.describe('product state flows', () => {
     await themeButton.click();
 
     await expect(page.locator('html')).toHaveClass(/dark/);
+    await expect(page.locator('html')).not.toHaveClass(/view-transition-active/);
     await expect
       .poll(() =>
         page.evaluate(() => window.localStorage.getItem('resume_theme_mode')),
@@ -63,6 +64,7 @@ test.describe('product state flows', () => {
 
     await page.reload();
     await expect(page.locator('html')).toHaveClass(/dark/);
+    await expect(page.locator('html')).not.toHaveClass(/view-transition-active/);
   });
 
   test('duplicates and renames a resume profile and restores it after reload', async ({
