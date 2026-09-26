@@ -8,6 +8,38 @@ test.beforeEach(async ({ page }) => {
       JSON.stringify({ lang: 'en' }),
     );
   });
+
+  test('separates resume version switching from backup and restore', async ({ page }) => {
+    await page.goto('/');
+
+    const versionTrigger = page
+      .locator('#resume-profile-panel')
+      .locator('..')
+      .getByRole('button')
+      .first();
+
+    // The top-left control remains a quick resume-version switcher.
+    await versionTrigger.click();
+    const versionPanel = page.locator('#resume-profile-panel');
+    await expect(versionPanel.getByText('Resume Versions', { exact: true })).toBeVisible();
+    await expect(versionPanel.getByRole('button', { name: 'Manage versions' })).toBeVisible();
+    await expect(versionPanel.getByText(/Fast load from benchmark templates/i)).toHaveCount(0);
+
+    await page.keyboard.press('Escape').catch(() => {});
+    if (await versionPanel.isVisible()) {
+      await versionTrigger.click();
+    }
+
+    // Backup is a separate task and opens directly on draft snapshots.
+    await page.getByRole('button', { name: 'More actions' }).click();
+    await page.getByRole('button', { name: 'Backup & restore' }).click();
+
+    const resumeCenter = page.getByRole('dialog', { name: 'Resume Center' });
+    await expect(resumeCenter).toBeVisible();
+    await expect(
+      resumeCenter.getByRole('button', { name: /Draft Snapshots/ }),
+    ).toHaveAttribute('class', /text-indigo/);
+  });
 });
 
 test.describe('simplified workspace actions', () => {
@@ -138,7 +170,7 @@ test.describe('simplified workspace actions', () => {
       page.getByRole('button', { name: 'Export Markdown' }),
     ).toBeVisible();
     await expect(
-      page.getByRole('button', { name: 'Versions & backup' }),
+      page.getByRole('button', { name: 'Backup & restore' }),
     ).toBeVisible();
     await expect(
       page.getByRole('button', { name: 'Guide & privacy' }),
