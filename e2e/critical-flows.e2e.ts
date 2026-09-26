@@ -78,10 +78,9 @@ test.describe('critical resume flows', () => {
       });
     });
 
-    const atsButton = page
-      .locator('button:visible')
-      .filter({ hasText: 'ATS PDF' })
-      .first();
+    const atsButton = page.getByRole('button', {
+      name: /Download PDF|下载 PDF/,
+    }).first();
 
     await expect(atsButton).toBeVisible();
     await atsButton.click();
