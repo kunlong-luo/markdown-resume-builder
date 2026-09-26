@@ -132,14 +132,14 @@ export function formatPhoneNumber(val: string): string {
   if (!val) return '';
 
   const trimmed = val.trim();
-  const digitsOnly = trimmed.replace(/\D/g, '');
 
-  // Preserve the legacy convenience for mainland-China mobile numbers.
-  if (!trimmed.startsWith('+') && /^1[3-9]\d{9}$/.test(digitsOnly)) {
-    return normalizePhoneForResume(trimmed, 'CN');
+  // Only normalize when the number is already explicitly international.
+  // Local numbers are preserved until the user selects a country/region.
+  if (trimmed.startsWith('+')) {
+    return normalizePhoneForResume(trimmed);
   }
 
-  return normalizePhoneForResume(trimmed);
+  return trimmed;
 }
 
 export function parseContactString(contactStr: string) {
