@@ -13,8 +13,9 @@ describe('international phone utilities', () => {
     );
   });
 
-  it('normalizes Hong Kong and Taiwan numbers', () => {
+  it('normalizes Hong Kong, Macao, and Taiwan numbers', () => {
     expect(normalizePhoneForResume('91234567', 'HK')).toBe('+852 9123 4567');
+    expect(normalizePhoneForResume('66123456', 'MO')).toBe('+853 6612 3456');
     expect(normalizePhoneForResume('0912 345 678', 'TW')).toBe(
       '+886 912 345 678',
     );
@@ -23,6 +24,9 @@ describe('international phone utilities', () => {
   it('normalizes North American, UK, and Australian numbers', () => {
     expect(normalizePhoneForResume('4155550123', 'US')).toBe(
       '+1 415 555 0123',
+    );
+    expect(normalizePhoneForResume('4165550123', 'CA')).toBe(
+      '+1 416 555 0123',
     );
     expect(normalizePhoneForResume('020 7946 0958', 'GB')).toBe(
       '+44 20 7946 0958',
