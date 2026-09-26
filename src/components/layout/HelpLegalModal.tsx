@@ -12,7 +12,6 @@ import {
   Shield,
   Code,
   LayoutGrid,
-  Upload,
   ListChecks,
   SlidersHorizontal,
   Palette,
@@ -62,14 +61,8 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
         ? 'Start from a content template, import an existing resume, use the guided structure, or begin blank. Content templates replace resume content, so choose them before heavy editing.'
         : '可以从内容模板、导入已有简历、基础结构或完全空白开始。内容模板会替换简历内容，建议在大量编辑前先选好起点。',
       actions: [
-        {
-          label: isEn ? 'Open template library' : '打开模板库',
-          event: 'resume-craft:open-template-center',
-        },
-        {
-          label: isEn ? 'Import resume' : '导入简历',
-          event: 'resume-craft:open-import',
-        },
+        { label: isEn ? 'Open template library' : '打开模板库', event: 'resume-craft:open-template-center' },
+        { label: isEn ? 'Import resume' : '导入简历', event: 'resume-craft:open-import' },
       ],
     },
     {
@@ -98,10 +91,7 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
         ? 'When the content is mostly complete, check contact details, structure, wording, ATS readability, JD keywords, and formatting issues.'
         : '内容基本完成后，再检查联系方式、结构、表达、ATS 可读性、JD 关键词和格式问题。',
       actions: [
-        {
-          label: isEn ? 'Open Resume Check' : '打开简历检查',
-          event: 'resume-craft:open-resume-check',
-        },
+        { label: isEn ? 'Open Resume Check' : '打开简历检查', event: 'resume-craft:open-resume-check' },
       ],
     },
     {
@@ -112,10 +102,7 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
         ? 'Use Layout for columns, fonts, size, margins, and spacing. Avoid shrinking text too aggressively just to force everything onto one page.'
         : '在“排版”中调整单双栏、字体、字号、边距和间距。不要为了强行一页而把文字压得过小。',
       actions: [
-        {
-          label: isEn ? 'Open Layout' : '打开排版',
-          event: 'resume-craft:open-layout',
-        },
+        { label: isEn ? 'Open Layout' : '打开排版', event: 'resume-craft:open-layout' },
       ],
     },
     {
@@ -126,10 +113,7 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
         ? 'Use Style for accent colors, section headings, and decoration. Visual styling should improve hierarchy and readability, not compete with the content.'
         : '在“样式”中调整强调色、章节标题和装饰。视觉样式应该服务阅读层级，而不是抢内容的注意力。',
       actions: [
-        {
-          label: isEn ? 'Open Style' : '打开样式',
-          event: 'resume-craft:open-style',
-        },
+        { label: isEn ? 'Open Style' : '打开样式', event: 'resume-craft:open-style' },
       ],
     },
     {
@@ -208,6 +192,57 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
             <span>{isEn ? 'User Guide' : '使用指南'}</span>
             {activeTab === 'guide' && (
               <motion.div
+                layoutId="helpLegalActiveTab"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full"
+                transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+              />
+            )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab('privacy')}
+            className={`relative flex items-center gap-2 px-3.5 py-3 text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+              activeTab === 'privacy'
+                ? 'text-indigo-600 dark:text-indigo-400'
+                : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
+            }`}
+          >
+            <ShieldCheck className="w-4 h-4" />
+            <span>{isEn ? 'Privacy' : '隐私承诺'}</span>
+            {activeTab === 'privacy' && (
+              <motion.div
+                layoutId="helpLegalActiveTab"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full"
+                transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+              />
+            )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab('license')}
+            className={`relative flex items-center gap-2 px-3.5 py-3 text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+              activeTab === 'license'
+                ? 'text-indigo-600 dark:text-indigo-400'
+                : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
+            }`}
+          >
+            <Code className="w-4 h-4" />
+            <span>{isEn ? 'Open Source' : '开源协议与版权'}</span>
+            {activeTab === 'license' && (
+              <motion.div
+                layoutId="helpLegalActiveTab"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full"
+                transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+              />
+            )}
+          </button>
+        </div>
+
+        {/* Modal Body Content */}
+        <div className="p-5 sm:p-6 overflow-y-auto max-h-[60vh] text-xs leading-relaxed scrollbar-thin">
+          <AnimatePresence mode="wait" initial={false}>
+            {activeTab === 'guide' && (
+              <motion.div
                 key="help-tab-guide"
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -222,9 +257,7 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
                         {isEn ? 'Recommended workflow' : '推荐使用流程'}
                       </div>
                       <h3 className="mt-1 text-sm font-black text-slate-900 dark:text-slate-100">
-                        {isEn
-                          ? 'Build the resume in the right order'
-                          : '按正确顺序完成一份可投递简历'}
+                        {isEn ? 'Build the resume in the right order' : '按正确顺序完成一份可投递简历'}
                       </h3>
                       <p className="mt-1.5 max-w-xl text-[11px] leading-relaxed text-slate-600 dark:text-slate-300">
                         {isEn
@@ -260,7 +293,6 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
                             <p className="mt-1 text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">
                               {step.description}
                             </p>
-
                             {step.actions.length > 0 && (
                               <div className="mt-2.5 flex flex-wrap gap-2">
                                 {step.actions.map((action) => (
@@ -327,144 +359,6 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
                 </button>
               </motion.div>
             )}
-
-          {activeTab === 'privacy' && (
-              <motion.div
-                layoutId="helpLegalActiveTab"
-                className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full"
-                transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-              />
-            )}
-          </button>
-
-          <button
-            onClick={() => setActiveTab('license')}
-            className={`relative flex items-center gap-2 px-3.5 py-3 text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'license'
-                ? 'text-indigo-600 dark:text-indigo-400'
-                : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
-            }`}
-          >
-            <Code className="w-4 h-4" />
-            <span>{isEn ? 'Open Source' : '开源协议与版权'}</span>
-            {activeTab === 'license' && (
-              <motion.div
-                layoutId="helpLegalActiveTab"
-                className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full"
-                transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-              />
-            )}
-          </button>
-        </div>
-
-        {/* Modal Body Content */}
-        <div className="p-5 sm:p-6 overflow-y-auto max-h-[60vh] text-xs leading-relaxed scrollbar-thin">
-          <AnimatePresence mode="wait" initial={false}>
-            {activeTab === 'guide' && (
-              <motion.div
-                key="help-tab-guide"
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
-                className="space-y-4"
-              >
-              <div className="p-3.5 bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-800/60 rounded-xl space-y-1">
-                <h3 className="font-bold text-indigo-900 dark:text-indigo-300 flex items-center gap-1.5 text-xs">
-                  <Lightbulb className="w-4 h-4 text-amber-500 dark:text-amber-400 shrink-0" />
-                  {isEn ? 'Core Features Overview' : '快速上手指南与高效技巧'}
-                </h3>
-                <p className="text-slate-600 dark:text-slate-300">
-                  {isEn
-                    ? 'Resume Craft combines visual form editing with Markdown in an A4-focused preview, PDF, and print workflow.'
-                    : 'Resume Craft (简匠) 支持可视表单（Form Mode）与原生 Markdown 模式无缝双向同步，专为 A4 标准简历排版设计。'}
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  window.dispatchEvent(new CustomEvent('resume-craft:start-onboarding'));
-                }}
-                className="w-full flex items-center justify-between gap-3 rounded-xl border border-indigo-200 dark:border-indigo-800 bg-indigo-50/60 dark:bg-indigo-950/40 px-3.5 py-3 text-left hover:border-indigo-400 transition-colors"
-              >
-                <div>
-                  <div className="text-xs font-bold text-indigo-800 dark:text-indigo-300">
-                    {isEn ? 'Run the getting-started tour again' : '重新查看新手引导'}
-                  </div>
-                  <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                    {isEn
-                      ? 'Review the editor, toolbar, and starting options at any time.'
-                      : '随时重新查看编辑区、工具栏和开始方式的三步指引。'}
-                  </div>
-                </div>
-                <Wand2 className="w-4 h-4 text-indigo-500 shrink-0" />
-              </button>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 rounded-xl space-y-1.5">
-                  <div className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                    <FileText className="w-3.5 h-3.5 text-indigo-500" />
-                    <span>{isEn ? 'Page Break' : '手动精确分页'}</span>
-                  </div>
-                  <p className="text-slate-500 dark:text-slate-400">
-                    {isEn
-                      ? 'Click the Scissors icon in the editor toolbar to insert a clean A4 page break.'
-                      : '在编辑器工具栏点击「剪刀」图标插入分页符，即可精确定位 A4 强制换页位置。'}
-                  </p>
-                </div>
-
-                <div className="p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 rounded-xl space-y-1.5">
-                  <div className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                    <Zap className="w-3.5 h-3.5 text-amber-500" />
-                    <span>{isEn ? 'A4 Height Guard' : '页高预警与一键调整'}</span>
-                  </div>
-                  <p className="text-slate-500 dark:text-slate-400">
-                    {isEn
-                      ? 'The bottom warning bar detects page overflows automatically. Click "Auto Fit" to optimize line spacing.'
-                      : '底部 Heights Guard 自动侦测 A4 溢出行数。点击「一键适纸」即可自动平滑微调行距与边距。'}
-                  </p>
-                </div>
-
-                <div className="p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 rounded-xl space-y-1.5">
-                  <div className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                    <span>{isEn ? 'ATS Keyword Matcher' : 'ATS 关键字与智能诊断'}</span>
-                  </div>
-                  <p className="text-slate-500 dark:text-slate-400">
-                    {isEn
-                      ? 'Paste target Job Descriptions to analyze match percentage and diagnose ATS parsing issues.'
-                      : '点击「智能诊断」粘贴目标岗位 JD，算法将自动对比匹配度、扫描联系方式及排版规范缺陷。'}
-                  </p>
-                </div>
-
-                <div className="p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 rounded-xl space-y-1.5">
-                  <div className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                    <Wand2 className="w-3.5 h-3.5 text-indigo-500" />
-                    <span>{isEn ? 'Local PDF & Text Import' : 'PDF / 文本本地导入'}</span>
-                  </div>
-                  <p className="text-slate-500 dark:text-slate-400">
-                    {isEn
-                      ? 'Click "Import" to extract text from a text-based PDF locally, upload Markdown/text/JSON, or paste raw resume text. PDF readability feedback is a text-extraction proxy, not an ATS guarantee.'
-                      : '点击顶部「导入」，可在浏览器本地提取带文本层 PDF 的内容，也可上传 Markdown / 文本 / JSON 或粘贴旧简历文本。PDF 可读性提示只反映文本提取效果，不代表 ATS 通过保证。'}
-                  </p>
-                </div>
-
-                <div className="p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 rounded-xl space-y-1.5">
-                  <div className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                    <Laptop className="w-3.5 h-3.5 text-blue-500" />
-                    <span>{isEn ? 'PDF Export & Print' : 'PDF 下载与打印'}</span>
-                  </div>
-                  <p className="text-slate-500 dark:text-slate-400">
-                    {isEn
-                      ? 'Use ATS PDF (recommended) to open the browser print / Save as PDF workflow and preserve searchable text where supported. Quick PDF is image-based and intended for visual sharing or fallback use.'
-                      : '优先使用顶部「ATS PDF」进入浏览器打印 / 另存为 PDF 流程，在浏览器支持时可保留可搜索文本；「快速 PDF」为图片型文件，更适合视觉分享或备用导出。'}
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          )}
 
           {activeTab === 'privacy' && (
             <motion.div
