@@ -91,7 +91,7 @@ export function CustomConfirmModal({
               </div>
               <button
                 onClick={onClose}
-                aria-label="Close confirmation dialog"
+                aria-label={cancelText}
                 className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
