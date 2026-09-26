@@ -26,7 +26,7 @@ test.describe('task-oriented user guide', () => {
     await page.goto('/');
     const guide = await openGuide(page);
 
-    await expect(guide.getByText('Recommended workflow')).toBeVisible();
+    await expect(guide.getByText('Recommended workflow', { exact: true })).toBeVisible();
     await expect(
       guide.getByText('Build the resume in the right order'),
     ).toBeVisible();
