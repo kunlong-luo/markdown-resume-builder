@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Check,
   Clipboard,
@@ -165,12 +166,15 @@ export function ShareResumeModal({ isOpen, onClose }: ShareResumeModalProps) {
   };
 
   const closeAndResetTransientState = () => {
+    setMode('encrypted');
+    setPassword('');
+    setShareUrl('');
     setError('');
     setCopied(false);
     onClose();
   };
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-[100] bg-slate-950/55 backdrop-blur-sm p-4 flex items-center justify-center"
       role="dialog"
@@ -200,8 +204,8 @@ export function ShareResumeModal({ isOpen, onClose }: ShareResumeModalProps) {
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
               {isEn
-                ? 'Generate a public link or an AES-256-GCM encrypted link. Resume data stays in the URL fragment.'
-                : '生成公开链接或 AES-256-GCM 加密链接。简历数据保留在 URL fragment 中。'}
+                ? 'Create a link to share your current resume. Add a password when you need extra privacy.'
+                : '生成当前简历的分享链接；需要更多隐私时可设置密码。'}
             </p>
           </div>
           <button
@@ -226,7 +230,7 @@ export function ShareResumeModal({ isOpen, onClose }: ShareResumeModalProps) {
               }`}
             >
               <LockKeyhole className="w-3.5 h-3.5" />
-              {isEn ? 'Encrypted' : '加密链接'}
+              {isEn ? 'Protected' : '加密'}
             </button>
             <button
               type="button"
@@ -239,7 +243,7 @@ export function ShareResumeModal({ isOpen, onClose }: ShareResumeModalProps) {
               }`}
             >
               <Unlock className="w-3.5 h-3.5" />
-              {isEn ? 'Public' : '公开链接'}
+              {isEn ? 'Public' : '公开'}
             </button>
           </div>
 
@@ -306,8 +310,8 @@ export function ShareResumeModal({ isOpen, onClose }: ShareResumeModalProps) {
               <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" />
               <span>
                 {isEn
-                  ? 'Do not send the password together with the encrypted link. Use a separate channel when possible.'
-                  : '请不要把密码和加密链接放在同一条消息里发送；尽量使用不同渠道传递密码。'}
+                  ? 'Send the password separately from the link.'
+                  : '密码请和链接分开发送。'}
               </span>
             </div>
           )}
@@ -327,11 +331,6 @@ export function ShareResumeModal({ isOpen, onClose }: ShareResumeModalProps) {
                 rows={3}
                 className="w-full resize-none rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-3 py-2 text-[11px] font-mono text-slate-600 dark:text-slate-300"
               />
-              <div className="text-[10px] text-slate-400">
-                {isEn
-                  ? `Link length: ${shareUrl.length.toLocaleString()} characters`
-                  : `链接长度：${shareUrl.length.toLocaleString()} 个字符`}
-              </div>
             </div>
           )}
 
@@ -378,6 +377,7 @@ export function ShareResumeModal({ isOpen, onClose }: ShareResumeModalProps) {
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
