@@ -25,6 +25,14 @@ export function PdfExportMenu({
   const { customFileName, setCustomFileName } = useResumeStore();
 
   useEffect(() => {
+    const openPdfMenu = () => setIsOpen(true);
+    window.addEventListener('resume-craft:open-pdf-menu', openPdfMenu);
+    return () => {
+      window.removeEventListener('resume-craft:open-pdf-menu', openPdfMenu);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!isOpen) return;
     const onPointerDown = (event: MouseEvent) => {
       if (!rootRef.current?.contains(event.target as Node)) setIsOpen(false);
