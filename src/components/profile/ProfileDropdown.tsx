@@ -220,7 +220,7 @@ export function ProfileDropdown({ lang, isCompact }: ProfileDropdownProps) {
                         if (e.key === 'Escape') setEditingId(null);
                       }}
                       onBlur={() => handleSaveEdit(p.id)}
-                      placeholder={isEn ? 'Profile name' : '输入档案名称（回车保存）'}
+                      placeholder={isEn ? 'Version name' : '输入版本名称（回车保存）'}
                       className="w-full text-xs font-bold px-2 py-1 bg-white dark:bg-slate-800 border border-indigo-300 dark:border-indigo-700 rounded-lg text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                     />
                     <div className="text-[10px] text-slate-400 px-1 pt-1 flex justify-between">
@@ -306,7 +306,7 @@ export function ProfileDropdown({ lang, isCompact }: ProfileDropdownProps) {
                       </div>
                     ) : (
                       <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Tooltip content={isEn ? 'Duplicate' : '复制档案'} side="top">
+                        <Tooltip content={isEn ? 'Duplicate' : '复制版本'} side="top">
                           <button
                             type="button"
                             onClick={(e) => {
@@ -334,7 +334,7 @@ export function ProfileDropdown({ lang, isCompact }: ProfileDropdownProps) {
                         </Tooltip>
 
                         {profiles.length > 1 && (
-                          <Tooltip content={isEn ? 'Delete' : '删除档案'} side="top">
+                          <Tooltip content={isEn ? 'Delete' : '删除版本'} side="top">
                             <button
                               type="button"
                               onClick={(e) => {
