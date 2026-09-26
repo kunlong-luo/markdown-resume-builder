@@ -1,4 +1,5 @@
 import { FormItem, FormSection, ResumeFormModel } from './form-types';
+import { findPhoneCandidate, normalizePhoneForResume } from './phone-utils';
 
 export function isTimeString(s: string): boolean {
   const clean = s.replace(/[*_]/g, '').trim();
@@ -129,36 +130,13 @@ export function splitItemTitle(titleStr: string): { org: string; role: string; t
 
 export function formatPhoneNumber(val: string): string {
   if (!val) return '';
+
   const trimmed = val.trim();
-  
-  // Strip non-digits
-  const digitsOnly = trimmed.replace(/\D/g, '');
 
-  // Case 1: Chinese 11-digit mobile: 1[3-9]\d{9} without country code
-  if (digitsOnly.length === 11 && /^1[3-9]\d{9}$/.test(digitsOnly) && !trimmed.startsWith('+')) {
-    return `${digitsOnly.slice(0, 3)} ${digitsOnly.slice(3, 7)} ${digitsOnly.slice(7)}`;
-  }
-
-  // Case 2: With +86 prefix
-  if (trimmed.startsWith('+86') || trimmed.startsWith('86-') || trimmed.startsWith('86 ')) {
-    const after86 = digitsOnly.startsWith('86') ? digitsOnly.slice(2) : digitsOnly;
-    if (after86.length === 11 && /^1[3-9]\d{9}$/.test(after86)) {
-      return `+86 ${after86.slice(0, 3)} ${after86.slice(3, 7)} ${after86.slice(7)}`;
-    }
-  }
-
-  // Case 3: Landline with area code e.g. 01088888888 or 057188888888
-  if (/^0\d{10,11}$/.test(digitsOnly)) {
-    if (digitsOnly.startsWith('01') || digitsOnly.startsWith('02')) {
-      return `${digitsOnly.slice(0, 3)}-${digitsOnly.slice(3)}`;
-    } else {
-      return `${digitsOnly.slice(0, 4)}-${digitsOnly.slice(4)}`;
-    }
-  }
-
-  // Case 4: US/International 10-digit number e.g. 2125551234
-  if (digitsOnly.length === 10 && !trimmed.startsWith('+') && !digitsOnly.startsWith('1') && !digitsOnly.startsWith('0')) {
-    return `(${digitsOnly.slice(0, 3)}) ${digitsOnly.slice(3, 6)}-${digitsOnly.slice(6)}`;
+  // Only normalize when the number is already explicitly international.
+  // Local numbers are preserved until the user selects a country/region.
+  if (trimmed.startsWith('+')) {
+    return normalizePhoneForResume(trimmed);
   }
 
   return trimmed;
@@ -179,19 +157,20 @@ export function parseContactString(contactStr: string) {
     remaining = remaining.replace(emailRegex, '').trim();
   }
 
-  // 2. Extract phone with prefixes if present
-  const phonePrefixRegex = /(?:电话|手机|手机号|手机号码|电话号码|联系方式|联系电话|Tel|Mobile|Phone|Contact)[:：\s-]*((?:\+?\d{1,4}[\s-]?)?(?:\(?\d{2,4}\)?[\s-]?)?\d{3,4}[\s-]?\d{4}|\d{7,15})/i;
+  // 2. Extract a labeled phone first, then fall back to a generic
+  // international/local candidate. Formatting is delegated to phone-utils.
+  const phonePrefixRegex =
+    /(?:电话|手机|手机号|手机号码|电话号码|联系方式|联系电话|Tel|Mobile|Phone|Contact)[:：\s-]*([+\d][+\d\s().-]{6,26}\d)/i;
   const phonePrefixMatch = remaining.match(phonePrefixRegex);
+
   if (phonePrefixMatch) {
     phone = formatPhoneNumber(phonePrefixMatch[1].trim());
     remaining = remaining.replace(phonePrefixRegex, '').trim();
   } else {
-    // Extract Chinese mobile, landline, or international alone without prefixes
-    const phoneAloneRegex = /(?:\+?86[\s-]?)?1[3-9]\d(?:\s*-?\s*\d){8}|(?:0\d{2,3}-)?\d{7,8}|\b1[3-9]\d{10}\b|(?:\+?1[\s-]?)?\(?\d{3}\)?[\s-]?\d{3}[\s-]?\d{4}/;
-    const phoneMatch = remaining.match(phoneAloneRegex);
-    if (phoneMatch) {
-      phone = formatPhoneNumber(phoneMatch[0].trim());
-      remaining = remaining.replace(phoneAloneRegex, '').trim();
+    const detected = findPhoneCandidate(remaining);
+    if (detected) {
+      phone = detected.e164 ? detected.display : formatPhoneNumber(detected.raw);
+      remaining = remaining.replace(detected.raw, '').trim();
     }
   }
 
@@ -203,24 +182,32 @@ export function parseContactString(contactStr: string) {
     remaining = remaining.replace(wechatRegex, '').trim();
   }
 
-  // 4. Process remaining parts as social / other information
-  // Split remaining string by typical separators (but not single space or dash inside phone numbers)
+  // 4. Process remaining parts as social / other information.
   const separatorRegex = /\s*[·|｜••,，;；\t]\s*|\s{2,}|\s+\/\s+/;
-  const parts = remaining.split(separatorRegex)
-    .map(p => p.trim())
+  const parts = remaining
+    .split(separatorRegex)
+    .map((part) => part.trim())
     .filter(Boolean)
-    // Filter out parts that are just leftover separators/dashes
-    .filter(p => !/^[-·|｜••,，;；\t/\\\s]+$/.test(p));
+    .filter((part) => !/^[-·|｜••,，;；\t/\\\s]+$/.test(part));
 
   social = parts.join(' · ');
 
-  // 5. Fallback if still empty but original had content (just in case)
+  // 5. Fallback for legacy compact contact lines.
   if (!phone && !email && !wechat && !social && contactStr.trim()) {
-    const rawParts = contactStr.split(separatorRegex).map(p => p.trim()).filter(Boolean);
+    const rawParts = contactStr
+      .split(separatorRegex)
+      .map((part) => part.trim())
+      .filter(Boolean);
+
     if (rawParts.length > 0) {
-      phone = formatPhoneNumber(rawParts[0] || '');
+      const detected = findPhoneCandidate(rawParts[0] || '');
+      phone = detected
+        ? detected.e164
+          ? detected.display
+          : formatPhoneNumber(detected.raw)
+        : '';
       email = rawParts[1] || '';
-      social = rawParts.slice(2).join(' · ');
+      social = rawParts.slice(phone ? 2 : 1).join(' · ');
     }
   }
 
@@ -240,9 +227,8 @@ export function classifySubsequentLines(subsequent: string[]): { subtitle: strin
     if (clean.includes('@')) return true;
     const hasDateRange = /(?:19|20)\d{2}(?:[\.\-\/]\d{1,2})?\s*[-—–~至到]/i.test(clean);
     if (!hasDateRange) {
-      if (/^(?:电话|手机|手机号|手机号码|联系方式|联系电话|tel|mobile|phone|contact)[:：\s-]*[+0-9\s\-()]{7,25}/i.test(clean)) return true;
-      if (/(?:\+?86[\s-]?)?1[3-9](?:[\s-]?\d){9}/.test(clean) && !/(?:经验|运营|负责|工作|年限|学校|学历|能力)/.test(clean)) return true;
-      if (/^\+?[\d\s\-\(\)]{7,20}$/.test(clean.trim())) return true;
+      if (/^(?:电话|手机|手机号|手机号码|联系方式|联系电话|tel|mobile|phone|contact)[:：\s-]*/i.test(clean) && findPhoneCandidate(clean)) return true;
+      if (findPhoneCandidate(clean) && !/(?:经验|运营|负责|工作|年限|学校|学历|能力)/.test(clean)) return true;
     }
     if (clean.includes('github') || clean.includes('gitee') || clean.includes('wechat') || clean.includes('微信') || clean.includes('博客') || clean.includes('blog') || clean.includes('linkedin') || clean.includes('http') || clean.includes('https') || clean.includes('电话') || clean.includes('手机') || clean.includes('邮箱') || clean.includes('tel') || clean.includes('phone') || clean.includes('mobile')) return true;
     return false;

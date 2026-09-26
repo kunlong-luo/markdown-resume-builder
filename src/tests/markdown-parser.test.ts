@@ -23,21 +23,21 @@ describe('markdown-parser', () => {
   });
 
   describe('formatPhoneNumber', () => {
-    it('should format Chinese 11-digit mobile numbers with spaces', () => {
-      expect(formatPhoneNumber('13800138000')).toBe('138 0013 8000');
+    it('should preserve local phone numbers when no country or region is known', () => {
+      expect(formatPhoneNumber('13800138000')).toBe('13800138000');
     });
 
     it('should format +86 prefix numbers', () => {
       expect(formatPhoneNumber('+8613800138000')).toBe('+86 138 0013 8000');
     });
 
-    it('should format landline numbers', () => {
-      expect(formatPhoneNumber('01088888888')).toBe('010-88888888');
-      expect(formatPhoneNumber('057188888888')).toBe('0571-88888888');
+    it('should preserve ambiguous local landline numbers', () => {
+      expect(formatPhoneNumber('01088888888')).toBe('01088888888');
+      expect(formatPhoneNumber('057188888888')).toBe('057188888888');
     });
 
-    it('should format US numbers', () => {
-      expect(formatPhoneNumber('2125551234')).toBe('(212) 555-1234');
+    it('should not assume a 10-digit local number belongs to the US', () => {
+      expect(formatPhoneNumber('2125551234')).toBe('2125551234');
     });
   });
 
@@ -62,7 +62,7 @@ describe('markdown-parser', () => {
     it('should extract email, phone and social accounts', () => {
       const parsed = parseContactString('13800138000 · test@example.com · github.com/user · 微信: mywechat');
       expect(parsed.email).toBe('test@example.com');
-      expect(parsed.phone).toBe('138 0013 8000');
+      expect(parsed.phone).toBe('13800138000');
       expect(parsed.wechat).toBe('mywechat');
       expect(parsed.social).toContain('github.com/user');
     });

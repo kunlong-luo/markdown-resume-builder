@@ -3,6 +3,8 @@
  * into clean, structured Markdown resume format.
  */
 
+import { findPhoneCandidate } from './phone-utils';
+
 export function parseRawTextToResumeMarkdown(rawText: string): string {
   if (!rawText || rawText.trim() === '') return '';
 
@@ -20,7 +22,6 @@ export function parseRawTextToResumeMarkdown(rawText: string): string {
   let role = '';
   let github = '';
 
-  const phoneRegex = /(?:\+?86)?\s*(1[3-9]\d{9})/;
   const emailRegex = /([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)/;
   const wechatRegex = /(?:微信|微信号|WeChat|Wechat|wechat|wx|WX)[:：\s]+([a-zA-Z0-9_-]+)/i;
   const githubRegex = /(?:github\.com\/([a-zA-Z0-9_-]+)|git@github\.com:([a-zA-Z0-9_-]+))/i;
@@ -30,10 +31,12 @@ export function parseRawTextToResumeMarkdown(rawText: string): string {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
 
-    // Detect phone
-    if (!phone && phoneRegex.test(line)) {
-      const match = line.match(phoneRegex);
-      if (match) phone = match[1];
+    // Detect phone using the same international parser as the editor/checker.
+    if (!phone) {
+      const candidate = findPhoneCandidate(line);
+      if (candidate) {
+        phone = candidate.display;
+      }
     }
 
     // Detect email
@@ -85,7 +88,7 @@ export function parseRawTextToResumeMarkdown(rawText: string): string {
   if (contacts.length > 0) {
     markdown += `${contacts.join(' | ')}\n\n`;
   } else {
-    markdown += `138-0000-0000 | your_email@example.com | 城市\n\n`;
+    markdown += `your_email@example.com | City / 城市\n\n`;
   }
 
   // Section classifiers

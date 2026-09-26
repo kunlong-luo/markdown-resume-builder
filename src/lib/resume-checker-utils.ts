@@ -1,5 +1,6 @@
 import { formatChineseEnglishSpacing } from './format-utils';
 import { parseMarkdownToForm } from './markdown-parser';
+import { findPhoneCandidate } from './phone-utils';
 
 export interface IssueItem {
   type: 'error' | 'warning' | 'success';
@@ -53,7 +54,8 @@ export function analyzeResume(
 
   // 2. Check Contact details
   const hasEmail = markdown.includes('@') && !markdown.includes('your-email') && !markdown.includes('your.email');
-  const hasPhone = /(?:1[3-9]\d{9})/.test(markdown) && !markdown.includes('13800000000') && !markdown.includes('13812345678');
+  const phoneCandidate = findPhoneCandidate(markdown);
+  const hasPhone = Boolean(phoneCandidate);
 
   if (hasEmail) {
     issues.push({
@@ -85,22 +87,26 @@ export function analyzeResume(
     });
   }
 
-  if (hasPhone) {
+  if (hasPhone && phoneCandidate) {
     issues.push({
       type: 'success',
-      title: isEn ? 'Contact Info: Phone number is valid' : '联系方式：手机号有效',
-      desc: isEn 
-        ? 'A valid phone number has been found.'
-        : '已包含有效的电话联系方式。'
+      title: isEn ? 'Contact Info: Phone number found' : '联系方式：已识别电话号码',
+      desc: phoneCandidate.isInternational
+        ? isEn
+          ? 'An international-format phone number was found and is easier to use across regions.'
+          : '已检测到带国家/地区代码的国际号码，跨地区投递时更容易直接联系。'
+        : isEn
+          ? 'A phone number was found. For cross-border applications, consider using +country calling code format.'
+          : '已检测到电话号码。若投递海外或跨地区岗位，建议使用 +国家/地区代码 的国际格式。'
     });
   } else {
     score -= 10;
     issues.push({
       type: 'warning',
-      title: isEn ? 'Contact Info: Phone number is missing or placeholder' : '联系方式：手机号缺失或为占位符',
+      title: isEn ? 'Contact Info: Phone number is missing or placeholder' : '联系方式：电话号码缺失或为占位符',
       desc: isEn 
-        ? 'No phone number format was found or placeholder was used.'
-        : '简历中没有包含常规手机号格式或使用了模版默认手机号。',
+        ? 'No recognizable phone number was found, or the resume still contains a placeholder.'
+        : '简历中未识别到可用电话号码，或仍保留了模板占位号码。',
     });
   }
 

@@ -27,6 +27,7 @@
     "@vitejs/plugin-react": "^6.1.1",
     "html2canvas-pro": "^2.4.4",
     "jspdf": "^4.2.1",
+    "libphonenumber-js": "^1.13.14",
     "lucide-react": "^1.47.0",
     "motion": "^13.4.0",
     "pdfjs-dist": "^6.3.289",

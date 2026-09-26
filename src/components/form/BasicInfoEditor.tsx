@@ -1,13 +1,13 @@
 import React, { useState, useRef, useMemo } from 'react';
-import { User, Phone, Mail, Link, Layers, ChevronDown, ChevronUp, X, Code, Globe, GraduationCap, Briefcase, MapPin, Activity } from 'lucide-react';
+import { User, Mail, Link, Layers, ChevronDown, ChevronUp, X, Code, Globe, GraduationCap, Briefcase, MapPin, Activity } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ResumeFormModel } from '../../lib/form-types';
 import { CustomSelect } from '../ui/CustomSelect';
 import { AgeInputWithPicker } from './AgeInputWithPicker';
 import { Tooltip } from '../ui/Tooltip';
-import { formatPhoneNumber } from '../../lib/markdown-parser';
 import { getTranslation } from '../../i18n';
 import { getDegreeOptions, getJobStatusOptions, getPopularCities } from '../../lib/form-constants';
+import { InternationalPhoneField } from './InternationalPhoneField';
 
 interface BasicInfoEditorProps {
   model: ResumeFormModel;
@@ -154,27 +154,6 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
     handleBasicInfoChange('subtitle', newTags.join(' ｜ '));
   };
 
-  const handlePhoneChange = (val: string) => {
-    if (val.startsWith('+')) {
-      handleBasicInfoChange('phone', val);
-      return;
-    }
-
-    const digitsOnly = val.replace(/\D/g, '');
-    
-    if (digitsOnly.length <= 11) {
-      if (digitsOnly.length > 7) {
-        handleBasicInfoChange('phone', `${digitsOnly.slice(0, 3)} ${digitsOnly.slice(3, 7)} ${digitsOnly.slice(7)}`);
-      } else if (digitsOnly.length > 3) {
-        handleBasicInfoChange('phone', `${digitsOnly.slice(0, 3)} ${digitsOnly.slice(3)}`);
-      } else {
-        handleBasicInfoChange('phone', digitsOnly);
-      }
-    } else {
-      handleBasicInfoChange('phone', formatPhoneNumber(val));
-    }
-  };
-
   const cityInputRef = useRef<HTMLInputElement>(null);
   const [cityInputDraft, setCityInputDraft] = useState('');
 
@@ -282,26 +261,14 @@ export function BasicInfoEditor({ model, onChange, expanded, onToggleExpanded, s
               </div>
             </div>
 
-            {/* 手机号码 */}
-            <div className="space-y-2">
-              <label className="block text-[10px] font-extrabold text-slate-400 dark:text-slate-400 uppercase tracking-widest mb-1">{t.phoneLabel}</label>
-              <div className="relative">
-                <span className="absolute left-3 top-2.5 text-slate-400 pointer-events-none"><Phone className="w-4 h-4" /></span>
-                <input 
-                  type="tel"
-                  inputMode="tel"
-                  value={model.phone || ''}
-                  onChange={(e) => handlePhoneChange(e.target.value)}
-                  onBlur={() => {
-                    if (model.phone) {
-                      handleBasicInfoChange('phone', formatPhoneNumber(model.phone));
-                    }
-                  }}
-                  className="w-full pl-9 pr-3 py-2 text-sm tactile-input font-mono text-slate-800 dark:text-slate-100"
-                  placeholder={t.phonePlaceholder}
-                />
-              </div>
-            </div>
+            {/* International phone */}
+            <InternationalPhoneField
+              value={model.phone || ''}
+              onChange={(value) => handleBasicInfoChange('phone', value)}
+              lang={activeLang}
+              label={t.phoneLabel}
+              placeholder={t.phonePlaceholder}
+            />
 
             {/* 电子邮箱 */}
             <div className="space-y-2">
