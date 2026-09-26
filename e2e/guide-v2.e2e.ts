@@ -12,7 +12,7 @@ test.beforeEach(async ({ page }) => {
 
 async function openGuide(page: import('@playwright/test').Page) {
   await page.getByRole('button', { name: 'More actions' }).click();
-  await page.getByRole('button', { name: 'Guide & privacy' }).click();
+  await page.getByRole('button', { name: 'Help' }).click();
 
   const guide = page.getByRole('dialog', { name: 'User Guide' });
   await expect(guide).toBeVisible();
