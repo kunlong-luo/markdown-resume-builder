@@ -20,7 +20,7 @@ test('imports a text-based PDF locally and shows machine-readability feedback', 
 
   await page.getByRole('button', { name: /More actions|更多操作/ }).click();
   await page
-    .getByRole('button', { name: /Import resume|导入简历/ })
+    .getByRole('button', { name: /^(Import|导入)$/ })
     .click();
 
   const dialog = page.getByRole('dialog', {
