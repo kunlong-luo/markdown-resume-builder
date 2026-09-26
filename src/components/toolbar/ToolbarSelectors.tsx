@@ -55,7 +55,9 @@ export function ToolbarSelectors({
     if (tmpl) {
       const confirmed = await confirm({
         title: t.confirmLoadTemplateTitle,
-        message: t.confirmLoadTemplateMsg(tmpl.name),
+        message: t.confirmLoadTemplateMsg(
+          getTemplatePresentation(tmpl, isEn ? 'en' : 'zh').name,
+        ),
         confirmText: t.confirmBtn,
         cancelText: t.cancelBtn,
         type: 'warning'
