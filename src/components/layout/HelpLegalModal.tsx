@@ -180,7 +180,7 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
                 </span>
               </h2>
               <p id="help-legal-description" className="text-xs text-slate-500 dark:text-slate-400">
-                {isEn ? 'Usage tips & privacy info' : '使用技巧与本地数据隐私说明'}
+                {isEn ? 'Recommended workflow & privacy info' : '推荐使用流程与本地数据隐私说明'}
               </p>
             </div>
           </div>
@@ -205,7 +205,7 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
             }`}
           >
             <BookOpen className="w-4 h-4" />
-            <span>{isEn ? 'User Guide' : '使用技巧'}</span>
+            <span>{isEn ? 'User Guide' : '使用指南'}</span>
             {activeTab === 'guide' && (
               <motion.div
                 key="help-tab-guide"
