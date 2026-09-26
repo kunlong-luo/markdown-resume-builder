@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   ClipboardCheck, 
   Database, 
@@ -65,6 +65,13 @@ export function Header({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const { isInstallable, triggerInstall } = usePWAInstall();
+
+  useEffect(() => {
+    const openImport = () => setIsRawTextModalOpen(true);
+    window.addEventListener('resume-craft:open-import', openImport);
+    return () => window.removeEventListener('resume-craft:open-import', openImport);
+  }, []);
+
 
   const handleTriggerExport = () => {
     if (handleExportVectorPrint) {
