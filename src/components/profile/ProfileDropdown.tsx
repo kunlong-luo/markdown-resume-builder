@@ -122,6 +122,8 @@ export function ProfileDropdown({ lang, isCompact }: ProfileDropdownProps) {
       >
         <button
           type="button"
+          aria-expanded={isOpen}
+          aria-controls="resume-profile-panel"
           onClick={() => {
             setIsOpen(!isOpen);
             setConfirmDeleteId(null);
@@ -155,6 +157,7 @@ export function ProfileDropdown({ lang, isCompact }: ProfileDropdownProps) {
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            id="resume-profile-panel"
             initial={{ opacity: 0, y: -8, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.96 }}
