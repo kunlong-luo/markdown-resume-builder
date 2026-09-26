@@ -13,9 +13,7 @@ test.beforeEach(async ({ page }) => {
     await page.goto('/');
 
     const versionTrigger = page
-      .locator('#resume-profile-panel')
-      .locator('..')
-      .getByRole('button')
+      .getByRole('button', { name: /Starter Resume/ })
       .first();
 
     // The top-left control remains a quick resume-version switcher.
@@ -25,10 +23,8 @@ test.beforeEach(async ({ page }) => {
     await expect(versionPanel.getByRole('button', { name: 'Manage versions' })).toBeVisible();
     await expect(versionPanel.getByText(/Fast load from benchmark templates/i)).toHaveCount(0);
 
-    await page.keyboard.press('Escape').catch(() => {});
-    if (await versionPanel.isVisible()) {
-      await versionTrigger.click();
-    }
+    await versionTrigger.click();
+    await expect(versionPanel).toBeHidden();
 
     // Backup is a separate task and opens directly on draft snapshots.
     await page.getByRole('button', { name: 'More actions' }).click();
@@ -37,8 +33,11 @@ test.beforeEach(async ({ page }) => {
     const resumeCenter = page.getByRole('dialog', { name: 'Resume Center' });
     await expect(resumeCenter).toBeVisible();
     await expect(
-      resumeCenter.getByRole('button', { name: /Draft Snapshots/ }),
-    ).toHaveAttribute('class', /text-indigo/);
+      resumeCenter.getByRole('button', { name: /Save as Draft/ }),
+    ).toBeVisible();
+    await expect(
+      resumeCenter.getByText('Resume Versions', { exact: true }),
+    ).toHaveCount(0);
   });
 });
 
