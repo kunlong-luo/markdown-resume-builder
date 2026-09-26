@@ -72,7 +72,9 @@ export function ToolbarSelectors({ onOpenAesthetics }: ToolbarSelectorsProps) {
     }))
   ];
 
-  const templateOptions: SelectOption[] = TEMPLATES.map(tmpl => {
+  const templateOptions: SelectOption[] = [
+    { value: 'custom', label: isEn ? 'Custom / Starter' : '自定义 / 起始简历', disabled: true },
+    ...TEMPLATES.map(tmpl => {
     let name = tmpl.name;
     if (isEn) {
       if (tmpl.id === 'ai_backend') name = 'AI Backend Developer';
@@ -81,8 +83,9 @@ export function ToolbarSelectors({ onOpenAesthetics }: ToolbarSelectorsProps) {
       if (tmpl.id === 'operations') name = 'Product Operations';
       if (tmpl.id === 'campus') name = 'Campus Graduate';
     }
-    return { value: tmpl.id, label: name };
-  });
+      return { value: tmpl.id, label: name };
+    }),
+  ];
 
   const layoutOptions: SelectOption[] = [
     { value: 'single', label: t.layoutSingle },
