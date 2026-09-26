@@ -13,7 +13,8 @@ import {
   DownloadCloud,
   Menu,
   X,
-  Printer
+  Printer,
+  Share2
 } from 'lucide-react';
 import { useResumeStore } from '../../store/useResumeStore';
 import { ThemeMode } from '../../types';
@@ -23,6 +24,7 @@ import { usePWAInstall } from '../../hooks/usePWAInstall';
 import { trackAnalyticsEvent } from '../../lib/analytics';
 
 const RawTextImportModal = React.lazy(() => import('../modals/RawTextImportModal').then(m => ({ default: m.RawTextImportModal })));
+const ShareResumeModal = React.lazy(() => import('../share/ShareResumeModal').then(m => ({ default: m.ShareResumeModal })));
 
 interface HeaderProps {
   handleImportMarkdown: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -61,6 +63,7 @@ export function Header({
   const themeMode: ThemeMode = settings.themeMode || 'light';
   const [isRawTextModalOpen, setIsRawTextModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const { isInstallable, triggerInstall } = usePWAInstall();
 
   const handleTriggerExport = () => {
@@ -272,6 +275,16 @@ export function Header({
             </button>
           </Tooltip>
 
+          <Tooltip content={isEn ? 'Share resume' : '分享简历'} side="bottom">
+            <button
+              onClick={() => setIsShareModalOpen(true)}
+              className="flex items-center gap-1 px-2.5 py-1.5 tactile-btn tactile-btn-hover tactile-btn-active text-slate-700 dark:text-slate-200 text-xs font-bold rounded-lg cursor-pointer whitespace-nowrap shrink-0 transition-all"
+            >
+              <Share2 className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+              <span>{isEn ? 'Share' : '分享'}</span>
+            </button>
+          </Tooltip>
+
           {/* Help & Legal Center Button */}
           <Tooltip content={isEn ? 'User Guide & Privacy Policy' : '使用指南与隐私说明'} side="bottom">
             <button
@@ -439,6 +452,14 @@ export function Header({
               </button>
 
               <button
+                onClick={() => { setIsShareModalOpen(true); setIsMobileMenuOpen(false); }}
+                className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/70 text-slate-800 dark:text-slate-200 text-xs font-bold transition-all active:scale-95"
+              >
+                <Share2 className="w-4 h-4 text-indigo-500" />
+                <span>{isEn ? 'Share' : '分享简历'}</span>
+              </button>
+
+              <button
                 onClick={() => { setIsHelpLegalOpen(true); setIsMobileMenuOpen(false); }}
                 className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/70 text-slate-800 dark:text-slate-200 text-xs font-bold transition-all active:scale-95"
               >
@@ -469,6 +490,15 @@ export function Header({
             </div>
           </div>
         </div>
+      )}
+
+      {isShareModalOpen && (
+        <React.Suspense fallback={null}>
+          <ShareResumeModal
+            isOpen={isShareModalOpen}
+            onClose={() => setIsShareModalOpen(false)}
+          />
+        </React.Suspense>
       )}
 
       {/* Smart Raw Text / File Import Modal */}

@@ -5,7 +5,7 @@ export default defineConfig({
   testMatch: '**/*.e2e.ts',
   fullyParallel: false,
   timeout: 20_000,
-  globalTimeout: process.env.CI ? 180_000 : 0,
+  globalTimeout: process.env.CI ? 360_000 : 0,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   workers: process.env.CI ? 1 : undefined,
@@ -22,6 +22,14 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
     },
   ],
   webServer: {

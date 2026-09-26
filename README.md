@@ -32,7 +32,7 @@
 >
 > **Markdown ↔ Form · Live A4 Preview · ATS Checks · Auto Fit · PDF Export · Local-first · PWA**
 >
-> 简历草稿与设置主要保存在浏览器本地；ATS 检查、排版工具和 PDF 导出都在前端完成。需要分享时，也可以生成带可选访问口令的链接。
+> 简历草稿与设置主要保存在浏览器本地；ATS 检查、排版工具和 PDF 导出都在前端完成。需要分享时，可以生成公开链接或使用密码派生密钥的 AES-256-GCM 加密链接。
 
 ---
 
@@ -220,7 +220,7 @@ Resume Craft 提供两条导出路径：
 
 <details>
 <summary><b>Q2: 生成的 H5 分享链接安全性如何？</b></summary>
-<b>答：</b>当前实现会把简历数据编码到分享 URL 中，并可设置客户端访问口令。该口令是查看门槛，不等同于密码学加密；拿到完整链接的人应被视为可能访问其中的数据。请不要通过分享链接传递不必要的敏感信息。
+<b>答：</b>公开分享会把可读取的简历载荷放在 URL fragment 中；密码保护分享则使用 PBKDF2-HMAC-SHA-256 + AES-256-GCM 在浏览器本地加密，密码本身不会进入链接。加密分享仍依赖密码强度与安全传递，建议不要把密码和链接放在同一条消息中。
 </details>
 
 <details>
@@ -238,7 +238,7 @@ Resume Craft 采用本地优先架构，但“本地优先”不等于“所有�
 - 项目本身不提供用于持久化简历内容的应用后端。
 - 字体使用本机系统字体栈，不从 Google Fonts 等第三方字体 CDN 加载。
 - 产品使用 Simple Analytics 统计少量匿名聚合指标（开始编辑、导出、ATS 匹配、Auto Fit、分享、PWA 安装与反馈入口）；事件只有固定事件名，不附带 metadata。尊重 Do Not Track，开启 DNT 时不会加载统计脚本；不发送简历、JD、联系方式、文件名、分享参数或访问口令，也不启用会话回放/指纹识别。
-- 新分享链接把简历内容编码进 URL fragment，不会作为请求查询参数发送给托管站点；旧版 `?share=` 链接仍兼容。访问口令是客户端查看门槛，不是端到端加密。
+- 新分享链接把载荷放在 URL fragment 中，不会作为请求查询参数发送给托管站点；旧版 `?share=` 链接仍兼容。密码保护分享使用 PBKDF2-HMAC-SHA-256 + AES-256-GCM，密码不写入链接；公开链接则不提供内容加密。
 - 不要在 Issue、PR、测试数据或截图中提交真实简历、访问令牌、密码或其他敏感信息。
 - 产品建议与使用反馈可前往 [GitHub Discussions](https://github.com/kunlong-luo/resume-craft/discussions)；不会自动附带任何简历内容。
 - 安全问题请按照 [SECURITY.md](SECURITY.md) 的私密报告流程处理。

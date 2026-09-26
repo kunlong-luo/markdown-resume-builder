@@ -92,8 +92,8 @@ When creating resumes, candidates frequently suffer from **Word layout nightmare
 * **Version Control**: Clone and maintain tailored resume branches for different roles (e.g., `Frontend Lead`, `Full-Stack Developer`).
 * **Diff Analysis**: View side-by-side diff highlights comparing text changes and keywords between two versions.
 
-### 9. 🔒 H5 Link Sharing & Optional Access Code
-* **Convenient Sharing**: New share links place the resume payload in the URL fragment (`#share=...`), so it is not sent to the hosting server as a request query. The optional access code is only a client-side viewing gate, not end-to-end encryption.
+### 9. 🔒 H5 Link Sharing & AES-GCM Encryption
+* **Convenient Sharing**: Generate a public link, or derive a 256-bit key from a password with PBKDF2-HMAC-SHA-256 and encrypt the resume locally with AES-256-GCM. The password is never stored in the link; encrypted links contain only KDF parameters, a random salt, IV, and authenticated ciphertext. Send the password separately when possible.
 
 ### 10. 📐 Section Sorter
 * **Module Reordering**: Automatically detects Markdown section headers (`H2`) and allows moving entire sections up or down with one click.
@@ -218,7 +218,7 @@ Resume Craft is local-first, but local-first does not mean that every stored or 
 - The project does not provide an application backend for persisting resume content.
 - Fonts use local system stacks and are not loaded from third-party font CDNs such as Google Fonts.
 - The product uses Simple Analytics for a small set of anonymous aggregate signals (editing, export, ATS matching, Auto Fit, sharing, PWA installation, and feedback intent). Events contain only a fixed event name and no metadata. Do Not Track is respected and the analytics script is not loaded when DNT is enabled; resume, JD, contact, filename, share-payload, and access-code content are never sent, and session replay/fingerprinting are not used.
-- New share URLs embed resume data in the URL fragment so it is not sent to the hosting server as a request query; legacy `?share=` links remain compatible. The optional access code is a client-side viewing gate, not end-to-end encryption.
+- New share URLs keep the payload in the URL fragment so it is not sent to the hosting server as a request query; legacy `?share=` links remain compatible. Password-protected shares use PBKDF2-HMAC-SHA-256 + AES-256-GCM and never place the password in the link; public links remain unencrypted.
 - Do not include real resume data, tokens, passwords, or other sensitive information in issues, pull requests, test fixtures, or screenshots.
 - Product feedback and ideas can go to [GitHub Discussions](https://github.com/kunlong-luo/resume-craft/discussions); no resume content is attached automatically.
 - Report security issues through the private process described in [SECURITY.md](SECURITY.md).
