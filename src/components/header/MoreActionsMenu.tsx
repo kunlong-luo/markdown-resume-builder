@@ -40,6 +40,7 @@ export function MoreActionsMenu({
   }, [isOpen]);
 
   const action = (fn: () => void) => () => {
+    rootRef.current?.querySelector<HTMLElement>('button')?.focus();
     setIsOpen(false);
     fn();
   };
