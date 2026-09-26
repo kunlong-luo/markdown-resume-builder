@@ -70,7 +70,7 @@ test.describe('task-oriented user guide', () => {
 
     const importDialog = page.getByRole('dialog', { name: 'Import Resume' });
     await expect(importDialog).toBeVisible();
-    await importDialog.getByRole('button', { name: /Close/ }).click();
+    await importDialog.getByRole('button', { name: 'Close import dialog' }).click();
     await expect(importDialog).toBeHidden();
 
     guide = await openGuide(page);
