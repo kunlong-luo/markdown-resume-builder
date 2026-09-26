@@ -17,7 +17,8 @@ import {
   Palette,
   Download,
   Target,
-  FileCheck2
+  FileCheck2,
+  Database
 } from 'lucide-react';
 import { useResumeStore } from '../../store/useResumeStore';
 import { trackAnalyticsEvent } from '../../lib/analytics';
@@ -121,18 +122,35 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
       icon: Wand2,
       title: isEn ? 'Check page count' : '检查页数',
       description: isEn
-        ? 'If the resume overflows, trim low-value content first, then adjust Layout, and use Auto Fit last. Treat Auto Fit as a finishing tool, not the first fix.'
-        : '如果超页，先删减低价值内容，再调整排版，最后才使用“智能单页”。把智能单页当作收尾工具，而不是第一步。',
-      actions: [],
+        ? 'Check the A4 page lines first. If the resume overflows, trim low-value content, then adjust Layout, and use Auto Fit last. Treat Auto Fit as a finishing tool, not the first fix.'
+        : '先查看 A4 分页线。如果超页，先删减低价值内容，再调整排版，最后才使用“智能单页”。把智能单页当作收尾工具，而不是第一步。',
+      actions: [
+        { label: isEn ? 'Show A4 page lines' : '显示 A4 分页线', event: 'resume-craft:show-page-lines' },
+      ],
     },
     {
       number: 8,
       icon: Download,
-      title: isEn ? 'Final check, download, and back up' : '最终检查、下载与备份',
+      title: isEn ? 'Final check and download' : '最终检查与下载',
       description: isEn
-        ? 'Review the A4 preview, run Resume Check once more, then use Download PDF. Prefer ATS PDF for applications; use Quick PDF for visual sharing or fallback. Keep a Markdown or version backup too.'
-        : '确认 A4 预览后再运行一次简历检查，然后使用“下载 PDF”。正式投递优先 ATS PDF；快速 PDF 更适合视觉分享或备用。同时保留 Markdown 或版本备份。',
-      actions: [],
+        ? 'Run Resume Check once more, review the A4 preview, then download the final PDF. Prefer ATS PDF for applications; use Quick PDF for visual sharing or fallback.'
+        : '再运行一次简历检查并确认 A4 预览，然后下载最终 PDF。正式投递优先 ATS PDF；快速 PDF 更适合视觉分享或备用。',
+      actions: [
+        { label: isEn ? 'Open Resume Check' : '打开简历检查', event: 'resume-craft:open-resume-check' },
+        { label: isEn ? 'Choose PDF download' : '选择 PDF 下载方式', event: 'resume-craft:open-pdf-menu' },
+      ],
+    },
+    {
+      number: 9,
+      icon: Database,
+      title: isEn ? 'Back up and share safely' : '备份并安全分享',
+      description: isEn
+        ? 'Keep a Markdown or JSON backup after the final PDF. If you share a link, review sensitive information first; for encrypted sharing, send the password separately from the link.'
+        : '最终 PDF 完成后，再保留一份 Markdown 或 JSON 备份。分享链接前先检查敏感信息；使用加密分享时，密码与链接应分开发送。',
+      actions: [
+        { label: isEn ? 'Open versions & backup' : '打开版本与备份', event: 'resume-craft:open-backup' },
+        { label: isEn ? 'Share resume' : '分享简历', event: 'resume-craft:open-share' },
+      ],
     },
   ];
 
