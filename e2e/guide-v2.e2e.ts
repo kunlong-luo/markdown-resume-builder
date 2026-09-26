@@ -58,7 +58,7 @@ test.describe('task-oriented user guide', () => {
     await expect(guide).toBeHidden();
 
     await expect(
-      page.getByRole('dialog', { name: 'Choose a resume template' }),
+      page.getByRole('dialog', { name: 'Choose a content template' }),
     ).toBeVisible();
   });
 

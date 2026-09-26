@@ -122,11 +122,11 @@ export function TemplateCenterModal({ isOpen, onClose }: TemplateCenterModalProp
     if (isExactCurrent) return;
 
     const confirmed = await confirm({
-      title: isEn ? 'Apply this template?' : '应用这个模板？',
+      title: isEn ? 'Use this content template?' : '使用这个内容模板？',
       message: isEn
-        ? 'Applying "' + selectedPresentation.name + '" will replace the content of your active resume. You can still undo after applying.'
-        : '应用「' + selectedPresentation.name + '」会替换当前活动简历的内容。应用后仍可使用撤销恢复。',
-      confirmText: isEn ? 'Apply template' : '应用模板',
+        ? 'Using "' + selectedPresentation.name + '" will replace the content of your active resume. This is a content starting point, not just a visual style. You can still undo afterward.'
+        : '使用「' + selectedPresentation.name + '」会替换当前简历内容。它是内容起点，不只是视觉样式；使用后仍可通过撤销恢复。',
+      confirmText: isEn ? 'Use content template' : '使用内容模板',
       cancelText: isEn ? 'Cancel' : '取消',
       type: 'warning',
     });
@@ -161,16 +161,16 @@ export function TemplateCenterModal({ isOpen, onClose }: TemplateCenterModalProp
             <div className="mb-1 flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
               <LayoutGrid className="h-4 w-4" />
               <span className="text-[10px] font-black uppercase tracking-[0.18em]">
-                {isEn ? 'Template Library' : '模板库'}
+                {isEn ? 'Content Template Library' : '内容模板库'}
               </span>
             </div>
             <h2 id="template-center-title" className="text-lg font-black text-slate-950 dark:text-white">
-              {isEn ? 'Choose a resume template' : '选择简历模板'}
+              {isEn ? 'Choose a content template' : '选择内容模板'}
             </h2>
             <p id="template-center-description" className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
               {isEn
-                ? 'Browse and preview first. Your resume changes only after you apply a template.'
-                : '先浏览和预览模板；只有明确点击应用后，当前简历内容才会改变。'}
+                ? 'Templates are content starting points. Browse and preview first; your active resume changes only after you explicitly use one.'
+                : '模板是内容起点。先浏览和预览；只有明确使用后，当前简历内容才会被替换。'}
             </p>
           </div>
           <button
@@ -317,11 +317,11 @@ export function TemplateCenterModal({ isOpen, onClose }: TemplateCenterModalProp
                       <LayoutGrid className="h-4 w-4" />
                       {currentTemplateId === selectedTemplate.id
                         ? isEn
-                          ? 'Restore this template'
-                          : '恢复此模板原始内容'
+                          ? 'Restore template content'
+                          : '恢复模板原始内容'
                         : isEn
-                          ? 'Apply this template'
-                          : '应用此模板'}
+                          ? 'Use content template'
+                          : '使用内容模板'}
                     </>
                   )}
                 </button>
