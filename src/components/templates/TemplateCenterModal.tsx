@@ -1,11 +1,24 @@
-
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Check, LayoutGrid, Sparkles, X } from 'lucide-react';
+import {
+  BriefcaseBusiness,
+  Check,
+  Code2,
+  FileText,
+  Globe2,
+  GraduationCap,
+  LayoutGrid,
+  Sparkles,
+  X,
+} from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { TEMPLATES } from '../../data';
 import { useConfirm } from '../../context/ConfirmContext';
 import { useDialogFocus } from '../../hooks/useDialogFocus';
-import { getTemplatePresentation, getTemplatePreview } from '../../lib/template-presentation';
+import {
+  getTemplatePresentation,
+  getTemplatePreview,
+  type TemplateGroup,
+} from '../../lib/template-presentation';
 import { useResumeStore } from '../../store/useResumeStore';
 
 interface TemplateCenterModalProps {
@@ -13,7 +26,53 @@ interface TemplateCenterModalProps {
   onClose: () => void;
 }
 
-function MiniResumePreview({ content, compact = false }: { content: string; compact?: boolean }) {
+type FilterKey = 'all' | TemplateGroup;
+
+const FILTERS: Array<{
+  value: FilterKey;
+  labelZh: string;
+  labelEn: string;
+  icon: React.ReactNode;
+}> = [
+  {
+    value: 'all',
+    labelZh: '全部',
+    labelEn: 'All',
+    icon: <LayoutGrid className="h-3.5 w-3.5" />,
+  },
+  {
+    value: 'engineering',
+    labelZh: '技术研发',
+    labelEn: 'Engineering',
+    icon: <Code2 className="h-3.5 w-3.5" />,
+  },
+  {
+    value: 'product',
+    labelZh: '产品运营',
+    labelEn: 'Product & Ops',
+    icon: <BriefcaseBusiness className="h-3.5 w-3.5" />,
+  },
+  {
+    value: 'graduate',
+    labelZh: '校招',
+    labelEn: 'Graduate',
+    icon: <GraduationCap className="h-3.5 w-3.5" />,
+  },
+  {
+    value: 'global',
+    labelZh: '海外英文',
+    labelEn: 'Global',
+    icon: <Globe2 className="h-3.5 w-3.5" />,
+  },
+];
+
+function MiniResumePreview({
+  content,
+  compact = false,
+}: {
+  content: string;
+  compact?: boolean;
+}) {
   const preview = getTemplatePreview(content);
 
   return (
@@ -25,11 +84,23 @@ function MiniResumePreview({ content, compact = false }: { content: string; comp
       }
       aria-hidden="true"
     >
-      <div className={compact ? 'truncate text-[7px] font-black text-slate-900' : 'truncate text-[11px] font-black text-slate-900'}>
+      <div
+        className={
+          compact
+            ? 'truncate text-[7px] font-black text-slate-900'
+            : 'truncate text-[11px] font-black text-slate-900'
+        }
+      >
         {preview.name}
       </div>
       {preview.subtitle && (
-        <div className={compact ? 'mt-0.5 truncate text-[4.5px] text-slate-500' : 'mt-1 truncate text-[7px] text-slate-500'}>
+        <div
+          className={
+            compact
+              ? 'mt-0.5 truncate text-[4.5px] text-slate-500'
+              : 'mt-1 truncate text-[7px] text-slate-500'
+          }
+        >
           {preview.subtitle}
         </div>
       )}
@@ -38,17 +109,31 @@ function MiniResumePreview({ content, compact = false }: { content: string; comp
         {preview.sections.map((section, index) => (
           <div key={section}>
             <div className="flex items-center gap-1">
-              <span className={compact ? 'whitespace-nowrap text-[4.5px] font-bold text-indigo-700' : 'whitespace-nowrap text-[7px] font-bold text-indigo-700'}>
+              <span
+                className={
+                  compact
+                    ? 'whitespace-nowrap text-[4.5px] font-bold text-indigo-700'
+                    : 'whitespace-nowrap text-[7px] font-bold text-indigo-700'
+                }
+              >
                 {section}
               </span>
               <span className="h-px flex-1 bg-indigo-100" />
             </div>
             <div
-              className={compact ? 'mt-1 h-1 rounded-full bg-slate-100' : 'mt-1.5 h-1.5 rounded-full bg-slate-100'}
+              className={
+                compact
+                  ? 'mt-1 h-1 rounded-full bg-slate-100'
+                  : 'mt-1.5 h-1.5 rounded-full bg-slate-100'
+              }
               style={{ width: index % 2 === 0 ? '92%' : '76%' }}
             />
             <div
-              className={compact ? 'mt-0.5 h-1 rounded-full bg-slate-100' : 'mt-1 h-1.5 rounded-full bg-slate-100'}
+              className={
+                compact
+                  ? 'mt-0.5 h-1 rounded-full bg-slate-100'
+                  : 'mt-1 h-1.5 rounded-full bg-slate-100'
+              }
               style={{ width: index % 2 === 0 ? '68%' : '88%' }}
             />
           </div>
@@ -58,7 +143,10 @@ function MiniResumePreview({ content, compact = false }: { content: string; comp
   );
 }
 
-export function TemplateCenterModal({ isOpen, onClose }: TemplateCenterModalProps) {
+export function TemplateCenterModal({
+  isOpen,
+  onClose,
+}: TemplateCenterModalProps) {
   const {
     markdown,
     settings,
@@ -73,18 +161,7 @@ export function TemplateCenterModal({ isOpen, onClose }: TemplateCenterModalProp
   useDialogFocus({ isOpen, dialogRef, onClose });
 
   const [selectedId, setSelectedId] = useState('ai_backend');
-  const [activeCategory, setActiveCategory] = useState('all');
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const fallbackId = isEn ? 'english' : 'ai_backend';
-    setSelectedId(
-      TEMPLATES.some((template) => template.id === currentTemplateId)
-        ? currentTemplateId
-        : fallbackId,
-    );
-    setActiveCategory('all');
-  }, [currentTemplateId, isEn, isOpen]);
+  const [activeFilter, setActiveFilter] = useState<FilterKey>('all');
 
   const localizedTemplates = useMemo(
     () =>
@@ -95,28 +172,54 @@ export function TemplateCenterModal({ isOpen, onClose }: TemplateCenterModalProp
     [isEn],
   );
 
-  const categories = useMemo(
-    () => Array.from(new Set(localizedTemplates.map((item) => item.presentation.category))),
-    [localizedTemplates],
-  );
+  useEffect(() => {
+    if (!isOpen) return;
+    const fallbackId = isEn ? 'english' : 'ai_backend';
+    setSelectedId(
+      TEMPLATES.some((template) => template.id === currentTemplateId)
+        ? currentTemplateId
+        : fallbackId,
+    );
+    setActiveFilter('all');
+  }, [currentTemplateId, isEn, isOpen]);
 
   const visibleTemplates =
-    activeCategory === 'all'
+    activeFilter === 'all'
       ? localizedTemplates
-      : localizedTemplates.filter((item) => item.presentation.category === activeCategory);
+      : localizedTemplates.filter(
+          (item) => item.presentation.group === activeFilter,
+        );
 
   const selectedTemplate =
     TEMPLATES.find((template) => template.id === selectedId) ?? TEMPLATES[0];
 
-  if (!isOpen || !selectedTemplate || typeof document === 'undefined') return null;
+  if (!isOpen || !selectedTemplate || typeof document === 'undefined') {
+    return null;
+  }
 
   const selectedPresentation = getTemplatePresentation(
     selectedTemplate,
     isEn ? 'en' : 'zh',
   );
   const selectedPreview = getTemplatePreview(selectedTemplate.content);
+  const isCurrentTemplate = currentTemplateId === selectedTemplate.id;
   const isExactCurrent =
-    currentTemplateId === selectedTemplate.id && markdown === selectedTemplate.content;
+    isCurrentTemplate && markdown === selectedTemplate.content;
+
+  const chooseFilter = (filter: FilterKey) => {
+    setActiveFilter(filter);
+    if (filter === 'all') return;
+
+    const currentSelection = localizedTemplates.find(
+      (item) => item.template.id === selectedId,
+    );
+    if (currentSelection?.presentation.group === filter) return;
+
+    const firstMatch = localizedTemplates.find(
+      (item) => item.presentation.group === filter,
+    );
+    if (firstMatch) setSelectedId(firstMatch.template.id);
+  };
 
   const handleApply = async () => {
     if (isExactCurrent) return;
@@ -124,8 +227,12 @@ export function TemplateCenterModal({ isOpen, onClose }: TemplateCenterModalProp
     const confirmed = await confirm({
       title: isEn ? 'Use this content template?' : '使用这个内容模板？',
       message: isEn
-        ? 'Using "' + selectedPresentation.name + '" will replace the content of your active resume. This is a content starting point, not just a visual style. You can still undo afterward.'
-        : '使用「' + selectedPresentation.name + '」会替换当前简历内容。它是内容起点，不只是视觉样式；使用后仍可通过撤销恢复。',
+        ? 'Using "' +
+          selectedPresentation.name +
+          '" replaces the active resume content. Your Layout and Style settings stay unchanged, and you can still undo afterward.'
+        : '使用「' +
+          selectedPresentation.name +
+          '」会替换当前简历内容，但你设置的「排版」和「样式」会保持不变；应用后仍可撤销。',
       confirmText: isEn ? 'Use content template' : '使用内容模板',
       cancelText: isEn ? 'Cancel' : '取消',
       type: 'warning',
@@ -144,7 +251,7 @@ export function TemplateCenterModal({ isOpen, onClose }: TemplateCenterModalProp
         type="button"
         className="absolute inset-0 cursor-default bg-slate-950/65 backdrop-blur-sm"
         onClick={onClose}
-        aria-label={isEn ? 'Close template center' : '关闭模板中心'}
+        aria-label={isEn ? 'Close content template library' : '关闭内容模板库'}
       />
 
       <div
@@ -159,24 +266,30 @@ export function TemplateCenterModal({ isOpen, onClose }: TemplateCenterModalProp
         <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-5 py-4 dark:border-slate-800 sm:px-6">
           <div>
             <div className="mb-1 flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
-              <LayoutGrid className="h-4 w-4" />
+              <FileText className="h-4 w-4" />
               <span className="text-[10px] font-black uppercase tracking-[0.18em]">
                 {isEn ? 'Content Template Library' : '内容模板库'}
               </span>
             </div>
-            <h2 id="template-center-title" className="text-lg font-black text-slate-950 dark:text-white">
+            <h2
+              id="template-center-title"
+              className="text-lg font-black text-slate-950 dark:text-white"
+            >
               {isEn ? 'Choose a content template' : '选择内容模板'}
             </h2>
-            <p id="template-center-description" className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+            <p
+              id="template-center-description"
+              className="mt-1 max-w-2xl text-xs leading-relaxed text-slate-500 dark:text-slate-400"
+            >
               {isEn
-                ? 'Templates are content starting points. Browse and preview first; your active resume changes only after you explicitly use one.'
-                : '模板是内容起点。先浏览和预览；只有明确使用后，当前简历内容才会被替换。'}
+                ? 'Browse by job-seeking scenario and preview first. Applying a template replaces resume content only; Layout and Style stay unchanged.'
+                : '按求职场景浏览并先预览。应用模板只替换简历内容；排版和样式保持不变。'}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            aria-label={isEn ? 'Close template center' : '关闭模板中心'}
+            aria-label={isEn ? 'Close content template library' : '关闭内容模板库'}
             className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
           >
             <X className="h-4 w-4" />
@@ -185,35 +298,26 @@ export function TemplateCenterModal({ isOpen, onClose }: TemplateCenterModalProp
 
         <div className="border-b border-slate-100 px-5 py-3 dark:border-slate-800 sm:px-6">
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-none">
-            <button
-              type="button"
-              onClick={() => setActiveCategory('all')}
-              aria-pressed={activeCategory === 'all'}
-              className={
-                'shrink-0 rounded-full border px-3 py-1.5 text-[11px] font-bold transition ' +
-                (activeCategory === 'all'
-                  ? 'border-indigo-600 bg-indigo-600 text-white'
-                  : 'border-slate-200 text-slate-600 hover:border-indigo-300 dark:border-slate-700 dark:text-slate-300')
-              }
-            >
-              {isEn ? 'All' : '全部'}
-            </button>
-            {categories.map((category) => (
-              <button
-                key={category}
-                type="button"
-                onClick={() => setActiveCategory(category)}
-                aria-pressed={activeCategory === category}
-                className={
-                  'shrink-0 rounded-full border px-3 py-1.5 text-[11px] font-bold transition ' +
-                  (activeCategory === category
-                    ? 'border-indigo-600 bg-indigo-600 text-white'
-                    : 'border-slate-200 text-slate-600 hover:border-indigo-300 dark:border-slate-700 dark:text-slate-300')
-                }
-              >
-                {category}
-              </button>
-            ))}
+            {FILTERS.map((filter) => {
+              const active = activeFilter === filter.value;
+              return (
+                <button
+                  key={filter.value}
+                  type="button"
+                  onClick={() => chooseFilter(filter.value)}
+                  aria-pressed={active}
+                  className={
+                    'flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-bold transition ' +
+                    (active
+                      ? 'border-indigo-600 bg-indigo-600 text-white'
+                      : 'border-slate-200 text-slate-600 hover:border-indigo-300 dark:border-slate-700 dark:text-slate-300')
+                  }
+                >
+                  {filter.icon}
+                  {isEn ? filter.labelEn : filter.labelZh}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -222,8 +326,9 @@ export function TemplateCenterModal({ isOpen, onClose }: TemplateCenterModalProp
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {visibleTemplates.map(({ template, presentation }) => {
                 const selected = template.id === selectedId;
+                const current = currentTemplateId === template.id;
                 const exactCurrent =
-                  currentTemplateId === template.id && markdown === template.content;
+                  current && markdown === template.content;
 
                 return (
                   <button
@@ -240,20 +345,41 @@ export function TemplateCenterModal({ isOpen, onClose }: TemplateCenterModalProp
                     }
                   >
                     <MiniResumePreview content={template.content} compact />
-                    <div className="mt-2.5 flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <div className="truncate text-[11px] font-black text-slate-800 dark:text-slate-100">
+                    <div className="mt-2.5 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 truncate text-[11px] font-black text-slate-800 dark:text-slate-100">
                           {presentation.name}
                         </div>
-                        <div className="mt-0.5 truncate text-[9px] font-semibold text-slate-400">
-                          {presentation.category}
-                        </div>
+                        {current && (
+                          <span
+                            className={
+                              'shrink-0 rounded-full px-1.5 py-0.5 text-[8px] font-black ' +
+                              (exactCurrent
+                                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400'
+                                : 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400')
+                            }
+                          >
+                            {exactCurrent
+                              ? isEn
+                                ? 'Current'
+                                : '当前'
+                              : isEn
+                                ? 'Current · Edited'
+                                : '当前 · 已编辑'}
+                          </span>
+                        )}
                       </div>
-                      {exactCurrent && (
-                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400">
-                          <Check className="h-3 w-3" />
+                      <p className="mt-1 line-clamp-2 text-[9px] leading-relaxed text-slate-400">
+                        {presentation.description}
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        <span className="rounded-md bg-slate-100 px-1.5 py-0.5 text-[8px] font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                          {presentation.language}
                         </span>
-                      )}
+                        <span className="rounded-md bg-slate-100 px-1.5 py-0.5 text-[8px] font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                          {presentation.experience}
+                        </span>
+                      </div>
                     </div>
                   </button>
                 );
@@ -264,6 +390,7 @@ export function TemplateCenterModal({ isOpen, onClose }: TemplateCenterModalProp
           <div className="min-h-0 bg-slate-50/80 p-5 dark:bg-slate-950/35 sm:p-6 lg:overflow-y-auto">
             <div className="mx-auto max-w-sm">
               <MiniResumePreview content={selectedTemplate.content} />
+
               <div className="mt-5">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="rounded-full bg-indigo-100 px-2.5 py-1 text-[10px] font-bold text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
@@ -272,13 +399,18 @@ export function TemplateCenterModal({ isOpen, onClose }: TemplateCenterModalProp
                   <span className="rounded-full bg-slate-200/70 px-2.5 py-1 text-[10px] font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                     {selectedPresentation.language}
                   </span>
+                  <span className="rounded-full bg-slate-200/70 px-2.5 py-1 text-[10px] font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                    {selectedPresentation.experience}
+                  </span>
                 </div>
+
                 <h3 className="mt-3 text-base font-black text-slate-950 dark:text-white">
                   {selectedPresentation.name}
                 </h3>
                 <p className="mt-1.5 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
                   {selectedPresentation.description}
                 </p>
+
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {selectedPresentation.tags.map((tag) => (
                     <span
@@ -289,18 +421,33 @@ export function TemplateCenterModal({ isOpen, onClose }: TemplateCenterModalProp
                     </span>
                   ))}
                 </div>
+
                 <div className="mt-4 rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900">
                   <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-slate-400">
                     <Sparkles className="h-3.5 w-3.5 text-indigo-500" />
-                    {isEn ? 'Preview structure' : '内容结构预览'}
+                    {isEn ? 'Included sections' : '包含的内容结构'}
                   </div>
                   <div className="mt-2 text-xs font-bold text-slate-800 dark:text-slate-200">
                     {selectedPreview.name}
                   </div>
-                  <div className="mt-1 text-[10px] text-slate-500 dark:text-slate-400">
+                  <div className="mt-1 text-[10px] leading-relaxed text-slate-500 dark:text-slate-400">
                     {selectedPreview.sections.join(' · ')}
                   </div>
                 </div>
+
+                <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50/70 p-3 text-[10px] leading-relaxed text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-300">
+                  <strong>
+                    {isEn ? 'What changes:' : '会变化：'}
+                  </strong>{' '}
+                  {isEn ? 'resume content.' : '简历内容。'}{' '}
+                  <strong>
+                    {isEn ? 'What stays:' : '会保留：'}
+                  </strong>{' '}
+                  {isEn
+                    ? 'your Layout and Style settings.'
+                    : '你的排版和样式设置。'}
+                </div>
+
                 <button
                   type="button"
                   onClick={handleApply}
@@ -314,8 +461,8 @@ export function TemplateCenterModal({ isOpen, onClose }: TemplateCenterModalProp
                     </>
                   ) : (
                     <>
-                      <LayoutGrid className="h-4 w-4" />
-                      {currentTemplateId === selectedTemplate.id
+                      <FileText className="h-4 w-4" />
+                      {isCurrentTemplate
                         ? isEn
                           ? 'Restore template content'
                           : '恢复模板原始内容'

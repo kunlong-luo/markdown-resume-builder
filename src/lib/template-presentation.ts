@@ -1,11 +1,15 @@
 import type { ResumeTemplate } from '../data';
 
+export type TemplateGroup = 'engineering' | 'product' | 'graduate' | 'global';
+
 export interface TemplatePresentation {
   name: string;
   category: string;
   description: string;
   tags: string[];
   language: string;
+  group: TemplateGroup;
+  experience: string;
 }
 
 type TemplatePresentationPair = {
@@ -21,6 +25,8 @@ const TEMPLATE_PRESENTATION: Record<string, TemplatePresentationPair> = {
       description: '突出高并发后端、AI Agent、RAG 与分布式系统项目成果。',
       tags: ['AI / LLM', '后端架构', '资深社招'],
       language: '中文',
+      group: 'engineering',
+      experience: '资深 / 社招',
     },
     en: {
       name: 'AI Backend Developer',
@@ -28,6 +34,8 @@ const TEMPLATE_PRESENTATION: Record<string, TemplatePresentationPair> = {
       description: 'Highlights backend architecture, AI agents, RAG, and distributed systems impact.',
       tags: ['AI / LLM', 'Backend', 'Experienced'],
       language: 'Chinese',
+      group: 'engineering',
+      experience: 'Experienced',
     },
   },
   frontend: {
@@ -37,6 +45,8 @@ const TEMPLATE_PRESENTATION: Record<string, TemplatePresentationPair> = {
       description: '强调 React / TypeScript、AI 应用前端和全栈工程化能力。',
       tags: ['React', 'TypeScript', 'AI 应用'],
       language: '中文',
+      group: 'engineering',
+      experience: '社招',
     },
     en: {
       name: 'AI Frontend Developer',
@@ -44,6 +54,8 @@ const TEMPLATE_PRESENTATION: Record<string, TemplatePresentationPair> = {
       description: 'Focused on React, TypeScript, AI application interfaces, and full-stack delivery.',
       tags: ['React', 'TypeScript', 'AI Apps'],
       language: 'Chinese',
+      group: 'engineering',
+      experience: 'Experienced',
     },
   },
   pm_lead: {
@@ -53,6 +65,8 @@ const TEMPLATE_PRESENTATION: Record<string, TemplatePresentationPair> = {
       description: '兼顾技术理解、产品规划、团队协作与业务结果的管理型模板。',
       tags: ['产品战略', '技术管理', '团队协作'],
       language: '中文',
+      group: 'product',
+      experience: '管理 / 资深',
     },
     en: {
       name: 'Technical PM / Engineering Director',
@@ -60,6 +74,8 @@ const TEMPLATE_PRESENTATION: Record<string, TemplatePresentationPair> = {
       description: 'Balances technical depth, product strategy, leadership, and business outcomes.',
       tags: ['Strategy', 'Leadership', 'Technical PM'],
       language: 'Chinese',
+      group: 'product',
+      experience: 'Leadership',
     },
   },
   operations: {
@@ -69,6 +85,8 @@ const TEMPLATE_PRESENTATION: Record<string, TemplatePresentationPair> = {
       description: '适合增长、活动、内容和商业化运营，强化数据指标与业务影响。',
       tags: ['用户增长', '活动运营', '数据驱动'],
       language: '中文',
+      group: 'product',
+      experience: '社招',
     },
     en: {
       name: 'Product Operations / Growth',
@@ -76,6 +94,8 @@ const TEMPLATE_PRESENTATION: Record<string, TemplatePresentationPair> = {
       description: 'Built for growth, campaigns, content, and monetization with measurable outcomes.',
       tags: ['Growth', 'Operations', 'Metrics'],
       language: 'Chinese',
+      group: 'product',
+      experience: 'Experienced',
     },
   },
   campus: {
@@ -85,6 +105,8 @@ const TEMPLATE_PRESENTATION: Record<string, TemplatePresentationPair> = {
       description: '突出教育背景、实习、项目、竞赛和可迁移技术能力。',
       tags: ['应届生', '实习', '项目经历'],
       language: '中文',
+      group: 'graduate',
+      experience: '应届 / 实习',
     },
     en: {
       name: 'Graduate / Campus Engineering',
@@ -92,6 +114,8 @@ const TEMPLATE_PRESENTATION: Record<string, TemplatePresentationPair> = {
       description: 'Emphasizes education, internships, projects, awards, and transferable engineering skills.',
       tags: ['Graduate', 'Internship', 'Projects'],
       language: 'Chinese',
+      group: 'graduate',
+      experience: 'Graduate',
     },
   },
   english: {
@@ -101,6 +125,8 @@ const TEMPLATE_PRESENTATION: Record<string, TemplatePresentationPair> = {
       description: '英文标准简历结构，强调 impact、技术领导力与国际化表达。',
       tags: ['English CV', 'Global', 'Impact'],
       language: 'English',
+      group: 'global',
+      experience: '海外 / 社招',
     },
     en: {
       name: 'English CV / Global Standard',
@@ -108,6 +134,8 @@ const TEMPLATE_PRESENTATION: Record<string, TemplatePresentationPair> = {
       description: 'A global English CV emphasizing measurable impact, technical leadership, and clarity.',
       tags: ['English CV', 'Global', 'Impact'],
       language: 'English',
+      group: 'global',
+      experience: 'Global',
     },
   },
 };
@@ -128,6 +156,8 @@ export function getTemplatePresentation(
         : '一份可直接编辑使用的简历模板。',
     tags: [],
     language: lang === 'en' ? 'Mixed' : '混合',
+    group: 'engineering',
+    experience: lang === 'en' ? 'General' : '通用',
   };
 }
 

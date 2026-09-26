@@ -51,6 +51,34 @@ test.describe('template center', () => {
     ).toHaveCount(0);
   });
 
+  test('filters templates by job-seeking scenario', async ({ page }) => {
+    await page.goto('/');
+
+    await page
+      .getByRole('button', { name: /Open template library|打开模板库/ })
+      .click();
+
+    const dialog = page.getByRole('dialog', {
+      name: /Choose a content template|选择内容模板/,
+    });
+
+    await dialog.getByRole('button', { name: 'Product & Ops' }).click();
+    await expect(
+      dialog.getByRole('button', { name: 'Technical PM / Engineering Director' }),
+    ).toBeVisible();
+    await expect(
+      dialog.getByRole('button', { name: 'Product Operations / Growth' }),
+    ).toBeVisible();
+    await expect(
+      dialog.getByRole('button', { name: 'AI Frontend Developer' }),
+    ).toHaveCount(0);
+
+    await dialog.getByRole('button', { name: 'Graduate' }).click();
+    await expect(
+      dialog.getByRole('button', { name: 'Graduate / Campus Engineering' }),
+    ).toBeVisible();
+  });
+
   test('previews a template without changing the active resume', async ({ page }) => {
     await page.goto('/');
 
@@ -125,6 +153,56 @@ test.describe('template center', () => {
         page.evaluate(() => window.localStorage.getItem('resume-markdown') || ''),
       )
       .toContain('林智远');
+  });
+
+  test('applies content without changing layout or style', async ({ page }) => {
+    await page.goto('/');
+
+    const toolbar = page.locator('#resume-main-toolbar');
+
+    await toolbar.getByRole('button', { name: 'Layout' }).click();
+    const layoutDialog = page.getByRole('dialog', { name: 'Layout' });
+    await layoutDialog.getByRole('button', { name: /Two columns/ }).click();
+    await layoutDialog.getByRole('button', { name: 'Close Layout' }).click();
+
+    await toolbar.getByRole('button', { name: 'Style' }).click();
+    const styleDialog = page.getByRole('dialog', { name: 'Style' });
+    await styleDialog.getByRole('button', { name: 'Tech & Internet' }).click();
+    await styleDialog.getByRole('button', { name: 'Close Style' }).click();
+
+    await toolbar
+      .getByRole('button', { name: /Open template library|打开模板库/ })
+      .click();
+
+    const templateDialog = page.getByRole('dialog', {
+      name: /Choose a content template|选择内容模板/,
+    });
+    await templateDialog
+      .getByRole('button', { name: 'AI Frontend Developer' })
+      .click();
+    await templateDialog
+      .getByRole('button', { name: /Use content template|使用内容模板/ })
+      .click();
+
+    const confirmDialog = page.getByRole('dialog', {
+      name: /Use this content template\?|使用这个内容模板？/,
+    });
+    await confirmDialog
+      .getByRole('button', { name: /Use content template|使用内容模板/ })
+      .click();
+
+    await toolbar.getByRole('button', { name: 'Layout' }).click();
+    const layoutAfter = page.getByRole('dialog', { name: 'Layout' });
+    await expect(
+      layoutAfter.getByRole('button', { name: /Two columns/ }),
+    ).toHaveAttribute('aria-pressed', 'true');
+    await layoutAfter.getByRole('button', { name: 'Close Layout' }).click();
+
+    await toolbar.getByRole('button', { name: 'Style' }).click();
+    const styleAfter = page.getByRole('dialog', { name: 'Style' });
+    await expect(
+      styleAfter.getByRole('button', { name: 'Tech & Internet' }),
+    ).toHaveAttribute('aria-pressed', 'true');
   });
 
   test('restores toolbar focus when closed with Escape', async ({ page }) => {
