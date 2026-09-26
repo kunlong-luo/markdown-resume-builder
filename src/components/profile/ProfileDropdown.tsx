@@ -8,11 +8,9 @@ import {
   Trash2, 
   Edit2, 
   ExternalLink,
-  LayoutTemplate,
   FilePlus
 } from 'lucide-react';
 import { useResumeStore } from '../../store/useResumeStore';
-import { TEMPLATES } from '../../data';
 import { Tooltip } from '../ui/Tooltip';
 
 interface ProfileDropdownProps {
@@ -30,14 +28,14 @@ export function ProfileDropdown({ lang, isCompact }: ProfileDropdownProps) {
     createProfile,
     renameProfile, 
     deleteProfile,
-    setIsBackupHubOpen
+    setIsBackupHubOpen,
+    setBackupHubTab
   } = useResumeStore();
 
   const [isOpen, setIsOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-  const [showTemplates, setShowTemplates] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -51,7 +49,6 @@ export function ProfileDropdown({ lang, isCompact }: ProfileDropdownProps) {
         setIsOpen(false);
         setEditingId(null);
         setConfirmDeleteId(null);
-        setShowTemplates(false);
       }
     }
     if (isOpen) {
@@ -92,7 +89,7 @@ export function ProfileDropdown({ lang, isCompact }: ProfileDropdownProps) {
     const count = profiles.length + 1;
     const blankMd = `# 姓名\n求职岗位 ｜ 138-0000-0000 ｜ email@example.com\n\n## 个人优势\n- 掌握核心专业技能与工程实践，具备扎实的专业基础与快速学习能力\n\n## 工作经历\n### 科技企业 · 岗位名称  *2022.06 — 至今*\n- **核心业务贡献**：负责核心系统研发与架构优化，主导关键指标达成\n- **性能优化突破**：重构核心模块，使响应耗时降低 40%，系统稳定性达 99.99%\n\n## 教育背景\n### 知名大学 · 本科 ｜ 计算机科学与技术  *2018.09 — 2022.06*\n`;
     const newProfile = createProfile({
-      name: `${isEn ? 'Resume Version' : '简历档案'} ${count}`,
+      name: `${isEn ? 'Resume Version' : '简历版本'} ${count}`,
       targetRole: isEn ? 'New Role' : '求职版',
       markdown: blankMd
     });
@@ -100,24 +97,11 @@ export function ProfileDropdown({ lang, isCompact }: ProfileDropdownProps) {
     setEditName(newProfile.name);
   };
 
-  // 1-Click: Create profile directly from template
-  const handleCreateFromTemplate = (templateId: string) => {
-    const tpl = TEMPLATES.find(t => t.id === templateId);
-    if (!tpl) return;
-    createProfile({
-      name: `${tpl.name}`,
-      targetRole: tpl.category,
-      markdown: tpl.content
-    });
-    setShowTemplates(false);
-    setIsOpen(false);
-  };
-
   return (
     <div className="relative inline-block text-left" ref={dropdownRef}>
       {/* Dropdown Trigger Button */}
       <Tooltip 
-        content={isEn ? 'Switch or duplicate resume profiles' : '多简历档案库：一键切换或复制版本'}
+        content={isEn ? 'Switch or duplicate resume versions' : '切换或复制简历版本'}
         disabled={!isCompact}
       >
         <button
@@ -140,7 +124,7 @@ export function ProfileDropdown({ lang, isCompact }: ProfileDropdownProps) {
 
           <div className="flex items-center gap-1.5 min-w-0 max-w-[130px] sm:max-w-[190px]">
             <span className="truncate text-slate-800 dark:text-slate-100 font-extrabold text-[11px] sm:text-xs">
-              {activeProfile ? activeProfile.name : (isEn ? 'Profiles' : '档案库')}
+              {activeProfile ? activeProfile.name : (isEn ? 'Resume Versions' : '简历版本')}
             </span>
             {activeProfile?.targetRole && !isCompact && (
               <span className="hidden md:inline-block px-1.5 py-0.2 text-[9px] font-bold bg-slate-100 dark:bg-slate-700/80 text-slate-500 dark:text-slate-300 rounded border border-slate-200/60 dark:border-slate-600/60 truncate max-w-[65px]">
@@ -170,7 +154,7 @@ export function ProfileDropdown({ lang, isCompact }: ProfileDropdownProps) {
               <div className="flex items-center gap-1.5">
                 <Layers className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                 <span className="text-xs font-black text-slate-800 dark:text-slate-100">
-                  {isEn ? 'Resume Profiles' : '简历档案库'}
+                  {isEn ? 'Resume Versions' : '简历版本'}
                 </span>
                 <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-slate-200/70 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
                   {profiles.length}
@@ -181,11 +165,12 @@ export function ProfileDropdown({ lang, isCompact }: ProfileDropdownProps) {
                 type="button"
                 onClick={() => {
                   setIsOpen(false);
+                  setBackupHubTab('profiles');
                   setIsBackupHubOpen(true);
                 }}
                 className="text-[11px] font-bold text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center gap-0.5 transition-colors cursor-pointer"
               >
-                <span>{isEn ? 'Manage' : '全景管理'}</span>
+                <span>{isEn ? 'Manage versions' : '管理版本'}</span>
                 <ExternalLink className="w-2.5 h-2.5" />
               </button>
             </div>
@@ -370,38 +355,6 @@ export function ProfileDropdown({ lang, isCompact }: ProfileDropdownProps) {
             })}
           </div>
 
-          {/* Quick Template Picker (1-Click without heavy modal) */}
-          <div className="border-t border-slate-100 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-800/30">
-            <button
-              type="button"
-              onClick={() => setShowTemplates(!showTemplates)}
-              className="w-full px-3 py-2 flex items-center justify-between text-[11px] font-bold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors cursor-pointer"
-            >
-              <div className="flex items-center gap-1.5">
-                <LayoutTemplate className="w-3 h-3 text-purple-500" />
-                <span>{isEn ? 'Fast load from benchmark templates...' : '快速选用标杆模板创建...'}</span>
-              </div>
-              <ChevronDown className={`w-3 h-3 transition-transform ${showTemplates ? 'rotate-180' : ''}`} />
-            </button>
-
-            {showTemplates && (
-              <div className="p-2 pt-0 space-y-1 animate-in fade-in duration-150">
-                {TEMPLATES.slice(0, 4).map(tpl => (
-                  <button
-                    key={tpl.id}
-                    type="button"
-                    onClick={() => handleCreateFromTemplate(tpl.id)}
-                    className="w-full text-left px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 hover:text-indigo-600 dark:hover:text-indigo-300 flex items-center justify-between transition-colors cursor-pointer group"
-                  >
-                    <span className="truncate">{tpl.name}</span>
-                    <span className="text-[9px] px-1 rounded bg-slate-100 dark:bg-slate-750 text-slate-400 group-hover:text-indigo-500 shrink-0">
-                      {tpl.category}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
         </motion.div>
       )}
     </AnimatePresence>
