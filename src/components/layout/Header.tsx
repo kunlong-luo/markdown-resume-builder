@@ -299,10 +299,10 @@ export function Header({
             <button
               type="button"
               onClick={() => setIsShareModalOpen(true)}
-              className="flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-bold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+              aria-label={isEn ? 'Share resume' : '分享简历'}
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
             >
               <Share2 className="w-3.5 h-3.5 text-indigo-500" />
-              <span>{isEn ? 'Share' : '分享'}</span>
             </button>
           </Tooltip>
 
@@ -324,7 +324,7 @@ export function Header({
               }`}
             >
               <ClipboardCheck className="w-3.5 h-3.5 text-indigo-500" />
-              <span>{isEn ? 'Resume Check' : '简历检查'}</span>
+              <span>{isEn ? 'Check' : '检查'}</span>
             </button>
           </Tooltip>
 
@@ -377,7 +377,7 @@ export function Header({
                 className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/70 text-slate-800 dark:text-slate-200 text-xs font-bold transition-all active:scale-95"
               >
                 <ClipboardCheck className="w-4 h-4 text-indigo-500" />
-                <span>{isEn ? 'Resume Check' : '简历检查'}</span>
+                <span>{isEn ? 'Check' : '检查'}</span>
               </button>
 
               <button
@@ -393,7 +393,7 @@ export function Header({
                 className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/70 text-slate-800 dark:text-slate-200 text-xs font-bold transition-all active:scale-95"
               >
                 <Upload className="w-4 h-4 text-indigo-500" />
-                <span>{isEn ? 'Import' : '导入简历'}</span>
+                <span>{isEn ? 'Import' : '导入'}</span>
               </button>
 
               <button
@@ -417,7 +417,7 @@ export function Header({
                 className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/70 text-slate-800 dark:text-slate-200 text-xs font-bold transition-all active:scale-95"
               >
                 <HelpCircle className="w-4 h-4 text-indigo-500" />
-                <span>{isEn ? 'Guide' : '指南与隐私'}</span>
+                <span>{isEn ? 'Help' : '帮助'}</span>
               </button>
 
               {isInstallable && (
