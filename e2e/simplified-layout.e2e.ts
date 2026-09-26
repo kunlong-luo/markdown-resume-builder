@@ -63,8 +63,21 @@ test.describe('simplified workspace actions', () => {
     await page.goto('/');
 
     await expect(page.getByRole('button', { name: 'Share' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Check' })).toBeVisible();
+    const resumeCheck = page.getByRole('button', { name: 'Resume Check' });
+    await expect(resumeCheck).toBeVisible();
     await expect(page.getByRole('button', { name: 'More actions' })).toBeVisible();
+
+    await resumeCheck.click();
+    const checkDialog = page.getByRole('dialog', { name: 'Resume Check' });
+    await expect(checkDialog).toBeVisible();
+    await expect(checkDialog.getByText('Check Results', { exact: true })).toBeVisible();
+    await expect(
+      checkDialog.getByText(
+        'Check resume structure, wording, and ATS readability with local analysis.',
+        { exact: true },
+      ),
+    ).toBeVisible();
+    await page.keyboard.press('Escape');
 
     await expect(
       page.getByRole('button', { name: /^Guide$/ }),

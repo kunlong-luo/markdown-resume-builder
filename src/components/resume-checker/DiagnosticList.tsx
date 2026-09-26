@@ -15,7 +15,7 @@ export function DiagnosticList({ issues, lang }: DiagnosticListProps) {
       {/* Diagnostics Title */}
       <div className="flex items-center justify-between">
         <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-          {isEn ? `Diagnostic Report (${issues.length} items)` : `诊断报告 (${issues.length}项)`}
+          {isEn ? `Check Details (${issues.length} items)` : `检查详情 (${issues.length}项)`}
         </span>
       </div>
 

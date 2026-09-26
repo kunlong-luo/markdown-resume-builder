@@ -117,6 +117,7 @@ export function ResumeChecker(props: ResumeCheckerProps = {}) {
             role="dialog"
             aria-modal="true"
             aria-labelledby="resume-checker-title"
+            aria-describedby="resume-checker-description"
             tabIndex={-1}
             initial={{ opacity: 0, x: '100%' }}
             animate={{ opacity: 1, x: 0 }}
@@ -125,16 +126,23 @@ export function ResumeChecker(props: ResumeCheckerProps = {}) {
             className="fixed sm:absolute top-0 right-0 h-full w-full sm:w-[355px] max-w-full bg-white dark:bg-slate-900 sm:border-l border-slate-200/80 dark:border-slate-800 shadow-2xl z-50 sm:z-40 flex flex-col overflow-hidden transition-colors"
           >
           {/* Header */}
-          <div className="flex items-center justify-between px-5 py-4 bg-slate-50 dark:bg-slate-850 border-b border-slate-200/80 dark:border-slate-800">
-            <div className="flex items-center gap-2">
-              <ClipboardCheck className="w-4.5 h-4.5 text-indigo-600 dark:text-indigo-400" />
-              <h2 id="resume-checker-title" className="text-sm font-bold text-slate-800 dark:text-slate-100 tracking-tight">
-                {isEn ? 'Resume Diagnostic' : '简历诊断'}
-              </h2>
+          <div className="flex items-start justify-between px-5 py-4 bg-slate-50 dark:bg-slate-850 border-b border-slate-200/80 dark:border-slate-800">
+            <div className="flex items-start gap-2">
+              <ClipboardCheck className="mt-0.5 w-4.5 h-4.5 text-indigo-600 dark:text-indigo-400" />
+              <div>
+                <h2 id="resume-checker-title" className="text-sm font-bold text-slate-800 dark:text-slate-100 tracking-tight">
+                  {isEn ? 'Resume Check' : '简历检查'}
+                </h2>
+                <p id="resume-checker-description" className="mt-1 max-w-[250px] text-[10px] leading-relaxed text-slate-500 dark:text-slate-400">
+                  {isEn
+                    ? 'Check resume structure, wording, and ATS readability with local analysis.'
+                    : '检查简历结构、表达和 ATS 可读性，分析过程全部在本地完成。'}
+                </p>
+              </div>
             </div>
             <button
               onClick={onClose}
-              aria-label={isEn ? 'Close resume diagnostic dialog' : '关闭简历诊断弹窗'}
+              aria-label={isEn ? 'Close resume check' : '关闭简历检查'}
               className="p-1 hover:bg-slate-200/60 dark:hover:bg-slate-800 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
             >
               <X className="w-4 h-4" />
@@ -147,7 +155,7 @@ export function ResumeChecker(props: ResumeCheckerProps = {}) {
               onClick={() => setActiveTab('diagnostics')}
               className={`relative flex-1 py-3 text-xs font-bold transition-all cursor-pointer ${activeTab === 'diagnostics' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
             >
-              <span>{isEn ? 'Score & Advice' : '评分建议'}</span>
+              <span>{isEn ? 'Check Results' : '检查结果'}</span>
               {activeTab === 'diagnostics' && (
                 <motion.div
                   layoutId="checkerActiveTabIndicator"
@@ -161,7 +169,7 @@ export function ResumeChecker(props: ResumeCheckerProps = {}) {
               className={`relative flex-1 py-3 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${activeTab === 'verbs' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
             >
               <SpellCheck className="w-3.5 h-3.5 text-indigo-500" />
-              <span>{isEn ? 'Verb Optimization' : '用词优化'}</span>
+              <span>{isEn ? 'Wording' : '用词优化'}</span>
               {matchedWeakWords.length > 0 && (
                 <span className="bg-rose-500 text-white text-[9px] px-1.5 py-0.2 rounded-full font-bold ml-1 scale-90">
                   {matchedWeakWords.length}
@@ -317,8 +325,8 @@ export function ResumeChecker(props: ResumeCheckerProps = {}) {
           {/* Footer Guide */}
           <div className="p-4 bg-slate-50 dark:bg-slate-850 border-t border-slate-200/80 dark:border-slate-800 text-center text-[10px] text-slate-400 dark:text-slate-500 font-medium">
             {isEn 
-              ? '💡 Privacy Guarantee: All audits run in-browser safely.' 
-              : '💡 诊断与优化均在本地运行，不泄露任何隐私'}
+              ? '💡 Resume checks and suggestions run locally in your browser.'
+              : '💡 简历检查和优化均在浏览器本地完成。'}
           </div>
         </motion.div>
         </>
