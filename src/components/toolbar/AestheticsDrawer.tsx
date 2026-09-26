@@ -140,7 +140,7 @@ export function AestheticsDrawer({
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5 shrink-0">
               <div className="flex items-center gap-1.5 font-extrabold text-slate-800 dark:text-white">
                 <Palette className="w-4 h-4 text-indigo-500" />
-                <span>{t.aestheticsLabel}</span>
+                <span>{isEn ? 'Typography & Layout' : '排版与样式'}</span>
               </div>
               <button
                 onClick={onClose}
@@ -360,8 +360,8 @@ export function AestheticsDrawer({
                 </div>
               </div>
 
-              {/* Export File Name on Mobile / Smaller popup widths */}
-              <div className="flex sm:hidden flex-col gap-1.5 bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-750">
+              {/* Export file name */}
+              <div className="flex flex-col gap-1.5 bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-750">
                 <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                   {t.exportNameLabel}
                 </span>
