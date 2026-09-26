@@ -341,7 +341,7 @@ export async function extractResumeTextFromPdf(
         warnings,
       };
     } finally {
-      await pdf.destroy();
+      await loadingTask.destroy();
     }
   } catch (error) {
     if (error instanceof PdfImportError) throw error;
