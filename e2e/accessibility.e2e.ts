@@ -110,17 +110,17 @@ test.describe('keyboard accessibility', () => {
     await expect(resetButton).toBeFocused();
   });
 
-  test('resume diagnostic behaves as a keyboard-managed dialog', async ({ page }) => {
+  test('resume check behaves as a keyboard-managed dialog', async ({ page }) => {
     await page.goto('/');
 
     const diagnosticButton = page.getByRole('button', {
-      name: /^(Check|检查)$/,
+      name: /^(Resume Check|简历检查)$/,
     });
     await diagnosticButton.focus();
     await diagnosticButton.press('Enter');
 
     const dialog = page.getByRole('dialog', {
-      name: /Resume Diagnostic|简历诊断/,
+      name: /Resume Check|简历检查/,
     });
     await expect(dialog).toBeVisible();
 
