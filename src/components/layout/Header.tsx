@@ -171,7 +171,9 @@ export function Header({
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="p-1.5 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
-            aria-label="Menu"
+            aria-label={isEn ? 'Open quick actions menu' : '打开快捷功能菜单'}
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-quick-actions"
           >
             {isMobileMenuOpen ? <X className="w-5 h-5 text-indigo-500" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -399,7 +401,7 @@ export function Header({
       {/* Mobile Drawer Overlay */}
       {isMobileMenuOpen && (
         <div className="md:hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex flex-col justify-end animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 rounded-t-2xl p-4 flex flex-col gap-3 shadow-2xl max-h-[80vh] overflow-y-auto">
+          <div id="mobile-quick-actions" className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 rounded-t-2xl p-4 flex flex-col gap-3 shadow-2xl max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
               <span className="font-extrabold text-sm text-slate-900 dark:text-white">{isEn ? 'Quick Actions' : '快捷功能菜单'}</span>
               <button 
