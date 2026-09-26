@@ -123,10 +123,11 @@ export function SharedResumePage({ sharePayload }: SharedResumePageProps) {
 
           <form onSubmit={handleUnlock} className="space-y-4">
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+              <label htmlFor="shared-resume-password" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                 {isEn ? 'Share password' : '分享密码'}
               </label>
               <input
+                id="shared-resume-password"
                 type="password"
                 placeholder="••••••••"
                 value={passwordInput}

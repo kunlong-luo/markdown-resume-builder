@@ -28,18 +28,54 @@ export function RawTextImportModal({ isOpen, onClose, onImport, lang = 'zh' }: R
   const [selectedFile, setSelectedFile] = useState<LoadedFileInfo | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
   const isEn = lang === 'en';
 
-  // Close on Escape key
+  // Keep keyboard focus inside the modal and restore it to the trigger on close.
   useEffect(() => {
     if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const dialog = dialogRef.current;
+    const firstFocusable = dialog?.querySelector<HTMLElement>(
+      'button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    );
+    firstFocusable?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
         onClose();
+        return;
+      }
+
+      if (event.key !== 'Tab' || !dialog) return;
+
+      const focusable = Array.from(
+        dialog.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((element) => !element.hasAttribute('hidden'));
+
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
       }
     };
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      previouslyFocused?.focus();
+    };
   }, [isOpen, onClose]);
 
   // Reset states when opening/closing
@@ -188,6 +224,10 @@ export function RawTextImportModal({ isOpen, onClose, onImport, lang = 'zh' }: R
 
           {/* Modal Container */}
           <motion.div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="raw-import-title"
             initial={{ opacity: 0, scale: 0.96, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 10 }}
@@ -215,7 +255,7 @@ export function RawTextImportModal({ isOpen, onClose, onImport, lang = 'zh' }: R
                   <FileInput className="w-4.5 h-4.5" />
                 </div>
                 <div>
-                  <h3 className="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                  <h3 id="raw-import-title" className="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
                     <span>{isEn ? 'Import Resume' : '导入简历'}</span>
                     <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800/80">
                       {isEn ? 'Auto Parse' : '智能解析'}
@@ -228,6 +268,7 @@ export function RawTextImportModal({ isOpen, onClose, onImport, lang = 'zh' }: R
               </div>
               <button
                 onClick={onClose}
+                aria-label={isEn ? 'Close import dialog' : '关闭导入弹窗'}
                 className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
                 title={isEn ? 'Close (Esc)' : '关闭 (Esc)'}
               >
