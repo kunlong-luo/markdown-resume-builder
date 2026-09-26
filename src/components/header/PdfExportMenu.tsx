@@ -106,6 +106,7 @@ export function PdfExportMenu({
           </div>
           <button
             type="button"
+            aria-label="ATS PDF"
             onClick={() => {
               setIsOpen(false);
               onExportAts();
@@ -128,6 +129,7 @@ export function PdfExportMenu({
           {onExportQuick && (
             <button
               type="button"
+              aria-label={isEn ? 'Quick PDF' : '快速 PDF'}
               onClick={() => {
                 setIsOpen(false);
                 onExportQuick();
