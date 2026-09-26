@@ -120,6 +120,12 @@ test.describe('critical resume flows', () => {
     expect(shareUrl).toContain('#share=');
     expect(shareUrl).not.toContain(password);
 
+    await page.keyboard.press('Escape');
+    await page.getByRole('button', { name: /分享简历|Share resume/ }).click();
+    await expect(page.locator('#generated-share-link')).toHaveCount(0);
+    await expect(page.locator('#share-password')).toHaveValue('');
+    await page.keyboard.press('Escape');
+
     await page.goto('about:blank');
     await page.goto(shareUrl);
 
