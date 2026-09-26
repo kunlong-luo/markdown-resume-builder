@@ -91,7 +91,7 @@ export const en: TranslationSchema = {
       nameLabel: 'Full Name',
       namePlaceholder: 'e.g., John Doe',
       phoneLabel: 'Phone Number',
-      phonePlaceholder: 'e.g., +1 (123) 456-7890',
+      phonePlaceholder: 'e.g., +1 415 555 0123',
       emailLabel: 'Email Address',
       emailPlaceholder: 'e.g., john.doe@email.com',
       wechatLabel: 'WeChat',
