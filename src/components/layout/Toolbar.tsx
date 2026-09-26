@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Sliders, ChevronDown, Zap } from 'lucide-react';
+import { ChevronDown, Palette, SlidersHorizontal, Zap } from 'lucide-react';
 import { useResumeStore } from '../../store/useResumeStore';
 import { smartAutoFit } from '../../lib/preview-utils';
 import { Tooltip } from '../ui/Tooltip';
@@ -7,7 +7,8 @@ import { TOOLBAR_TRANSLATIONS } from '../toolbar/toolbar-presets';
 import { LanguageToggle } from '../toolbar/LanguageToggle';
 import { ToolbarSelectors } from '../toolbar/ToolbarSelectors';
 import { LayoutModeToggle } from '../toolbar/LayoutModeToggle';
-import { AestheticsDrawer } from '../toolbar/AestheticsDrawer';
+import { LayoutDrawer } from '../toolbar/LayoutDrawer';
+import { StyleDrawer } from '../toolbar/StyleDrawer';
 import { TemplateCenterModal } from '../templates/TemplateCenterModal';
 import { trackAnalyticsEvent } from '../../lib/analytics';
 
@@ -15,32 +16,16 @@ export function Toolbar() {
   const {
     settings,
     updateSetting,
-    markdown,
-    customFileName,
   } = useResumeStore();
 
   const isEn = settings.lang === 'en';
   const t = isEn ? TOOLBAR_TRANSLATIONS.en : TOOLBAR_TRANSLATIONS.zh;
 
-  const [isAestheticsOpen, setIsAestheticsOpen] = useState(false);
+  const [isLayoutOpen, setIsLayoutOpen] = useState(false);
+  const [isStyleOpen, setIsStyleOpen] = useState(false);
   const [isTemplateCenterOpen, setIsTemplateCenterOpen] = useState(false);
-  const aestheticsTriggerRef = useRef<HTMLButtonElement>(null);
-
-  const getExportTitle = () => {
-    if (customFileName.trim()) {
-      return customFileName.trim().replace(/[\\\/:*?"<>|]/g, '-');
-    }
-    const firstLine = markdown.trim().split('\n')[0];
-    if (firstLine && firstLine.startsWith('# ')) {
-      const parsedName = firstLine.replace('# ', '').trim();
-      if (parsedName) {
-        return parsedName.replace(/[\\\/:*?"<>|]/g, '-');
-      }
-    }
-    return 'resume';
-  };
-
-  const exportTitle = getExportTitle();
+  const layoutTriggerRef = useRef<HTMLButtonElement>(null);
+  const styleTriggerRef = useRef<HTMLButtonElement>(null);
 
   return (
     <div id="resume-main-toolbar" className="flex items-center justify-between px-2.5 sm:px-6 py-1.5 sm:py-2 bg-white/80 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/90 relative z-20 gap-2 sm:gap-3 shadow-[0_1px_2px_rgba(15,23,42,0.02)] dark:shadow-[0_2px_8px_rgba(0,0,0,0.3)] w-full transition-colors duration-200">
@@ -68,40 +53,57 @@ export function Toolbar() {
           </button>
         </Tooltip>
 
-        {/* Aesthetics Panel Toggle Button */}
-        <Tooltip content={t.aestheticsTooltip}>
+        <Tooltip content={isEn ? 'Layout, typography, margins, and spacing' : '版面、字体、边距和间距'}>
           <button
-            ref={aestheticsTriggerRef}
-            onClick={() => setIsAestheticsOpen((prev) => !prev)}
+            ref={layoutTriggerRef}
+            onClick={() => {
+              setIsLayoutOpen((open) => !open);
+              setIsStyleOpen(false);
+            }}
             className={`flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all cursor-pointer shrink-0 active:translate-y-px ${
-              isAestheticsOpen
+              isLayoutOpen
                 ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20'
                 : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200/90 dark:border-slate-700 shadow-2xs hover:bg-slate-50 dark:hover:bg-slate-750 hover:border-slate-300 dark:hover:border-slate-600'
             }`}
           >
-            <Sliders
-              className={`w-3.5 h-3.5 shrink-0 transition-transform ${
-                isAestheticsOpen ? 'rotate-90 text-white' : 'text-indigo-500'
-              }`}
-            />
-            <span>{isEn ? 'Typography' : '排版'}</span>
-            <ChevronDown
-              className={`w-3 h-3 shrink-0 ml-0.5 transition-transform duration-200 ${
-                isAestheticsOpen ? 'rotate-180' : ''
-              }`}
-            />
+            <SlidersHorizontal className={`w-3.5 h-3.5 shrink-0 ${isLayoutOpen ? 'text-white' : 'text-indigo-500'}`} />
+            <span>{isEn ? 'Layout' : '排版'}</span>
+            <ChevronDown className={`w-3 h-3 shrink-0 ml-0.5 transition-transform duration-200 ${isLayoutOpen ? 'rotate-180' : ''}`} />
+          </button>
+        </Tooltip>
+
+        <Tooltip content={isEn ? 'Colors, headings, and visual decoration' : '颜色、标题和视觉装饰'}>
+          <button
+            ref={styleTriggerRef}
+            onClick={() => {
+              setIsStyleOpen((open) => !open);
+              setIsLayoutOpen(false);
+            }}
+            className={`flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all cursor-pointer shrink-0 active:translate-y-px ${
+              isStyleOpen
+                ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20'
+                : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200/90 dark:border-slate-700 shadow-2xs hover:bg-slate-50 dark:hover:bg-slate-750 hover:border-slate-300 dark:hover:border-slate-600'
+            }`}
+          >
+            <Palette className={`w-3.5 h-3.5 shrink-0 ${isStyleOpen ? 'text-white' : 'text-indigo-500'}`} />
+            <span>{isEn ? 'Style' : '样式'}</span>
+            <ChevronDown className={`w-3 h-3 shrink-0 ml-0.5 transition-transform duration-200 ${isStyleOpen ? 'rotate-180' : ''}`} />
           </button>
         </Tooltip>
 
         {/* Layout Mode Toggle Group */}
         <LayoutModeToggle />
 
-        {/* Aesthetics Drawer Modal via Portal */}
-        <AestheticsDrawer
-          isOpen={isAestheticsOpen}
-          onClose={() => setIsAestheticsOpen(false)}
-          triggerRef={aestheticsTriggerRef}
-          exportTitle={exportTitle}
+        <LayoutDrawer
+          isOpen={isLayoutOpen}
+          onClose={() => setIsLayoutOpen(false)}
+          triggerRef={layoutTriggerRef}
+        />
+
+        <StyleDrawer
+          isOpen={isStyleOpen}
+          onClose={() => setIsStyleOpen(false)}
+          triggerRef={styleTriggerRef}
         />
 
         <TemplateCenterModal
