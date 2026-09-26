@@ -32,6 +32,25 @@ test.describe('template center', () => {
     ).toHaveCount(0);
   });
 
+  test('keeps resume management separate from template selection', async ({ page }) => {
+    await page.goto('/');
+
+    await page.locator('button[aria-controls="resume-profile-panel"]').click();
+
+    const profilePanel = page.locator('#resume-profile-panel');
+    await expect(profilePanel).toBeVisible();
+    await expect(profilePanel.getByText(/My resumes|我的简历/, { exact: true })).toBeVisible();
+    await expect(
+      profilePanel.getByRole('button', { name: /New blank|新建空白/ }),
+    ).toBeVisible();
+    await expect(
+      profilePanel.getByText(/Fast load from benchmark templates|快速选用标杆模板创建/),
+    ).toHaveCount(0);
+    await expect(
+      profilePanel.getByRole('button', { name: /AI Frontend Developer|AI 前端工程师/ }),
+    ).toHaveCount(0);
+  });
+
   test('previews a template without changing the active resume', async ({ page }) => {
     await page.goto('/');
 
@@ -44,7 +63,7 @@ test.describe('template center', () => {
       .click();
 
     const dialog = page.getByRole('dialog', {
-      name: /Choose a resume template|选择简历模板/,
+      name: /Choose a content template|选择内容模板/,
     });
     await expect(dialog).toBeVisible();
 
@@ -75,7 +94,7 @@ test.describe('template center', () => {
       .click();
 
     const dialog = page.getByRole('dialog', {
-      name: /Choose a resume template|选择简历模板/,
+      name: /Choose a content template|选择内容模板/,
     });
 
     await dialog
@@ -86,17 +105,17 @@ test.describe('template center', () => {
 
     await dialog
       .getByRole('button', {
-        name: /Apply this template|应用此模板/,
+        name: /Use content template|使用内容模板/,
       })
       .click();
 
     const confirmDialog = page.getByRole('dialog', {
-      name: /Apply this template\?|应用这个模板？/,
+      name: /Use this content template\?|使用这个内容模板？/,
     });
     await expect(confirmDialog).toBeVisible();
 
     await confirmDialog
-      .getByRole('button', { name: /Apply template|应用模板/ })
+      .getByRole('button', { name: /Use content template|使用内容模板/ })
       .click();
 
     await expect(dialog).toBeHidden();
@@ -118,7 +137,7 @@ test.describe('template center', () => {
     await trigger.press('Enter');
 
     const dialog = page.getByRole('dialog', {
-      name: /Choose a resume template|选择简历模板/,
+      name: /Choose a content template|选择内容模板/,
     });
     await expect(dialog).toBeVisible();
 
