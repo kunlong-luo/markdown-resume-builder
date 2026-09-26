@@ -46,7 +46,7 @@ export function ProfilesTab({ lang, showToast }: ProfilesTabProps) {
     const count = profiles.length + 1;
     const blankMd = `# 姓名\n求职岗位 ｜ 138-0000-0000 ｜ email@example.com\n\n## 个人优势\n- 掌握核心专业技能与工程实践，具备扎实的专业基础与快速学习能力\n\n## 工作经历\n### 科技企业 · 岗位名称  *2022.06 — 至今*\n- **核心业务贡献**：负责核心系统研发与架构优化，主导关键指标达成\n\n## 教育背景\n### 知名大学 · 本科 ｜ 计算机专业  *2018.09 — 2022.06*\n`;
     const newProfile = createProfile({
-      name: `${isEn ? 'Resume Version' : '简历档案'} ${count}`,
+      name: `${isEn ? 'Resume Version' : '简历版本'} ${count}`,
       targetRole: isEn ? 'New Role' : '求职版',
       markdown: blankMd
     });
@@ -62,7 +62,7 @@ export function ProfilesTab({ lang, showToast }: ProfilesTabProps) {
   const handleSaveEdit = (id: string) => {
     if (editName.trim()) {
       renameProfile(id, editName.trim(), editRole.trim() || undefined);
-      showToast(isEn ? 'Profile updated' : '简历档案信息已更新');
+      showToast(isEn ? 'Profile updated' : '简历版本信息已更新');
     }
     setEditingId(null);
   };
@@ -71,19 +71,19 @@ export function ProfilesTab({ lang, showToast }: ProfilesTabProps) {
 
   const handleDelete = async (id: string, name: string) => {
     if (profiles.length <= 1) {
-      showToast(isEn ? 'Cannot delete the only remaining profile' : '至少需要保留一份简历档案，无法删除', true);
+      showToast(isEn ? 'Cannot delete the only remaining profile' : '至少需要保留一个简历版本，无法删除', true);
       return;
     }
     const confirmed = await confirm({
-      title: isEn ? 'Delete Profile' : '确认删除档案',
-      message: isEn ? `Are you sure you want to delete profile "${name}"?` : `确定要删除简历档案「${name}」吗？此操作无法撤销。`,
+      title: isEn ? 'Delete Profile' : '确认删除版本',
+      message: isEn ? `Are you sure you want to delete profile "${name}"?` : `确定要删除简历版本「${name}」吗？此操作无法撤销。`,
       confirmText: isEn ? 'Delete' : '确认删除',
       cancelText: isEn ? 'Cancel' : '取消',
       type: 'danger'
     });
     if (confirmed) {
       deleteProfile(id);
-      showToast(isEn ? 'Profile deleted' : '档案已删除');
+      showToast(isEn ? 'Profile deleted' : '版本已删除');
     }
   };
 
@@ -104,20 +104,20 @@ export function ProfilesTab({ lang, showToast }: ProfilesTabProps) {
             <Layers className="w-4 h-4" />
           </span>
           <h4 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
-            {isEn ? 'Resume Profiles' : '简历档案库'}
+            {isEn ? 'Resume Versions' : '简历版本'}
           </h4>
           <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700/80">
             {profiles.length}
           </span>
         </div>
 
-        <Tooltip content={isEn ? 'Create a brand new blank resume profile' : '新建一份空白简历档案'}>
+        <Tooltip content={isEn ? 'Create a brand new blank resume profile' : '新建一个空白简历版本'}>
           <button
             onClick={handleFastBlank}
             className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer active:scale-95"
           >
             <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-            <span>{isEn ? 'New Profile' : '新建档案'}</span>
+            <span>{isEn ? 'New Version' : '新建版本'}</span>
           </button>
         </Tooltip>
       </div>
@@ -166,7 +166,7 @@ export function ProfilesTab({ lang, showToast }: ProfilesTabProps) {
                             if (e.key === 'Enter') handleSaveEdit(p.id);
                             if (e.key === 'Escape') setEditingId(null);
                           }}
-                          placeholder={isEn ? 'Profile name' : '档案名称'}
+                          placeholder={isEn ? 'Version name' : '版本名称'}
                           className="w-full text-xs font-bold px-2.5 py-1 bg-white dark:bg-slate-900 border border-indigo-400 rounded-lg text-slate-800 dark:text-slate-100 focus:outline-none"
                           autoFocus
                         />
@@ -264,7 +264,7 @@ export function ProfilesTab({ lang, showToast }: ProfilesTabProps) {
                     </button>
                   </Tooltip>
 
-                  <Tooltip content={isEn ? 'Rename profile' : '重命名档案'}>
+                  <Tooltip content={isEn ? 'Rename profile' : '重命名版本'}>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -277,7 +277,7 @@ export function ProfilesTab({ lang, showToast }: ProfilesTabProps) {
                   </Tooltip>
 
                   {!isActive && (
-                    <Tooltip content={isEn ? 'Compare with active profile' : '与当前档案进行双向内容对比'}>
+                    <Tooltip content={isEn ? 'Compare with active profile' : '与当前版本进行内容对比'}>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -291,7 +291,7 @@ export function ProfilesTab({ lang, showToast }: ProfilesTabProps) {
                   )}
 
                   {profiles.length > 1 && (
-                    <Tooltip content={isEn ? 'Delete profile' : '删除此档案'}>
+                    <Tooltip content={isEn ? 'Delete profile' : '删除此版本'}>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -318,7 +318,7 @@ export function ProfilesTab({ lang, showToast }: ProfilesTabProps) {
             <Plus className="w-5 h-5 stroke-[2.5]" />
           </div>
           <span className="mt-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-            {isEn ? 'Create Blank Profile' : '创建空白简历档案'}
+            {isEn ? 'Create Blank Version' : '创建空白简历版本'}
           </span>
         </button>
       </div>
@@ -331,7 +331,7 @@ export function ProfilesTab({ lang, showToast }: ProfilesTabProps) {
               <div className="flex items-center gap-2">
                 <GitCompare className="w-4 h-4 text-purple-600" />
                 <h4 className="font-extrabold text-sm text-slate-800 dark:text-slate-100">
-                  {isEn ? 'Profile Comparison' : '档案内容双向对比'}
+                  {isEn ? 'Version Comparison' : '简历版本对比'}
                 </h4>
               </div>
               <button
