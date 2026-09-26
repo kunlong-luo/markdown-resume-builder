@@ -217,8 +217,8 @@ export function TemplateCenterModal({ isOpen, onClose }: TemplateCenterModalProp
           </div>
         </div>
 
-        <div className="grid min-h-0 flex-1 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
-          <div className="min-h-0 overflow-y-auto border-b border-slate-200 p-4 dark:border-slate-800 sm:p-5 lg:border-b-0 lg:border-r">
+        <div className="grid min-h-0 flex-1 overflow-y-auto lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)] lg:overflow-hidden">
+          <div className="min-h-0 border-b border-slate-200 p-4 dark:border-slate-800 sm:p-5 lg:overflow-y-auto lg:border-b-0 lg:border-r">
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {visibleTemplates.map(({ template, presentation }) => {
                 const selected = template.id === selectedId;
@@ -261,7 +261,7 @@ export function TemplateCenterModal({ isOpen, onClose }: TemplateCenterModalProp
             </div>
           </div>
 
-          <div className="min-h-0 overflow-y-auto bg-slate-50/80 p-5 dark:bg-slate-950/35 sm:p-6">
+          <div className="min-h-0 bg-slate-50/80 p-5 dark:bg-slate-950/35 sm:p-6 lg:overflow-y-auto">
             <div className="mx-auto max-w-sm">
               <MiniResumePreview content={selectedTemplate.content} />
               <div className="mt-5">
