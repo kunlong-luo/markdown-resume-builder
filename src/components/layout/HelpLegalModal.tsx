@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   X, 
@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { useResumeStore } from '../../store/useResumeStore';
 import { trackAnalyticsEvent } from '../../lib/analytics';
+import { useDialogFocus } from '../../hooks/useDialogFocus';
 
 function GithubIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
@@ -39,12 +40,20 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
   const isEn = lang === 'en';
 
   const [activeTab, setActiveTab] = useState<'guide' | 'privacy' | 'license'>('guide');
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useDialogFocus({ isOpen, dialogRef, onClose });
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div 
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="help-legal-title"
+        aria-describedby="help-legal-description"
+        tabIndex={-1}
         className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden text-slate-800 dark:text-slate-200 transform transition-all duration-200"
         onClick={(e) => e.stopPropagation()}
       >
@@ -55,13 +64,13 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
               <HelpCircle className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              <h2 id="help-legal-title" className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <span>{isEn ? 'User Guide' : '使用指南'}</span>
                 <span className="px-2 py-0.5 text-[10px] font-extrabold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/60 rounded-full">
                   v2.0
                 </span>
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+              <p id="help-legal-description" className="text-xs text-slate-500 dark:text-slate-400">
                 {isEn ? 'Usage tips & privacy info' : '使用技巧与本地数据隐私说明'}
               </p>
             </div>
@@ -70,6 +79,7 @@ export function HelpLegalModal({ isOpen, onClose }: HelpLegalModalProps) {
             onClick={onClose}
             className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
             title={isEn ? 'Close' : '关闭'}
+            aria-label={isEn ? 'Close user guide dialog' : '关闭使用指南弹窗'}
           >
             <X className="w-5 h-5" />
           </button>
