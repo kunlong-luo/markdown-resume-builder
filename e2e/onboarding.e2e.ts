@@ -72,7 +72,7 @@ test.describe('first-run onboarding', () => {
 
     await page.getByRole('button', { name: /More actions|更多操作/ }).click();
     await page
-      .getByRole('button', { name: /Guide & privacy|指南与隐私/ })
+      .getByRole('button', { name: /^(Help|帮助)$/ })
       .click();
 
     await expect(
@@ -154,7 +154,7 @@ test.describe('first-run onboarding', () => {
 
     await page.getByRole('button', { name: /More actions|更多操作/ }).click();
     await page
-      .getByRole('button', { name: /Guide & privacy|指南与隐私/ })
+      .getByRole('button', { name: /^(Help|帮助)$/ })
       .click();
     await page
       .getByRole('button', {
