@@ -15,6 +15,8 @@ export const STORAGE_KEYS = {
   JD_TEXT: 'resume-jd-text',
   CUSTOM_FILE_NAME: 'resume-custom-filename',
   CHECKER_STATE: 'resume-checker-state',
+  ONBOARDING_FIRST_VISIT: 'resume-onboarding-first-visit',
+  ONBOARDING_COMPLETE: 'resume-onboarding-v1-complete',
 } as const;
 
 export const STORAGE_HEALTH_EVENT = 'resume-craft:storage-health';
