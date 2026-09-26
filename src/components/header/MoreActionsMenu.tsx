@@ -54,7 +54,6 @@ export function MoreActionsMenu({
         type="button"
         onClick={() => setIsOpen((value) => !value)}
         aria-label={isEn ? 'More actions' : '更多操作'}
-        aria-haspopup="menu"
         aria-expanded={isOpen}
         className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white"
       >
@@ -62,7 +61,7 @@ export function MoreActionsMenu({
       </button>
 
       {isOpen && (
-        <div role="menu" className="absolute right-0 top-full z-[100] mt-2 w-56 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-xl dark:border-slate-700 dark:bg-slate-900">
+        <div className="absolute right-0 top-full z-[100] mt-2 w-56 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-xl dark:border-slate-700 dark:bg-slate-900">
           <button type="button" onClick={action(onImport)} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
             <Upload className="h-4 w-4 text-indigo-500" />
             {isEn ? 'Import resume' : '导入简历'}
