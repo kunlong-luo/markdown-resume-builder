@@ -70,8 +70,8 @@ export function PdfExportMenu({
             : compact
               ? 'PDF'
               : isEn
-                ? 'Download PDF'
-                : '下载 PDF'}
+                ? 'Download'
+                : '下载'}
         </span>
       </button>
 
@@ -106,6 +106,7 @@ export function PdfExportMenu({
           </div>
           <button
             type="button"
+            aria-label="ATS PDF"
             onClick={() => {
               setIsOpen(false);
               onExportAts();
@@ -115,7 +116,7 @@ export function PdfExportMenu({
             <Printer className="mt-0.5 h-4 w-4 shrink-0 text-indigo-500" />
             <span>
               <span className="block text-xs font-black text-slate-800 dark:text-slate-100">
-                {isEn ? 'ATS PDF · Recommended' : 'ATS PDF · 推荐'}
+                {isEn ? 'ATS PDF' : 'ATS PDF'}
               </span>
               <span className="mt-0.5 block text-[10px] leading-relaxed text-slate-500 dark:text-slate-400">
                 {isEn
@@ -128,6 +129,7 @@ export function PdfExportMenu({
           {onExportQuick && (
             <button
               type="button"
+              aria-label={isEn ? 'Quick PDF' : '快速 PDF'}
               onClick={() => {
                 setIsOpen(false);
                 onExportQuick();
@@ -137,7 +139,7 @@ export function PdfExportMenu({
               <FileDown className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
               <span>
                 <span className="block text-xs font-black text-slate-800 dark:text-slate-100">
-                  {isEn ? 'Quick PDF · Image' : '快速 PDF · 图片型'}
+                  {isEn ? 'Quick PDF' : '快速 PDF'}
                 </span>
                 <span className="mt-0.5 block text-[10px] leading-relaxed text-slate-500 dark:text-slate-400">
                   {isEn

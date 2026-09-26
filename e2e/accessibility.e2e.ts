@@ -12,7 +12,7 @@ test.describe('keyboard accessibility', () => {
   }) => {
     await page.goto('/');
 
-    const shareButton = page.getByRole('button', { name: /^(分享|Share)$/ });
+    const shareButton = page.getByRole('button', { name: /分享简历|Share resume/ });
     await expect(shareButton).toBeVisible();
     await shareButton.focus();
     await expect(shareButton).toBeFocused();
@@ -43,7 +43,7 @@ test.describe('keyboard accessibility', () => {
     await moreButton.focus();
     await moreButton.press('Enter');
     await page
-      .getByRole('button', { name: /Import resume|导入简历/ })
+      .getByRole('button', { name: /^(Import|导入)$/ })
       .click();
 
     const dialog = page.getByRole('dialog', {
@@ -69,7 +69,7 @@ test.describe('keyboard accessibility', () => {
     await moreButton.focus();
     await moreButton.press('Enter');
     await page
-      .getByRole('button', { name: /Guide & privacy|指南与隐私/ })
+      .getByRole('button', { name: /^(Help|帮助)$/ })
       .click();
 
     const dialog = page.getByRole('dialog', {
@@ -114,7 +114,7 @@ test.describe('keyboard accessibility', () => {
     await page.goto('/');
 
     const diagnosticButton = page.getByRole('button', {
-      name: /^(Resume Check|简历检查)$/,
+      name: /^(Check|检查)$/,
     });
     await diagnosticButton.focus();
     await diagnosticButton.press('Enter');

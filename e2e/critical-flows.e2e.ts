@@ -79,7 +79,7 @@ test.describe('critical resume flows', () => {
     });
 
     const atsButton = page.getByRole('button', {
-      name: /Download PDF|下载 PDF/,
+      name: /Download|下载/,
     }).first();
 
     await expect(atsButton).toBeVisible();
@@ -103,10 +103,12 @@ test.describe('critical resume flows', () => {
   }) => {
     await page.goto('/');
 
-    await page.getByRole('button', { name: /^(分享|Share)$/ }).click();
-    await expect(
-      page.getByRole('dialog', { name: /分享简历|Share resume/ }),
-    ).toBeVisible();
+    await page.getByRole('button', { name: /分享简历|Share resume/ }).click();
+    const shareDialog = page.getByRole('dialog', { name: /分享简历|Share resume/ });
+    await expect(shareDialog).toBeVisible();
+    await expect
+      .poll(() => shareDialog.evaluate((element) => element.closest('header') === null))
+      .toBe(true);
 
     const password = 'E2E-share-password!42';
     await page.locator('#share-password').fill(password);
@@ -117,6 +119,15 @@ test.describe('critical resume flows', () => {
     const shareUrl = await generatedLink.inputValue();
     expect(shareUrl).toContain('#share=');
     expect(shareUrl).not.toContain(password);
+
+    await page.keyboard.press('Escape');
+    await expect(shareDialog).toBeHidden();
+
+    await page.getByRole('button', { name: /分享简历|Share resume/ }).click();
+    await expect(page.locator('#generated-share-link')).toHaveCount(0);
+    await expect(page.locator('#share-password')).toHaveValue('');
+    await page.keyboard.press('Escape');
+    await expect(shareDialog).toBeHidden();
 
     await page.goto('about:blank');
     await page.goto(shareUrl);

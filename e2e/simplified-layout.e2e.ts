@@ -21,7 +21,7 @@ test.describe('simplified workspace actions', () => {
     ).toBeVisible();
     await expect(toolbar.getByRole('button', { name: 'Layout' })).toBeVisible();
     await expect(toolbar.getByRole('button', { name: 'Style' })).toBeVisible();
-    await expect(toolbar.getByRole('button', { name: 'Fit 1 Page' })).toBeVisible();
+    await expect(toolbar.getByRole('button', { name: 'Fit Page' })).toBeVisible();
     await expect(toolbar.getByRole('button', { name: 'Edit' })).toBeVisible();
     await expect(toolbar.getByRole('button', { name: 'Split' })).toBeVisible();
     await expect(toolbar.getByRole('button', { name: 'Preview' })).toBeVisible();
@@ -82,7 +82,7 @@ test.describe('simplified workspace actions', () => {
   test('uses one PDF download action with ATS and Quick choices', async ({ page }) => {
     await page.goto('/');
 
-    const download = page.getByRole('button', { name: 'Download PDF' }).first();
+    const download = page.getByRole('button', { name: 'Download' }).first();
     await expect(download).toBeVisible();
 
     await expect(
@@ -98,18 +98,18 @@ test.describe('simplified workspace actions', () => {
 
     await expect(page.getByText('PDF file name', { exact: true })).toBeVisible();
     await expect(
-      page.getByRole('button', { name: /ATS PDF · Recommended/ }),
+      page.getByRole('button', { name: /^ATS PDF$/ }),
     ).toBeVisible();
     await expect(
-      page.getByRole('button', { name: /Quick PDF · Image/ }),
+      page.getByRole('button', { name: /^Quick PDF$/ }),
     ).toBeVisible();
   });
 
   test('moves lower-frequency actions into More', async ({ page }) => {
     await page.goto('/');
 
-    await expect(page.getByRole('button', { name: 'Share' })).toBeVisible();
-    const resumeCheck = page.getByRole('button', { name: 'Resume Check' });
+    await expect(page.getByRole('button', { name: 'Share resume' })).toBeVisible();
+    const resumeCheck = page.getByRole('button', { name: 'Check' });
     await expect(resumeCheck).toBeVisible();
     await expect(page.getByRole('button', { name: 'More actions' })).toBeVisible();
 
@@ -135,7 +135,7 @@ test.describe('simplified workspace actions', () => {
     await page.getByRole('button', { name: 'More actions' }).click();
 
     await expect(
-      page.getByRole('button', { name: 'Import resume' }),
+      page.getByRole('button', { name: 'Import' }),
     ).toBeVisible();
     await expect(
       page.getByRole('button', { name: 'Export Markdown' }),
@@ -144,7 +144,7 @@ test.describe('simplified workspace actions', () => {
       page.getByRole('button', { name: 'Versions & backup' }),
     ).toHaveCount(0);
     await expect(
-      page.getByRole('button', { name: 'Guide & privacy' }),
+      page.getByRole('button', { name: 'Help' }),
     ).toBeVisible();
 
     await page.keyboard.press('Escape');

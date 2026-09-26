@@ -12,7 +12,7 @@ test.describe('product state flows', () => {
 
     await page.getByRole('button', { name: /More actions|更多操作/ }).click();
     await page
-      .getByRole('button', { name: /Import resume|导入简历/ })
+      .getByRole('button', { name: /^(Import|导入)$/ })
       .click();
 
     await expect(

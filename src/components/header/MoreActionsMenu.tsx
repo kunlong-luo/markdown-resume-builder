@@ -62,7 +62,7 @@ export function MoreActionsMenu({
         <div className="absolute right-0 top-full z-[100] mt-2 w-56 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-xl dark:border-slate-700 dark:bg-slate-900">
           <button type="button" onClick={action(onImport)} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
             <Upload className="h-4 w-4 text-indigo-500" />
-            {isEn ? 'Import resume' : '导入简历'}
+            {isEn ? 'Import' : '导入'}
           </button>
           <button type="button" onClick={action(onExportMarkdown)} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
             <Download className="h-4 w-4 text-slate-500" />
@@ -70,7 +70,7 @@ export function MoreActionsMenu({
           </button>
           <button type="button" onClick={action(onOpenGuide)} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
             <HelpCircle className="h-4 w-4 text-indigo-500" />
-            {isEn ? 'Guide & privacy' : '指南与隐私'}
+            {isEn ? 'Help' : '帮助'}
           </button>
           {isInstallable && (
             <button type="button" onClick={action(onInstall)} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-emerald-700 transition hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/40">
