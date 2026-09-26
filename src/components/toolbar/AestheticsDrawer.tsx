@@ -2,14 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Palette, Check } from 'lucide-react';
-import { FontSize, PaperMargin, FontFamily, H2Style } from '../../types';
+import { FontSize, PaperMargin, FontFamily, H2Style, ResumeSettings, TemplateLayout } from '../../types';
 import { useResumeStore } from '../../store/useResumeStore';
 import { CustomSelect, SelectOption } from '../ui/CustomSelect';
 import { CustomSlider } from '../ui/CustomSlider';
 import { CustomColorPicker } from '../ui/CustomColorPicker';
 import {
+  MASTER_PRESETS,
   THEME_COLOR_PALETTES,
-  TOOLBAR_TRANSLATIONS
+  TOOLBAR_TRANSLATIONS,
+  findMatchingPresetId
 } from './toolbar-presets';
 
 interface AestheticsDrawerProps {
@@ -28,6 +30,7 @@ export function AestheticsDrawer({
   const {
     settings,
     updateSetting,
+    updateSettings,
     customFileName,
     setCustomFileName
   } = useResumeStore();
@@ -36,6 +39,7 @@ export function AestheticsDrawer({
   const t = isEn ? TOOLBAR_TRANSLATIONS.en : TOOLBAR_TRANSLATIONS.zh;
 
   const [panelCoords, setPanelCoords] = useState<{ top: number; right: number } | null>(null);
+  const [selectedPresetId, setSelectedPresetId] = useState('tech');
 
   const updatePanelPosition = () => {
     if (!triggerRef.current) return;
@@ -60,6 +64,33 @@ export function AestheticsDrawer({
       window.removeEventListener('scroll', handleResizeOrScroll, true);
     };
   }, [isOpen]);
+
+  const currentPreset = findMatchingPresetId(settings, selectedPresetId);
+
+  const presetOptions: SelectOption[] = [
+    { value: 'custom', label: t.customStyle },
+    ...MASTER_PRESETS.map((preset) => ({
+      value: preset.id,
+      label: isEn ? preset.nameEn : preset.name,
+    })),
+  ];
+
+  const layoutOptions: SelectOption[] = [
+    { value: 'single', label: t.layoutSingle },
+    { value: 'two-column', label: t.layoutDouble },
+    { value: 'academic', label: t.layoutAcademic },
+    { value: 'modern-card', label: t.layoutModernCard },
+  ];
+
+  const handlePresetChange = (presetId: string) => {
+    setSelectedPresetId(presetId);
+    if (presetId === 'custom') return;
+
+    const preset = MASTER_PRESETS.find((item) => item.id === presetId);
+    if (preset) {
+      updateSettings(preset.settings as Partial<ResumeSettings>);
+    }
+  };
 
   const fontFamilyOptions: SelectOption[] = [
     { value: 'sans', label: t.fontSans },
@@ -109,7 +140,7 @@ export function AestheticsDrawer({
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5 shrink-0">
               <div className="flex items-center gap-1.5 font-extrabold text-slate-800 dark:text-white">
                 <Palette className="w-4 h-4 text-indigo-500" />
-                <span>{t.aestheticsLabel}</span>
+                <span>{isEn ? 'Typography & Layout' : '排版与样式'}</span>
               </div>
               <button
                 onClick={onClose}
@@ -121,7 +152,36 @@ export function AestheticsDrawer({
 
             {/* Single smooth scroll area with distinct structural hierarchy */}
             <div className="space-y-4">
-              {/* 1. Visual Accent & Colors */}
+              {/* 1. Preset & layout */}
+              <div className="grid grid-cols-2 gap-3 rounded-xl border border-slate-100 bg-slate-50/80 p-3 dark:border-slate-750 dark:bg-slate-800/60">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                    {isEn ? 'Style preset' : '风格预设'}
+                  </label>
+                  <CustomSelect
+                    value={currentPreset}
+                    onChange={handlePresetChange}
+                    options={presetOptions}
+                    size="sm"
+                    triggerClassName="w-full bg-white dark:bg-slate-800 border-slate-200/90 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-lg px-2.5 py-1 text-xs"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                    {isEn ? 'Page layout' : '版面结构'}
+                  </label>
+                  <CustomSelect
+                    value={settings.templateLayout}
+                    onChange={(value) => updateSetting('templateLayout', value as TemplateLayout)}
+                    options={layoutOptions}
+                    size="sm"
+                    triggerClassName="w-full bg-white dark:bg-slate-800 border-slate-200/90 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-lg px-2.5 py-1 text-xs"
+                  />
+                </div>
+              </div>
+
+              {/* 2. Visual Accent & Colors */}
               <div className="space-y-1.5">
                 <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                   {t.visualLabel}
@@ -187,7 +247,7 @@ export function AestheticsDrawer({
                 </div>
               </div>
 
-              {/* 2. Fonts and Font Size */}
+              {/* 3. Fonts and Font Size */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
@@ -224,7 +284,7 @@ export function AestheticsDrawer({
                 </div>
               </div>
 
-              {/* 3. Margins & Title Style */}
+              {/* 4. Margins & Title Style */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
@@ -261,7 +321,7 @@ export function AestheticsDrawer({
                 </div>
               </div>
 
-              {/* 4. Layout Aids */}
+              {/* 5. Layout Aids */}
               <div className="space-y-1.5">
                 <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                   {t.layoutAids}
@@ -300,8 +360,8 @@ export function AestheticsDrawer({
                 </div>
               </div>
 
-              {/* Export File Name on Mobile / Smaller popup widths */}
-              <div className="flex sm:hidden flex-col gap-1.5 bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-750">
+              {/* Export file name */}
+              <div className="flex flex-col gap-1.5 bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-750">
                 <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                   {t.exportNameLabel}
                 </span>
@@ -314,7 +374,7 @@ export function AestheticsDrawer({
                 />
               </div>
 
-              {/* 5. Fine Spacing Adjustments */}
+              {/* 6. Fine Spacing Adjustments */}
               <div className="space-y-3 bg-slate-50/80 dark:bg-slate-800/60 p-3.5 rounded-xl border border-slate-100 dark:border-slate-750">
                 <div className="flex items-center justify-between">
                   <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">

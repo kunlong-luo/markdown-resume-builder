@@ -4,7 +4,6 @@ import {
   Database, 
   Upload, 
   Download, 
-  FileDown, 
   Loader2, 
   Moon, 
   Sun, 
@@ -13,7 +12,6 @@ import {
   DownloadCloud,
   Menu,
   X,
-  Printer,
   Share2
 } from 'lucide-react';
 import { useResumeStore } from '../../store/useResumeStore';
@@ -22,6 +20,8 @@ import { ProfileDropdown } from '../profile/ProfileDropdown';
 import { Tooltip } from '../ui';
 import { usePWAInstall } from '../../hooks/usePWAInstall';
 import { trackAnalyticsEvent } from '../../lib/analytics';
+import { PdfExportMenu } from '../header/PdfExportMenu';
+import { MoreActionsMenu } from '../header/MoreActionsMenu';
 
 const RawTextImportModal = React.lazy(() => import('../modals/RawTextImportModal').then(m => ({ default: m.RawTextImportModal })));
 const ShareResumeModal = React.lazy(() => import('../share/ShareResumeModal').then(m => ({ default: m.ShareResumeModal })));
@@ -166,14 +166,14 @@ export function Header({
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <button
-            onClick={() => handleTriggerExport()}
-            disabled={isExportingPDF}
-            className="flex items-center gap-1 px-3 py-1 rounded-lg bg-indigo-600 text-white text-xs font-bold active:scale-95 transition-all shadow-xs"
-          >
-            {isExportingPDF ? <Loader2 className="w-3 h-3 animate-spin" /> : <Printer className="w-3 h-3" />}
-            <span>ATS PDF</span>
-          </button>
+          <PdfExportMenu
+            isEn={isEn}
+            isExporting={isExportingPDF}
+            progress={pdfExportProgress}
+            onExportAts={handleTriggerExport}
+            onExportQuick={handleExportDirectPDF ? handleQuickPdfExport : undefined}
+            compact
+          />
 
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -260,148 +260,73 @@ export function Header({
           )}
         </div>
         
-        <div className="flex items-center gap-2 justify-end shrink-0">
-          {/* Studio Dark Mode Toggle */}
-          <Tooltip content={`${isEn ? 'Theme' : '切换主题'}: ${themeLabel}`} side="bottom">
+        <div className="flex items-center gap-1.5 justify-end shrink-0">
+          <Tooltip content={`${isEn ? 'Theme' : '主题'}: ${themeLabel}`} side="bottom">
             <button
+              type="button"
               onClick={(e) => toggleThemeMode(e)}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 active:scale-95 ${
+              aria-label={`${isEn ? 'Theme' : '主题'}: ${themeLabel}`}
+              className={`flex h-8 w-8 items-center justify-center rounded-lg border text-xs font-bold transition-all cursor-pointer shrink-0 active:scale-95 ${
                 themeMode === 'dark'
-                  ? 'bg-indigo-950/60 border border-indigo-700/60 text-indigo-300 shadow-[inset_0_1px_2px_rgba(0,0,0,0.3)]'
-                  : themeMode === 'system'
-                    ? 'tactile-btn tactile-btn-hover tactile-btn-active text-indigo-600 dark:text-indigo-400'
-                    : 'tactile-btn tactile-btn-hover tactile-btn-active text-slate-700 dark:text-slate-200'
+                  ? 'border-indigo-700/60 bg-indigo-950/60 text-indigo-300'
+                  : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
               }`}
             >
               {themeMode === 'dark' ? (
-                <Moon key="dark" className="w-3.5 h-3.5 text-indigo-400 shrink-0 animate-theme-icon" />
+                <Moon className="w-3.5 h-3.5 text-indigo-400" />
               ) : themeMode === 'system' ? (
-                <Laptop key="system" className="w-3.5 h-3.5 text-indigo-500 shrink-0 animate-theme-icon" />
+                <Laptop className="w-3.5 h-3.5 text-indigo-500" />
               ) : (
-                <Sun key="light" className="w-3.5 h-3.5 text-amber-500 shrink-0 animate-theme-icon" />
+                <Sun className="w-3.5 h-3.5 text-amber-500" />
               )}
-              <span>{themeLabel}</span>
             </button>
           </Tooltip>
 
           <Tooltip content={isEn ? 'Share resume' : '分享简历'} side="bottom">
             <button
+              type="button"
               onClick={() => setIsShareModalOpen(true)}
-              className="flex items-center gap-1 px-2.5 py-1.5 tactile-btn tactile-btn-hover tactile-btn-active text-slate-700 dark:text-slate-200 text-xs font-bold rounded-lg cursor-pointer whitespace-nowrap shrink-0 transition-all"
+              className="flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-bold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
             >
-              <Share2 className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+              <Share2 className="w-3.5 h-3.5 text-indigo-500" />
               <span>{isEn ? 'Share' : '分享'}</span>
             </button>
           </Tooltip>
 
-          {/* Help & Legal Center Button */}
-          <Tooltip content={isEn ? 'User Guide & Privacy Policy' : '使用指南与隐私说明'} side="bottom">
+          <Tooltip content={isEn ? 'ATS resume check' : 'ATS 简历检查'} side="bottom">
             <button
-              onClick={() => setIsHelpLegalOpen(true)}
-              className="flex items-center gap-1 px-2.5 py-1.5 tactile-btn tactile-btn-hover tactile-btn-active text-slate-700 dark:text-slate-200 text-xs font-bold rounded-lg cursor-pointer whitespace-nowrap shrink-0 transition-all"
-            >
-              <HelpCircle className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-              <span>{isEn ? 'Guide' : '指南'}</span>
-            </button>
-          </Tooltip>
-
-          {/* PWA Install Button */}
-          {isInstallable && (
-            <Tooltip content={isEn ? 'Install as Desktop / Mobile App' : '安装为桌面或手机独立应用'} side="bottom">
-              <button
-                onClick={handleInstallApp}
-                className="flex items-center gap-1 px-2.5 py-1.5 bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold rounded-lg cursor-pointer whitespace-nowrap shrink-0 transition-all active:scale-95"
-              >
-                <DownloadCloud className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                <span>{isEn ? 'Install App' : '安装应用'}</span>
-              </button>
-            </Tooltip>
-          )}
-
-          {/* Diagnostic Button */}
-          <Tooltip content={isEn ? 'ATS Diagnostic & Optimization' : '简历诊断与智能评分'} side="bottom">
-            <button
+              type="button"
               onClick={() => setIsCheckerOpen(!isCheckerOpen)}
-              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
-                isCheckerOpen 
-                  ? 'bg-indigo-50 dark:bg-indigo-950/70 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 shadow-inner' 
-                  : 'tactile-btn tactile-btn-hover tactile-btn-active text-slate-700 dark:text-slate-200'
+              className={`flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-bold transition ${
+                isCheckerOpen
+                  ? 'border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-indigo-800 dark:bg-indigo-950/70 dark:text-indigo-300'
+                  : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700'
               }`}
             >
-              <ClipboardCheck className={`w-3.5 h-3.5 shrink-0 ${isCheckerOpen ? 'text-indigo-600 dark:text-indigo-400' : 'text-indigo-500'}`} />
-              <span>{isEn ? 'Diagnostic' : '诊断'}</span>
+              <ClipboardCheck className="w-3.5 h-3.5 text-indigo-500" />
+              <span>{isEn ? 'Check' : '检查'}</span>
             </button>
           </Tooltip>
 
-          <div className="w-px h-5 bg-slate-200/80 dark:bg-slate-800 shrink-0" />
+          <PdfExportMenu
+            isEn={isEn}
+            isExporting={isExportingPDF}
+            progress={pdfExportProgress}
+            onExportAts={handleTriggerExport}
+            onExportQuick={handleExportDirectPDF ? handleQuickPdfExport : undefined}
+          />
 
-          {/* Unified Import & Export Actions */}
-          <div className="flex items-center border border-slate-200/90 dark:border-slate-700 rounded-lg overflow-hidden bg-white dark:bg-slate-800 shadow-2xs shrink-0">
-            <Tooltip content={isEn ? 'Import Markdown file or paste text' : '导入文件或提取文本'} side="bottom">
-              <button
-                onClick={() => setIsRawTextModalOpen(true)}
-                className="flex items-center gap-1 px-2.5 py-1.5 hover:bg-indigo-50/60 dark:hover:bg-indigo-950/60 text-slate-700 dark:text-slate-200 text-xs font-semibold cursor-pointer border-r border-slate-200/90 dark:border-slate-700 transition-all select-none whitespace-nowrap"
-              >
-                <Upload className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-                <span>{isEn ? 'Import' : '导入'}</span>
-              </button>
-            </Tooltip>
-
-            <Tooltip content={isEn ? 'Export raw Markdown file (.md)' : '导出 Markdown 源码 (.md)'} side="bottom">
-              <button
-                onClick={handleExportMarkdown}
-                className="flex items-center gap-1 px-2.5 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-200 text-xs font-semibold transition-all cursor-pointer whitespace-nowrap"
-              >
-                <Download className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
-                <span>{isEn ? 'Export' : '导出'}</span>
-              </button>
-            </Tooltip>
-          </div>
-
-          {/* ATS-first PDF export with a raster fallback option */}
-          <div className="flex items-center gap-1.5 shrink-0">
-            {handleExportDirectPDF && (
-              <Tooltip
-                content={isEn
-                  ? 'Quick PDF: image-based download for visual sharing; browser print is recommended for ATS submissions'
-                  : '快速 PDF：图片型下载，适合视觉分享；正式投递建议使用 ATS PDF'}
-                side="bottom"
-              >
-                <button
-                  onClick={handleQuickPdfExport}
-                  disabled={isExportingPDF}
-                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg tactile-btn tactile-btn-hover tactile-btn-active text-slate-600 dark:text-slate-300 text-xs font-semibold disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer whitespace-nowrap"
-                >
-                  <FileDown className="w-3.5 h-3.5 shrink-0" />
-                  <span>{isEn ? 'Quick PDF' : '快速 PDF'}</span>
-                </button>
-              </Tooltip>
-            )}
-
-            <Tooltip
-              content={isEn
-                ? 'ATS PDF (recommended): use browser print / Save as PDF to preserve searchable text'
-                : 'ATS PDF（推荐）：使用浏览器打印 / 另存为 PDF，尽量保留可搜索文本'}
-              side="bottom"
-            >
-              <button
-                onClick={handleTriggerExport}
-                disabled={isExportingPDF}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 active:scale-95 text-white text-xs font-bold transition-all shadow-md shadow-indigo-500/20 disabled:opacity-75 disabled:cursor-not-allowed cursor-pointer whitespace-nowrap"
-              >
-                {isExportingPDF ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0 text-white" />
-                ) : (
-                  <Printer className="w-3.5 h-3.5 text-white shrink-0" />
-                )}
-                <span>
-                  {isExportingPDF
-                    ? (pdfExportProgress || (isEn ? 'Exporting...' : '生成中...'))
-                    : 'ATS PDF'}
-                </span>
-              </button>
-            </Tooltip>
-          </div>
+          <MoreActionsMenu
+            isEn={isEn}
+            isInstallable={isInstallable}
+            onImport={() => setIsRawTextModalOpen(true)}
+            onExportMarkdown={handleExportMarkdown}
+            onOpenVersions={() => setIsBackupHubOpen(true)}
+            onOpenGuide={() => setIsHelpLegalOpen(true)}
+            onInstall={() => {
+              void handleInstallApp();
+            }}
+          />
         </div>
       </div>
 
@@ -433,7 +358,7 @@ export function Header({
                 className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/70 text-slate-800 dark:text-slate-200 text-xs font-bold transition-all active:scale-95"
               >
                 <ClipboardCheck className="w-4 h-4 text-indigo-500" />
-                <span>{isEn ? 'ATS Check' : 'ATS 简历自检'}</span>
+                <span>{isEn ? 'Check' : '简历检查'}</span>
               </button>
 
               <button
@@ -449,7 +374,7 @@ export function Header({
                 className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/70 text-slate-800 dark:text-slate-200 text-xs font-bold transition-all active:scale-95"
               >
                 <Upload className="w-4 h-4 text-indigo-500" />
-                <span>{isEn ? 'Import' : '导入/提取文本'}</span>
+                <span>{isEn ? 'Import' : '导入简历'}</span>
               </button>
 
               <button
@@ -457,7 +382,7 @@ export function Header({
                 className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/70 text-slate-800 dark:text-slate-200 text-xs font-bold transition-all active:scale-95"
               >
                 <Download className="w-4 h-4 text-slate-500" />
-                <span>{isEn ? 'Export' : '导出'}</span>
+                <span>{isEn ? 'Markdown' : 'Markdown'}</span>
               </button>
 
               <button
@@ -473,19 +398,8 @@ export function Header({
                 className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/70 text-slate-800 dark:text-slate-200 text-xs font-bold transition-all active:scale-95"
               >
                 <HelpCircle className="w-4 h-4 text-indigo-500" />
-                <span>{isEn ? 'Help' : '使用帮助与隐私'}</span>
+                <span>{isEn ? 'Guide' : '指南与隐私'}</span>
               </button>
-
-              {handleExportDirectPDF && (
-                <button
-                  onClick={() => { handleQuickPdfExport(); setIsMobileMenuOpen(false); }}
-                  disabled={isExportingPDF}
-                  className="col-span-2 flex items-center justify-center gap-2 p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all active:scale-95 disabled:opacity-60"
-                >
-                  <FileDown className="w-4 h-4 text-slate-500" />
-                  <span>{isEn ? 'Quick PDF (image-based)' : '快速 PDF（图片型）'}</span>
-                </button>
-              )}
 
               {isInstallable && (
                 <button
@@ -493,7 +407,7 @@ export function Header({
                   className="col-span-2 flex items-center justify-center gap-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-bold transition-all active:scale-95"
                 >
                   <DownloadCloud className="w-4 h-4 text-emerald-500 animate-bounce" />
-                  <span>{isEn ? 'Install App' : '安装 Resume Craft 应用'}</span>
+                  <span>{isEn ? 'Install' : '安装应用'}</span>
                 </button>
               )}
             </div>

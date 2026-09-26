@@ -42,8 +42,8 @@ export function OnboardingTour({ isOpen, onClose }: OnboardingTourProps) {
       {
         title: isEn ? 'Step 2 · Adjust layout and tools here' : '第二步 · 在这里调整排版与工具',
         body: isEn
-          ? 'Use the toolbar for templates, layout, Auto Fit, visual settings, and other resume controls.'
-          : '顶部工具栏可以切换模板、调整布局、使用一键适纸和视觉样式等功能。',
+          ? 'Use the toolbar for templates, one-click Auto Fit, Typography, and view controls.'
+          : '顶部工具栏现在集中为模板库、智能单页、排版和视图控制。',
       },
       {
         title: isEn ? 'Step 3 · How would you like to start?' : '第三步 · 你想从哪里开始？',

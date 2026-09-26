@@ -37,13 +37,14 @@ test.describe('keyboard accessibility', () => {
   test('import dialog restores keyboard focus after Escape', async ({ page }) => {
     await page.goto('/');
 
-    const importButton = page
-      .locator('button:visible')
-      .filter({ hasText: /^(Import|导入)$/ })
-      .first();
-    await expect(importButton).toBeVisible();
-    await importButton.focus();
-    await importButton.press('Enter');
+    const moreButton = page.getByRole('button', {
+      name: /More actions|更多操作/,
+    });
+    await moreButton.focus();
+    await moreButton.press('Enter');
+    await page
+      .getByRole('button', { name: /Import resume|导入简历/ })
+      .click();
 
     const dialog = page.getByRole('dialog', {
       name: /Import Resume|导入简历/,
@@ -57,14 +58,19 @@ test.describe('keyboard accessibility', () => {
 
     await page.keyboard.press('Escape');
     await expect(dialog).toBeHidden();
-    await expect(importButton).toBeFocused();
+    await expect(moreButton).toBeFocused();
   });
   test('help dialog restores trigger focus after Escape', async ({ page }) => {
     await page.goto('/');
 
-    const guideButton = page.getByRole('button', { name: /^(Guide|指南)$/ });
-    await guideButton.focus();
-    await guideButton.press('Enter');
+    const moreButton = page.getByRole('button', {
+      name: /More actions|更多操作/,
+    });
+    await moreButton.focus();
+    await moreButton.press('Enter');
+    await page
+      .getByRole('button', { name: /Guide & privacy|指南与隐私/ })
+      .click();
 
     const dialog = page.getByRole('dialog', {
       name: /User Guide|使用指南/,
@@ -78,7 +84,7 @@ test.describe('keyboard accessibility', () => {
 
     await page.keyboard.press('Escape');
     await expect(dialog).toBeHidden();
-    await expect(guideButton).toBeFocused();
+    await expect(moreButton).toBeFocused();
   });
 
   test('confirmation dialog traps focus and restores the reset button', async ({ page }) => {
@@ -108,7 +114,7 @@ test.describe('keyboard accessibility', () => {
     await page.goto('/');
 
     const diagnosticButton = page.getByRole('button', {
-      name: /^(Diagnostic|诊断)$/,
+      name: /^(Check|检查)$/,
     });
     await diagnosticButton.focus();
     await diagnosticButton.press('Enter');
